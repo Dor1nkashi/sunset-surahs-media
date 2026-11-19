@@ -262,3 +262,10 @@ export function bendReach(p, side, target, pole, k = 1) {
   }
   reach(p, side, target, pole, k);
 }
+// clear instanced scatter (rocks, shrubs, ground cover) from a circle so cameras can stand there (set-up only, once)
+export function clearScatter(group, cx, cz, r) {
+  const M4 = new THREE.Matrix4(), P = V3(), Z = new THREE.Matrix4().makeScale(0, 0, 0);
+  group.traverse((o) => { if (!o.isInstancedMesh) return; let n = 0;
+    for (let i = 0; i < o.count; i++) { o.getMatrixAt(i, M4); P.setFromMatrixPosition(M4); if (Math.hypot(P.x - cx, P.z - cz) < r) { o.setMatrixAt(i, Z); n++; } }
+    if (n) { o.instanceMatrix.needsUpdate = true; o.computeBoundingSphere(); } });
+}
