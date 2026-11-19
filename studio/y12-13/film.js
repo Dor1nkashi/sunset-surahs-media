@@ -51,7 +51,7 @@ function aimSun(t) {
 
 async function build() {
   SET = await canaan_hills({ time: 'day', olives: 12 });
-  ST = W.stage(SET); hAt = SET.props.terrain.heightAt; h0 = SET.props.house.position.y;
+  ST = W.stage(SET); hAt = SET.props.terrain.heightAt; h0 = SET.props.house.position.y; OBJ.n0 = SET.group.children.length;
   const g = SET.group, pl = await K.mats.planks();
   // the reed awning: four posts, two beams, a reed mat with one gap
   const reed = await W.pbr('reed_roof_03', { tile: 1.4, res: 1024, side: THREE.DoubleSide });
@@ -213,11 +213,17 @@ M.film({
     MOTES.visible = SHAFT.visible;
     if (s.t0 === 12.81) SET.scene.backgroundRotation.y = SET.scene.environmentRotation.y + 0.04 * pr(t, 12.81, 14.14); else SET.scene.backgroundRotation.y = SET.scene.environmentRotation.y;
     let cam = s.cam ? s.cam(t) : K.camAt(s, t);
-    if (DBG.bisect) { cam = SHOTS[2].a; const k = Math.floor(t);
-      const sets = [[], ['mat'], ['rug'], ['rings', 'water'], ['jar'], ['shaft', 'motes'], ['tree', 'yq'], ['sky']];
-      for (const n of Object.keys(OBJ)) OBJ[n].visible = true; SHAFT.visible = MOTES.visible = true; TREE.object3d.visible = true;
-      for (const n of sets[k] || []) { if (OBJ[n]) OBJ[n].visible = false; if (n === 'shaft') SHAFT.visible = false; if (n === 'motes') MOTES.visible = false; if (n === 'tree') TREE.object3d.visible = false; if (n === 'yq') P.yq.object3d.visible = false; }
-      if (k === 7) SET.scene.traverse((o) => { if (o.isInstancedMesh && o !== MOTES) o.visible = false; });
+    if (DBG.bisect) { cam = SHOTS[2].a; const k = Math.floor(t), ch = SET.group.children, n0 = OBJ.n0, n1 = ch.length;
+      ch.forEach((o, i) => { o.visible = true; });
+      const mid = n0 + Math.floor((n1 - n0) / 2);
+      if (k === 1) ch.forEach((o, i) => { if (i >= n0) o.visible = false; });            // all of mine hidden
+      if (k === 2) ch.forEach((o, i) => { if (i >= n0 && i < mid) o.visible = false; });
+      if (k === 3) ch.forEach((o, i) => { if (i >= mid) o.visible = false; });
+      if (k === 4) ch.forEach((o, i) => { if (i < n0 / 2) o.visible = false; });        // first half of the set's own
+      if (k === 5) ch.forEach((o, i) => { if (i >= n0 / 2 && i < n0) o.visible = false; });
+      if (k === 6) { SET.scene.fog = null; }
+      if (k === 7) ST.set.exposure = 1;
+      console.log('dbg', k, n0, n1, mid);
     }
     G.renderSet(ctx, ST, t, u, { cam, exposure: 0.72 });
     K.vignette(ctx, 0.3);
