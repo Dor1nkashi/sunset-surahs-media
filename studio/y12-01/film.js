@@ -95,6 +95,11 @@ M.film({
     const lamp = clayLamp(5, 1.6); lamp.scale.setScalar(1.25); lamp.position.set(-0.05, 0.035, -3.0); lamp.rotation.y = 2.4; roof.add(lamp);
     const sm1 = smoke(); sm1.position.set(-0.05 + Math.sin(2.4) * 0.11, 0.09, -3.0 + Math.cos(2.4) * 0.11); roof.add(sm1);
     K.roof = { lamp, smoke: sm1, lampW: [-0.05, R + 0.08, -3.0], matW: [-1.3, R, -2.3], staffW: [1.85, R + 1.0, -5.9] };
+    P.fire.visible = false;                                                       // the fire has burned down to embers
+    { const ex = 7.2, ez = -4.5, ey = hy(ex, ez) + 0.1, cm = new THREE.MeshStandardMaterial({ color: 0x1a120c, emissive: 0xff4a10, emissiveIntensity: 1.2, roughness: 1 });
+      const coal = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(0.05, 1), cm, 40), r = mulberry32(17), Mx = new THREE.Matrix4();
+      for (let i = 0; i < 40; i++) { const a = r() * 6.28, d = Math.sqrt(r()) * 0.32; Mx.compose(V3(ex + Math.cos(a) * d, ey + r() * 0.03, ez + Math.sin(a) * d), new THREE.Quaternion().setFromEuler(new THREE.Euler(r() * 3, r() * 3, 0)), V3(1 + r(), 0.6 + r() * 0.5, 1 + r())); coal.setMatrixAt(i, Mx); }
+      sc.add(coal); const EL = new THREE.PointLight(0xff6a20, 4, 7, 1.6); EL.position.set(ex, ey + 0.35, ez); sc.add(EL); K.embers = { cm, EL }; }
     // ---- the brothers asleep around the embers of the fire (bedrolls radial to the pit)
     const FP = [7.2, -4.5], cols = [0x7a3a22, 0x5a6030, 0x3a3634, 0x9a7034, 0x6a2a1c, 0x4a5a3a, 0x2e2c2a, 0x8a6a3a, 0x5a3424, 0x6a6a52];
     K.sleepers = [];
@@ -146,14 +151,14 @@ M.film({
       replay: { pos: [0.1, R + 1.1, -2.2], look: far([0.1, R + 1.1, -2.2], [EC[0], EC[1] - 0.08, EC[2]]), fov: fv(56) },
       bowCloseA: { pos: [0.1, R + 1.1, -2.2], look: far([0.1, R + 1.1, -2.2], EC), fov: fv(40) },
       bowCloseB: { pos: [0.1, R + 1.1, -2.2], look: far([0.1, R + 1.1, -2.2], EC), fov: fv(33) },
-      warnA: { pos: [1.4, R + 1.3, -3.6], look: [7.2, hy(7.2, -4.5) + 0.3, -4.6], fov: fv(44) },
-      warnB: { pos: [1.9, R + 1.3, -3.75], look: [7.2, hy(7.2, -4.5) + 0.2, -4.6], fov: fv(38) },
-      panA: { pos: [3.0, R + 1.25, -3.2], look: [2.4, R + 0.3, -4.2], fov: fv(40) },
-      panB: { pos: [3.0, R + 1.25, -3.2], look: [7.2, hy(7.2, -4.5), -4.5], fov: fv(40) },
-      bedA: { pos: G0(3.2, -6.4, 0.95), look: [7.6, hy(7.6, -3.4) + 0.05, -3.4], fov: fv(44) },
-      bedB: { pos: G0(3.8, -6.0, 0.85), look: [7.6, hy(7.6, -3.4) + 0.05, -3.4], fov: fv(40) },
+      warnA: { pos: [1.6, R + 2.0, -2.6], look: [3.3, R + 0.7, -4.3], fov: fv(44) },
+      warnB: { pos: [1.75, R + 1.95, -2.7], look: [3.3, R + 0.75, -4.3], fov: fv(38) },
+      panA: { pos: [1.75, R + 1.95, -2.7], look: [3.3, R + 0.75, -4.3], fov: fv(38) },
+      panB: { pos: [2.2, R + 2.0, -2.9], look: [7.2, hy(7.2, -4.5), -4.5], fov: fv(40) },
+      bedA: { pos: G0(9.6, -1.0, 1.7), look: [6.6, hy(6.6, -4.9), -4.9], fov: fv(46) },
+      bedB: { pos: G0(9.2, -1.6, 1.5), look: [6.8, hy(6.8, -4.9), -4.9], fov: fv(42) },
       door: { pos: [0.5, h0 + 1.35, 2.3], look: [0, h0 + 1.0, -0.8], fov: fv(38) },
-      lampOut: { pos: [-0.05 + 0.32, R + 0.2, -3.0 + 0.36], look: [-0.05, R + 0.08, -3.0], fov: fv(30) },
+      lampOut: { pos: [-0.05 + 0.55, R + 0.36, -3.0 + 0.62], look: [-0.05, R + 0.12, -3.0], fov: fv(30) },
       latchA: { pos: [GC[0] + nrm[0] * 1.7 + nrm[1] * 0.4, K.gate.y + 1.45, GC[1] + nrm[1] * 1.7 - nrm[0] * 0.4], look: [GC[0] + nrm[1] * (gw / 2 - 0.3), K.gate.y + 1.0, GC[1] - nrm[0] * (gw / 2 - 0.3)], fov: fv(40) },
       niche: { pos: [1.15 + 0.18, h0 + 1.62, -0.44 + 0.62], look: [1.15, h0 + 1.53, -0.44], fov: fv(34) },
     };
@@ -184,7 +189,7 @@ M.film({
     const dawn = lerp(0.35, 1.1, sm(prog(t, 4.0, 30)));                         // the band of first light in the east grows all film
     sky.sunD.value.set(0.52, -0.06, -0.85).normalize(); sky.sunC.value.setRGB(1.0 * dawn, 0.58 * dawn, 0.22 * dawn); sky.glow.value = 1.0; sky.sunDisc.value = 2.0;
     sky.moonD.value.set(-0.93, 0.2, -0.3).normalize(); sky.moonOn.value = 1;
-    expo = dreamOp > 0 ? 1.25 : t > 29.42 ? 0.7 : 0.88;
+    expo = dreamOp > 0 ? 1.25 : t > 29.42 ? 0.62 : t > 23.43 ? 0.72 : 0.58;
     // the roof lamp burns all night and goes out when its oil runs dry (shot 12); smoke rises after
     const tOut = 26.35, kRoof = 1 - sm((t - tOut) / 0.75);
     K.roof.lamp.userData.set(t, kRoof * (0.92 + 0.08 * Math.sin(t * 7.3)), 0.05 * Math.sin(t * 2.3));
@@ -192,6 +197,7 @@ M.film({
     // the niche lamp: a draught bends the flame, it steadies (last shot)
     const gust = Math.exp(-((t - 30.0) ** 2) / 0.25);
     K.niche.userData.set(t, 1 - 0.25 * gust, 0.45 * gust * Math.sin(Math.min(1, (t - 29.4) / 1.2) * Math.PI));
+    K.embers.cm.emissiveIntensity = 1.0 + 0.25 * Math.sin(t * 1.7) + 0.1 * Math.sin(t * 5.3); K.embers.EL.intensity = 3.5 + 0.8 * Math.sin(t * 1.7);
     // sleepers breathe; one turns over at 21.6
     K.sleepers.forEach((s, i) => { const b = s.userData, br = Math.sin((t * b.rate) * Math.PI * 2 + b.ph);
       b.body.scale.y = 1 + 0.035 * br; b.body.scale.x = 1 + 0.012 * br;
