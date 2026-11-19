@@ -21,7 +21,7 @@ const BRO = [[-1.4, -10.9], [-0.7, -10.5], [0.0, -11.0], [0.7, -10.6], [1.4, -11
 const YSTOP = -18.0;
 
 // the sun comes from the gate side (+z), low, and sinks a little through the film: shadows lengthen toward the dais
-function sunDir(t) { const e = (18 - 6 * sm(t, 15, 22)) * Math.PI / 180, a = 0.0; return V3(Math.sin(a) * Math.cos(e), Math.sin(e), Math.cos(a) * Math.cos(e)); }
+function sunDir(t) { const e = (17 - 6 * sm(t, 13.5, 21)) * Math.PI / 180, a = 0.0; return V3(Math.sin(a) * Math.cos(e), Math.sin(e), Math.cos(a) * Math.cos(e)); }
 function aimSun(t) {
   const L = SET.atmo.sun, f = V3(0, 0, -16), d = sunDir(t);
   L.position.copy(f).addScaledVector(d, 150); L.target.position.copy(f); L.target.updateMatrixWorld();
@@ -83,22 +83,22 @@ function dust(t) {
 }
 
 function shots() {
-  const floorA = C([0.9, 0.5, -12.2], [-0.1, 0.0, -18.0], 60), floorB = C([0.85, 0.5, -12.9], [-0.1, 0.0, -18.6], 60);
+  const floorA = C([-1.3, 2.3, -23.0], [0.25, 0.0, -15.8], 54), floorB = C([-1.25, 2.2, -22.7], [0.25, 0.0, -15.6], 53);
   const armA = C([-2.3, 2.45, -23.3], [-0.62, 1.98, -24.95], 32), armB = C([-2.2, 2.42, -23.4], [-0.62, 1.98, -24.95], 30);
   return [
     { t0: 0, t1: 2.16, a: floorA, b: floorB },                                                                                  // 1 long shadows on the stone, toward the dais
-    { t0: 2.16, t1: 4.04, a: C([0.6, 0.4, -15.5], [0, 0.7, -23.5], 50), b: C([0.5, 0.42, -16.8], [0, 0.8, -23.5], 46) },            // 2 the shadows reach for the steps; dust
-    { t0: 4.04, t1: 6.44, a: C([1.4, 1.6, -4.6], [0, 1.6, -22], 40), b: C([1.3, 1.6, -5.6], [0, 1.6, -22], 38) },                    // 3 their backs, the throne beyond
+    { t0: 2.16, t1: 4.04, a: C([0.9, 0.3, -21.4], [0, 0.55, -10], 52), b: C([0.85, 0.3, -20.8], [0, 0.6, -10], 50) },            // 2 the shadows reach for the steps; dust
+    { t0: 4.04, t1: 6.44, a: C([0.0, 1.5, -5.6], [0, 1.65, -22], 40), b: C([0.0, 1.5, -6.4], [0, 1.65, -22], 38) },                    // 3 their backs, the throne beyond
     { t0: 6.44, t1: 8.38, a: armA, b: armB },                                                                                   // 4 his hand on the throne arm, lifting
     { t0: 8.38, t1: 10.84, a: C([0.8, 3.45, -26.2], [0, 1.2, -12], 40), b: C([0.7, 2.7, -23.2], [0, 1.1, -12], 40) },                 // 5 one brother kneels; he steps down toward them
     { t0: 10.84, t1: 13.5, a: C([0.9, 1.7, -16.4], [0, 1.1, -10.8], 46), b: C([0.8, 0.45, -15.8], [0, 0.5, -10.8], 50) },            // 6 lowering toward the stone between them
     { t0: 13.5, t1: 15.9, a: C([1.6, 0.16, -17.2], [-0.3, 0.1, -12.5], 70), b: C([1.5, 0.16, -16.9], [-0.3, 0.1, -12.5], 68) },        // 7 floor level: the shadows reach toward him
     { t0: 15.9, t1: 17.38, a: C([-1.0, 0.55, -19.6], [0, 1.4, -4], 56), b: C([-0.9, 0.58, -19.0], [0, 1.45, -4], 53) },               // 8 dust glowing in the low sun
-    { t0: 17.38, t1: 20.84, a: C([2.9, 2.4, -9.6], [0, 0.0, -16.5], 54), b: null },                                               // 9 the shadows merge into one (locked)
+    { t0: 17.38, t1: 20.84, a: C([-1.2, 2.25, -22.6], [0.2, 0.0, -15.6], 52), b: null },                                               // 9 the shadows merge into one (locked)
     { t0: 20.84, t1: 22.64, a: armA, b: armB },                                                                                 // 10 the throne arm, empty: the power he had
     { t0: 22.64, t1: 24.48, a: C([0.55, 1.85, YSTOP - 1.3], [-0.1, 1.35, -11], 40), b: C([0.5, 1.8, YSTOP - 1.05], [-0.1, 1.35, -11], 37) }, // 11 his open hand lifted in the light
     { t0: 24.48, t1: 26.42, a: C([2.6, 1.25, -19.6], [0, 1.4, -25], 38), b: null },                                               // 12 the dais, empty
-    { t0: 26.42, t1: D + 0.01, a: floorA, b: floorA },                                                                           // 13 the merged shadow on the same floor (shot 1's pose)
+    { t0: 26.42, t1: D + 0.01, a: floorB, b: floorA },                                                                           // 13 the merged shadow on the same floor (shot 1's pose)
   ];
 }
 
