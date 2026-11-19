@@ -79,7 +79,7 @@ M.film({
     await G.initGL({ exposure: 1.0 }); W.init(G.R);
     HILLS = W.stage(await canaan_hills({ time: 'predawn' }));
     const fixT = (x) => x.replace(/ʿ/g, '‘').replace(/ʾ/g, '’').replace(/ṣ/g, 's').replace(/ḥ/g, 'h');   // glyphs the faces lack
-    CAP = captions((await loadLines('lines.json')).map((l) => ({ ...l, text: fixT(l.text), keys: (l.keys || []).map(fixT) })), { display: 'Display', ui: 'UI', size: PORT ? 84 : 66 });
+    CAP = captions((await loadLines('lines.json')).map((l) => ({ ...l, text: fixT(l.text), keys: (l.keys || []).map(fixT) })), { display: 'Display', ui: 'UI', size: PORT ? 84 : 74 });
     const S = HILLS.set, P = S.props, hy = P.terrain.heightAt, h0 = P.house.position.y, sc = HILLS.scene;
     P.door.leaf.rotation.y = 0;                                                   // the door stays shut all night
     const R = h0 + 3.1 + 0.26;                                             // top of the roof slab K.R = R; K.h0 = h0; K.hy = hy;
@@ -154,8 +154,8 @@ M.film({
       roofUpA: { pos: roofLow, look: far(roofLow, [EC[0], EC[1] * 0.55, EC[2]]), fov: fv(72) },
       roofUpB: { pos: [-0.62, R + 0.48, -0.95], look: far([-0.62, R + 0.48, -0.95], [EC[0], EC[1] * 0.85, EC[2]]), fov: fv(70) },
       bow: { pos: [-0.6, R + 0.6, -1.0], look: far([-0.6, R + 0.6, -1.0], [EC[0], EC[1] - (PORT ? 0.1 : 0.05), EC[2]]), fov: fv(44) },
-      blanketA: { pos: [-0.55, R + 0.62, -1.35], look: [-1.3, R + 0.06, -2.2], fov: fv(36) },
-      blanketB: { pos: [-0.75, R + 0.52, -1.55], look: [-1.3, R + 0.06, -2.3], fov: fv(32) },
+      blanketA: { pos: [-0.85, R + 0.42, -1.05], look: [-1.45, R + 0.2, -3.6], fov: fv(40) },
+      blanketB: { pos: [-0.9, R + 0.38, -1.25], look: [-1.45, R + 0.2, -3.6], fov: fv(38) },
       roofA: { pos: [-2.6, R + 1.0, -0.9], look: [0.5, R + 0.2, -3.9], fov: fv(40) },
       roofB: { pos: [-2.25, R + 0.95, -1.3], look: [0.5, R + 0.2, -3.9], fov: fv(39) },
       lampA: { pos: [-0.95, R + 0.5, -1.9], look: [0.2, R + 0.12, -3.4], fov: fv(34) },
