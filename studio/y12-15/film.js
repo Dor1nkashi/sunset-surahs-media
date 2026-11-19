@@ -26,6 +26,7 @@ async function build() {
   ST = W.stage(SET);
   BASE.sunI = SET.atmo.sun.intensity; BASE.env = SET.scene.environmentIntensity; BASE.bg = SET.scene.backgroundIntensity ?? 1; BASE.hemi = SET.atmo.hemi?.intensity ?? 0;
   BASE.fog = SET.scene.fog ? SET.scene.fog.color.clone() : null;
+  BASE.rotY = SET.scene.backgroundRotation.y; { const sd = SET.atmo.sunDir.clone(); sd.y = 0; sd.normalize(); BASE.axis = new THREE.Vector3().crossVectors(sd, new THREE.Vector3(0, 1, 0)).normalize(); }
   SKY = K.starfield({ count: 4200, bright: 1.6 }); SET.scene.add(SKY);
   E11 = elevenStars(THREE, { size: 15 }); SET.scene.add(E11);
   MOON = K.brightStar({ dir: [0.55, 0.42, -0.72], size: 9, color: 0xdfe8ff }); SET.scene.add(MOON);
@@ -44,7 +45,10 @@ const FAM = () => [P.yq, P.w, ...P.bro];          // order in the line (Yaʿqūb
 function light(t) {
   const n = night(t), L = SET.atmo.sun;
   L.intensity = BASE.sunI * (1 - sstep(0, 0.7, n)); L.color.setRGB(1, lerp(0.78, 0.5, n), lerp(0.55, 0.3, n));
-  SET.scene.environmentIntensity = BASE.env * lerp(1, 0.12, n); SET.scene.backgroundIntensity = BASE.bg * lerp(1, 0.035, n);
+  SET.scene.environmentIntensity = BASE.env * lerp(1, 0.12, n); SET.scene.backgroundIntensity = BASE.bg * lerp(1, 0.035, n) * (1 - sstep(0.55, 0.95, n));
+  // the sun really sets: the sky image turns about the horizontal axis, carrying its sun below the horizon
+  { const q = new THREE.Quaternion().setFromAxisAngle(BASE.axis, -0.32 * sstep(0, 0.8, n)).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), BASE.rotY));
+    const e = new THREE.Euler().setFromQuaternion(q, 'XYZ'); SET.scene.backgroundRotation.copy(e); SET.scene.environmentRotation.copy(e); }
   if (SET.atmo.hemi) SET.atmo.hemi.intensity = BASE.hemi * lerp(1, 0.3, n);
   if (SET.scene.fog && BASE.fog) SET.scene.fog.color.copy(BASE.fog).lerp(new THREE.Color(0x0e1426), n);
   MOONL.intensity = 0.55 * sstep(0.4, 1, n);
@@ -76,13 +80,13 @@ function people(t) {
 
 function shots() {
   const sDir = V3(...ELEVEN_CENTRE), from = [0.4, 0.35, -9.5], up = (k) => [from[0] + sDir.x * 30 * k, from[1] + 2 + (sDir.y * 30 - 2) * k, from[2] + sDir.z * 30 * k];
-  const firstA = C(from, [0, 3.6, DZ - 2], 66), firstB = C([0.4, 0.38, -9.8], up(0.3), 64);
+  const firstA = C(from, [0, 6.6, DZ - 2], 66), firstB = C([0.4, 0.38, -9.8], up(0.3), 64);
   const moonDir = MOON.userData.dir;
   return [
     { t0: 0, t1: 1.47, a: firstA, b: C([0.4, 0.36, -9.65], up(0.15), 65) },                                       // 1 the court in golden light; faint eleven
     { t0: 1.47, t1: 2.6, a: C([0.4, 0.36, -9.65], up(0.15), 65), b: firstB },                                     // 2 the tilt continues; the stars grow clearer
     { t0: 2.6, t1: 3.65, a: C([1.6, 1.9, DZ + 4.2], [0, 1.4, 2.4], 40), b: C([1.7, 2.0, DZ + 3.5], [0, 1.4, 2.4], 42) },      // 3 far at the gate, a line of travellers
-    { t0: 3.65, t1: 5.41, a: C([-6.0, 1.45, -4.5], [0.5, 1.2, -6.5], 42), b: C([-6.0, 1.45, -7.5], [0.5, 1.2, -9.5], 42) },   // 4 the line enters, a lateral track with them
+    { t0: 3.65, t1: 5.41, a: C([-5.2, 1.45, -1.6], [0.2, 1.1, -3.4], 44), b: C([-5.2, 1.45, -4.4], [0.2, 1.1, -6.0], 44) },   // 4 the line enters, a lateral track with them
     { t0: 5.41, t1: 6.71, a: C([0.3, 1.7, -10.5], [0, 0.7, DZ + 6.8], 52), b: C([0.3, 1.6, -11.6], [0, 0.7, DZ + 6.8], 50) }, // 5 they end in a bow, an arc
     { t0: 6.71, t1: 7.88, a: C([0.9, 2.6, DZ - 1.6], [0, 1.0, DZ + 8], 46), b: null },                                   // 6 his back at the dais, one hand open
     { t0: 7.88, t1: 9.31, a: C([1.0, 0.2, DZ + 11.5], [0, 2.6, DZ - 4], 70), b: null },                                    // 7 low: the bowed figures, the stars above
@@ -93,7 +97,7 @@ function shots() {
     { t0: 18.44, t1: 20.8, a: C([0, 1.4, -10], [sDir.x * 30, 1.4 + sDir.y * 30, -10 + sDir.z * 30], 50), b: null },          // 12 the eleven fade toward moonlight
     { t0: 20.8, t1: 23.06, a: C([0, 1.4, -10], (() => { const d = V3(...ELEVEN[BRIGHTEST]); return [d.x * 30, 1.4 + d.y * 30, -10 + d.z * 30]; })(), 36), b: C([0, 1.4, -10], (() => { const d = V3(...ELEVEN[BRIGHTEST]); return [d.x * 30, 1.4 + d.y * 30, -10 + d.z * 30]; })(), 20) }, // 13 the star that remains
     { t0: 23.06, t1: 25.97, a: C([4.5, 1.5, -2.5], [-1, 0.6, DZ + 2], 52), b: null },                                     // 14 the empty court in moonlight
-    { t0: 25.97, t1: D + 0.01, a: C(from, [0, 3.6, DZ - 2], 66), b: C([0.4, 0.38, -9.8], up(0.3), 64) },                    // 15 the same tilt as frame 1, at night: one star over the empty throne
+    { t0: 25.97, t1: D + 0.01, a: C(from, [0, 1.6, DZ - 2], 66), b: firstA },                    // 15 the same tilt as frame 1, at night: one star over the empty throne
   ];
 }
 
