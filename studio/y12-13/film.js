@@ -11,6 +11,7 @@ import * as GR from '../lib_shared/growth.js';
 import * as K from '../y12-12/kit.js';
 const { THREE, clamp, lerp } = W;
 const V3 = K.V3, D = 34.17;
+const DBG = { notree: 1 };
 
 let SET, ST, CAP, hAt, h0, P = {}, TREE, SHAFT, MOTES, JAR = {}, SKIN, DROPS = [], SHOTS;
 const pr = (t, a, b) => clamp((t - a) / (b - a));
@@ -200,7 +201,7 @@ M.film({
   },
   draw(ctx, u, t, IMG) {
     M.fill(ctx, '#000');
-    hideAll(); growth(t); drops(t); TREE.setFruit?.(0);
+    hideAll(); growth(t); drops(t); TREE.setFruit?.(0); TREE.object3d.visible = !DBG.notree; SKIN.visible = !DBG.noskin; MOTES.visible = !DBG.nomotes;
     const s = K.shotAt(SHOTS, t);
     s.s(t);
     const { g, d } = aimSun(t), tgt = sunTarget(t);
