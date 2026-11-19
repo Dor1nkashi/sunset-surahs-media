@@ -83,9 +83,13 @@ M.film({
     const coalGeo = (rad, sd) => { const g = new THREE.IcosahedronGeometry(rad, 3), p = g.attributes.position;
       for (let k = 0; k < p.count; k++) { const v = V3(p.getX(k), p.getY(k), p.getZ(k)), l = v.length(), f = 1 + 0.22 * nz(v.x * 40 + sd, v.y * 40 + v.z * 30) + 0.08 * nz(v.x * 130, v.z * 130 + sd); v.multiplyScalar(f); p.setXYZ(k, v.x, v.y, v.z); }
       g.computeVertexNormals(); return g; };
+    const crk = (() => { const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d'), rr = mulberry32(3); x.fillStyle = '#100604'; x.fillRect(0, 0, 256, 256);
+      for (let i = 0; i < 70; i++) { x.strokeStyle = `rgba(255,${120 + rr() * 90 | 0},40,${0.5 + rr() * 0.5})`; x.lineWidth = 1 + rr() * 3; x.beginPath(); let px = rr() * 256, py = rr() * 256; x.moveTo(px, py);
+        for (let k = 0; k < 6; k++) { px += (rr() - 0.5) * 50; py += (rr() - 0.5) * 50; x.lineTo(px, py); } x.stroke(); }
+      for (let i = 0; i < 30; i++) { const g = x.createRadialGradient(rr() * 256, rr() * 256, 0, 0, 0, 0); } const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; return t; })();
     const coals = [], r = mulberry32(23);
     for (let i = 0; i < 130; i++) {
-      const a = r() * 6.28, d = Math.sqrt(r()) * 0.36, m = new THREE.MeshStandardMaterial({ color: 0x2e2a26, emissive: new THREE.Color().setHSL(0.02 + 0.05 * r(), 1, 0.45), emissiveIntensity: 1.4, roughness: 1 });
+      const a = r() * 6.28, d = Math.sqrt(r()) * 0.36, m = new THREE.MeshStandardMaterial({ color: 0x4a443e, emissive: new THREE.Color().setHSL(0.03 + 0.04 * r(), 1, 0.55), emissiveMap: crk, emissiveIntensity: 1.4, roughness: 1 });
       const c = new THREE.Mesh(coalGeo(0.02 + r() * 0.022, i % 12), m); c.scale.set(1 + r() * 0.6, 0.6 + r() * 0.4, 1 + r() * 0.5);
       c.position.set(FX + Math.cos(a) * d, FY + 0.1 + r() * 0.03, FZ + Math.sin(a) * d); c.rotation.set(r() * 3, r() * 3, 0); sc.add(c);
       coals.push({ m, c, d, out: 0 });
@@ -124,14 +128,14 @@ M.film({
     K.cams = {
       fireA: { pos: G0(FX + 0.6, FZ + 4.4, 0.75), look: [FX - 0.3, F[1] + 0.8, FZ - 1], fov: fv(46) },
       fireB: { pos: G0(FX + 0.57, FZ + 4.25, 0.75), look: [FX - 0.3, F[1] + 0.8, FZ - 1], fov: fv(45) },
-      rackA: { pos: G0(10.6, -3.1, 1.15), look: [FX, F[1] + 0.4, FZ], fov: fv(30) },
-      rackB: { pos: G0(10.6, -3.1, 1.15), look: K.win, fov: fv(26) },
+      rackA: { pos: G0(11.6, -1.2, 1.3), look: [FX, F[1] + 0.4, FZ], fov: fv(30) },
+      rackB: { pos: G0(11.6, -1.2, 1.3), look: K.win, fov: fv(24) },
       ringA: { pos: G0(FX + 5.6, FZ + 2.0, 2.2), look: [FX, F[1] + 0.7, FZ], fov: fv(48) },
       ringB: { pos: G0(FX + 4.6, FZ + 3.8, 2.2), look: [FX, F[1] + 0.7, FZ], fov: fv(48) },
       wallA: { pos: G0(12.6, -2.6, 1.6), look: [FX, F[1] + 0.6, FZ], fov: fv(42) },
       wallB: { pos: G0(10.4, -0.9, 1.6), look: [FX, F[1] + 0.6, FZ], fov: fv(42) },
-      winA: { pos: G0(10.9, -2.0, 1.7), look: K.win, fov: fv(28) },
-      winB: { pos: G0(10.9, -2.0, 1.7), look: [FX - 0.4, F[1] + 0.5, FZ - 0.2], fov: fv(46) },
+      winA: { pos: G0(11.6, -1.2, 1.5), look: K.win, fov: fv(26) },
+      winB: { pos: G0(11.6, -1.2, 1.5), look: [FX - 0.4, F[1] + 0.5, FZ - 0.2], fov: fv(46) },
       listen: { pos: G0(10.2, -0.6, 1.75), look: [FX - 0.2, F[1] + 0.75, FZ - 0.5], fov: fv(46) },
       leanA: { pos: G0(10.0, -0.9, 1.7), look: [FX - 0.2, F[1] + 0.7, FZ - 0.5], fov: fv(44) },
       leanB: { pos: G0(9.7, -1.3, 1.65), look: [FX - 0.3, F[1] + 0.65, FZ - 0.5], fov: fv(41) },
@@ -171,7 +175,7 @@ M.film({
     let glow = 0;
     K.coals.forEach((o) => { let k = 1 - sm((t - o.out) / 0.6); if (o.last) k = t < 23.58 ? 1 : 1 + 0.8 * sm((t - 23.8) / 1.4);
       if (t > 24.6) k = Math.max(k, sm((t - 24.6 - o.d * 2) / 1.0));                  // the glow spreads back through the bed (loop to shot 1)
-      o.m.emissiveIntensity = 1.6 * k * (0.85 + 0.15 * Math.sin(t * 2.3 + o.d * 20)); glow += k; });
+      o.m.emissiveIntensity = 2.6 * k * (0.85 + 0.15 * Math.sin(t * 2.3 + o.d * 20)); glow += k; });
     K.EL.intensity = 0.3 + 2.4 * flameK + 0.04 * glow; K.EL.position.y = K.F[1] + 0.3 + 0.3 * flameK;
     K.sparks.userData.update(t, clamp(flameK * 1.1));
     // ---- the brothers: kneeling, heads turn toward each other (12.0), the ring leans in (13.1), one points at the well (13.6)
