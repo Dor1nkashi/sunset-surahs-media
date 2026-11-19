@@ -15,16 +15,16 @@ const { prog, E, clamp } = M;
 const V = (...a) => new THREE.Vector3(...a);
 const D = 31.85;
 
-let SET, ST, CAP, hy, STALK, BEADS = [], HANDP, STRAWS = [], MAN;
+let RAIN0, RAINDROPS = [], SET, ST, CAP, hy, STALK, BEADS = [], HANDP, STRAWS = [], MAN;
 const C = {};
 const SK = [-1.2, 11.2];                        // the hero stalk in the foreground (left of the hero camera's view)
 
 // the stage of the plain as a pure function of t
 function stageAt(t) {
-  if (t < 3.10) return 0.02 + 0.18 * prog(t, 1.55, 3.10) * (t >= 1.55 ? 1 : 0);
-  if (t < 5.43) return 0.2 + 0.04 * prog(t, 3.10, 5.43);
-  if (t < 16.39) return 0.24 + (0.86 - 0.24) * prog(t, 5.43, 16.39);
-  if (t < 19.13) return 0.86 + 0.07 * prog(t, 16.39, 19.13);
+  if (t < 3.10) return 0.02 + 0.1 * prog(t, 1.55, 3.10) * (t >= 1.55 ? 1 : 0);
+  if (t < 5.43) return 0.12 + 0.05 * prog(t, 3.10, 5.43);
+  if (t < 16.39) return 0.17 + (0.84 - 0.17) * prog(t, 5.43, 16.39);
+  if (t < 19.13) return 0.84 + 0.09 * prog(t, 16.39, 19.13);
   if (t < 23.56) return 1.0;
   if (t < 25.04) return 0.3;
   if (t < 27.12) return 0.8;
@@ -58,7 +58,7 @@ function heroStalk() {
   const gr = new THREE.SphereGeometry(1, 12, 8), awnG = new THREE.CylinderGeometry(0.0003, 0.0006, 0.09, 4).translate(0, 0.045, 0);
   for (let k = 0; k < 22; k++) { const y = k * 0.0042, s = k % 2 ? 1 : -1, m = new THREE.Mesh(gr, earM); m.scale.set(0.0032, 0.0062, 0.0032); m.position.set(0.0035 * s, y, 0.0012 * Math.sin(k)); m.rotation.z = -0.35 * s; ear.add(m);
     const aw = new THREE.Mesh(awnG, earM); aw.position.copy(m.position); aw.rotation.z = -0.22 * s; ear.add(aw); }
-  for (const [y, s] of [[0.22, 1], [0.4, -1]]) { const lf = new THREE.Mesh(new THREE.PlaneGeometry(0.16, 0.012).translate(0.08, 0, 0), new THREE.MeshStandardMaterial({ color: 0x4a7a2a, roughness: 0.55, side: THREE.DoubleSide })); lf.position.y = y; lf.rotation.set(0.2, s > 0 ? 0 : Math.PI, -0.6); low.add(lf); }
+  for (const [y, s] of []) { const lf = new THREE.Mesh(new THREE.PlaneGeometry(0.16, 0.012).translate(0.08, 0, 0), new THREE.MeshStandardMaterial({ color: 0x4a7a2a, roughness: 0.55, side: THREE.DoubleSide })); lf.position.y = y; lf.rotation.set(0.2, s > 0 ? 0 : Math.PI, -0.6); low.add(lf); }
   W.shadows(g);
   g.userData = { low, top, ear, mats: [stemM, earM, ...low.children.filter((c) => c.isMesh && c.geometry.type === 'PlaneGeometry').map((c) => c.material)] };
   return g;
@@ -84,6 +84,15 @@ M.film({
     SET = await rain_on_plants({ stage: 0 });
     hy = SET.props.terrain.heightAt;
     const S = SET.scene;
+    { const pa = SET.props.chaff.geometry.attributes.position; for (let k = 0; k < pa.array.length; k++) pa.array[k] *= 2.4; pa.needsUpdate = true; }
+    // raindrops for the macro: glossy falling beads and the dark wet blooms they leave on the dry crust
+    { const mc = SET.cameras.macro, L = V(...mc.look); RAIN0 = L;
+      const dm = new THREE.MeshStandardMaterial({ color: 0xdfe8f0, roughness: 0.02, metalness: 0.1, envMapIntensity: 2.2, transparent: true, opacity: 0.85 });
+      const wm = new THREE.MeshStandardMaterial({ color: 0x241a12, roughness: 0.25, transparent: true, opacity: 0, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -3 });
+      const r = W.rng(77);
+      for (let k = 0; k < 7; k++) { const d = new THREE.Mesh(new THREE.SphereGeometry(0.0032, 20, 14), dm); const w = new THREE.Mesh(new THREE.CircleGeometry(1, 36).rotateX(-Math.PI / 2), wm.clone());
+        const x = L.x + (k ? (r() - 0.5) * 0.09 : 0.004), z = L.z + (k ? (r() - 0.5) * 0.07 : 0.004); w.position.set(x, hy(x, z) + 0.0015, z);
+        S.add(d, w); RAINDROPS.push({ d, w, x, z, t0: k ? 0.6 + r() * 2.2 : 0.35, r: 0.008 + r() * 0.006 }); } }
     STALK = heroStalk(); STALK.position.set(SK[0], hy(...SK) - 0.01, SK[1]); S.add(STALK);
     // water beads on the green stalk (shot 11): they roll down the stem
     { const bm = new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.02, transmission: 0.95, thickness: 0.002, ior: 1.33, transparent: true });
@@ -100,15 +109,15 @@ M.film({
     C.macro_a = { ...mc }; C.macro_b = { pos: mc.pos.map((v, i) => v + (mc.look[i] - v) * 0.12), look: mc.look, fov: mc.fov };
     C.macro_c = { pos: mc.pos.map((v, i) => v + (mc.look[i] - v) * 0.22 + (i === 1 ? 0.01 : 0)), look: mc.look.map((v, i) => v + (i === 1 ? 0.012 : 0)), fov: mc.fov };
     C.hero = { ...SET.cameras.hero };
-    C.chaff_a = { pos: [-4, 1.4, 10], look: [8, 1.2, -20], fov: 46 };
-    C.chaff_b = { pos: [-1, 1.5, 9], look: [12, 1.4, -18], fov: 46 };
+    C.chaff_a = { pos: [-6, 0.95, 13.5], look: [10, 1.3, 2], fov: 50 };
+    C.chaff_b = { pos: [-3.5, 1.0, 13.5], look: [12, 1.4, 2], fov: 50 };
     C.wide = { pos: [SK[0] - 0.55, hy(...SK) + 0.75, SK[1] + 1.6], look: [10, 4, -80], fov: 58 };
     C.stalk_a = { pos: [SK[0] + 0.25, hy(...SK) + 0.82, SK[1] + 0.85], look: [SK[0], hy(...SK) + 0.86, SK[1]], fov: 30 };
     C.stalk_b = { pos: [SK[0] + 0.25, hy(...SK) + 0.82, SK[1] + 0.85], look: [52, 3, -150], fov: 30 };
     C.green = { pos: [SK[0] + 0.12, hy(...SK) + 0.5, SK[1] + 0.16], look: [SK[0] + 0.005, hy(...SK) + 0.45, SK[1]], fov: 22 };
-    C.dry = { pos: [SK[0] + 0.32, hy(...SK) + 0.78, SK[1] + 0.5], look: [SK[0], hy(...SK) + 0.72, SK[1]], fov: 30 };
+    C.dry = { pos: [SK[0] + 0.45, hy(...SK) + 0.82, SK[1] + 0.75], look: [SK[0], hy(...SK) + 0.74, SK[1]], fov: 32 };
     C.drift = { pos: [0.6, 1.0, 8.5], look: [6, 0.8, -6], fov: 40 };
-    C.palm = { pos: [HANDP.x + 0.28, HANDP.y + 0.08, HANDP.z + 0.32], look: [HANDP.x, HANDP.y - 0.02, HANDP.z], fov: 30 };
+    C.palm = { pos: [HANDP.x + 0.36, HANDP.y + 0.14, HANDP.z + 0.42], look: [HANDP.x, HANDP.y - 0.04, HANDP.z], fov: 34 };
     ST = W.stage(SET);
     SET.update(0, null, { stage: 0.5 }); G.R.compile(S, ST.camera);
     CAP = captions(await loadLines('lines.json'), { display: 'Display', ui: 'UI' });
@@ -146,6 +155,9 @@ M.film({
       if (dt < 0) { sw.position.copy(base); sw.rotation.set(Math.PI / 2, 0.3 * k, 0); }
       else { sw.position.copy(base).add(V(0.25 * dt + 0.12 * dt * dt, -2.2 * dt * dt - 0.05 * dt, -0.08 * dt)); sw.rotation.set(Math.PI / 2 + 3 * dt, 0.3 * k + 2 * dt, dt * 4); }
       sw.visible = i === 10; });
+    for (const R of RAINDROPS) { const dt = t - R.t0, y = hy(R.x, R.z) + 0.003 + 0.3 - 4.9 * (dt + 0.25) ** 2 + 4.9 * 0.0625;
+      R.d.visible = i <= 2 && dt > -0.25 && dt < 0; R.d.position.set(R.x, Math.max(hy(R.x, R.z) + 0.003, hy(R.x, R.z) + 0.003 - 4.9 * dt * dt * 0 + (-dt) * 1.4), R.z); R.d.scale.set(1, 2.2, 1);
+      const sp = dt > 0 ? Math.min(1, Math.sqrt(dt / 0.25)) : 0; R.w.scale.setScalar(R.r * (0.3 + 0.7 * sp)); R.w.material.opacity = (i <= 2 ? 0.7 : 0) * sp * (1 - 0.3 * clamp(dt / 3)); }
     G.renderSet(ctx, ST, t, u, { cam, stage: st, drop: i === 0 ? dq : 1, exposure: SET.exposure * (i <= 1 ? 1.15 : 1) });
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.6);
