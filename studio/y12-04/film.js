@@ -47,7 +47,7 @@ function clayLamp(seed, light = 1.4) {
   const f = W.flame({ h: 0.075, w: 0.034, seed, inten: 1.0, light: 0, planes: 2 }); f.position.set(0, 0.05, 0.112); g.add(f);
   const L = new THREE.PointLight(0xff9a50, light, 7, 1.6); L.position.set(0, 0.16, 0.13); g.add(L);
   W.shadows(g); f.traverse((m) => { if (m.isMesh) { m.castShadow = false; m.receiveShadow = false; } }); body.castShadow = false;
-  g.userData = { flame: f, light: L, set(t, k = 1, lean = 0) { f.visible = k > 0.003; f.scale.set(0.6 + 0.4 * k, Math.max(0.03, k), 0.6 + 0.4 * k); f.rotation.z = lean; f.userData.update(t, k); L.intensity = light * k * (0.92 + 0.08 * Math.sin(t * 13.1 + seed)); } };
+  g.userData = { flame: f, light: L, set(t, k = 1, lean = 0, lk = 1) { f.visible = k > 0.003; f.scale.set(0.6 + 0.4 * k, Math.max(0.03, k), 0.6 + 0.4 * k); f.rotation.z = lean; f.userData.update(t, k); L.intensity = light * lk * k * (0.92 + 0.08 * Math.sin(t * 13.1 + seed)); } };
   return g;
 }
 // a child's tunic: T-shaped cloth (alpha cut), undyed wool weave, a dried dark-red stain
@@ -192,11 +192,13 @@ M.film({
     const sky = P.sky.userData.u; sky.moonD.value.copy(K.moonDir); sky.moonOn.value = 1; sky.moonPhase.value = -0.55;
     HILLS.scene.environmentIntensity = 0.42; A.sun.intensity = 0.7; if (A.hemi) A.hemi.intensity = 0.08;
     const gust = Math.exp(-((t - 25.7) ** 2) / 0.12);
-    K.lamp.userData.set(t, 1 - 0.55 * gust, 1.1 * gust * Math.sin(clamp((t - 25.35) / 0.8) * Math.PI) + 0.04 * Math.sin(t * 2.1));
+    const close = (t > 1.17 && t < 3.41) || t > 24.48;
+    K.lamp.userData.light.distance = close ? 3 : 7;
+    K.lamp.userData.set(t, 1 - 0.55 * gust, 1.1 * gust * Math.sin(clamp((t - 25.35) / 0.8) * Math.PI) + 0.04 * Math.sin(t * 2.1), close ? 0.3 : 1);
     K.door.leaf.rotation.y = -0.5 + 0.035 * Math.sin(t * 0.9) + 0.02 * Math.sin(t * 2.3);
     { const L = K.lampW, a = t * 3.1, rr = 0.16 + 0.04 * Math.sin(t * 1.3); K.moth.g.position.set(L[0] + Math.cos(a) * rr, L[1] + 0.12 + 0.05 * Math.sin(t * 2.2), L[2] + Math.sin(a) * rr);
       K.moth.g.rotation.y = -a; const fl = 0.9 * Math.sin(t * 60); K.moth.l.rotation.x = fl; K.moth.r.rotation.x = -fl; K.moth.g.visible = t < 24.4; }
-    G.renderSet(ctx, HILLS, t, u, { cam, exposure: t > 24.48 ? 0.62 : t < 3.41 && t > 1.17 ? 0.68 : 1.25, fire: 0 });
+    G.renderSet(ctx, HILLS, t, u, { cam, exposure: t > 24.48 ? 0.95 : t < 3.41 && t > 1.17 ? 0.95 : 1.25, fire: 0 });
     CAP.draw(ctx, t);
     const su = prog(t, 26.33, D - 0.05), a = Math.sin(Math.PI * su);
     if (a > 0 && IMG.seal) { const s = PORT ? 480 : 400; ctx.save(); ctx.globalAlpha = a * 0.95; ctx.drawImage(IMG.seal, FW / 2 - s / 2, FH * (PORT ? 0.36 : 0.42) - s / 2, s, s); ctx.restore(); }
