@@ -68,9 +68,9 @@ async function build() {
     const crook = new THREE.Mesh(new THREE.TorusGeometry(0.07, 0.024, 12, 32, Math.PI), st.material); crook.position.set(0, 0.97, 0.07); crook.rotation.y = Math.PI / 2; st.add(crook); }
   g.add(W.shadows(st));
   // the water jar (open, with water that rises) and the waterskin hanging from a roof-beam end
-  const clay = new THREE.MeshStandardMaterial({ color: 0x9a5a38, roughness: 0.85 });
+  const clay = (await W.pbr('clay_plaster', { tile: 0.5, tint: 0xb06a44, res: 1024, normal: 1.4 })).clone();
   const prof = [[0.001, 0], [0.12, 0], [0.2, 0.08], [0.24, 0.24], [0.22, 0.4], [0.14, 0.5], [0.12, 0.56], [0.14, 0.6], [0.125, 0.61], [0.11, 0.58], [0.12, 0.52], [0.19, 0.42], [0.21, 0.24], [0.17, 0.09], [0.001, 0.04]];
-  const jar = new THREE.Mesh(new THREE.LatheGeometry(prof.map(([x, y]) => new THREE.Vector2(x, y)), 64), clay); jar.position.set(JARP[0], h0, JARP[1]); g.add(W.shadows(jar));
+  const jar = new THREE.Mesh(W.boxUV(new THREE.LatheGeometry(prof.map(([x, y]) => new THREE.Vector2(x, y)), 64)), clay); jar.position.set(JARP[0], h0, JARP[1]); g.add(W.shadows(jar));
   JAR.top = h0 + 0.58; JAR.pos = jar.position;
   JAR.water = W.water(new THREE.CircleGeometry(0.12, 48).rotateX(-Math.PI / 2), { color: 0x24343a, rough: 0.04, tile: 0.4, flow: [0.0, 0.0] }); JAR.water.position.set(JARP[0], h0 + 0.5, JARP[1]); g.add(JAR.water);
   JAR.ringTex = G.canvasTexture(256, 256);
@@ -79,7 +79,7 @@ async function build() {
   const hs = await K.mats.dyed(0x5a3a26);
   SKIN = W.sack(hs, { w: 0.34, h: 0.44, seed: 9, tie: true }); SKIN.rotation.z = Math.PI; SKIN.position.set(JARP[0], h0 + 2.62, JARP[1] - 0.02); g.add(SKIN);
   g.add(W.rope([V3(JARP[0], h0 + 3.12, JARP[1] - 0.06), V3(JARP[0], h0 + 2.95, JARP[1] - 0.03), V3(JARP[0], h0 + 2.66, JARP[1] - 0.02)], 0.008));
-  const dm = new THREE.MeshPhysicalMaterial({ color: 0xcfe6ee, roughness: 0.02, transmission: 0.6, thickness: 0.01, ior: 1.33 });
+  const dm = new THREE.MeshStandardMaterial({ color: 0xbfd6de, roughness: 0.03, metalness: 0.1, transparent: true, opacity: 0.85, envMapIntensity: 2.5 });
   for (let i = 0; i < 3; i++) { const d = new THREE.Mesh(new THREE.SphereGeometry(0.009, 16, 12), dm); d.scale.y = 1.5; g.add(d); DROPS.push(d); }
   // the olive sapling (growth.js): grows through the years in the time-lapse
   TREE = GR.makeTree(THREE, { species: 'olive', seed: 13 }); TREE.object3d.position.set(TREEP[0], hAt(...TREEP) - 0.02, TREEP[1]); g.add(TREE.object3d);
@@ -90,7 +90,7 @@ async function build() {
   MOTES = new THREE.InstancedMesh(mg2, mm2, N); MOTES.frustumCulled = false; g.add(MOTES);
   // people: Yaʿqūb (elder) and five of his sons
   const PE = await K.people();
-  P.yq = PE.make({ kind: 'elder', outfit: 'traveller', palette: { robe: '#d9cdb4', wrap: '#efe6d2', cloak: '#cdbf9f', sash: '#8a6a3a', trousers: '#c4b08e', shemagh: '#b8892e' }, beard: 'grey', headwear: 'keffiyeh', seed: 3, detail: 1 });
+  P.yq = PE.make({ kind: 'elder', outfit: 'traveller', palette: { robe: '#a8987c', wrap: '#d8ccb4', cloak: '#8e7d62', sash: '#6a4a2a', trousers: '#9c8a6c', shemagh: '#b8892e' }, beard: 'grey', headwear: 'keffiyeh', seed: 3, detail: 1 });
   g.add(P.yq.object3d);
   const bro = [['rust', 'full', 'keffiyeh'], ['olive', 'full', 'turban'], ['night', 'full', 'wrap'], ['earth', 'short', 'keffiyeh'], ['sand', 'short', 'turban']];
   P.bro = bro.map(([pal, beard, hw], i) => PE.make({ kind: 'man', outfit: 'traveller', palette: pal, beard, headwear: hw, seed: 80 + i * 5, detail: 0.6 }));
@@ -173,7 +173,7 @@ function shots() {
     // 11 olive leaves turn in the rising wind (the old olive by the yard)
     { t0: 21.89, t1: 24.7, a: C([7.4, y + 2.0, 5.6], [9.5, hAt(9.5, 3.5) + 4.2, 3.5], 40), b: C([7.45, y + 2.0, 5.55], [9.5, hAt(9.5, 3.5) + 4.3, 3.5], 39.5), s(t) { yaqub(t, { fold: true }); } },
     // 12 the water jar fills, drop by drop, from the hanging waterskin
-    { t0: 24.7, t1: 26.94, a: C([JARP[0] + 0.55, JAR.top + 0.35, JARP[1] + 0.6], jarTop.toArray(), 32), b: C([JARP[0] + 0.5, JAR.top + 0.36, JARP[1] + 0.55], jarTop.clone().add(V3(0, 0.05, 0)).toArray(), 31), s(t) { yaqub(t, { fold: true }); } },
+    { t0: 24.7, t1: 26.94, a: C([JARP[0] + 0.75, JAR.top + 0.25, JARP[1] + 1.3], jarTop.clone().add(V3(0, 0.55, 0)).toArray(), 40), b: C([JARP[0] + 0.7, JAR.top + 0.25, JARP[1] + 1.2], jarTop.clone().add(V3(0, 0.5, 0)).toArray(), 38), s(t) { yaqub(t, { fold: true }); } },
     // 13 the staff in the light, slow push
     { t0: 26.94, t1: 28.9, a: C([3.7, y + 1.15, 0.9], [sm0.x, sm0.y + 0.2, sm0.z], 36), b: C([3.6, y + 1.12, 0.6], [sm0.x, sm0.y + 0.2, sm0.z], 32), s(t) { yaqub(t, { fold: false }); } },
     // 14 his hand opens slowly on his knee
@@ -211,7 +211,7 @@ M.film({
     MOTES.visible = SHAFT.visible;
     if (s.t0 === 12.81) SET.scene.backgroundRotation.y = SET.scene.environmentRotation.y + 0.04 * pr(t, 12.81, 14.14); else SET.scene.backgroundRotation.y = SET.scene.environmentRotation.y;
     const cam = s.cam ? s.cam(t) : K.camAt(s, t);
-    G.renderSet(ctx, ST, t, u, { cam, exposure: 0.85 });
+    G.renderSet(ctx, ST, t, u, { cam, exposure: 0.72 });
     K.vignette(ctx, 0.3);
     CAP.draw(ctx, t);
     K.drawSeal(ctx, IMG.seal, t, 32.6, D);
