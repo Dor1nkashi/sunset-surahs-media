@@ -83,7 +83,9 @@ M.film({
     ROAD.scene.add(K.trader.object3d, K.trader2.object3d);
     // ---------------- the market: our own coins and scale motion
     const MS = MKT.set, MP = MS.props; MP.coins.visible = false;
-    const scale = MP.pans[0].parent; K.scale = scale; K.scaleKids = scale.children.slice(); // post, beam, pan-, 3 chains-, pan+, 3 chains+
+    const scale = MP.pans[0].parent;
+    { const bm = MP.pans[0].material.clone(); bm.side = THREE.DoubleSide; scale.traverse((m) => { if (m.isMesh) m.material = bm; }); }   // pans are open lathes: show their insides
+    ROAD.bloom = 0.05; MKT.bloom = 0.05; K.scale = scale; K.scaleKids = scale.children.slice(); // post, beam, pan-, 3 chains-, pan+, 3 chains+
     K.scaleRest = K.scaleKids.map((c) => c.position.clone());
     const cg = coinGeo(), cm = coinMat(), r = mulberry32(12);
     K.coins = Array.from({ length: 9 }, (_, i) => { const c = new THREE.Mesh(cg, cm); c.castShadow = c.receiveShadow = true; MKT.scene.add(c); return { c, rx: (r() - 0.5) * 0.09, rz: (r() - 0.5) * 0.09, ry: r() * 6, tilt: (r() - 0.5) * 0.12 }; });
@@ -101,28 +103,28 @@ M.film({
     // ---------------- cameras
     const PW = K.panW, PL = [-2.4 - 0.29, PW.y, -21];
     K.cams = {
-      coinsA: { pos: [-2.0, 0.93, -20.42], look: [-2.07, 0.805, -20.64], fov: fv(26) },
-      coinsB: { pos: [-2.01, 0.915, -20.45], look: [-2.07, 0.805, -20.64], fov: fv(25) },
+      coinsA: { pos: [-1.72, 1.12, -20.2], look: [-2.1, 0.86, -20.72], fov: fv(32) },
+      coinsB: { pos: [-1.75, 1.1, -20.26], look: [-2.1, 0.86, -20.72], fov: fv(30) },
       wellA: { pos: [WP.x + 5.5, rhy(WP.x + 5.5, WP.z + 6.5) + 1.6, WP.z + 6.5], look: [WP.x, WP.y + 1.0, WP.z], fov: fv(48) },
       wellB: { pos: [WP.x + 4.6, rhy(WP.x + 4.6, WP.z + 5.4) + 1.5, WP.z + 5.4], look: [WP.x, WP.y + 1.0, WP.z], fov: fv(46) },
-      haulA: { pos: [WP.x + 0.55, K.rimY + 0.12, WP.z + 0.9], look: [WP.x, K.rimY - 0.2, WP.z + 0.1], fov: fv(40) },
-      haulB: { pos: [WP.x + 0.55, K.rimY + 0.12, WP.z + 0.9], look: [WP.x, K.rimY + 0.7, WP.z + 0.1], fov: fv(40) },
+      haulA: { pos: [WP.x - 0.95, K.rimY + 0.35, WP.z - 0.85], look: [WP.x + 0.35, K.rimY + 0.3, WP.z + 0.35], fov: fv(44) },
+      haulB: { pos: [WP.x - 0.85, K.rimY + 0.3, WP.z - 0.75], look: [WP.x + 0.3, K.rimY + 0.5, WP.z + 0.35], fov: fv(42) },
       call: { pos: [WP.x + 2.6, K.rimY + 0.35, WP.z + 2.6], look: [WP.x + 0.6, K.rimY + 0.75, WP.z + 0.4], fov: fv(42) },
       laneA: { pos: [1.4, 1.6, 2.0], look: [-0.6, 1.2, -12], fov: fv(46) },
       laneB: { pos: [-0.2, 1.6, 1.0], look: [-1.4, 1.2, -12], fov: fv(46) },
-      count: { pos: [PW.x + 0.22, PW.y + 0.2, PW.z + 0.3], look: [PW.x, PW.y + 0.01, PW.z], fov: fv(30) },
-      scoopA: { pos: [PW.x + 0.14, PW.y + 0.14, PW.z + 0.2], look: [PW.x, PW.y, PW.z], fov: fv(28) },
-      scoopB: { pos: [PW.x + 0.1, PW.y + 0.1, PW.z + 0.14], look: [PW.x, PW.y, PW.z], fov: fv(26) },
+      count: { pos: [PW.x + 0.15, PW.y + 0.42, PW.z + 0.75], look: [-2.4, PW.y + 0.05, PW.z], fov: fv(34) },
+      scoopA: { pos: [PW.x + 0.2, PW.y + 0.3, PW.z + 0.42], look: [PW.x, PW.y + 0.02, PW.z], fov: fv(30) },
+      scoopB: { pos: [PW.x + 0.17, PW.y + 0.26, PW.z + 0.36], look: [PW.x, PW.y + 0.02, PW.z], fov: fv(29) },
       blockA: { pos: [2.6, 0.45, -21.8], look: [0.3, 0.9, -26], fov: fv(44) },
       blockB: { pos: [2.1, 0.5, -22.6], look: [0.3, 0.9, -26], fov: fv(42) },
       craneA: { pos: [2.1, 1.0, -22.6], look: [0.3, 0.8, -26], fov: fv(44) },
       craneB: { pos: [4, 13, -14], look: [0.3, 0, -24], fov: fv(48) },
       patch: { pos: [3.0, 2.6, -21.5], look: [0.4, 0.75, -25.9], fov: fv(34) },
-      swing: { pos: [-2.4, 1.2, -20.2], look: [-2.4, 1.15, -21], fov: fv(34) },
-      drop: { pos: [-1.92, 0.9, -20.42], look: [-2.03, 0.806, -20.62], fov: fv(24) },
+      swing: { pos: [-2.25, 1.35, -20.1], look: [-2.4, 1.15, -21], fov: fv(36) },
+      drop: { pos: [-1.7, 1.15, -20.15], look: [-2.08, 0.9, -20.72], fov: fv(32) },
       widenA: { pos: [1.8, 1.0, -23.4], look: [0.3, 0.7, -26], fov: fv(36) },
       widenB: { pos: [3.2, 1.7, -20.5], look: [0.3, 0.7, -26], fov: fv(46) },
-      empty: { pos: [PL[0] + 0.03, PL[1] + 0.13, PL[2] + 0.17], look: [PL[0], PL[1] + 0.01, PL[2]], fov: fv(26) },
+      empty: { pos: [PL[0] + 0.12, PL[1] + 0.32, PL[2] + 0.4], look: [PL[0], PL[1] + 0.02, PL[2]], fov: fv(30) },
     };
     for (const s of [ROAD, MKT]) { s.update(0, 0, {}); G.R.compile(s.scene, s.camera); }
     console.error(`[y12-05] init ${((performance.now() - T0) / 1000).toFixed(1)} s`);
