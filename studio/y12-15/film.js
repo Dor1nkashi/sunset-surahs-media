@@ -45,13 +45,13 @@ const FAM = () => [P.yq, P.w, ...P.bro];          // order in the line (Yaʿqūb
 function light(t) {
   const n = night(t), L = SET.atmo.sun;
   L.intensity = BASE.sunI * (1 - sstep(0, 0.7, n)); L.color.setRGB(1, lerp(0.78, 0.5, n), lerp(0.55, 0.3, n));
-  SET.scene.environmentIntensity = BASE.env * lerp(1, 0.12, n); SET.scene.backgroundIntensity = BASE.bg * lerp(1, 0.035, n) * (1 - sstep(0.55, 0.95, n));
+  SET.scene.environmentIntensity = BASE.env * lerp(1, 0.12, n); SET.scene.backgroundIntensity = BASE.bg * lerp(1, 0.07, sstep(0, 0.8, n));
   // the sun really sets: the sky image turns about the horizontal axis, carrying its sun below the horizon
   { const q = new THREE.Quaternion().setFromAxisAngle(BASE.axis, -0.32 * sstep(0, 0.8, n)).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), BASE.rotY));
     const e = new THREE.Euler().setFromQuaternion(q, 'XYZ'); SET.scene.backgroundRotation.copy(e); SET.scene.environmentRotation.copy(e); }
   if (SET.atmo.hemi) SET.atmo.hemi.intensity = BASE.hemi * lerp(1, 0.3, n);
   if (SET.scene.fog && BASE.fog) SET.scene.fog.color.copy(BASE.fog).lerp(new THREE.Color(0x0e1426), n);
-  MOONL.intensity = 0.55 * sstep(0.4, 1, n);
+  MOONL.intensity = 1.3 * sstep(0.4, 1, n);
   return n;
 }
 // ------------------------------------------------------------------ people (pure in t)
@@ -89,7 +89,7 @@ function shots() {
     { t0: 3.65, t1: 5.41, a: C([-5.2, 1.45, -1.6], [0.2, 1.1, -3.4], 44), b: C([-5.2, 1.45, -4.4], [0.2, 1.1, -6.0], 44) },   // 4 the line enters, a lateral track with them
     { t0: 5.41, t1: 6.71, a: C([0.3, 1.7, -10.5], [0, 0.7, DZ + 6.8], 52), b: C([0.3, 1.6, -11.6], [0, 0.7, DZ + 6.8], 50) }, // 5 they end in a bow, an arc
     { t0: 6.71, t1: 7.88, a: C([0.9, 2.6, DZ - 1.6], [0, 1.0, DZ + 8], 46), b: null },                                   // 6 his back at the dais, one hand open
-    { t0: 7.88, t1: 9.31, a: C([1.0, 0.2, DZ + 11.5], [0, 2.6, DZ - 4], 70), b: null },                                    // 7 low: the bowed figures, the stars above
+    { t0: 7.88, t1: 9.31, a: C([5.6, 0.35, DZ + 8.4], [-2, 2.3, DZ + 6.6], 64), b: C([5.5, 0.35, DZ + 8.3], [-2, 2.4, DZ + 6.6], 63) },                                    // 7 low: the bowed figures, the stars above
     { t0: 9.31, t1: 12.04, a: C([0.6, 0.5, DZ + 12], [0, 6, DZ - 6], 52), b: C([0.6, 0.5, DZ + 12], [from[0] + sDir.x * 30, 0.5 + sDir.y * 30, DZ + 12 + sDir.z * 30], 50) }, // 8 up: the eleven in their arc, the moon
     { t0: 12.04, t1: 14.55, a: C([0.6, 0.5, DZ + 12], [from[0] + sDir.x * 30, 0.5 + sDir.y * 30 - 6, DZ + 12 + sDir.z * 30], 50), b: C([0.6, 0.9, DZ + 12.5], [0, 0.8, DZ + 6.8], 52) }, // 9 down again onto the bowed figures
     { t0: 14.55, t1: 15.95, a: C([2.5, 1.6, -6], [0, 1.6, DZ], 46), b: C([2.6, 1.7, -4.5], [0, 1.6, DZ], 48) },             // 10 the court dims, banners still
@@ -116,13 +116,13 @@ M.film({
     M.fill(ctx, '#000');
     const n = light(t); people(t);
     const s = K.shotAt(SHOTS, t), cam = K.camAt(s, t);
-    ST.update(t, u, { cam, exposure: lerp(0.85, 1.35, n) });
+    ST.update(t, u, { cam, exposure: lerp(0.85, 1.6, n) });
     // the eleven: faint at golden hour, full at dusk, fading toward moonlight (12), one remains (13+)
     const e = 0.18 + 0.82 * sm(t, 6.0, 11.0), fade = 1 - 0.85 * sm(t, 18.6, 20.6);
     E11.userData.update(t, ST.camera, { op: e * fade, hi: sm(t, 18.6, 21) });
     SKY.userData.update(ST.camera, t, sstep(0.3, 1, n));
     MOON.visible = n > 0.05; MOON.userData.update(ST.camera, t, sstep(0.2, 0.8, n));
-    G.renderSet(ctx, ST, t, u, { cam, exposure: lerp(0.85, 1.35, n) });
+    G.renderSet(ctx, ST, t, u, { cam, exposure: lerp(0.85, 1.6, n) });
     K.vignette(ctx, 0.32);
     CAP.draw(ctx, t);
     K.drawSeal(ctx, IMG.seal, t, 27.34, D);
