@@ -17,7 +17,7 @@ const D = 37.97;
 // ------------------------------------------------------------------ the dream: a Nile bank at dawn
 async function dreamSet() {
   const scene = new THREE.Scene(), group = new THREE.Group(); scene.add(group);
-  const atmo = await W.atmosphere(scene, { hdri: 'rogland_sunset', background: 'hdri', sun: { azim: -90 }, sunI: 2.2, envI: 1.0, fog: 0.022, fogGain: 0.85, blur: 0.08, shadowBox: 30, focus: [0, 0, -4] });
+  const atmo = await W.atmosphere(scene, { hdri: 'rogland_sunset', background: 'hdri', sun: { azim: -90 }, sunI: 2.2, envI: 0.8, fog: 0.007, fogGain: 0.6, blur: 0.08, shadowBox: 30, focus: [0, 0, -4] });
   const n = W.noise2(5);
   // the river lies at z < -9 (water at y = -0.35); the bank rises gently to the fields at z > -2
   const height = (x, z) => -0.9 * (1 - W.sstep(-12, -3, z)) + 0.35 * W.sstep(-3, 8, z) + 0.06 * n(x / 4, z / 4) + 0.02 * n(x, z);
@@ -131,7 +131,7 @@ M.film({
     const set = s.set, st = ST[set];
     const A = s.a, B = s.b;
     let cam = K.camLerp(A, B, (s.ease || E.inOutSine)(p));
-    if (set === 'dream') dream(t, i, s, p);
+    if (set === 'dream') { dream(t, i, s, p); if (s.spike) { const h = DREAM.props.height(cam.look[0], 5); cam = { ...cam, pos: [cam.pos[0], cam.pos[1] + h, cam.pos[2]], look: [cam.look[0], cam.look[1] + h, cam.look[2]] }; } }
     if (set === 'pal') palace(t, i, s, p);
     if (set === 'nile') fields(t, i, s, p);
     cam = K.breathe(cam, t, s.locked ? 0.0008 : 0.002, 51 + i);
@@ -186,44 +186,44 @@ async function extras() {
 
 // ------------------------------------------------------------------ shots
 const C = {
-  dream_low: { pos: [-7.5, 0.25, -6.4], look: [8, 0.55, -7.6], fov: 44 },
-  dream_low2: { pos: [-7.3, 0.25, -6.2], look: [10, 0.55, -6.6], fov: 44 },
-  spikeB_a: { pos: [24.25, 0.92, 5.85], look: [24.25, 0.95, 5.0], fov: 22 },
-  spikeB_b: { pos: [24.55, 0.92, 5.85], look: [24.6, 0.93, 5.0], fov: 22 },
-  hall_a: { pos: [0.4, 1.6, 2.5], look: [0, 1.8, -28], fov: 44 },
-  hall_b: { pos: [0.2, 1.6, -4.5], look: [0, 1.7, -28], fov: 42 },
-  chair_a: { pos: [1.1, 1.75, -29.4], look: [0, 1.65, -33.5], fov: 34 },
-  chair_b: { pos: [0.8, 1.72, -30.2], look: [0, 1.62, -33.5], fov: 32 },
-  door_back: { pos: [0.6, 1.65, -3.5], look: [0, 1.6, 12], fov: 46 },
+  dream_low: { pos: [5.0, 0.55, 1.8], look: [6.5, 0.1, -8.0], fov: 50 },
+  dream_low2: { pos: [6.0, 0.6, 1.9], look: [8.0, 0.1, -8.0], fov: 50 },
+  spikeB_a: { pos: [24.25, 0.95, 5.95], look: [24.25, 0.92, 5.0], fov: 26 },
+  spikeB_b: { pos: [24.6, 0.95, 5.95], look: [24.6, 0.92, 5.0], fov: 26 },
+  hall_a: { pos: [0.4, 1.6, -9.5], look: [0, 1.6, -28], fov: 44 },
+  hall_b: { pos: [0.2, 1.6, -12.5], look: [0, 1.6, -28], fov: 42 },
+  chair_a: { pos: [1.7, 2.3, -29.2], look: [0, 1.6, -33.6], fov: 30 },
+  chair_b: { pos: [1.5, 2.25, -29.8], look: [0, 1.6, -33.6], fov: 29 },
+  door_back: { pos: [0.55, 1.6, 0.4], look: [0, 1.35, 12], fov: 46 },
   clean: { pos: [-3, 0.55, -6.0], look: [6, 0.05, -40], fov: 40 },
   fat_row: { pos: [8, 1.3, 6.5], look: [8, 0.8, -3], fov: 48 },
-  spikeA: { pos: [14.22, 0.93, 5.8], look: [14.22, 0.98, 5.0], fov: 22 },
-  plots_a: { pos: [-20, 2.0, 8], look: [-20, 0.5, 21], fov: 50 },
-  plots_b: { pos: [-20, 13, 4], look: [-20, 0, 21], fov: 52 },
-  bundle_a: { pos: [-28.2, 1.15, 13.6], look: [-29.0, 0.55, 15.3], fov: 36 },
-  bundle_b: { pos: [-28.4, 1.0, 14.0], look: [-29.0, 0.55, 15.3], fov: 32 },
-  fill_a: { pos: [34.6, 1.5, -12.0], look: [32.4, 0.6, -13.9], fov: 46 },
-  fill_b: { pos: [35.2, 1.65, -11.6], look: [32.4, 0.6, -13.9], fov: 50 },
+  spikeA: { pos: [14.22, 0.96, 5.95], look: [14.22, 0.93, 5.0], fov: 26 },
+  plots_a: { pos: [-21, 2.0, 32], look: [-21, 0.4, 19], fov: 52 },
+  plots_b: { pos: [-21, 14, 38], look: [-21, 0, 18], fov: 54 },
+  bundle_a: { pos: [-30.1, 1.2, 13.4], look: [-28.85, 0.5, 15.05], fov: 40 },
+  bundle_b: { pos: [-29.9, 1.1, 13.7], look: [-28.85, 0.5, 15.05], fov: 36 },
+  fill_a: { pos: [31.0, 1.45, -11.9], look: [32.7, 0.85, -13.5], fov: 52 },
+  fill_b: { pos: [30.9, 1.5, -11.75], look: [32.7, 0.85, -13.5], fov: 56 },
   green: { pos: [-10, 0.7, 11.5], look: [-6, 0.6, 3], fov: 40 },
   full: { pos: [32.0, 1.4, -14.2], look: [36, 1.2, -14.0], fov: 54 },
-  drought: { pos: [-20, 2.0, 8], look: [-20, 0.5, 21], fov: 50 },
+  drought: { pos: [-23.2, 1.6, 29.5], look: [-23.0, 0.2, 21], fov: 48 },
   door_in: { pos: [34.6, 1.4, -14.4], look: [30, 1.1, -14.0], fov: 44 },
 };
 const SHOTS = [
   { t0: 0.00, t1: 1.33, set: 'dream', a: C.dream_low, b: C.dream_low2, ex: 1.0 },
-  { t0: 1.33, t1: 2.63, set: 'dream', a: C.dream_low2, b: { ...C.dream_low2, pos: [-7.1, 0.27, -6.0] }, ex: 1.0 },
-  { t0: 2.63, t1: 5.00, set: 'dream', a: C.spikeB_a, b: C.spikeB_b },
-  { t0: 5.00, t1: 6.40, set: 'pal', a: C.hall_a, b: C.hall_b },
-  { t0: 6.40, t1: 8.35, set: 'pal', a: C.chair_a, b: C.chair_b },
-  { t0: 8.35, t1: 11.32, set: 'pal', a: C.door_back, locked: true },
+  { t0: 1.33, t1: 2.63, set: 'dream', a: C.dream_low2, b: { ...C.dream_low2, pos: [6.8, 0.62, 2.0] }, ex: 1.0 },
+  { t0: 2.63, t1: 5.00, set: 'dream', a: C.spikeB_a, b: C.spikeB_b, spike: 1, ex: 0.8 },
+  { t0: 5.00, t1: 6.40, set: 'pal', a: C.hall_a, b: C.hall_b, ex: 0.42 },
+  { t0: 6.40, t1: 8.35, set: 'pal', a: C.chair_a, b: C.chair_b, ex: 0.45 },
+  { t0: 8.35, t1: 11.32, set: 'pal', a: C.door_back, locked: true, ex: 0.6 },
   { t0: 11.32, t1: 13.07, set: 'dream', a: C.clean, locked: true },
-  { t0: 13.07, t1: 14.22, set: 'dream', a: C.fat_row, locked: true },
-  { t0: 14.22, t1: 16.66, set: 'dream', a: C.fat_row, locked: true },
-  { t0: 16.66, t1: 18.65, set: 'dream', a: C.spikeA, locked: true },
-  { t0: 18.65, t1: 20.73, set: 'dream', a: C.spikeB_b, locked: true },
+  { t0: 13.07, t1: 14.22, set: 'dream', a: C.fat_row, locked: true, ex: 0.8 },
+  { t0: 14.22, t1: 16.66, set: 'dream', a: C.fat_row, locked: true, ex: 0.8 },
+  { t0: 16.66, t1: 18.65, set: 'dream', a: C.spikeA, locked: true, spike: 1, ex: 0.8 },
+  { t0: 18.65, t1: 20.73, set: 'dream', a: C.spikeB_b, locked: true, spike: 1, ex: 0.8 },
   { t0: 20.73, t1: 23.27, set: 'nile', a: C.plots_a, b: C.plots_b, ease: E.inOutCubic },
   { t0: 23.27, t1: 25.60, set: 'nile', a: C.bundle_a, b: C.bundle_b },
-  { t0: 25.60, t1: 28.52, set: 'nile', a: C.fill_a, b: C.fill_b },
+  { t0: 25.60, t1: 28.52, set: 'nile', a: C.fill_a, b: C.fill_b, ex: 1.3 },
   { t0: 28.52, t1: 30.00, set: 'nile', a: C.green, locked: true },
   { t0: 30.00, t1: 31.52, set: 'nile', a: C.full, locked: true },
   { t0: 31.52, t1: 34.16, set: 'nile', a: C.drought, locked: true },
@@ -257,7 +257,7 @@ function dream(t, i) {
   const n = W.noise2(3);
   for (const [j, s] of [...rowA, ...rowB].entries()) { const wv = 0.05 * Math.sin(t * 1.4 - s.position.x * 3) + 0.02 * n(t * 0.6, j); s.rotation.z = wv * (s.userData.dry ? 0.6 : 1); s.rotation.x = 0.4 * wv; }
   // the haze thickens in the dream
-  DREAM.scene.fog.density = 0.022 + (i === 8 ? 0.02 * prog(t, 14.6, 16.6) : 0);
+  DREAM.scene.fog.density = 0.007 + (i === 8 ? 0.02 * prog(t, 14.6, 16.6) : 0);
 }
 
 // ------------------------------------------------------------------ the palace

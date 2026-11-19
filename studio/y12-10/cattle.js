@@ -29,8 +29,8 @@ export function makeCow({ fat = 1, seed = 1, coat = null } = {}) {
   const r = SD.mulberry32(shape * 977 + 13), j = (a) => 1 + (r() - 0.5) * a;
   const L = 1.0 * j(0.06), H = 1.0 * j(0.05);
   const bw = (0.25 + 0.15 * fat) * j(0.05), bh = (0.31 + 0.12 * fat) * j(0.05);
-  const base = fat > 0.5 ? lin('#8a5634') : lin('#8a8070');
-  const tint = coat ? new THREE.Color(coat) : fat > 0.5 ? new THREE.Color(['#ffffff', '#e8d0c0', '#c8a890', '#fff0e0', '#b89078'][seed % 5]) : new THREE.Color(['#ffffff', '#e0dcd4', '#c8c4bc', '#f0e8e0'][seed % 4]);
+  const base = fat > 0.5 ? lin('#6a3418') : lin('#7a7264');
+  const tint = coat ? new THREE.Color(coat) : fat > 0.5 ? new THREE.Color(['#ffffff', '#d8b8a0', '#b89880', '#f0d8c0', '#a08068'][seed % 5]) : new THREE.Color(['#ffffff', '#e0dcd4', '#c8c4bc', '#f0e8e0'][seed % 4]);
   // ---- body (torso, belly, neck, head, horns, ears, tail root)
   const torso = SD.ellipsoid([0, 1.02 * H, 0], [0.86 * L, bh, bw]);
   const belly = SD.ellipsoid([-0.05, 0.92 * H - 0.06 * (1 - fat), 0], [0.62 * L, bh * (0.75 + 0.2 * fat), bw * (0.95 + 0.1 * fat)]);
