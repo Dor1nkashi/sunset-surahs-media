@@ -29,10 +29,10 @@ function poses() {
   C.lip_a = { pos: [0.15, 0.85, -1.6], look: [2.0, 0.2, 12], fov: 52 };
   C.lip_b = { pos: [0.5, 1.45, 2.6], look: [6.5, h(6.5, 22) + 0.4, 24], fov: 50 };
   // telephoto pan along the valley: barrier -> garden -> two waters -> village
-  C.v0 = { pos: [10, 24, 12], look: [-330, -120, 640], fov: 13 };
-  C.v1 = { pos: [10, 24, 12], look: [-150, -178, 360], fov: 13 };
-  C.v2 = { pos: [10, 24, 12], look: [140, -178, 470], fov: 13 };
-  C.v3 = { pos: [10, 24, 12], look: [250, -176, 320], fov: 13 };
+  C.v0 = { pos: [10, 24, 12], look: [-330, -120, 640], fov: 24 };
+  C.v1 = { pos: [10, 24, 12], look: [-150, -178, 360], fov: 24 };
+  C.v2 = { pos: [10, 24, 12], look: [140, -178, 470], fov: 24 };
+  C.v3 = { pos: [10, 24, 12], look: [250, -176, 320], fov: 24 };
   C.mouth_a = { pos: [2.6, 0.45, 8.6], look: [0, 1.0, -1], fov: 44 };
   C.mouth_b = { pos: [2.1, 0.42, 6.6], look: [0, 0.95, -1.5], fov: 42 };
   C.stones = { pos: [1.15, 0.42, 1.55], look: [0.35, 0.12, 0.25], fov: 30 };
@@ -128,9 +128,9 @@ M.film({
     if (s.vista) cam = vistaCam(t);
     else if (s.row) {
       // lateral track that follows the running flame
-      const x = clamp(runX(t), WX0, WX1), k = (x - WX0) / (WX1 - WX0);
-      cam = K.camLerp(C.row_a, C.row_b, k);
-      cam = { ...cam, look: [x + 0.25, cam.look[1], cam.look[2]], pos: [x - 0.35 + 0.5 * k, cam.pos[1], cam.pos[2]] };
+      // the row recedes in perspective from the right end; the aim drifts with the running flame
+      const x = clamp(runX(t), WX0, WX1), k = E.inOutSine(prog(t, 13.03, 15.4));
+      cam = { pos: [WX1 + 1.5 - 0.5 * k, 0.62 - 0.08 * k, LEDGE_Z + 1.55 - 0.25 * k], look: [0.55 * x - 0.4, 0.12, LEDGE_Z - 0.2], fov: 34 };
     } else cam = K.camLerp(C[s.a], s.b ? C[s.b] : null, pe);
     cam = K.breathe(cam, t, 0.002, 7 + i);
 
