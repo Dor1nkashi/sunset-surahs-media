@@ -112,11 +112,11 @@ M.film({
     STAFF = W.shadows(new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.02, 1.7, 14).translate(0, 0.85, 0), wood)); S.add(STAFF);
     // cameras
     C.seam_wide = { pos: [-10, hy(-10, 28) + 1.6, 28], look: [2.8, 0.2, -120], fov: 34 };
-    C.seat_a = { pos: [5.0, hy(5, 8) + 1.4, 8.0], look: [SEAT_AT[0], SEAT_Y + 0.35, SEAT_AT[1]], fov: 20 };
-    C.seat_b = { pos: [5.2, hy(5.2, 7.8) + 1.38, 7.8], look: [SEAT_AT[0], SEAT_Y + 0.35, SEAT_AT[1]], fov: 14 };
+    C.seat_a = { pos: [2.2, hy(2.2, 15) + 1.4, 15.0], look: [SEAT_AT[0], SEAT_Y + 0.3, SEAT_AT[1] - 0.6], fov: 20 };
+    C.seat_b = { pos: [2.6, hy(2.6, 14.2) + 1.38, 14.2], look: [SEAT_AT[0], SEAT_Y + 0.3, SEAT_AT[1] - 0.6], fov: 17 };
     C.planted = { pos: [PLANT[0] - 0.75, hy(...PLANT) + 0.42, PLANT[1] + 1.05], look: [PLANT[0] + 0.05, hy(...PLANT) + 0.55, PLANT[1]], fov: 40 };
-    C.prints_a = { pos: [trX(6.5) + 0.3, hy(trX(6.5), 6.5) + 0.4, 6.5], look: [trX(20), hy(trX(20), 20) + 0.2, 20], fov: 38 };
-    C.prints_b = { pos: [trX(8) + 0.3, hy(trX(8), 8) + 0.45, 8], look: [trX(22), hy(trX(22), 22) + 0.25, 22], fov: 38 };
+    C.prints_a = { ...SET.cameras.footprints };
+    C.prints_b = { ...SET.cameras.footprints, pos: SET.cameras.footprints.pos.map((v, j) => v + [0.15, 0.05, 0.6][j]) };
     C.seam_a = { pos: [2.0, 2.4, 0.6], look: [2.8, 0, -9], fov: 40 };
     C.seam_b = { pos: [2.05, 2.35, 0.4], look: [2.8, 0, -9.5], fov: 40 };
     C.upright = { pos: [PLANT[0] - 0.6, hy(PLANT[0], PLANT[1] + 2.4) + 0.65, PLANT[1] + 2.4], look: [PLANT[0] + 0.8, 0.7, PLANT[1] - 12], fov: 46 };
@@ -131,13 +131,13 @@ M.film({
     posePeople(t, i);
     let cam;
     if (s.cam === 'foot') { const z = walkZ(t), x = trX(z); cam = { pos: [x + 0.2, hy(x, z - 1.4) + 0.28, z - 1.5], look: [x - 0.2, hy(x, z) + 0.15, z], fov: K.lensFov(40) }; }
-    else if (s.cam === 'track') { const k = E.inOutSine(p), z = 52 - 4 * k; cam = { pos: [trX(z) + 0.4, hy(trX(z), z) + 1.6, z], look: [trX(z - 60), hy(trX(z - 60), z - 60) + 0.6, z - 60], fov: K.lensFov(40) }; }
+    else if (s.cam === 'track') { const k = E.inOutSine(p), z = 92 - 4 * k; cam = { pos: [trX(z) + 0.6, hy(trX(z), z) + 2.2, z], look: [trX(z - 50), hy(trX(z - 50), z - 50) + 0.2, z - 50], fov: K.lensFov(44) }; }
     else if (s.cam === 'backs') { const z = walkZ(4.86); cam = { pos: [trX(z + 90) + 1.5, hy(trX(z + 90), z + 90) + 1.7, z + 90], look: [trX(z), hy(trX(z), z) + 1.0, z], fov: K.lensFov(7) }; }
     else if (s.cam === 'rise') { const k = E.inOutSine(p), z = walkZ(7.4) + 5, x = trX(z); cam = { pos: [x + 0.6, hy(x, z) + 1.5 + 9 * k, z + 3 * k], look: [trX(z - 30) * (1 - k) + 2.8 * k, 1 * (1 - k), (z - 30) * (1 - k) - 300 * k], fov: K.lensFov(36) }; }
-    else if (s.cam === 'point') { const z = 14, x = trX(z) - 0.3; cam = { pos: [x - 0.45, hy(x, z) + 1.25, z + 1.1], look: [2.8, 0.4, -60], fov: K.lensFov(30) }; }
+    else if (s.cam === 'point') { const a = K.onBody(TALL, 0.32, 1.42, -0.75), g = K.onBody(TALL, -0.12, 1.35, 0.45); cam = { pos: a.toArray(), look: [2.8, 0.4, -60].map((v, j) => j === 1 ? g.y - 0.15 : v), fov: K.lensFov(34) }; }
     else if (s.cam === 'shore') { const z = 7.4; cam = { pos: [trX(z) - 0.2, hy(trX(z), z + 2.6) + 0.32, z + 2.6], look: [trX(z) + 0.3, 0.02, z - 3.2], fov: K.lensFov(44) }; }
-    else if (s.cam === 'push') { const k = E.inOutSine(p), a = V(PLANT[0] - 1.3, hy(...PLANT) + 1.2, PLANT[1] + 2.0), b = V(PLANT[0] + 0.5, hy(...PLANT) + 1.25, PLANT[1] - 0.2); const pos = a.lerp(b, k);
-      cam = { pos: pos.toArray(), look: [SEAT_AT[0], SEAT_Y + 0.3, SEAT_AT[1]], fov: K.lensFov(28 - 6 * k) }; }
+    else if (s.cam === 'push') { const k = E.inOutSine(p), a = V(PLANT[0] - 1.6, hy(...PLANT) + 1.25, PLANT[1] + 4.5), b = V(PLANT[0] - 0.6, hy(...PLANT) + 1.25, PLANT[1] + 3.2); const pos = a.lerp(b, k);
+      cam = { pos: pos.toArray(), look: [SEAT_AT[0] - 0.6, SEAT_Y + 0.25, SEAT_AT[1] - 0.6], fov: K.lensFov(34 - 4 * k) }; }
     else cam = K.camLerp(C[s.a], s.b ? C[s.b] : null, (s.ease || E.linear)(p));
     cam = K.breathe(cam, t, 0.002, 4 + i);
     // dust at the staff tip / footfalls
@@ -146,7 +146,7 @@ M.film({
     if (SEAT.object3d.visible) K.tilt(SEAT, 'Spine', 0.6 * Math.sin(t * 1.3), 0, 0);
     // afternoon: the sun lowers toward the shore shots
     SET.props.sun.intensity = 3.4 - 0.9 * E.inOutSine(prog(t, 12.0, 15.0));
-    G.renderSet(ctx, ST, t, u, { cam, fish: 1, exposure: SET.exposure * (i === 11 ? 0.6 : i === 12 ? 0.85 : 1) });
+    G.renderSet(ctx, ST, t, u, { cam, fish: 1, exposure: SET.exposure * (i === 11 ? 0.42 : i === 12 ? 0.85 : 1) });
     // heat shimmer on the far band (shots 2-4, 6): a gentle horizontal wobble of thin strips near the horizon
     if (i === 1 || i === 2 || i === 3 || i === 5) {
       const y0 = M.H * (M.FORMAT.portrait ? 0.4 : 0.38), h = M.H * 0.08, src = ctx.canvas;
