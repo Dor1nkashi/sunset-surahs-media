@@ -79,7 +79,7 @@ M.film({
     S.add(MAN.object3d);
     MAN.object3d.traverse((o) => { if (o.isMesh && o.material && 'sheen' in o.material) { o.material.sheen = Math.min(o.material.sheen, 0.12); o.material.envMapIntensity = 0.5; if (o.material.emissive && o.material.emissive.getHex() === 0 && o.material.color.getHSL({}).l > 0.3) o.material.color.set(0x4a3c30); } });
     // his clothes in the same coarse wool as the cloaks (plain standard material on the skinned meshes)
-    { const src = SET.props.sleepers[0].material, wool = new THREE.MeshStandardMaterial({ map: src.map, normalMap: src.normalMap, roughnessMap: src.roughnessMap, aoMap: src.aoMap, color: 0x6e5c48, roughness: 0.95, envMapIntensity: 0.4 });
+    { const src = SET.props.sleepers[0].material, wool = new THREE.MeshStandardMaterial({ color: 0x3e3226, roughness: 1, envMapIntensity: 0.3 });
       MAN.object3d.traverse((o) => { if (o.isMesh && !/hand|head|foot|sandal/i.test(o.name)) o.material = wool; }); }
     // his own cloak drawn over him (the same wool as the others): only the sleeve and hand come out from under its edge
     { const src = SET.props.sleepers[0]; const cm = src.material.clone(); cm.onBeforeCompile = src.material.onBeforeCompile; cm.customProgramCacheKey = src.material.customProgramCacheKey; cm.alphaHash = false; cm.opacity = 1; COVER = new THREE.Mesh(src.geometry, cm); COVER.userData.U = src.userData.U; COVER.castShadow = COVER.receiveShadow = true;
@@ -101,7 +101,7 @@ M.film({
     C.hand_a = { pos: [HAND.x + 0.24, HAND.y + 0.3, HAND.z + 0.62], look: [HAND.x + 0.07, HAND.y + 0.01, HAND.z + 0.05], fov: 24 };
     C.hand_b = { pos: [HAND.x + 0.23, HAND.y + 0.29, HAND.z + 0.59], look: [HAND.x + 0.07, HAND.y + 0.01, HAND.z + 0.05], fov: 24 };
     C.rack_a = { pos: [HAND.x + 0.22, HAND.y + 0.29, HAND.z + 0.58], look: [HAND.x + 0.1, HAND.y + 0.03, HAND.z], fov: 24 };
-    C.rack_b = { pos: [HAND.x + 0.06, HAND.y + 0.22, HAND.z + 0.42], look: [HAND.x + 0.32, HAND.y + 0.18, HAND.z - 0.22], fov: 22 };
+    C.rack_b = { pos: [HAND.x + 0.2, HAND.y + 0.3, HAND.z + 0.6], look: [HAND.x + 0.3, HAND.y + 0.12, HAND.z - 0.15], fov: 26 };
     C.pull_a = { pos: [HAND.x + 0.26, HAND.y + 0.33, HAND.z + 0.66], look: [HAND.x + 0.2, HAND.y + 0.05, HAND.z - 0.3], fov: 26 };
     C.pull_b = { pos: [2.3, 1.15, -3.3], look: [-0.4, 0.15, -8.6], fov: 44 };
     C.dog = { pos: [0.6, 0.55, -5.2], look: [-0.7, 0.4, 0.8], fov: 56 };
