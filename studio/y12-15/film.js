@@ -28,7 +28,7 @@ async function build() {
   BASE.fog = SET.scene.fog ? SET.scene.fog.color.clone() : null;
   SKY = K.starfield({ count: 4200, bright: 1.6 }); SET.scene.add(SKY);
   E11 = elevenStars(THREE, { size: 15 }); SET.scene.add(E11);
-  MOON = K.brightStar({ dir: [0.55, 0.42, -0.72], size: 34, color: 0xdfe8ff }); SET.scene.add(MOON);
+  MOON = K.brightStar({ dir: [0.55, 0.42, -0.72], size: 9, color: 0xdfe8ff }); SET.scene.add(MOON);
   MOONL = new THREE.DirectionalLight(0x9fb4ff, 0); MOONL.position.set(0.55 * 200, 0.42 * 200, -0.72 * 200); SET.scene.add(MOONL, MOONL.target);
   const PE = await K.people();
   P.y = PE.make({ kind: 'man', outfit: 'noble', palette: K.YUSUF_PAL, beard: 'short', headwear: 'wrap', seed: 12, detail: 1 });
@@ -68,6 +68,8 @@ function people(t) {
     K.tilt(p, 'Spine', 22 * b, 0, 0); K.tilt(p, 'Spine1', 20 * b, 0, 0); K.tilt(p, 'Spine2', 14 * b, 0, 0); K.tilt(p, 'Neck', 10 * b, 0, 0);
   });
   // Yusuf stands on the dais, facing them; one hand opens toward his father
+  // he is only ever seen from behind (shot 6); in the shots that look at the dais he has stepped down out of view
+  if (t < 6.71 || t >= 7.88) return;
   P.y.object3d.visible = true; K.place(P.y, 0, 0.98, DZ + 0.55, 0); P.y.setPose('stand', t);
   const o = sm(t, 6.8, 7.6); if (o > 0) { K.reach(P.y, 'Right', K.onBody(P.y, -0.25, 1.15, 0.4), K.onBody(P.y, -0.8, 0.6, -0.5), o); K.tilt(P.y, 'RightHand', 0, -60 * o, 0); K.fingers(P.y, 'Right', 1 - o); }
 }
@@ -82,7 +84,7 @@ function shots() {
     { t0: 2.6, t1: 3.65, a: C([1.6, 1.9, DZ + 4.2], [0, 1.4, 2.4], 40), b: C([1.7, 2.0, DZ + 3.5], [0, 1.4, 2.4], 42) },      // 3 far at the gate, a line of travellers
     { t0: 3.65, t1: 5.41, a: C([-6.0, 1.45, -4.5], [0.5, 1.2, -6.5], 42), b: C([-6.0, 1.45, -7.5], [0.5, 1.2, -9.5], 42) },   // 4 the line enters, a lateral track with them
     { t0: 5.41, t1: 6.71, a: C([0.3, 1.7, -10.5], [0, 0.7, DZ + 6.8], 52), b: C([0.3, 1.6, -11.6], [0, 0.7, DZ + 6.8], 50) }, // 5 they end in a bow, an arc
-    { t0: 6.71, t1: 7.88, a: C([0.55, 2.55, DZ - 0.6], [0, 0.9, DZ + 8], 48), b: null },                                   // 6 his back at the dais, one hand open
+    { t0: 6.71, t1: 7.88, a: C([0.9, 2.6, DZ - 1.6], [0, 1.0, DZ + 8], 46), b: null },                                   // 6 his back at the dais, one hand open
     { t0: 7.88, t1: 9.31, a: C([1.0, 0.2, DZ + 11.5], [0, 2.6, DZ - 4], 70), b: null },                                    // 7 low: the bowed figures, the stars above
     { t0: 9.31, t1: 12.04, a: C([0.6, 0.5, DZ + 12], [0, 6, DZ - 6], 52), b: C([0.6, 0.5, DZ + 12], [from[0] + sDir.x * 30, 0.5 + sDir.y * 30, DZ + 12 + sDir.z * 30], 50) }, // 8 up: the eleven in their arc, the moon
     { t0: 12.04, t1: 14.55, a: C([0.6, 0.5, DZ + 12], [from[0] + sDir.x * 30, 0.5 + sDir.y * 30 - 6, DZ + 12 + sDir.z * 30], 50), b: C([0.6, 0.9, DZ + 12.5], [0, 0.8, DZ + 6.8], 52) }, // 9 down again onto the bowed figures
