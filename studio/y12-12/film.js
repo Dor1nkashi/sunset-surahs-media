@@ -198,10 +198,12 @@ M.film({
   },
   draw(ctx, u, t, IMG) {
     M.fill(ctx, '#000');
-    hide();
+    hide(); BAGB.setOpen(1); BOWL.visible = false;
     const s = K.shotAt(SHOTS, t);
     let cam;
-    if (s.t0 === 30.08) {
+    if (t >= 33.86) {                                   // the loop seam: exactly frame 1's state and camera
+      hide(); SHOTS[0].s(0); BAGB.setOpen(1); cam = K.camAt(SHOTS[0], 0);
+    } else if (s.t0 === 30.08) {
       s.s(t);
       // Yusuf still at the table (rear three-quarter), then the camera cranes down to the bowl: frame 1's camera
       const A = C(at(YT[0] - 1.0, YT[1] + 0.7, 1.45), [YT[0] - 0.05, hAt(YT[0], YT[1]) + 0.95, YT[1] - 0.6], 34);
