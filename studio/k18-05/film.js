@@ -42,7 +42,7 @@ function shot(t) {
 }
 function orbitCam(t) {
   // one continuous orbit (shots 6-9): from behind (+z) round his left to the front-left; knee height rising to the belt
-  const k = prog(t, 10.69, 21.75), a = 0.1 + 1.95 * k, R = 2.8;
+  const k = prog(t, 10.69, 21.75), a = 0.5 + 2.1 * k, R = 2.8;
   const y = hy(OR[0], OR[1]) + 0.45 + 0.3 * E.inOutSine(prog(t, 15.5, 19.5));
   const pos = [OR[0] - Math.sin(a) * R, y, OR[1] + Math.cos(a) * R];
   return { pos, look: [OR[0], hy(OR[0], OR[1]) + 0.55, OR[1]], fov: K.lensFov(36) };
@@ -125,8 +125,8 @@ M.film({
     C.thr = { pos: [GATE[0] + 0.2, gy + 0.45, GATE[1] + 0.35], look: [GATE[0] - 0.2, gy + 1.5, GATE[1] - 8], fov: 58 };
     C.fhand_a = { pos: [GATE[0] - 0.55, gy + 1.45, GATE[1] - 0.15], look: [GATE[0] - 1.1, gy + 1.15, GATE[1] - 1.6], fov: 36 };
     C.fhand_b = { pos: [GATE[0] - 0.62, gy + 1.38, GATE[1] - 0.45], look: [GATE[0] - 1.1, gy + 1.15, GATE[1] - 1.6], fov: 34 };
-    C.post = { pos: [PIER_X - 0.42, gy + 1.42, GATE[1] + 0.85], look: [PIER_X - 0.02, gy + 1.3, GATE[1] + 0.05], fov: 24 };
-    C.post2 = { pos: [PIER_X - 0.38, gy + 1.38, GATE[1] + 0.8], look: [PIER_X - 0.02, gy + 1.22, GATE[1] + 0.0], fov: 26 };
+    C.post = { pos: [PIER_X - 1.0, gy + 1.5, GATE[1] + 1.7], look: [PIER_X - 0.05, gy + 1.28, GATE[1] + 0.0], fov: 30 };
+    C.post2 = { pos: [PIER_X - 0.95, gy + 1.45, GATE[1] + 1.6], look: [PIER_X - 0.05, gy + 1.2, GATE[1] - 0.05], fov: 30 };
     C.bed = { pos: [sx(10) + 0.2, hy(sx(10), 10) + 0.18, 10], look: [sx(4), hy(sx(4), 4) - 0.05, 4], fov: 34 };
     C.empty = { pos: [GATE[0] + 0.1, gy + 0.95, GATE[1] - 3.2], look: [GATE[0], gy + 0.4, GATE[1] + 0.2], fov: 46 };
     C.frond = { pos: [-13.4, hy(-13.4, 14.6) + 0.55, 14.6], look: [-14.6, hy(-15, 13.3) + 0.03, 13.3], fov: 40 };
@@ -146,7 +146,7 @@ M.film({
     for (const f of [OWN, FRI]) if (f.object3d.parent !== ST.scene) ST.scene.add(f.object3d);
     posePeople(t, i, s.set);
     let cam = s.orbit ? orbitCam(t) : K.camLerp(C[s.a], s.b ? C[s.b] : null, (s.ease || E.linear)(p));
-    if (i === 2) { const k = E.inOutSine(p), a = K.onBody(FRI, -0.38 + 0.05 * k, 1.62, -1.15 + 0.2 * k), b = K.onBody(FRI, -0.55, 1.1, 1.0); cam = { pos: a.toArray(), look: b.toArray(), fov: K.lensFov(40) }; }
+    if (i === 2) { const k = E.inOutSine(p), a = K.onBody(FRI, -0.75 + 0.05 * k, 1.5, -1.9 + 0.2 * k), b = K.onBody(FRI, -0.5, 1.05, 1.4); cam = { pos: a.toArray(), look: b.toArray(), fov: K.lensFov(40) }; }
     cam = K.breathe(cam, t, 0.0008, 6 + i);
     // the loose vine rolls past his feet in the gust (shot 9), and across the bed (shot 10)
     { const a = prog(t, 19.3, 21.6), b = prog(t, 21.9, 24.4), on = a > 0 && a < 1 ? 1 : b > 0 && b < 1 ? 2 : 0;
