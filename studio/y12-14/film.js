@@ -33,9 +33,9 @@ async function build() {
   ST = W.stage(SET);
   // turn the sky (env + background) so the HDRI's sun sits where our sun is (gate side, +z)
   const da = (250 - 78) * Math.PI / 180; SET.scene.environmentRotation.y += da; SET.scene.backgroundRotation.y += da;
-  SET.atmo.sun.intensity *= 1.4; SET.atmo.sun.color.set(0xffc58a); ST.bloom = 0.1; ST.bloomThreshold = 0.96;
+  SET.atmo.sun.intensity *= 2.6; SET.scene.environmentIntensity *= 0.55; if (SET.atmo.hemi) SET.atmo.hemi.intensity *= 0.5; SET.atmo.sun.color.set(0xffc58a); ST.bloom = 0.1; ST.bloomThreshold = 0.96;
   // dust in the low sun across the court
-  const N = 700, mg = new THREE.SphereGeometry(0.004, 6, 4), mm = new THREE.MeshBasicMaterial({ color: 0xffd8a0, transparent: true, opacity: 0.7, blending: THREE.AdditiveBlending, depthWrite: false });
+  const N = 700, mg = new THREE.SphereGeometry(0.0022, 6, 4), mm = new THREE.MeshBasicMaterial({ color: 0xffd8a0, transparent: true, opacity: 0.7, blending: THREE.AdditiveBlending, depthWrite: false });
   MOTES = new THREE.InstancedMesh(mg, mm, N); MOTES.frustumCulled = false; SET.group.add(MOTES);
   // empty grain sacks at the brothers' feet (folded flat)
   const hs = await K.mats.hessian();
@@ -82,18 +82,18 @@ function dust(t) {
 }
 
 function shots() {
-  const floorA = C([1.2, 0.25, -12.4], [0.0, 0.3, -24.5], 62), floorB = C([1.0, 0.25, -13.4], [0.0, 0.32, -24.5], 60);
-  const armA = C([-1.3, 2.32, -24.15], [-0.62, 1.96, -24.95], 28), armB = C([-1.27, 2.3, -24.2], [-0.62, 1.96, -24.95], 26);
+  const floorA = C([2.3, 0.42, -12.0], [-0.5, 0.0, -19.5], 58), floorB = C([2.1, 0.42, -12.8], [-0.5, 0.0, -20.2], 58);
+  const armA = C([-1.6, 2.65, -23.65], [-0.62, 1.96, -24.95], 24), armB = C([-1.55, 2.62, -23.72], [-0.62, 1.96, -24.95], 22);
   return [
     { t0: 0, t1: 2.16, a: floorA, b: floorB },                                                                                  // 1 long shadows on the stone, toward the dais
     { t0: 2.16, t1: 4.04, a: C([0.6, 0.4, -15.5], [0, 0.7, -23.5], 50), b: C([0.5, 0.42, -16.8], [0, 0.8, -23.5], 46) },            // 2 the shadows reach for the steps; dust
     { t0: 4.04, t1: 6.44, a: C([1.4, 1.6, -4.6], [0, 1.6, -22], 40), b: C([1.3, 1.6, -5.6], [0, 1.6, -22], 38) },                    // 3 their backs, the throne beyond
     { t0: 6.44, t1: 8.38, a: armA, b: armB },                                                                                   // 4 his hand on the throne arm, lifting
     { t0: 8.38, t1: 10.84, a: C([0.8, 3.45, -26.2], [0, 1.2, -12], 40), b: C([0.7, 2.7, -23.2], [0, 1.1, -12], 40) },                 // 5 one brother kneels; he steps down toward them
-    { t0: 10.84, t1: 13.5, a: C([3.3, 1.7, -14.2], [0, 0.85, -14.6], 46), b: C([3.1, 0.45, -14.1], [0, 0.35, -14.6], 52) },            // 6 lowering toward the stone between them
-    { t0: 13.5, t1: 15.9, a: C([-3.3, 0.18, -14.0], [0.3, 0.02, -14.8], 74), b: C([-3.0, 0.18, -14.1], [0.3, 0.02, -14.9], 72) },        // 7 floor level: the shadows reach toward him
+    { t0: 10.84, t1: 13.5, a: C([0.9, 1.7, -16.4], [0, 1.1, -10.8], 46), b: C([0.8, 0.45, -15.8], [0, 0.5, -10.8], 50) },            // 6 lowering toward the stone between them
+    { t0: 13.5, t1: 15.9, a: C([1.6, 0.16, -17.2], [-0.3, 0.1, -12.5], 70), b: C([1.5, 0.16, -16.9], [-0.3, 0.1, -12.5], 68) },        // 7 floor level: the shadows reach toward him
     { t0: 15.9, t1: 17.38, a: C([-1.0, 0.55, -19.6], [0, 1.4, -4], 56), b: C([-0.9, 0.58, -19.0], [0, 1.45, -4], 53) },               // 8 dust glowing in the low sun
-    { t0: 17.38, t1: 20.84, a: C([-5.0, 7.0, -14.2], [0, 0, -14.6], 52), b: null },                                               // 9 the shadows merge into one (locked)
+    { t0: 17.38, t1: 20.84, a: C([2.8, 7.6, -13.2], [0, 0, -14.5], 60), b: null },                                               // 9 the shadows merge into one (locked)
     { t0: 20.84, t1: 22.64, a: armA, b: armB },                                                                                 // 10 the throne arm, empty: the power he had
     { t0: 22.64, t1: 24.48, a: C([0.55, 1.85, YSTOP - 1.3], [-0.1, 1.35, -11], 40), b: C([0.5, 1.8, YSTOP - 1.05], [-0.1, 1.35, -11], 37) }, // 11 his open hand lifted in the light
     { t0: 24.48, t1: 26.42, a: C([2.6, 1.25, -19.6], [0, 1.4, -25], 38), b: null },                                               // 12 the dais, empty
