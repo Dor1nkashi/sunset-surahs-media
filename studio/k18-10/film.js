@@ -23,7 +23,7 @@ const L2W = (t, p) => boatXf(t).localToWorld(V(...p));
 const boatCam = (t, c) => ({ pos: L2W(t, c.pos).toArray(), look: L2W(t, c.look).toArray(), fov: c.fov, roll: c.roll ?? 0 });
 
 // story state
-const damageAt = (t) => (t >= T_PATCH ? 0 : E.inOutCubic(prog(t, 0.45, 1.55)) * 0.85);
+const damageAt = (t, i = -1) => (i === 10 ? 0.85 : t >= T_PATCH ? 0 : E.inOutCubic(prog(t, 0.45, 1.55)) * 0.85);
 const floodAt = (t) => (t < 7.85 ? 0 : t < 10.33 ? lerp(0.03, 0.42, E.inOutSine(prog(t, 7.85, 10.33))) : 0.42);
 // the royal ship and the boat it seizes (world): approaching, alongside at 15.5, then towing away slowly
 const SHIP_RY = 3.3, DIR = V(Math.sin(SHIP_RY), 0, Math.cos(SHIP_RY)), SHIP0 = V(262, 0, -517), FINE0 = V(246, 0, -505);
@@ -106,6 +106,8 @@ M.film({
       wide_b:  { pos: [6.2, 2.1, 13.4], look: [0, 0.8, -0.6], fov: 40 },
       shadows: { b: 1, pos: [-0.3, 2.25, -0.75], look: [-0.45, fy, -1.55], fov: 50 },
       shadows2:{ b: 1, pos: [-0.3, 2.2, -0.8], look: [-0.42, fy, -1.5], fov: 48 },
+      over_a:  { b: 1, pos: out(0.95, 0.12, 0.45), look: out(0, 0.2, 0.0), fov: 32 },
+      over_b:  { b: 1, pos: out(0.85, 0.1, 0.38), look: out(0, 0.2, 0.0), fov: 31 },
       floor:   { b: 1, pos: [0.15, fy + 0.36, -1.75], look: [0.3, fy + 0.02, 0.4], fov: 56 },
       tilt_a:  { b: 1, pos: [0.45, 1.25, 0.2], look: [0.5, fy, 1.3], fov: 54 },
       tilt_b:  { b: 1, pos: [0.45, 1.27, 0.22], look: [0.7, 3.4, 2.6], fov: 54 },
@@ -124,7 +126,7 @@ M.film({
       { t0: 0.00, t1: 1.93, a: C.hull_a, b: C.hull_b },
       { t0: 1.93, t1: 3.85, a: C.gap_a, b: C.gap_b, ease: E.inOutSine },
       { t0: 3.85, t1: 5.85, a: C.wide_a, b: C.wide_b, ease: E.inOutSine },
-      { t0: 5.85, t1: 7.85, a: C.shadows, b: C.shadows2 },
+      { t0: 5.85, t1: 7.85, a: C.over_a, b: C.over_b, ease: E.inOutSine },
       { t0: 7.85, t1: 10.33, a: C.floor },
       { t0: 10.33, t1: 12.80, a: 'pov' },
       { t0: 12.80, t1: 15.55, a: C.stern, ship: 1 },
@@ -143,7 +145,7 @@ M.film({
   draw(ctx, u, t, IMG) {
     M.fill(ctx, '#000');
     const { i, s, p } = K.shotAt(SHOTS, t), P = SET.props, fy = HULL.floorY;
-    const dmg = damageAt(t), fl = floodAt(t);
+    const dmg = damageAt(t, i), fl = floodAt(t), patched = t >= T_PATCH && i !== 10;
     { const bx = boatXf(t); P.boat.position.copy(bx.position); P.boat.rotation.copy(bx.rotation); P.boat.updateMatrixWorld(true); }
     // the bar: slides out through the gap (0.1-0.45), levers with the plank (0.45-1.55), withdraws (1.6-2.3)
     const ins = E.inOutCubic(prog(t, 0.1, 0.45)) * (1 - E.inOutCubic(prog(t, 1.6, 2.3)));
@@ -153,10 +155,10 @@ M.film({
       TOOL.quaternion.setFromUnitVectors(V(0, -1, 0), ax.clone().negate()); TOOL.quaternion.premultiply(new THREE.Quaternion());
       // bar points from inside (grip) to the tip at the gap
       TOOL.position.copy(tipPos).addScaledVector(ax, 0.49); TOOL.quaternion.setFromUnitVectors(V(0, 1, 0), ax.clone().negate()); }
-    SPLINTERS.visible = t < T_PATCH;
-    PATCH.visible = t >= T_PATCH;
+    SPLINTERS.visible = !patched;
+    PATCH.visible = patched;
     // bubbles: drawn in toward the open gap while it is open and below the water
-    const mtx = new THREE.Matrix4(), on = t > 1.15 && t < T_PATCH ? clamp((dmg - 0.4) / 0.3) * (t > 12 ? 0.5 : 1) : 0;
+    const mtx = new THREE.Matrix4(), on = t > 1.15 && !patched ? clamp((dmg - 0.4) / 0.3) * (t > 12 ? 0.5 : 1) : 0;
     const gw = L2W(t, GC.toArray()), nW = GN.clone().applyQuaternion(boatXf(t).quaternion), uW = GU.clone().applyQuaternion(XF.quaternion);
     BUBBLES.userData.base.forEach(([a, b, c, rad, ph], k) => {
       const life = 1.3 + a, age = ((t * 0.9 + ph) % life) / life, d = 0.12 * (1 - age) + 0.005, along = (b - 0.5) * 0.4 * (1 - age * 0.6);
@@ -177,30 +179,31 @@ M.film({
       for (const [f, x, z, ry, ph] of [[MUSA, 0.3, -1.95, 0.3, 0], [KHIDR, -0.3, -1.35, -0.2, 3], [BOATMAN, 0.05, -2.75, 0, 6]]) { if (i === 13 && f !== BOATMAN) continue; f.object3d.visible = true; f.object3d.position.set(x, fy, z); f.object3d.rotation.y = ry; f.setPose('stand', t + ph); }
     }
     if (i === 3) {
-      // two passengers at the starboard rail looking down at the gap: only their shadows cross the boards
-      for (const [f, z, ph] of [[MUSA, -1.0, 0], [KHIDR, -1.75, 2]]) { f.object3d.visible = true; f.object3d.position.set(0.42, fy, z); f.object3d.rotation.y = Math.PI / 2; f.setPose('stand', t + ph); }
+      // kneeling inside at the starboard side: one arm reaches over the gunwale and points down at the gap
+      MUSA.object3d.visible = true; MUSA.object3d.position.set(0.3, fy, GC.z + 0.25); MUSA.object3d.rotation.y = Math.PI / 2; MUSA.setPose('kneel', t);
       MUSA.object3d.updateMatrixWorld(true);
-      const sh = MUSA.bones('RightArm').getWorldPosition(V()), tgtW = L2W(t, GC.toArray()), dir = tgtW.clone().sub(sh).normalize();
-      const k = E.inOutCubic(prog(t, 6.2, 6.9)), h0 = MUSA.bones('RightHand').getWorldPosition(V());
-      K.reach(MUSA, 'Right', h0.lerp(sh.clone().addScaledVector(dir, 0.55), k), sh.clone().add(V(0, -0.5, 0)));
-      K.handAim(MUSA, 'Right', sh.clone().addScaledVector(dir, 1.2), 0); K.flatHand(MUSA, 'Right', 1 - 0.9 * k);
+      const gW = L2W(t, GC.toArray()), nW = GN.clone().applyQuaternion(XF.quaternion), k = E.inOutCubic(prog(t, 6.0, 6.85));
+      const over = L2W(t, GC.clone().addScaledVector(GN, 0.16).add(V(0, 0.36, 0.12)).toArray()), h0 = MUSA.bones('RightHand').getWorldPosition(V());
+      K.reach(MUSA, 'Right', h0.lerp(over, k), over.clone().add(V(0, 0.5, 0)).addScaledVector(nW, -0.5));
+      K.handAim(MUSA, 'Right', gW, 0); K.flatHand(MUSA, 'Right', 1 - 0.9 * k);
     }
     if (i === 5) {
       MUSA.object3d.visible = true; MUSA.object3d.position.set(0.05, fy, -0.75); MUSA.object3d.rotation.y = 0; MUSA.setPose('stand', t);
       MUSA.object3d.updateMatrixWorld(true);
-      const k = E.inOutCubic(prog(t, 10.55, 11.5)), fw = V(0, 0, 1).applyQuaternion(MUSA.object3d.getWorldQuaternion(new THREE.Quaternion()));
+      const k = E.inOutCubic(prog(t, 10.55, 11.5)), fw = V(0, 0, 1).applyQuaternion(MUSA.object3d.getWorldQuaternion(new THREE.Quaternion())), hd = MUSA.bones('Head').getWorldPosition(V());
       for (const sd of ['Right', 'Left']) { const sh = MUSA.bones(sd + 'Arm').getWorldPosition(V()), h0 = MUSA.bones(sd + 'Hand').getWorldPosition(V());
-        const tgt = sh.clone().addScaledVector(fw, 0.46).add(L2W(t, [sd === 'Right' ? -0.1 : 0.1, 0.4, 0]).sub(L2W(t, [0, 0, 0])));
-        K.reach(MUSA, sd, h0.lerp(tgt, k), sh.clone().add(V(sd === 'Right' ? -0.5 : 0.5, -0.6, 0)));
-        K.handAim(MUSA, sd, tgt.clone().add(V(0, 0.35, 0)).addScaledVector(fw, 0.1), 0); K.flatHand(MUSA, sd, 0.08); }
+        const side = V(sd === 'Right' ? -1 : 1, 0, 0).applyQuaternion(XF.quaternion);
+        const tgt = hd.clone().addScaledVector(fw, 0.5).addScaledVector(side, 0.2).add(V(0, -0.08, 0));
+        K.reach(MUSA, sd, h0.lerp(tgt, k), sh.clone().add(V(0, -0.6, 0)).addScaledVector(side, 0.5));
+        K.handAim(MUSA, sd, tgt.clone().add(V(0, 0.35, 0)).addScaledVector(fw, 0.12), 0); K.flatHand(MUSA, sd, 0.08); }
     }
     // camera
     let cam;
     if (s.a === 'pov') {
-      const fw = V(0, 0, 1).applyQuaternion(MUSA.object3d.getWorldQuaternion(new THREE.Quaternion())), sp = MUSA.bones('Spine2').getWorldPosition(V());
-      const pos = sp.clone().addScaledVector(fw, -0.75).add(V(0.0, -0.15, 0)), k = E.inOutCubic(prog(t, 10.45, 12.5));
-      const look = pos.clone().addScaledVector(fw, 2).add(V(0, lerp(-1.3, 1.5, k), 0));
-      cam = { pos: pos.toArray(), look: look.toArray(), fov: K.lensFov(58) };
+      const fw = V(0, 0, 1).applyQuaternion(MUSA.object3d.getWorldQuaternion(new THREE.Quaternion())), hd = MUSA.bones('Head').getWorldPosition(V());
+      const pos = hd.clone().addScaledVector(fw, 0.17), k = E.inOutCubic(prog(t, 10.4, 12.6));
+      const look = pos.clone().addScaledVector(fw, 2).add(V(0, lerp(-1.6, 0.9, k), 0));
+      cam = { pos: pos.toArray(), look: look.toArray(), fov: K.lensFov(64) };
     } else if (s.a === 'point') {
       const h = MUSA.bones('RightHand').getWorldPosition(V()), gw2 = L2W(t, GC.toArray()), d = gw2.clone().sub(h).normalize();
       cam = { pos: h.clone().addScaledVector(d, -0.42).add(V(0, 0.08, 0)).toArray(), look: gw2.toArray(), fov: K.lensFov(42) };
