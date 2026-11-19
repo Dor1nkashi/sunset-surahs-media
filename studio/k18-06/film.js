@@ -84,11 +84,11 @@ M.film({
     SET = await rain_on_plants({ stage: 0 });
     hy = SET.props.terrain.heightAt;
     const S = SET.scene;
-    { const pa = SET.props.chaff.geometry.attributes.position; for (let k = 0; k < pa.array.length; k++) pa.array[k] *= 2.4; pa.needsUpdate = true; }
+    { const pa = SET.props.chaff.geometry.attributes.position; for (let k = 0; k < pa.array.length; k++) pa.array[k] *= 3.2; pa.needsUpdate = true; }
     // raindrops for the macro: glossy falling beads and the dark wet blooms they leave on the dry crust
     { const mc = SET.cameras.macro, L = V(...mc.look); RAIN0 = L;
       const dm = new THREE.MeshStandardMaterial({ color: 0xdfe8f0, roughness: 0.02, metalness: 0.1, envMapIntensity: 2.2, transparent: true, opacity: 0.85 });
-      const wm = new THREE.MeshStandardMaterial({ color: 0x241a12, roughness: 0.25, transparent: true, opacity: 0, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -3 });
+      const wm = new THREE.MeshStandardMaterial({ color: 0x2a1c10, roughness: 0.6, envMapIntensity: 0.2, transparent: true, opacity: 0, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -3 });
       const r = W.rng(77);
       for (let k = 0; k < 7; k++) { const d = new THREE.Mesh(new THREE.SphereGeometry(0.0032, 20, 14), dm); const w = new THREE.Mesh(new THREE.CircleGeometry(1, 36).rotateX(-Math.PI / 2), wm.clone());
         const x = L.x + (k ? (r() - 0.5) * 0.09 : 0.004), z = L.z + (k ? (r() - 0.5) * 0.07 : 0.004); w.position.set(x, hy(x, z) + 0.0015, z);
@@ -109,8 +109,8 @@ M.film({
     C.macro_a = { ...mc }; C.macro_b = { pos: mc.pos.map((v, i) => v + (mc.look[i] - v) * 0.12), look: mc.look, fov: mc.fov };
     C.macro_c = { pos: mc.pos.map((v, i) => v + (mc.look[i] - v) * 0.22 + (i === 1 ? 0.01 : 0)), look: mc.look.map((v, i) => v + (i === 1 ? 0.012 : 0)), fov: mc.fov };
     C.hero = { ...SET.cameras.hero };
-    C.chaff_a = { pos: [-6, 0.95, 13.5], look: [10, 1.3, 2], fov: 50 };
-    C.chaff_b = { pos: [-3.5, 1.0, 13.5], look: [12, 1.4, 2], fov: 50 };
+    C.chaff_a = { pos: [-6, 1.5, 13.5], look: [10, 2.3, 2], fov: 50 };
+    C.chaff_b = { pos: [-3.5, 1.6, 13.5], look: [12, 2.4, 2], fov: 50 };
     C.wide = { pos: [SK[0] - 0.55, hy(...SK) + 0.75, SK[1] + 1.6], look: [10, 4, -80], fov: 58 };
     C.stalk_a = { pos: [SK[0] + 0.25, hy(...SK) + 0.82, SK[1] + 0.85], look: [SK[0], hy(...SK) + 0.86, SK[1]], fov: 30 };
     C.stalk_b = { pos: [SK[0] + 0.25, hy(...SK) + 0.82, SK[1] + 0.85], look: [52, 3, -150], fov: 30 };
@@ -157,7 +157,7 @@ M.film({
       sw.visible = i === 10; });
     for (const R of RAINDROPS) { const dt = t - R.t0, y = hy(R.x, R.z) + 0.003 + 0.3 - 4.9 * (dt + 0.25) ** 2 + 4.9 * 0.0625;
       R.d.visible = i <= 2 && dt > -0.25 && dt < 0; R.d.position.set(R.x, Math.max(hy(R.x, R.z) + 0.003, hy(R.x, R.z) + 0.003 - 4.9 * dt * dt * 0 + (-dt) * 1.4), R.z); R.d.scale.set(1, 2.2, 1);
-      const sp = dt > 0 ? Math.min(1, Math.sqrt(dt / 0.25)) : 0; R.w.scale.setScalar(R.r * (0.3 + 0.7 * sp)); R.w.material.opacity = (i <= 2 ? 0.7 : 0) * sp * (1 - 0.3 * clamp(dt / 3)); }
+      const sp = dt > 0 ? Math.min(1, Math.sqrt(dt / 0.25)) : 0; R.w.scale.setScalar(R.r * (0.3 + 0.7 * sp)); R.w.material.opacity = (i <= 2 ? 0.55 : 0) * sp * (1 - 0.3 * clamp(dt / 3)); }
     G.renderSet(ctx, ST, t, u, { cam, stage: st, drop: i === 0 ? dq : 1, exposure: SET.exposure * (i <= 1 ? 1.15 : 1) });
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.6);
