@@ -56,7 +56,8 @@ function poseMan(t, s) {
     K.reach(p, 'Right', tgt, K.onBody(p, -0.7, 0.8, -0.3)); K.handAim(p, 'Right', tgt.clone().add(V(-0.02, 0.12, -0.03)), 0.4); K.flatHand(p, 'Right', 1.2);
   } else if (who === 'tools' || who === 'hips' || who === 'shadow' || who === 'leave') {
     const walk = who === 'leave' ? clamp((t - 8.11) / 1.1) : 0;
-    K.place(p, FRONT.x + 0.7 + 1.4 * walk, gy, FRONT.z + 1.45 + 0.6 * walk, Math.PI + 1.2 * walk); p.setPose(walk > 0 ? 'walk' : 'stand', t);
+    const sx = who === 'shadow' || who === 'leave' ? 1.25 : 0.7, sz = who === 'shadow' || who === 'leave' ? 1.15 : 1.45;
+    K.place(p, FRONT.x + sx + 1.4 * walk, gy, FRONT.z + sz + 0.6 * walk, Math.PI - 0.5 + 1.7 * walk); p.setPose(walk > 0 ? 'walk' : 'stand', t);
     if (who === 'tools') { K.tilt(p, 'Spine', 14 * (1 - E.inOutSine(prog(t, 3.6, 4.4))), 0, 0); K.tilt(p, 'Neck', 12, 0, 0); }
     if (who === 'hips' || who === 'shadow') {
       const k = who === 'hips' ? E.inOutSine(prog(t, 4.6, 5.2)) : 1;
@@ -103,10 +104,10 @@ M.film({
     // the reminder cord: a loose helix round the index finger, wound as a pure function of t (child of the finger bone)
     const PE = await K.people();
     MAN = PE.make({ kind: 'man', outfit: 'worker', palette: { ...PALETTES.earth, robe: '#8a6a4a', wrap: '#cfc2a8', skin: '#8e5e3e' }, beard: 'short', headwear: 'wrap', seed: 33, detail: 1 });
-    { const pts = []; for (let i = 0; i <= 160; i++) { const a = i / 160 * Math.PI * 2 * 2.3, y = 0.006 + 0.016 * i / 160; pts.push(V(Math.cos(a) * 0.0115, y, Math.sin(a) * 0.0115)); }
+    { const pts = []; for (let i = 0; i <= 160; i++) { const a = i / 160 * Math.PI * 2 * 2.3, y = 0.006 + 0.016 * i / 160; pts.push(V(Math.cos(a) * 0.0095, y, Math.sin(a) * 0.0095)); }
       pts.push(V(0.02, 0.03, 0.0), V(0.035, 0.024, 0.006));
-      const g = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 400, 0.0019, 8);
-      CORD = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: 0x8a2a1c, roughness: 0.75 })); CORD.userData.n = g.index.count; CORD.castShadow = true;
+      const g = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 400, 0.0014, 8);
+      CORD = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: 0x7a2618, roughness: 0.8 })); CORD.userData.n = g.index.count; CORD.castShadow = true;
       const b = MAN.bones('LeftHandIndex1'); b.add(CORD); CORD.scale.setScalar(100); CORD.rotation.set(0, 0, 0); }
     DUST_SET = { d, m };
     // cameras
@@ -119,18 +120,18 @@ M.film({
     C.back_b = { pos: [FRONT.x + 1.3, gy + 1.5, FRONT.z + 3.5], look: [FRONT.x - 0.4, gy + 0.7, FRONT.z], fov: 43 };
     C.hips_a = { pos: [FRONT.x + 1.9, gy + 1.25, FRONT.z + 4.1], look: [FRONT.x - 0.1, gy + 0.9, FRONT.z], fov: 40 };
     C.hips_b = { pos: [FRONT.x + 1.8, gy + 1.22, FRONT.z + 3.85], look: [FRONT.x - 0.1, gy + 0.9, FRONT.z], fov: 39 };
-    C.push_a = { pos: [FRONT.x + 1.3, gy + 1.05, FRONT.z + 2.4], look: [FRONT.x - 0.8, gy + 0.45, FRONT.z + 0.15], fov: 42 };
-    C.push_b = { pos: [FRONT.x + 0.8, gy + 0.9, FRONT.z + 1.7], look: [FRONT.x - 0.85, gy + 0.4, FRONT.z + 0.15], fov: 40 };
+    C.push_a = { pos: [FRONT.x - 0.7, gy + 1.25, FRONT.z + 2.7], look: [FRONT.x - 0.7, gy + 0.35, FRONT.z + 0.2], fov: 44 };
+    C.push_b = { pos: [FRONT.x - 0.7, gy + 1.05, FRONT.z + 2.1], look: [FRONT.x - 0.7, gy + 0.32, FRONT.z + 0.2], fov: 42 };
     C.lamp = { pos: [FRONT.x + 2.75, gy + 0.32, FRONT.z + 2.6], look: [FRONT.x + 1.6, gy + 0.12, FRONT.z + 0.8], fov: 34 };
     poseMan(13, SHOTS[7]); const hd = MAN.bones('LeftHand').getWorldPosition(V()); console.error(`[k18-03] hand ${hd.toArray().map((v) => v.toFixed(2))}`);
-    C.cord_a = { pos: [hd.x - 0.05, hd.y + 0.36, hd.z - 0.32], look: [hd.x + 0.04, hd.y, hd.z + 0.06], fov: 22 };
-    C.cord_b = { pos: [hd.x - 0.02, hd.y + 0.3, hd.z - 0.24], look: [hd.x + 0.04, hd.y, hd.z + 0.06], fov: 20 };
-    C.open = { pos: [hd.x - 0.08, hd.y + 0.42, hd.z - 0.35], look: [hd.x + 0.05, hd.y, hd.z + 0.06], fov: 26 };
-    C.knot = { pos: [hd.x - 0.01, hd.y + 0.22, hd.z - 0.15], look: [hd.x + 0.05, hd.y + 0.01, hd.z + 0.07], fov: 15 };
+    C.cord_a = { pos: [hd.x + 0.12, hd.y + 0.34, hd.z + 0.36], look: [hd.x, hd.y - 0.01, hd.z], fov: 22 };
+    C.cord_b = { pos: [hd.x + 0.1, hd.y + 0.29, hd.z + 0.3], look: [hd.x, hd.y - 0.01, hd.z], fov: 20 };
+    C.open = { pos: [hd.x + 0.14, hd.y + 0.4, hd.z + 0.42], look: [hd.x, hd.y - 0.01, hd.z], fov: 26 };
+    C.knot = { pos: [hd.x + 0.08, hd.y + 0.2, hd.z + 0.2], look: [hd.x, hd.y, hd.z], fov: 15 };
     C.wide_a = { pos: [2.8, gy + 1.7, 3.0], look: [-1.0, gy + 1.0, -2.8], fov: 54 };
     C.wide_b = { pos: [1.6, gy + 1.7, 3.2], look: [-1.6, gy + 1.0, -2.8], fov: 54 };
-    C.sun_a = { pos: [2.6, gy + 0.78, 1.0], look: [-4.2, gy + 2.55, -1.4], fov: 30 };
-    C.sun_b = { pos: [2.6, gy + 0.62, 1.0], look: [-4.2, gy + 2.55, -1.4], fov: 30 };
+    C.sun_a = { pos: [0.8, gy + 0.75, -2.2], look: [-4.2, gy + 2.6, -0.6], fov: 30 };
+    C.sun_b = { pos: [0.8, gy + 0.62, -2.2], look: [-4.2, gy + 2.6, -0.6], fov: 30 };
     DUSK = W.stage(d); MORN = W.stage(m);
     for (const st of [DUSK, MORN]) { st.scene.add(CRUMBS); st.set.update(0, null, {}); }
     DUSK.scene.add(MAN.object3d); G.R.compile(DUSK.scene, DUSK.camera); MORN.scene.add(MAN.object3d); G.R.compile(MORN.scene, MORN.camera);
@@ -149,8 +150,8 @@ M.film({
     // tally texture (redrawn only when the fresh mark changes)
     { const T = TALLY[key], k = Math.round(scratchK(t) * 200) / 200; if (T.k !== k) { T.k = k; const x = T.c.getContext('2d'); x.clearRect(0, 0, 512, 256); x.lineCap = 'round';
         for (let j = 0; j < 7; j++) { const X = (20 + j * 30) * 2, len = j < 6 ? 1 : k; if (len <= 0) continue; const y0 = 50, y1 = 50 + 160 * len;
-          x.strokeStyle = 'rgba(48,30,18,0.9)'; x.lineWidth = 11; x.beginPath(); x.moveTo(X + (j % 2) * 3, y0); x.lineTo(X - 4 + (j % 3), y1); x.stroke();
-          x.strokeStyle = j < 6 ? 'rgba(150,110,80,0.35)' : 'rgba(210,170,130,0.75)'; x.lineWidth = 3; x.beginPath(); x.moveTo(X + 3, y0 + 4); x.lineTo(X, y1 - 4); x.stroke(); }
+          x.strokeStyle = 'rgba(48,30,18,0.8)'; x.lineWidth = 5; x.beginPath(); x.moveTo(X + (j % 2) * 3, y0); x.lineTo(X - 4 + (j % 3), y1); x.stroke();
+          x.strokeStyle = j < 6 ? 'rgba(150,110,80,0.35)' : 'rgba(210,170,130,0.75)'; x.lineWidth = 2; x.beginPath(); x.moveTo(X + 2, y0 + 4); x.lineTo(X, y1 - 4); x.stroke(); }
         T.tx.needsUpdate = true; } }
     // crumbs: fall from the scratch point while it is drawn (and settle out of frame)
     { const M4 = new THREE.Matrix4(), r = CRUMBS.userData.r;
@@ -164,7 +165,7 @@ M.film({
     const fl = DUSK.set.props.lamps[0].userData.flame; fl.scale.setScalar(1 - 0.35 * E.inOutSine(prog(t, 8.2, 10.1)));
     MORN.set.props.sun.intensity = 0.4 + 2.4 * (t < 20.32 ? 0 : sunUp);
     MLIGHT.intensity = t < 20.32 ? 0.6 : 0.6 - 0.4 * sunUp;
-    const ex = s.set === 'd' ? (i === 5 ? 1.2 : 1.0) : (t < 20.32 ? 0.9 : 1.0);
+    const ex = s.set === 'd' ? (i === 5 ? 0.85 : 1.0) : i === 10 ? 0.55 : (t < 20.32 ? 0.9 : 1.0);
     G.renderSet(ctx, ST, t, u, { cam, exposure: ex, lamp: s.set === 'd' ? 1 - 0.3 * E.inOutSine(prog(t, 8.2, 10.1)) : 0 });
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.6);
