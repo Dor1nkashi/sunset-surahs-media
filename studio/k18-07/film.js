@@ -83,7 +83,10 @@ M.film({
     { const bb = new THREE.Box3().setFromObject(P.palm); PALMTOP = bb.max.y; }
     // wet soil disc in the pot (darkens as the water sinks in)
     WETSPOT = new THREE.Mesh(new THREE.CircleGeometry(0.1, 40).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0x1e140c, roughness: 0.35, transparent: true, opacity: 0, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 }));
-    WETSPOT.position.set(POT[0], gy + 0.268, POT[1]); S.add(WETSPOT);
+    { const bb = new THREE.Box3().setFromObject(P.sapling.pot), rr = Math.min(bb.max.x - bb.min.x, bb.max.z - bb.min.z) * 0.44, top = bb.max.y - 0.025;
+      const soil = new THREE.Mesh(new THREE.CircleGeometry(rr, 48).rotateX(-Math.PI / 2), await W.pbr('brown_mud_dry', { tile: 0.4, res: 1024, tint: 0x8a6a4a })); soil.position.set((bb.min.x + bb.max.x) / 2, top, (bb.min.z + bb.max.z) / 2); soil.receiveShadow = true; S.add(soil);
+      SAP.position.set(soil.position.x, top - 0.005, soil.position.z); WETSPOT.position.set(soil.position.x, top + 0.002, soil.position.z); WETSPOT.geometry.scale(rr / 0.1, 1, rr / 0.1); }
+    S.add(WETSPOT);
     // a clay cup (hand-held) and the water drops
     CUP = W.lathe([[0.001, 0], [0.03, 0.002], [0.036, 0.05], [0.04, 0.07], [0.037, 0.072], [0.033, 0.052], [0.027, 0.006], [0.001, 0.005]], new THREE.MeshStandardMaterial({ color: 0xa8683e, roughness: 0.8 }), { seg: 48 }); S.add(CUP);
     { const dm = new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.03, transmission: 0.9, thickness: 0.003, ior: 1.33, transparent: true });
