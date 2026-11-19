@@ -54,7 +54,7 @@ function poseMan(t, s) {
     const h0 = K.handPos(MAN, 'Right'), tgt = NICHE.clone().add(V(0.0, 0.03, 0.08));
     K.reach(MAN, 'Right', h0.lerp(tgt, k), K.onBody(MAN, -0.8, 0.6, -0.3)); K.handAim(MAN, 'Right', tgt.clone().add(V(0, 0.02, -0.15)), 1.2); K.flatHand(MAN, 'Right', 0.8);
   } else if (who === 'water') {
-    at(POT[0] + 0.55, POT[1] + 0.35, -Math.PI / 2 - 0.5);
+    at(POT[0] - 0.12, POT[1] + 0.62, Math.PI);
     const tgt = V(POT[0] + 0.14, gy + 0.55, POT[1] + 0.05);
     const k = E.inOutSine(prog(t, 16.2, 16.9));
     const h0 = K.handPos(MAN, 'Right'); K.reach(MAN, 'Right', h0.lerp(tgt, k), K.onBody(MAN, -0.8, 0.6, -0.3)); K.handAim(MAN, 'Right', tgt.clone().add(V(-0.1, 0.06, 0)), 0.2); K.flatHand(MAN, 'Right', 1.3);
@@ -74,7 +74,12 @@ M.film({
     DISH = P.dish.position.clone(); BR0 = P.bracelet.position.clone();
     LAMP0 = P.nicheLamp.position.clone(); NICHE = LAMP0.clone();
     // the sapling and its pot move to the corner where the grown palm stands
-    P.sapling.pot.position.set(POT[0], gy, POT[1]); P.sapling.tree.object3d.position.set(POT[0], gy + 0.27, POT[1]); SAP = P.sapling.tree;
+    P.sapling.pot.position.set(POT[0], gy, POT[1]); P.sapling.tree.object3d.visible = false;
+    // the seedling: a few folded palm blades from the soil; a new blade unfolds (shot 13) as a pure function of t
+    { SAP = new THREE.Group(); SAP.position.set(POT[0], gy + 0.265, POT[1]); S.add(SAP); const lm = new THREE.MeshStandardMaterial({ color: 0x5a8a34, roughness: 0.55, side: THREE.DoubleSide });
+      const blade = (L, w) => { const g = new THREE.PlaneGeometry(w, L, 2, 12).translate(0, L / 2, 0); const p = g.attributes.position; for (let k = 0; k < p.count; k++) { const y = p.getY(k) / L, x = p.getX(k); p.setX(k, x * (1 - 0.8 * y)); p.setZ(k, -Math.abs(x) * 0.6 + 0.05 * L * y * y); } g.computeVertexNormals(); return g; };
+      for (let k = 0; k < 5; k++) { const m = new THREE.Mesh(blade(0.2 + 0.05 * (k % 3), 0.026), lm); m.rotation.set(0.25 + 0.1 * (k % 2), k * 1.3, 0); m.castShadow = true; SAP.add(m); }
+      const nb = new THREE.Mesh(blade(0.24, 0.03), lm); nb.rotation.set(0.05, 0.6, 0); SAP.add(nb); SAP.userData.nb = nb; }
     { const bb = new THREE.Box3().setFromObject(P.palm); PALMTOP = bb.max.y; }
     // wet soil disc in the pot (darkens as the water sinks in)
     WETSPOT = new THREE.Mesh(new THREE.CircleGeometry(0.1, 40).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0x1e140c, roughness: 0.35, transparent: true, opacity: 0, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 }));
@@ -104,13 +109,13 @@ M.film({
     C.hoop = { pos: [hp.x + 0.45, gy + 0.32, hp.z + 0.55], look: [hp.x, gy + 0.2, hp.z], fov: 30 };
     C.niche_a = { pos: [NICHE.x + 1.25, gy + 1.5, NICHE.z + 1.6], look: [NICHE.x - 0.1, NICHE.y + 0.05, NICHE.z], fov: 36 };
     C.niche_b = { pos: [NICHE.x + 0.95, gy + 1.45, NICHE.z + 1.25], look: [NICHE.x - 0.05, NICHE.y + 0.05, NICHE.z], fov: 34 };
-    C.pot_a = { pos: [POT[0] + 1.3, gy + 1.0, POT[1] + 1.25], look: [POT[0], gy + 0.4, POT[1]], fov: 36 };
-    C.pot_b = { pos: [POT[0] + 1.1, gy + 0.92, POT[1] + 1.05], look: [POT[0], gy + 0.38, POT[1]], fov: 34 };
-    C.soil = { pos: [POT[0] + 0.32, gy + 0.62, POT[1] + 0.36], look: [POT[0] + 0.03, gy + 0.27, POT[1] + 0.03], fov: 28 };
+    C.pot_a = { pos: [POT[0] + 0.95, gy + 0.85, POT[1] + 0.55], look: [POT[0] - 0.05, gy + 0.4, POT[1] + 0.05], fov: 38 };
+    C.pot_b = { pos: [POT[0] + 0.8, gy + 0.78, POT[1] + 0.45], look: [POT[0] - 0.05, gy + 0.38, POT[1] + 0.05], fov: 36 };
+    C.soil = { pos: [POT[0] + 0.3, gy + 0.6, POT[1] + 0.12], look: [POT[0] + 0.02, gy + 0.27, POT[1] + 0.02], fov: 30 };
     C.tilt_a = { pos: [POT[0] + 2.6, gy + 0.6, POT[1] + 2.4], look: [POT[0], gy + 0.4, POT[1]], fov: 40 };
     C.tilt_b = { pos: [POT[0] + 2.6, gy + 0.6, POT[1] + 2.4], look: [P.palm.position.x, PALMTOP - 1.5, P.palm.position.z], fov: 46 };
     C.flame = { pos: [NICHE.x - 0.1, NICHE.y + 0.16, NICHE.z + 0.5], look: [NICHE.x, NICHE.y + 0.09, NICHE.z + 0.1], fov: 22 };
-    C.leaf = { pos: [POT[0] + 0.5, gy + 0.62, POT[1] + 0.55], look: [POT[0], gy + 0.42, POT[1]], fov: 28 };
+    C.leaf = { pos: [POT[0] + 0.45, gy + 0.5, POT[1] + 0.25], look: [POT[0], gy + 0.4, POT[1]], fov: 30 };
     C.glow_a = { pos: [NICHE.x - 0.25, NICHE.y + 0.16, NICHE.z + 0.9], look: [NICHE.x, NICHE.y + 0.09, NICHE.z + 0.1], fov: 28 };
     C.glow_b = { pos: [NICHE.x - 0.12, NICHE.y + 0.14, NICHE.z + 0.55], look: [NICHE.x, NICHE.y + 0.09, NICHE.z + 0.1], fov: 22 };
     ST = W.stage(SET);
@@ -139,7 +144,7 @@ M.film({
         d.position.set(lip.x - 0.02 * k % 0.05, y, lip.z + 0.01 * Math.sin(k * 2)); d.scale.set(1, 1 + 0.5 * Math.min(1, dt * 3), 1); });
       WETSPOT.material.opacity = 0.75 * E.inOutSine(prog(t, 17.6, 21.0)); WETSPOT.scale.setScalar(0.5 + 0.5 * E.inOutSine(prog(t, 17.6, 21.0))); }
     // the sapling grows a new leaf in shot 13 (and is a shade fuller after the watering)
-    SAP.set(0.06 + 0.014 * E.inOutSine(prog(t, 28.2, 30.3)), 0);
+    { const k = E.inOutSine(prog(t, 28.2, 30.3)); SAP.userData.nb.scale.set(0.3 + 0.7 * k, 0.45 + 0.55 * k, 1); SAP.userData.nb.rotation.x = 0.05 + 0.3 * k; }
     // glints
     { const pos = GLINT.geometry.attributes.position, tgt = s.glint === 'coins' ? DISH : s.glint === 'brace' ? BR0 : s.glint === 'sandals' ? P.sandals[0].position : s.glint === 'hoop' ? P.hoop.position : null;
       const r = W.rng(11 + i);
@@ -150,7 +155,8 @@ M.film({
     SET.props.setLights(s.warm ? 0.6 : 0.2);
     const flameShot = i === 13 || i === 15 || i === 16, gold = i <= 6 || s.shade;
     ST.bloom = flameShot ? 0.06 : SET.bloom;
-    G.renderSet(ctx, ST, t, u, { cam, exposure: SET.exposure * (s.shade ? 0.4 : flameShot ? 0.32 : gold ? 0.62 : 1), lamp: 1 });
+    const nearLamp = i >= 8 && (s.a.startsWith('niche') || flameShot);
+    G.renderSet(ctx, ST, t, u, { cam, exposure: SET.exposure * (s.shade ? 0.4 : flameShot ? 0.7 : gold ? 0.5 : 1), lamp: nearLamp ? 0.18 : 1 });
     if (i === SHOTS.length - 1) { const k = E.inOutSine(p); ctx.save(); ctx.globalCompositeOperation = 'soft-light'; ctx.globalAlpha = 0.6 * k; ctx.fillStyle = '#e8a83a'; ctx.fillRect(0, 0, M.W, M.H); ctx.restore(); }
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.6);
