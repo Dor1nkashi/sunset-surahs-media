@@ -7,7 +7,7 @@ import * as G from './lib/gl.js';
 import * as W from '../lib_shared/world.js';
 import { canaan_hills, the_well, prison, palace_hall } from '../lib_shared/sets_yusuf.js';
 import { captions, loadLines } from '../lib_shared/captions.js';
-import { elevenStars, ELEVEN, BRIGHTEST } from '../lib_shared/eleven.js';
+import { elevenStars, ELEVEN, BRIGHTEST, ELEVEN_CENTRE as ELEVEN_C } from '../lib_shared/eleven.js';
 const { THREE } = W;
 const { W: FW, H: FH, prog, E, lerp, clamp, mulberry32 } = M;
 const PORT = M.FORMAT.portrait;
@@ -46,7 +46,7 @@ async function buildLamps(hy) {
     const x = -LEN / 2 + 0.15 + i * (LEN - 0.3) / (N - 1);
     const w = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.011, 0.05, 10), wickMat); w.position.set(x, 0.85, 0.06); g.add(w); wicks.push(w);
     const tip = new THREE.Mesh(new THREE.SphereGeometry(0.009, 8, 6), charMat); tip.position.set(x, 0.876, 0.06); g.add(tip);
-    const f = W.flame({ h: 0.11, w: 0.045, seed: 20 + i, inten: 2.3, light: 0, planes: 2 }); f.position.set(x, 0.868, 0.06); g.add(f); flames.push(f);
+    const f = W.flame({ h: 0.11, w: 0.045, seed: 20 + i, inten: 1.5, light: 0, planes: 2 }); f.position.set(x, 0.868, 0.06); g.add(f); flames.push(f);
   }
   const run = W.flame({ h: 0.06, w: 0.06, seed: 9, inten: 3.2, light: 0, planes: 2 }); run.position.set(0, 0.83, 0.06); g.add(run);
   const runL = new THREE.PointLight(0xff9a4a, 3, 3.5, 1.6); g.add(runL);
@@ -93,6 +93,8 @@ M.film({
     const P = HILLS.set.props, hy = P.terrain.heightAt, hp = P.house.position;
     K.h0 = hp.y; K.hx = hp.x; K.hz = hp.z; K.hy = hy;
     K.LX = 12; K.LZ = 15; K.LRY = -0.55;   // ledge on the terrace, facing back toward the house, the eastern glow beyond it
+    // the lamp terrace is kept clear of olive trees (for every shot, so the world never changes)
+    for (const o of P.olives) if (Math.hypot(o.position.x - K.LX, o.position.z - K.LZ) < 10) o.visible = false;
     E11 = elevenStars(THREE, { size: 17 }); HILLS.scene.add(E11);
     windowGlow();
     await buildLamps(hy);
@@ -111,7 +113,7 @@ M.film({
       tiltA: { pos: G0(9.8, 19.8, 1.5), look: toward(G0(9.8, 19.8, 1.5), -3, -10, PORT ? 14 : 10), fov: fv(48) },
       tiltB: { pos: G0(9.8, 19.8, 1.5), look: toward(G0(9.8, 19.8, 1.5), -4, -12, PORT ? 33 : 30), fov: fv(48) },
       skyHold: { pos: G0(6, 14, 1.6), look: toward(G0(6, 14, 1.6), 0.5, -20, PORT ? 24 : 26), fov: fv(52) },
-      craneA: { pos: G0(-24.5, 12.5, 10), look: [-2, h0 + 15, -12], fov: fv(46) },
+      craneA: { pos: G0(-24.5, 12.5, 9), look: ((p) => ELEVEN_C.map((v, i) => p[i] + v * 40))(G0(-24.5, 12.5, 9)), fov: fv(46) },
       craneB: { pos: G0(-24.5, 12.5, 2.7), look: [-3, h0 + 1.3, -1], fov: fv(46) },
       settleA: { pos: G0(-24.5, 12.5, 2.7), look: [-3, h0 + 1.3, -1], fov: fv(46) },
       settleB: { pos: G0(-23.9, 12.0, 2.6), look: [-3.2, h0 + 1.25, -1], fov: fv(45) },
@@ -148,7 +150,7 @@ M.film({
       const dawn = 0.35 + 0.25 * prog(t, 0, D) * (1 - prog(t, 14.3, D));
       const sd = new THREE.Vector3(0.52, -0.06, -0.85).normalize();
       sky.sunD.value.copy(sd); sky.sunC.value.setRGB(1.0 * dawn, 0.55 * dawn, 0.18 * dawn); sky.glow.value = 1.0; sky.sunDisc.value = 2.0;
-      sky.moonD.value.set(-0.62, 0.26, -0.74).normalize(); sky.moonOn.value = 1;
+      sky.moonD.value.set(-0.93, 0.2, -0.3).normalize(); sky.moonOn.value = 1;
       K.lamps.update(t);
       E11.position.set(...cam.pos);
       E11.userData.update(t, null, { op: 1, zoom: t >= 9.25 && t < 9.97 ? 1.3 : 1, hi });
