@@ -107,3 +107,9 @@ can also be driven through `renderSet` options (the name in brackets below), so 
   the front face; the pour rig is a separate close-up.
 - **City.** Distant town houses are plaster blocks with glowing windows (background only).
 - **Ruined palms.** Ruined palms keep their fronds, browned (growth.js palms cannot shed fronds).
+
+## Open issues (after 4 critique rounds; gallery contact sheet out/kahf-gallery/contact_9x16.png on the laptop)
+- mountain_cave 'sleepers'/'interior' still read too dark; 'vista' does not yet show the four valley places clearly.
+- sea_boat 'waterline': the prised plank does not read; the sea is a flat saturated blue.
+- village_wall 'jar': the underground shot is a brown blur (soil section haze); confluence 'seam' and journeys west are washed out toward the horizon.
+- The dog reads as a smooth sculpture, not a furry animal.
