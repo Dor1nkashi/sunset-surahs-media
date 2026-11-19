@@ -26,7 +26,7 @@ const C = {
   held_b:  { local: true, pos: [0.0, -0.42, 2.27], look: [0, -0.5, 0], fov: 39 },
   witness: { pos: [0.55, 1.62, -0.35], look: [3.6, 1.4, -3.1], fov: 48 },
   race:    { pos: [-2.6, 1.75, -1.7], look: [4.75, 1.2, -3.1], fov: 44 },
-  pull:    { local: 'grip', off: [-0.32, 0.12, 0.42], fov: 30 },
+  pull:    { local: 'grip', off: [-0.62, 0.1, 0.6], fov: 36 },
   husband: { pos: [-1.6, 1.5, -2.1], look: [4.8, 1.45, -3.0], fov: 46 },
   turn:    { pos: [0.6, 1.7, -2.9], look: [-0.9, 1.55, -6.2], fov: 40 },
   back_a:  { local: true, pos: [0.0, -0.36, 1.05], look: [0, -0.4, 0], fov: 32 },
