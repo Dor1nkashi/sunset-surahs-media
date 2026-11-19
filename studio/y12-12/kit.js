@@ -34,7 +34,7 @@ export function goldBowl({ r = 0.075 } = {}) {
 }
 
 // ------------------------------------------------------------------ grain: a heaped surface + instanced kernels
-function grainColorMat() { return cached('grainM', () => new THREE.MeshStandardMaterial({ color: 0xc9a066, roughness: 0.75 })); }
+function grainColorMat() { return cached('grainM', () => new THREE.MeshStandardMaterial({ color: 0x8a6438, roughness: 0.8 })); }
 export function grainHeap({ r = 0.2, dome = 0.04, kernels = 2600, seed = 3 } = {}) {
   const g = new THREE.Group(), n = W.noise2(seed), H = (x, z) => { const d = Math.hypot(x, z) / r; return dome * Math.max(0, 1 - d * d) + 0.004 * n(x * 60, z * 60); };
   const geo = new THREE.CircleGeometry(r, 96, 0, Math.PI * 2); geo.rotateX(-Math.PI / 2);
@@ -43,13 +43,13 @@ export function grainHeap({ r = 0.2, dome = 0.04, kernels = 2600, seed = 3 } = {
   dense.computeVertexNormals(); geo.dispose();
   const base = new THREE.Mesh(dense, grainColorMat()); base.receiveShadow = true; g.add(base);
   const kg = new THREE.SphereGeometry(1, 10, 6); kg.scale(0.0042, 0.0026, 0.0026);
-  const km = new THREE.MeshStandardMaterial({ color: 0xd8b070, roughness: 0.55 });
+  const km = new THREE.MeshStandardMaterial({ color: 0xb08850, roughness: 0.6 });
   const im = new THREE.InstancedMesh(kg, km, kernels), M4 = new THREE.Matrix4(), Q = new THREE.Quaternion(), rr = W.rng(seed), C = new THREE.Color();
   for (let i = 0; i < kernels; i++) {
     const a = rr() * Math.PI * 2, d = Math.sqrt(rr()) * r * 0.98, x = Math.cos(a) * d, z = Math.sin(a) * d;
     Q.setFromEuler(new THREE.Euler((rr() - 0.5) * 0.6, rr() * 6.28, (rr() - 0.5) * 0.6)); const s = 0.8 + rr() * 0.4;
     M4.compose(V3(x, H(x, z) + 0.0018, z), Q, V3(s, s, s)); im.setMatrixAt(i, M4);
-    C.setHSL(0.1 + rr() * 0.02, 0.45 + rr() * 0.15, 0.48 + rr() * 0.14); im.setColorAt(i, C);
+    C.setHSL(0.09 + rr() * 0.025, 0.5 + rr() * 0.15, 0.34 + rr() * 0.12); im.setColorAt(i, C);
   }
   im.castShadow = false; im.receiveShadow = true; g.add(im);
   g.userData.heightAt = H;
@@ -77,7 +77,7 @@ export async function saddlebag({ seed = 1, open = false, h = 0.62, r = 0.27, co
   fg.computeVertexNormals();
   const flapMesh = new THREE.Mesh(fg, cm); flapMesh.castShadow = flapMesh.receiveShadow = true;
   const flap = new THREE.Group(); flap.position.set(0, h + 0.035, -r * 1.02); flap.add(flapMesh); g.add(flap);
-  flap.rotation.x = open ? -2.75 : 0;
+  flap.rotation.x = open ? 2.0 : 0;
   // a lashing rope round the belly
   const pts = []; for (let i = 0; i <= 64; i++) { const a = i / 64 * Math.PI * 2; pts.push(V3(Math.cos(a) * r * 1.11, h * 0.55 + 0.01 * Math.sin(a * 3), Math.sin(a) * r * 1.11)); }
   g.add(W.rope(pts, 0.009, { segs: 160 }));

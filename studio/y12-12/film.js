@@ -10,6 +10,7 @@ const { THREE, clamp, lerp, sstep } = W;
 const V3 = K.V3, D = 34.04;
 
 let ST, SET, CAP, P = {}, BOWL, BAGS = [], BAGB, TORCHES = [], STAR, hAt, HOME, TOP;
+const EXPO = (t) => (t >= 16.85 && t < 22.93) || (t >= 27.57 && t < 30.08) ? 1.5 : 1.05;
 const pr = (t, a, b) => clamp((t - a) / (b - a));
 const sm = (t, a, b) => K.easeIO(pr(t, a, b));
 const at = (x, z, dy = 0) => [x, hAt(x, z) + dy, z];
@@ -20,7 +21,7 @@ async function build() {
   hAt = SET.props.terrain.heightAt;
   const g = SET.group;
   // torches at the gate gap and by the table
-  for (const [x, z, s] of [[18.7, -8.3, 1], [25.3, -8.3, 2], [17.6, -4.4, 3]]) { const tc = K.torch({ seed: s, light: 7, dist: 16 }); tc.position.set(x, hAt(x, z) - 0.05, z); g.add(tc); TORCHES.push(tc); }
+  for (const [x, z, s] of [[18.7, -8.3, 1], [25.3, -8.3, 2], [17.6, -4.4, 3]]) { const tc = K.torch({ seed: s, light: 2.2, dist: 11 }); tc.position.set(x, hAt(x, z) - 0.05, z); g.add(tc); TORCHES.push(tc); }
   // gate posts (the gap in the granary wall) with a wooden lintel
   const pl = await K.mats.planks();
   for (const x of [19.05, 24.95]) { const p = W.rbox(0.32, 3.2, 0.32, pl, { r: 0.03 }); p.position.set(x, hAt(x, -9) - 0.1, -9); g.add(W.shadows(p)); }
@@ -38,7 +39,7 @@ async function build() {
   STAR = K.brightStar({ dir: [-0.05, 0.62, -1], size: 14 }); SET.scene.add(STAR);
   // people
   const PE = await K.people();
-  P.yusuf = PE.make({ kind: 'man', outfit: 'noble', palette: 'noble', beard: 'short', headwear: 'none', seed: 12, detail: 1 });
+  P.yusuf = PE.make({ kind: 'man', outfit: 'noble', palette: 'noble', beard: 'short', headwear: 'wrap', seed: 12, detail: 1 });
   P.guard = PE.make({ kind: 'man', outfit: 'worker', palette: 'night', beard: 'full', headwear: 'wrap', seed: 41, detail: 0.8 });
   const bro = [['rust', 'full', 'keffiyeh'], ['olive', 'full', 'turban'], ['earth', 'short', 'wrap'], ['sand', 'full', 'keffiyeh'], ['indigo', 'short', 'turban']];
   P.bro = bro.map(([pal, beard, hw], i) => PE.make({ kind: 'man', outfit: 'traveller', palette: pal, beard, headwear: hw, seed: 60 + i * 7, detail: 0.6 }));
@@ -67,28 +68,28 @@ const starLook = (pos, dy) => { const d = STAR.userData.dir; return [pos[0] + d.
 let SHOTS;
 function shots() {
   const H = HOME, B = inBag(), bx = BAGB.group.position;
-  const macroA = C([H.x + 0.3, H.y + 0.24, H.z + 0.62], [H.x, H.y + 0.04, H.z], 24);
+  const macroA = C([H.x - 0.62, H.y + 0.2, H.z + 0.18], [H.x + 0.02, H.y + 0.05, H.z], 22);
   return [
     // 1 hook: the bowl glints on the cloth; Yusuf's hand comes in and lifts it away
-    { t0: 0, t1: 0.97, a: macroA, b: C([H.x + 0.28, H.y + 0.22, H.z + 0.56], [H.x, H.y + 0.05, H.z], 23), s(t) {
+    { t0: 0, t1: 0.97, a: macroA, b: C([H.x - 0.58, H.y + 0.21, H.z + 0.17], [H.x + 0.02, H.y + 0.07, H.z], 21.5), s(t) {
       show(P.yusuf); K.place(P.yusuf, ...at(YT[0], YT[1]), YT[2]); P.yusuf.setPose('stand', t);
       const lift = sm(t, 0.42, 0.97), pos = H.clone().add(V3(0.02 * lift, 0.32 * lift, 0.34 * lift));
       bowlAt(pos, -0.1 * lift);
       const k = sm(t, 0.0, 0.4); K.reach(P.yusuf, 'Right', grip(pos), K.onBody(P.yusuf, -0.6, 0.9, -0.4), k);
     } },
     // 2 the open saddlebag on the grain, slow push (the bowl is not there yet)
-    { t0: 0.97, t1: 3.16, a: C([bx.x + 0.1, bx.y + 1.25, bx.z + 0.9], [bx.x, bx.y + 0.55, bx.z], 30), b: C([bx.x + 0.06, bx.y + 1.05, bx.z + 0.62], [bx.x, bx.y + 0.56, bx.z], 28), s(t) {
-      BOWL.visible = false; BAGB.flap.rotation.x = -2.75;
+    { t0: 0.97, t1: 3.16, a: C([bx.x - 0.2, bx.y + 1.15, bx.z + 1.5], [bx.x - 0.1, bx.y + 0.45, bx.z - 1.2], 36), b: C([bx.x - 0.1, bx.y + 1.05, bx.z + 0.95], [bx.x - 0.05, bx.y + 0.5, bx.z - 0.8], 32), s(t) {
+      BOWL.visible = false; BAGB.flap.rotation.x = 2.0;
       brothersAt(t, [[bx.x + 1.6, bx.z - 1.4, -0.6, 'stand']]);
     } },
     // 3 the yard: the brothers load up under the torches, slow track along the bags toward the gate
     { t0: 3.16, t1: 6.05, a: C(at(29.4, -1.4, 1.55), [23.5, hAt(23, -6) + 0.9, -6.8], 40), b: C(at(27.6, -1.0, 1.5), [22.3, hAt(22, -6) + 1.0, -7.2], 40), s(t) {
-      BOWL.visible = false; BAGB.flap.rotation.x = -2.75;
+      BOWL.visible = false; BAGB.flap.rotation.x = 2.0;
       brothersAt(t, [[26.3, -4.3, 0.3, 'kneel'], [27.4, -6.1, -1.9, 'stand'], [25.0 + 0.9 * pr(t, 3.16, 6.05), -6.6, Math.PI / 2, 'walk'], [28.4, -4.9, -2.2, 'agree'], [23.6, -7.3, 2.6, 'stand']]);
     } },
     // 4 he lowers the gold bowl into his brother's bag
     { t0: 6.05, t1: 7.24, a: C([bx.x + 0.9, bx.y + 1.3, bx.z + 0.95], [bx.x, bx.y + 0.75, bx.z], 30), b: C([bx.x + 0.75, bx.y + 1.2, bx.z + 0.8], [bx.x, bx.y + 0.68, bx.z], 29), s(t) {
-      BAGB.flap.rotation.x = -2.75;
+      BAGB.flap.rotation.x = 2.0;
       show(P.yusuf); K.place(P.yusuf, ...at(bx.x + 0.55, bx.z - 0.15), -Math.PI / 2 - 0.35); P.yusuf.setPose('stand', t);
       const e = sm(t, 5.9, 6.95), pos = B.clone().add(V3(0.0, 0.42 * (1 - e), 0.05 * (1 - e)));
       bowlAt(pos, 0.25 * (1 - e));
@@ -98,7 +99,7 @@ function shots() {
     // 5 the cover is folded over the mouth; pull back: one bag among the others
     { t0: 7.24, t1: 9.33, a: C([bx.x + 0.35, bx.y + 1.15, bx.z + 0.75], [bx.x, bx.y + 0.58, bx.z], 28), b: C([bx.x + 0.9, bx.y + 1.5, bx.z + 2.6], [bx.x + 0.8, bx.y + 0.45, bx.z], 34), s(t) {
       bowlAt(B, 0);
-      const f = sm(t, 7.3, 8.3); BAGB.flap.rotation.x = -2.75 * (1 - f);
+      const f = sm(t, 7.3, 8.3); BAGB.flap.rotation.x = 2.0 * (1 - f);
       show(P.yusuf); K.place(P.yusuf, ...at(bx.x + 0.55, bx.z - 0.15), -Math.PI / 2 - 0.35); P.yusuf.setPose('stand', t);
       BAGB.flap.updateMatrixWorld(true);
       const edge = BAGB.flap.localToWorld(V3(0, 0.02, BAGB.r * 2.1));
@@ -106,14 +107,14 @@ function shots() {
       K.reach(P.yusuf, 'Right', edge, K.onBody(P.yusuf, -0.7, 0.8, -0.4), k);
     } },
     // 6 the brothers at the gate; one points toward the bags
-    { t0: 9.33, t1: 10.54, a: C(at(24.6, -11.6, 1.55), [24.2, hAt(24, -6) + 1.1, -5.6], 42), b: C(at(24.4, -11.3, 1.55), [24.1, hAt(24, -6) + 1.1, -5.6], 41), s(t) {
+    { t0: 9.33, t1: 10.54, a: C(at(21.2, -10.6, 1.35), [23.8, hAt(24, -6) + 1.0, -5.4], 44), b: C(at(21.3, -10.4, 1.35), [23.8, hAt(24, -6) + 1.0, -5.4], 43), s(t) {
       BOWL.visible = false; BAGB.flap.rotation.x = 0;
-      brothersAt(t, [[22.9, -7.7, 0.3, 'stand'], [23.8, -7.3, 0.1, 'stand'], [24.7, -7.6, -0.2, 'stand'], [25.6, -7.9, -0.35, 'stand'], [21.8, -8.0, 0.55, 'stand']]);
+      brothersAt(t, [[22.4, -7.6, 0.35, 'stand'], [23.3, -7.2, 0.15, 'stand'], [24.2, -7.7, -0.1, 'stand'], [25.1, -8.1, -0.3, 'agree'], [21.6, -8.2, 0.5, 'stand']]);
       const pt = P.bro[1]; K.reach(pt, 'Right', V3(bx.x + 0.3, hAt(bx.x, bx.z) + 1.6, bx.z + 0.6), K.onBody(pt, -0.8, 0.6, -0.5), sm(t, 9.4, 9.9));
     } },
     // 7 the search: the guard lifts the cover, reaches in, the gold comes up into the torchlight
     { t0: 10.54, t1: 12.65, a: C([bx.x - 0.95, bx.y + 1.25, bx.z + 1.1], [bx.x, bx.y + 0.75, bx.z], 32), b: C([bx.x - 0.75, bx.y + 1.3, bx.z + 0.9], [bx.x + 0.05, bx.y + 1.05, bx.z], 30), s(t) {
-      const open = sm(t, 10.6, 11.2); BAGB.flap.rotation.x = -2.75 * open;
+      const open = sm(t, 10.6, 11.2); BAGB.flap.rotation.x = 2.0 * open;
       show(P.guard); K.place(P.guard, ...at(bx.x + 0.15, bx.z - 0.62), 0.15); P.guard.setPose('stand', t);
       BAGB.flap.updateMatrixWorld(true);
       const up = sm(t, 11.45, 12.35), pos = B.clone().add(V3(0.02 * up, 0.95 * up, -0.12 * up));
@@ -124,7 +125,7 @@ function shots() {
     } },
     // 8 restraint: Yusuf stands very still at the edge of the torchlight, hands folded (long lens, back)
     { t0: 12.65, t1: 14.56, a: C(at(21.0, 1.5, 1.45), [21.2, hAt(21, -4) + 1.25, -4.2], 18), b: C(at(21.0, 1.3, 1.45), [21.2, hAt(21, -4) + 1.25, -4.2], 17.5), s(t) {
-      BOWL.visible = false; BAGB.flap.rotation.x = -2.75;
+      BOWL.visible = false; BAGB.flap.rotation.x = 2.0;
       show(P.yusuf); K.place(P.yusuf, ...at(21.2, -3.9), Math.PI); P.yusuf.setPose('stand', t); K.foldHands(P.yusuf);
       brothersAt(t, [[23.4, -6.6, 2.4, 'stand'], [24.3, -6.9, 2.6, 'headShake'], [22.6, -7.2, 2.9, 'stand']]);
       show(P.guard); K.place(P.guard, ...at(bx.x - 0.4, bx.z - 0.5), 2.2); P.guard.setPose('stand', t);
@@ -133,7 +134,7 @@ function shots() {
     { t0: 14.56, t1: 16.85, a: null, b: null, hands: 0 },
     // 10 tilt from the bag up past the torches to the stars (small to vast)
     { t0: 16.85, t1: 18.84, a: C(at(23.4, -2.3, 1.2), [bx.x, bx.y + 0.5, bx.z], 34), b: C(at(23.4, -2.3, 1.25), [bx.x - 1.0, bx.y + 9.0, bx.z - 8], 34), s(t) {
-      BOWL.visible = false; BAGB.flap.rotation.x = -2.75;
+      BOWL.visible = false; BAGB.flap.rotation.x = 2.0;
     } },
     // 11 the stars above the gate and torches
     { t0: 18.84, t1: 21.23, a: C(at(22.0, 2.5, 1.0), [22.0, hAt(22, -9) + 7.0, -9], 52), b: C(at(22.0, 2.2, 1.0), [22.0, hAt(22, -9) + 7.2, -9], 51), s(t) { BOWL.visible = false; } },
@@ -142,7 +143,7 @@ function shots() {
     // 13 the folded hands again, unmoving
     { t0: 22.93, t1: 24.69, a: null, b: null, hands: 1 },
     // 14 the bowl is set back on the cloth
-    { t0: 24.69, t1: 27.57, a: C([H.x - 0.35, H.y + 0.3, H.z + 0.6], [H.x, H.y + 0.05, H.z], 26), b: C([H.x - 0.3, H.y + 0.27, H.z + 0.55], [H.x, H.y + 0.05, H.z], 25), s(t) {
+    { t0: 24.69, t1: 27.57, a: C([H.x - 0.75, H.y + 0.32, H.z + 0.05], [H.x + 0.05, H.y + 0.1, H.z + 0.05], 30), b: C([H.x - 0.7, H.y + 0.28, H.z + 0.08], [H.x + 0.03, H.y + 0.07, H.z + 0.03], 27), s(t) {
       show(P.yusuf); K.place(P.yusuf, ...at(YT[0], YT[1]), YT[2]); P.yusuf.setPose('stand', t);
       const e = sm(t, 24.6, 25.9), pos = H.clone().add(V3(0.02 * (1 - e), 0.32 * (1 - e), 0.34 * (1 - e)));
       bowlAt(pos, -0.1 * (1 - e));
@@ -150,7 +151,7 @@ function shots() {
     } },
     // 15 a star above the gate, slow tilt up
     { t0: 27.57, t1: 30.08, a: C(at(22.6, -1.0, 1.4), [22.0, hAt(22, -9) + 2.4, -9], 38), b: C(at(22.6, -1.0, 1.4), [21.6, hAt(22, -9) + 9.0, -9], 38), s(t) {
-      bowlAt(H, 0); BAGB.flap.rotation.x = -2.75;
+      bowlAt(H, 0); BAGB.flap.rotation.x = 2.0;
     } },
     // 16 the quiet folded hands, then a tilt down to the bowl on the cloth (= frame 1)
     { t0: 30.08, t1: D + 0.01, s(t) {
@@ -198,9 +199,9 @@ M.film({
     // torches + one star
     const k = 1;
     TORCHES.forEach((tc) => tc.userData.update(t, k));
-    ST.update(t, u, { cam });
+    ST.update(t, u, { cam, exposure: EXPO(t) });
     STAR.visible = t >= 16.85 && t < 30.08; STAR.userData.update(ST.camera, t, 1);
-    G.renderSet(ctx, ST, t, u, { cam });
+    G.renderSet(ctx, ST, t, u, { cam, exposure: EXPO(t) });
     K.vignette(ctx, 0.38);
     CAP.draw(ctx, t);
     K.drawSeal(ctx, IMG.seal, t, 32.5, D);
