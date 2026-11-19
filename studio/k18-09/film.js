@@ -75,6 +75,18 @@ function streak(t) {
   STREAK.material.opacity = (1 - prog(t, 3.0, 3.75)) * (0.6 + 0.4 * prog(t, 1.33, 1.5));
 }
 
+// a sandal print silhouette (toe toward canvas top = -z after rotateX), soft edge
+let _pt = null;
+function printTex() {
+  if (_pt) return _pt;
+  const c = document.createElement('canvas'); c.width = 128; c.height = 256; const x = c.getContext('2d');
+  x.fillStyle = '#000'; x.fillRect(0, 0, 128, 256); x.filter = 'blur(5px)'; x.fillStyle = '#fff';
+  x.beginPath(); x.ellipse(64, 190, 30, 44, 0, 0, Math.PI * 2); x.fill();
+  x.beginPath(); x.ellipse(66, 90, 38, 62, 0.05, 0, Math.PI * 2); x.fill();
+  x.beginPath(); x.ellipse(64, 140, 28, 40, 0, 0, Math.PI * 2); x.fill();
+  return (_pt = new THREE.CanvasTexture(c));
+}
+
 // ------------------------------------------------------------------ people: two travellers (shadows, a hand, feet)
 function hideAll() { TALL.object3d.visible = YOUNG.object3d.visible = false; STAFF.visible = false; }
 function standRest(t, i) {
@@ -124,6 +136,8 @@ M.film({
     await G.initGL({ exposure: 1.0 }); W.init(G.R);
     SET = await confluence({ time: 'day' });
     const S = SET.scene, P = SET.props;
+    // less sky glare on the water and a clearer horizon (the seam reads to the far distance)
+    P.sea.envMapIntensity = 0.3; if (S.fog) S.fog.density = 0.0005;
     HT = P.terrain.heightAt;
     TOP = P.rock.position.y + 0.95; BK0 = P.basket.position.clone();
     FISH = P.fish;
@@ -131,8 +145,13 @@ M.film({
     for (let i = 0; i < 4; i++) { const r = ringMesh(); S.add(r); RIPPLES.push(r); }
     // footprints that fill with seawater: the nearest prints to the sea of each walker's line (props.prints)
     const near = P.prints.filter(([, z]) => z < 5.4).sort((a, b) => a[1] - b[1]);
-    const wm = new THREE.MeshPhysicalMaterial({ color: 0x5c6f66, roughness: 0.04, metalness: 0, envMapIntensity: 1.4, transparent: true, opacity: 0.92, clearcoat: 1, clearcoatRoughness: 0.03 });
-    for (const [x, z, a] of near) { const m = new THREE.Mesh(new THREE.CircleGeometry(1, 40).rotateX(-Math.PI / 2), wm.clone()); m.userData.base = [x, z, a, HT(x, z)]; m.receiveShadow = true; S.add(m); PUDDLES.push(m); }
+    // each print: a damp sandal-shaped hollow (always there) and the water that seeps into it (grows with fill)
+    const pt = printTex();
+    const dryM = new THREE.MeshStandardMaterial({ color: 0x5a4632, roughness: 0.9, alphaMap: pt, transparent: true, opacity: 0.5, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 });
+    const wetM = new THREE.MeshPhysicalMaterial({ color: 0x2c3632, roughness: 0.03, metalness: 0, envMapIntensity: 0.75, alphaMap: pt, transparent: true, opacity: 0.9, clearcoat: 1, clearcoatRoughness: 0.02, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4 });
+    for (const [x, z, a] of near) { const h = HT(x, z);
+      const dry = new THREE.Mesh(new THREE.PlaneGeometry(0.13, 0.29).rotateX(-Math.PI / 2), dryM); dry.position.set(x, h + 0.003, z); dry.rotation.y = a; dry.receiveShadow = true; S.add(dry);
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(0.13, 0.29).rotateX(-Math.PI / 2), wetM.clone()); m.userData.base = [x, z, a, h]; m.receiveShadow = true; S.add(m); PUDDLES.push(m); }
     GLINT = streakMesh(); GLINT.material.color.set(0xffffff); S.add(GLINT);
     // travellers (built once; only shadows, a hand and feet are ever framed)
     const PP = await K.people();
@@ -207,10 +226,10 @@ M.film({
       GLINT.visible = g > 0 && g < 1; GLINT.position.copy(a); GLINT.rotation.y = Math.atan2(6.4, 0.55) - Math.PI / 2; GLINT.scale.set(0.5, 1, 0.025); GLINT.material.opacity = 0.7 * Math.sin(Math.PI * g); }
     // the puddles in the prints: dry until the walkers have left; they fill slowly (seawater seeps up the sand)
     const fill = (k) => E.outQuad(clamp(k));
-    PUDDLES.forEach((m, j) => { const [x, z, a, h] = m.userData.base; const k = fill(prog(t, 19.0 + 0.35 * j, 27.5 + 0.2 * j)) * (t > 16 ? 1 : 0);
-      m.visible = k > 0.01; m.position.set(x, h + 0.002 + 0.02 * k, z); m.rotation.y = a; const q = 0.25 + 0.75 * Math.sqrt(k); m.scale.set(0.05 * q, 1, 0.12 * q); });
+    PUDDLES.forEach((m, j) => { const [x, z, a, h] = m.userData.base; const k = fill(prog(t, 18.9 + 0.3 * j, 27.6 + 0.15 * j)) * (t > 16 ? 1 : 0);
+      m.visible = k > 0.01; m.position.set(x, h + 0.004, z); m.rotation.y = a; const q = 0.35 + 0.65 * Math.sqrt(k); m.scale.set(q, 1, q); m.material.opacity = 0.35 + 0.55 * k; });
     if (i === 12) { const pr = PUDDLES[0].userData.base, g = prog(t, 26.0, 27.2);
-      GLINT.visible = g > 0 && g < 1; GLINT.position.set(pr[0] - 0.08 + 0.16 * g, pr[3] + 0.026, pr[1] + 0.02); GLINT.rotation.y = 0; GLINT.scale.set(0.05, 1, 0.006); GLINT.material.opacity = 0.9 * Math.sin(Math.PI * g); }
+      GLINT.visible = g > 0 && g < 1; GLINT.position.set(pr[0] - 0.08 + 0.16 * g, pr[3] + 0.006, pr[1] + 0.02); GLINT.rotation.y = 0; GLINT.scale.set(0.05, 1, 0.006); GLINT.material.opacity = 0.9 * Math.sin(Math.PI * g); }
     // people per shot
     hideAll();
     if (i === 2 || i === 3 || i === 6) standRest(t, i);

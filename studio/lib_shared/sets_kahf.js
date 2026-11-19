@@ -342,7 +342,7 @@ export function seaMat({ colA = 0x2aa8a8, colB = 0x5a6a3a, seam = null, foam = 0
         vec3 c = mix(colA, colB, k);
         c = mix(shal, c, smoothstep(0.0, 1.6, vDepth));
         float fz = exp(-d * d / 2.2) * foamK * (0.55 + 0.45 * sn1(vSW.xz * 0.9 + vec2(time * 0.3, 0.)));
-        float sf = smoothstep(0.14, 0.0, vDepth) * smoothstep(0.35, 0.75, sn1(vSW.xz * 1.4 + vec2(time * 0.25, time * 0.1)) + 0.25 * sin(time * 0.8 + vSW.x * 0.3));
+        float sf = foamK * smoothstep(0.06, 0.0, vDepth) * smoothstep(0.35, 0.75, sn1(vSW.xz * 1.4 + vec2(time * 0.25, time * 0.1)) + 0.25 * sin(time * 0.8 + vSW.x * 0.3));
         diffuseColor.rgb = mix(c, vec3(0.92, 0.95, 0.92), clamp(fz * 0.8 + sf * 0.7, 0., 1.));
       }`);
   };
