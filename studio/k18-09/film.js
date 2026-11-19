@@ -81,10 +81,10 @@ function printTex() {
   if (_pt) return _pt;
   const c = document.createElement('canvas'); c.width = 128; c.height = 256; const x = c.getContext('2d');
   x.fillStyle = '#000'; x.fillRect(0, 0, 128, 256); x.filter = 'blur(5px)'; x.fillStyle = '#fff';
-  // one sole outline: round heel, narrow arch, broad ball and toe
-  x.beginPath(); x.moveTo(64, 236);
-  x.bezierCurveTo(34, 236, 36, 190, 44, 160); x.bezierCurveTo(50, 138, 30, 110, 30, 76); x.bezierCurveTo(30, 34, 52, 16, 70, 16);
-  x.bezierCurveTo(92, 16, 102, 40, 100, 78); x.bezierCurveTo(98, 112, 84, 138, 86, 162); x.bezierCurveTo(90, 196, 94, 236, 64, 236); x.fill();
+  // a sandal sole: rounded toe and heel, a gentle waist at the arch
+  x.beginPath(); x.ellipse(64, 70, 40, 54, 0, 0, Math.PI * 2); x.fill();
+  x.beginPath(); x.ellipse(64, 182, 32, 46, 0, 0, Math.PI * 2); x.fill();
+  x.fillRect(36, 70, 56, 112);
   return (_pt = new THREE.CanvasTexture(c));
 }
 
@@ -150,8 +150,8 @@ M.film({
     const near = P.prints.filter(([, z]) => z < 12).sort((a, b) => a[1] - b[1]);
     // each print: a damp sandal-shaped hollow (always there) and the water that seeps into it (grows with fill)
     const pt = printTex();
-    const dryM = new THREE.MeshStandardMaterial({ color: 0x3a2c20, roughness: 0.6, alphaMap: pt, transparent: true, opacity: 0.55, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 });
-    const wetM = new THREE.MeshPhysicalMaterial({ color: 0x4a3c2e, roughness: 0.12, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.04, envMapIntensity: 1.6, alphaMap: pt, transparent: true, opacity: 0.9, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4 });
+    const dryM = new THREE.MeshStandardMaterial({ color: 0x6a5238, roughness: 0.5, alphaMap: pt, transparent: true, opacity: 0.7, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 });
+    const wetM = new THREE.MeshBasicMaterial({ color: 0xb4c2c2, alphaMap: pt, transparent: true, opacity: 0.6, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4 });
     for (const [x, z, a] of near) { const h = HT(x, z);
       const dry = new THREE.Mesh(new THREE.PlaneGeometry(0.13, 0.29).rotateX(-Math.PI / 2), dryM); dry.position.set(x, h + 0.003, z); dry.rotation.y = a; dry.receiveShadow = true; S.add(dry);
       const m = new THREE.Mesh(new THREE.PlaneGeometry(0.13, 0.29).rotateX(-Math.PI / 2), wetM.clone()); m.userData.base = [x, z, a, h]; m.receiveShadow = true; S.add(m); PUDDLES.push(m); }
@@ -193,7 +193,7 @@ M.film({
       prints:  { pos: [-2.25, 0.3, 2.55], look: [-2.05, 0.04, 4.8], fov: 38 },
     });
     const pr = PUDDLES[0].userData.base;
-    C.one = { pos: [pr[0] - 0.55, pr[3] + 0.55, pr[1] - 0.45], look: [pr[0] + 0.05, pr[3], pr[1] + 0.1], fov: 34 };
+    C.one = { pos: [pr[0] - 0.22, pr[3] + 0.62, pr[1] - 0.38], look: [pr[0], pr[3], pr[1] + 0.02], fov: 34 };
     SHOTS = [
       { t0: 0.00, t1: 1.87, a: C.flip_a, b: C.flip_b, ease: E.inOutSine },
       { t0: 1.87, t1: 3.74, a: C.water_a, b: C.water_b },
@@ -232,7 +232,7 @@ M.film({
     // the puddles in the prints: dry until the walkers have left; they fill slowly (seawater seeps up the sand)
     const fill = (k) => E.outQuad(clamp(k));
     PUDDLES.forEach((m, j) => { const [x, z, a, h] = m.userData.base; const k = fill(prog(t, 18.9 + 0.3 * j, 27.6 + 0.15 * j)) * (t > 16 ? 1 : 0);
-      m.visible = k > 0.01; m.position.set(x, h + 0.004, z); m.rotation.y = a; const q = 0.45 + 0.5 * Math.sqrt(k); m.scale.set(q, 1, q); m.material.opacity = 0.2 + 0.55 * k; });
+      m.visible = k > 0.01; m.position.set(x, h + 0.004, z); m.rotation.y = a; const q = 0.3 + 0.55 * Math.sqrt(k); m.scale.set(q, 1, q); m.material.opacity = 0.15 + 0.4 * k; });
     if (i === 12) { const pr = PUDDLES[0].userData.base, g = prog(t, 26.0, 27.2);
       GLINT.visible = g > 0 && g < 1; GLINT.position.set(pr[0] - 0.08 + 0.16 * g, pr[3] + 0.006, pr[1] + 0.02); GLINT.rotation.y = 0; GLINT.scale.set(0.05, 1, 0.006); GLINT.material.opacity = 0.9 * Math.sin(Math.PI * g); }
     // people per shot
