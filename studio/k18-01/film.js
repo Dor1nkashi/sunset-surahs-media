@@ -153,9 +153,9 @@ M.film({
     DUST.userData.update(t, t > 5.9 && t < 22.7 ? 1 : 0);
     // the lamp: leans in a draught, then steadies and grows (shots 12-14)
     const f = LAMP.userData.flame, lean = (1 - E.inOutSine(prog(t, 23.3, 24.5))) * (0.32 + 0.12 * Math.sin(t * 9.0) + 0.06 * Math.sin(t * 23));
-    f.rotation.z = t > 22.69 ? lean : 0.04 * Math.sin(t * 5); f.scale.setScalar(1 + 0.35 * E.inOutSine(prog(t, 24.0, 25.5)));
-    const ex = t < 5.92 ? 0.95 : i === 11 || i === 13 ? 1.1 : 1.25;
-    ST.bloom = i >= 11 ? SET.bloom : 0; SET.props.sun.intensity = t < 5.92 ? 3.4 : 1.6;
+    f.rotation.z = t > 22.69 ? lean : 0.04 * Math.sin(t * 5); f.scale.setScalar(1 + 0.2 * E.inOutSine(prog(t, 24.0, 25.5)));
+    const ex = t < 5.92 ? 0.95 : i === 11 || i === 13 ? 0.62 : i === 12 ? 0.85 : 1.25;
+    ST.bloom = i >= 11 ? 0.08 : 0; SET.props.sun.intensity = t < 5.92 ? 3.4 : 1.6;
     G.renderSet(ctx, ST, t, u, { cam, exposure: ex, mist: 0, lamp: t > 22.69 ? (i === 12 ? 0.6 : 0.32) : 0.7, shaft: 1 });
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.6);
