@@ -11,7 +11,7 @@ import * as GR from '../lib_shared/growth.js';
 import * as K from '../y12-12/kit.js';
 const { THREE, clamp, lerp } = W;
 const V3 = K.V3, D = 34.17;
-const DBG = {};
+const DBG = { bisect: 1 };
 const OBJ = {};
 
 let SET, ST, CAP, hAt, h0, P = {}, TREE, SHAFT, MOTES, JAR = {}, SKIN, DROPS = [], SHOTS;
@@ -220,14 +220,8 @@ M.film({
     let cam = s.cam ? s.cam(t) : K.camAt(s, t);
     if (DBG.bisect) { cam = SHOTS[2].a; const k = Math.floor(t), ch = SET.group.children, n0 = OBJ.n0, n1 = ch.length;
       ch.forEach((o, i) => { o.visible = true; });
-      const mid = n0 + Math.floor((n1 - n0) / 2);
-      if (k === 1) ch.forEach((o, i) => { if (i >= n0) o.visible = false; });            // all of mine hidden
-      if (k === 2) ch.forEach((o, i) => { if (i >= n0 && i < mid) o.visible = false; });
-      if (k === 3) ch.forEach((o, i) => { if (i >= mid) o.visible = false; });
-      if (k === 4) ch.forEach((o, i) => { if (i < n0 / 2) o.visible = false; });        // first half of the set's own
-      if (k === 5) ch.forEach((o, i) => { if (i >= n0 / 2 && i < n0) o.visible = false; });
-      if (k === 6) { SET.scene.fog = null; }
-      if (k === 7) ST.set.exposure = 1;
+      const hideR = [[], [0, 0], [1, 1], [2, 2], [3, 8], [9, 9], [10, 16], [99, 99]][k] || [];
+      ch.forEach((o, i) => { if (hideR.length && i >= hideR[0] && i <= hideR[1]) o.visible = false; });
       console.log('dbg', k, n0, n1, mid);
     }
     G.renderSet(ctx, ST, t, u, { cam, exposure: 0.72 });
