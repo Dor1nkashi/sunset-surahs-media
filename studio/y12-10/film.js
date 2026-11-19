@@ -17,7 +17,7 @@ const D = 37.97;
 // ------------------------------------------------------------------ the dream: a Nile bank at dawn
 async function dreamSet() {
   const scene = new THREE.Scene(), group = new THREE.Group(); scene.add(group);
-  const atmo = await W.atmosphere(scene, { hdri: 'rogland_sunset', background: 'hdri', sun: { azim: -90 }, sunI: 2.2, envI: 0.8, fog: 0.007, fogGain: 0.6, blur: 0.08, shadowBox: 30, focus: [0, 0, -4] });
+  const atmo = await W.atmosphere(scene, { hdri: 'rogland_sunset', background: 'hdri', sun: { azim: 155 }, sunI: 2.4, envI: 0.8, fog: 0.007, fogGain: 0.6, blur: 0.08, shadowBox: 30, focus: [0, 0, -4] });
   const n = W.noise2(5);
   // the river lies at z < -9 (water at y = -0.35); the bank rises gently to the fields at z > -2
   const height = (x, z) => -0.9 * (1 - W.sstep(-12, -3, z)) + 0.35 * W.sstep(-3, 8, z) + 0.06 * n(x / 4, z / 4) + 0.02 * n(x, z);
@@ -177,11 +177,12 @@ async function extras() {
   // sacks stacked to the ceiling along the back wall, and the grain heap that grows in the middle
   for (let k = 0; k < 40; k++) { const row = Math.floor(k / 10), col = k % 10, s = W.sack(hs, { w: 0.5, h: 0.62, seed: k + 11 });
     s.position.set(S_.x1 - 0.5 - (row % 2) * 0.05, row * 0.56, S_.z0 + 0.45 + col * 0.58 + (row % 2) * 0.2); s.rotation.y = k * 0.9; g.add(s); }
-  X.heap = W.lathe(Array.from({ length: 24 }, (_, i) => { const a = i / 23; return [Math.max(0.001, 1 - a) * 1.0, Math.sin(a * Math.PI / 2) ** 0.8 * 0.55]; }), new THREE.MeshStandardMaterial({ color: 0xb89a5a, roughness: 1 }), { seg: 64 });
-  X.heap.position.set(S_.x0 + 2.6, 0, dz + 0.3); g.add(X.heap);
+  X.grainM = await W.pbr('sand_01', { tile: 0.35, tint: 0xe8c070, res: 1024 });
+  X.heap = W.lathe(Array.from({ length: 24 }, (_, i) => { const a = i / 23; return [Math.max(0.001, 1 - a) * 1.0, Math.sin(a * Math.PI / 2) ** 0.8 * 0.55]; }), X.grainM, { seg: 96 });
+  X.heap.position.set(S_.x0 + 2.6, 0, dz + 0.3); X.heap.castShadow = X.heap.receiveShadow = true; g.add(X.heap);
   X.stream = K.dustMotes({ centre: [0, 0, 0], size: [0.05, 1.0, 0.05], count: 500, seed: 8, color: 0xe0c070, px: 0.012, op: 0.9, fall: 1.4 }); NILE.scene.add(X.stream);
   X.pourSack = W.sack(hs, { w: 0.45, h: 0.55, seed: 5, open: true }); NILE.scene.add(X.pourSack);
-  X.inLight = new THREE.PointLight(0xffc880, 0, 7, 1.6); X.inLight.position.set(S_.x0 + 0.8, 1.8, dz); g.add(X.inLight);
+  X.inLight = new THREE.PointLight(0xffc880, 0, 7, 1.6); X.inLight.position.set(S_.x0 + 1.6, 2.3, dz - 1.2); g.add(X.inLight);
 }
 
 // ------------------------------------------------------------------ shots
@@ -196,12 +197,12 @@ const C = {
   chair_b: { pos: [1.5, 2.25, -29.8], look: [0, 1.6, -33.6], fov: 29 },
   door_back: { pos: [0.55, 1.6, 0.4], look: [0, 1.35, 12], fov: 46 },
   clean: { pos: [-3, 0.55, -6.0], look: [6, 0.05, -40], fov: 40 },
-  fat_row: { pos: [8, 1.3, 6.5], look: [8, 0.8, -3], fov: 48 },
+  fat_row: { pos: [-3.5, 1.35, 2.2], look: [10, 0.75, -3.6], fov: 46 },
   spikeA: { pos: [14.22, 0.96, 5.95], look: [14.22, 0.93, 5.0], fov: 26 },
   plots_a: { pos: [-21, 2.0, 32], look: [-21, 0.4, 19], fov: 52 },
   plots_b: { pos: [-21, 14, 38], look: [-21, 0, 18], fov: 54 },
-  bundle_a: { pos: [-30.1, 1.2, 13.4], look: [-28.85, 0.5, 15.05], fov: 40 },
-  bundle_b: { pos: [-29.9, 1.1, 13.7], look: [-28.85, 0.5, 15.05], fov: 36 },
+  bundle_a: { pos: [-27.6, 0.95, 14.5], look: [-28.9, 0.55, 15.05], fov: 40 },
+  bundle_b: { pos: [-27.85, 0.9, 14.65], look: [-28.9, 0.55, 15.05], fov: 36 },
   fill_a: { pos: [31.0, 1.45, -11.9], look: [32.7, 0.85, -13.5], fov: 52 },
   fill_b: { pos: [30.9, 1.5, -11.75], look: [32.7, 0.85, -13.5], fov: 56 },
   green: { pos: [-10, 0.7, 11.5], look: [-6, 0.6, 3], fov: 40 },
@@ -311,9 +312,9 @@ function fields(t, i) {
     K.reach(f, 'Right', tie.clone().add(V(-0.06, -wob, -0.02)), f.object3d.localToWorld(V(-0.6, 0.6, -0.2)));
   }
   // storeroom: the heap grows while grain is poured (shot 14); full afterwards
-  const fill = 0.55 + 0.45 * E.inOutSine(prog(t, 25.6, 28.5));
+  const fill = 0.4 + 0.3 * E.inOutSine(prog(t, 25.6, 28.5));
   X.heap.scale.set(fill, fill, fill);
-  X.inLight.intensity = i >= 13 ? 4 : 0;
+  X.inLight.intensity = i >= 13 ? 1.6 : 0;
   if (i === 13) {
     const l = P.lab, S_ = STORE, x = S_.x0 + 2.6 + 0.62, z = S_.door.z + 0.95; l.object3d.visible = true;
     l.object3d.position.set(x, X.store.position.y, z); l.object3d.rotation.y = Math.PI + 0.55; l.setPose('stand', t);
@@ -333,7 +334,7 @@ function fields(t, i) {
     X.door.leaf.updateMatrixWorld(true);
     const edge = X.door.leaf.localToWorld(V(S_.door.w * 0.7, 1.1, 0.06));
     K.reach(l, 'Right', edge, l.object3d.localToWorld(V(-0.6, 0.8, -0.3)));
-    X.inLight.intensity = 4 * (1 - close);
+    X.inLight.intensity = 1.6 * (1 - close);
   } else X.door.leaf.rotation.y = -1.3;
   // the store interior shots are darker; exposure per shot via table
 }
