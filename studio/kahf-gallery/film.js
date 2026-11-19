@@ -12,6 +12,7 @@ export const SLOTS = [
   ['cave_day', 'mountain_cave', { time: 'day' }, 'hero', 'The cave mouth', { day: 0.3 }],
   ['cave_day', 'mountain_cave', { time: 'day' }, 'mouth_out', 'Looking out of the cave', { day: 0.3 }],
   ['cave_day', 'mountain_cave', { time: 'day' }, 'interior', 'The sleepers', { day: 0.2 }],
+  ['cave_day', 'mountain_cave', { time: 'day' }, 'sleepers', 'Cloaked shapes', { day: 0.8 }],
   ['cave_day', 'mountain_cave', { time: 'day' }, 'threshold', 'The dog at the threshold', { day: 0.6 }],
   ['gardens', 'two_gardens', {}, 'hero', 'Two gardens'],
   ['gardens', 'two_gardens', {}, 'gate', 'The garden gate'],
@@ -22,6 +23,10 @@ export const SLOTS = [
   ['rain', 'rain_on_plants', {}, 'field', 'Green, tangled', { stage: 0.46 }],
   ['rain', 'rain_on_plants', {}, 'hero', 'Gold, then brown', { stage: 0.72 }],
   ['rain', 'rain_on_plants', {}, 'hero', 'Scattered by the wind', { stage: 0.87 }],
+  ['seas', 'confluence', {}, 'hero', 'Where two seas meet', { fish: 0 }],
+  ['seas', 'confluence', {}, 'basket', 'The fish slips away', { fish: 0.3 }],
+  ['seas', 'confluence', {}, 'seam', 'The seam'],
+  ['seas', 'confluence', {}, 'footprints', 'Footprints'],
 ];
 const SLOT = 2;
 const LINES = SLOTS.map(([, , , , label], i) => ({ t0: i * SLOT + 0.15, t1: i * SLOT + 1.9, text: label + '.', keys: [], quran: null }));
@@ -43,6 +48,7 @@ M.film({
     const p = E.inOutSine(prog(t, i * SLOT, (i + 1) * SLOT));
     const P = W.pose(st.set.cameras, anchor), k = 0.06 * p;
     const cam = { pos: P.pos.map((v, j) => v + (P.look[j] - v) * k), look: P.look, fov: P.fov, roll: P.roll };
+    if (ro.fish !== undefined) st.set.props.setFish(ro.fish);
     G.renderSet(ctx, st, t, u, { ...ro, cam });
     CAP.draw(ctx, t);
   },

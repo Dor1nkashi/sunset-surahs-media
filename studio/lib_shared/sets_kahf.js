@@ -342,7 +342,8 @@ export function seaMat({ colA = 0x2aa8a8, colB = 0x5a6a3a, seam = null, foam = 0
         vec3 c = mix(colA, colB, k);
         c = mix(shal, c, smoothstep(0.0, 1.6, vDepth));
         float fz = exp(-d * d / 2.2) * foamK * (0.55 + 0.45 * sn1(vSW.xz * 0.9 + vec2(time * 0.3, 0.)));
-        diffuseColor.rgb = mix(c, vec3(0.92, 0.95, 0.92), clamp(fz * 0.8, 0., 1.));
+        float sf = smoothstep(0.14, 0.0, vDepth) * smoothstep(0.35, 0.75, sn1(vSW.xz * 1.4 + vec2(time * 0.25, time * 0.1)) + 0.25 * sin(time * 0.8 + vSW.x * 0.3));
+        diffuseColor.rgb = mix(c, vec3(0.92, 0.95, 0.92), clamp(fz * 0.8 + sf * 0.7, 0., 1.));
       }`);
   };
   m.customProgramCacheKey = () => 'sea2';
@@ -505,15 +506,15 @@ function sleeper(material, { seed = 1, len = 1.0, mirror = 1 } = {}) {
 // ------------------------------------------------------------------ the dog (SDF, lying with forelegs stretched out), +z = forward
 function dogSDF() {
   const caps = [
-    [[0.075, 0.1, 0.22], [0.085, 0.042, 0.5], 0.036, 0.03], [[-0.075, 0.1, 0.22], [-0.08, 0.042, 0.51], 0.036, 0.03],   // forelegs stretched out (taper)
-    [[0, 0.25, 0.2], [0, 0.36, 0.36], 0.075, 0.062],                                                                      // neck
-    [[0, 0.405, 0.47], [0, 0.375, 0.6], 0.044, 0.026],                                                                 // muzzle, tapering to the nose
-    [[0.14, 0.045, -0.2], [0.15, 0.032, 0.02], 0.033, 0.026], [[-0.14, 0.045, -0.2], [-0.15, 0.032, 0.02], 0.033, 0.026], // hind feet tucked forward
-    [[-0.05, 0.05, -0.4], [0.08, 0.032, -0.52], 0.026, 0.018], [[0.08, 0.032, -0.52], [0.22, 0.026, -0.42], 0.018, 0.011], // tail curled on the ground
+    [[0.07, 0.09, 0.24], [0.08, 0.04, 0.53], 0.034, 0.028], [[-0.07, 0.09, 0.24], [-0.075, 0.04, 0.54], 0.034, 0.028],   // forelegs stretched out (taper)
+    [[0, 0.24, 0.24], [0, 0.32, 0.38], 0.07, 0.058],                                                                    // neck, carried forward
+    [[0, 0.37, 0.49], [0, 0.345, 0.62], 0.04, 0.024],                                                                   // muzzle, tapering to the nose
+    [[0.12, 0.04, -0.24], [0.13, 0.03, 0.0], 0.03, 0.024], [[-0.12, 0.04, -0.24], [-0.13, 0.03, 0.0], 0.03, 0.024],     // hind feet tucked forward
+    [[-0.04, 0.05, -0.46], [0.08, 0.03, -0.58], 0.024, 0.017], [[0.08, 0.03, -0.58], [0.22, 0.025, -0.5], 0.017, 0.01], // tail curled on the ground
   ];
   const ells = [
-    [0, 0.19, -0.03, 0.14, 0.145, 0.35], [0, 0.215, 0.19, 0.13, 0.17, 0.16], [0.11, 0.13, -0.25, 0.1, 0.12, 0.16], [-0.11, 0.13, -0.25, 0.1, 0.12, 0.16],
-    [0.085, 0.026, 0.55, 0.04, 0.026, 0.06], [-0.08, 0.026, 0.56, 0.04, 0.026, 0.06], [0, 0.415, 0.405, 0.072, 0.07, 0.088],
+    [0, 0.17, -0.06, 0.12, 0.13, 0.36], [0, 0.2, 0.18, 0.115, 0.16, 0.15], [0.09, 0.12, -0.3, 0.085, 0.11, 0.15], [-0.09, 0.12, -0.3, 0.085, 0.11, 0.15],
+    [0.08, 0.024, 0.57, 0.036, 0.024, 0.055], [-0.075, 0.024, 0.58, 0.036, 0.024, 0.055], [0, 0.385, 0.42, 0.068, 0.066, 0.085],
   ];
   const capT = (x, y, z, a, b, ra, rb) => { const pax = x - a[0], pay = y - a[1], paz = z - a[2], bax = b[0] - a[0], bay = b[1] - a[1], baz = b[2] - a[2];
     const h = clamp((pax * bax + pay * bay + paz * baz) / (bax * bax + bay * bay + baz * baz)); return Math.hypot(pax - bax * h, pay - bay * h, paz - baz * h) - lerp(ra, rb, h); };
@@ -528,11 +529,11 @@ function dogSDF() {
 function earSDF() { return (x, y, z) => { let d = sdEll(x, y - 0.05, z, 0.038, 0.07, 0.013); d = smax(d, Math.abs(x) * 0.93 + (y - 0.11) * 0.37, 0.006); return smax(d, -sdEll(x, y - 0.045, z + 0.014, 0.026, 0.055, 0.011), 0.004); }; }
 function dogMesh(occAt) {
   const grp = new THREE.Group(); grp.name = 'dog';
-  const coat = furify(new THREE.MeshPhysicalMaterial({ color: 0xffffff, vertexColors: true, roughness: 0.86, sheen: 0.25, sheenRoughness: 0.8, sheenColor: new THREE.Color(0x6a4a28) }), { scale: 420, amp: 0.4 });
-  const M = sdfMesh(dogSDF(), { min: [-0.28, -0.01, -0.62], max: [0.28, 0.56, 0.68], step: 0.0075, occ: false });
+  const coat = furify(new THREE.MeshPhysicalMaterial({ color: 0xffffff, vertexColors: true, roughness: 0.9, sheen: 0.15, sheenRoughness: 0.9, sheenColor: new THREE.Color(0x6a4a28) }), { scale: 520, amp: 0.7 });
+  const M = sdfMesh(dogSDF(), { min: [-0.26, -0.01, -0.68], max: [0.26, 0.52, 0.7], step: 0.007, occ: false });
   const p = M.geometry.attributes.position, col = new Float32Array(p.count * 3), n = noise3(9);
   for (let i = 0; i < p.count; i++) { const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
-    const saddle = sstep(0.2, 0.33, y) * sstep(0.3, -0.05, z), muzzle = sstep(0.52, 0.6, z) * sstep(0.36, 0.43, y), belly = 1 - sstep(0.06, 0.16, y);
+    const saddle = sstep(0.17, 0.3, y) * sstep(0.3, -0.05, z), muzzle = sstep(0.55, 0.63, z) * sstep(0.3, 0.38, y), belly = 1 - sstep(0.06, 0.16, y);
     const k = 1 + 0.06 * n(x * 30, y * 30, z * 30);
     const c = [0.34, 0.19, 0.08].map((v, q) => v * k * (1 - 0.35 * saddle - 0.45 * muzzle) + belly * [0.12, 0.08, 0.04][q]);
     col.set(c, i * 3); }
@@ -541,10 +542,10 @@ function dogMesh(occAt) {
   const ears = [];
   for (const s of [-1, 1]) { const E = sdfMesh(earSDF(), { min: [-0.05, -0.01, -0.03], max: [0.05, 0.13, 0.03], step: 0.0035, occ: false });
     const ec = new Float32Array(E.geometry.attributes.position.count * 3); for (let q = 0; q < ec.length; q += 3) ec.set([0.26, 0.14, 0.06], q); E.geometry.setAttribute('color', new THREE.BufferAttribute(ec, 3));
-    const ear = W.shadows(new THREE.Mesh(E.geometry, coat)); const piv = new THREE.Group(); piv.position.set(s * 0.05, 0.46, 0.39); piv.rotation.set(-0.2, s * 0.35, -s * 0.28); piv.add(ear); grp.add(piv); ears.push(piv); }
+    const ear = W.shadows(new THREE.Mesh(E.geometry, coat)); const piv = new THREE.Group(); piv.position.set(s * 0.048, 0.43, 0.405); piv.rotation.set(-0.2, s * 0.35, -s * 0.28); piv.add(ear); grp.add(piv); ears.push(piv); }
   const dark = new THREE.MeshStandardMaterial({ color: 0x14100c, roughness: 0.25 });
-  const nose = new THREE.Mesh(new THREE.SphereGeometry(0.019, 24, 16), dark); nose.scale.set(1.2, 0.9, 0.8); nose.position.set(0, 0.383, 0.622); grp.add(nose);
-  for (const s of [-1, 1]) { const e = new THREE.Mesh(new THREE.SphereGeometry(0.011, 20, 14), dark); e.position.set(s * 0.037, 0.432, 0.475); grp.add(e); }
+  const nose = new THREE.Mesh(new THREE.SphereGeometry(0.019, 24, 16), dark); nose.scale.set(1.2, 0.9, 0.8); nose.position.set(0, 0.352, 0.642); grp.add(nose);
+  for (const s of [-1, 1]) { const e = new THREE.Mesh(new THREE.SphereGeometry(0.011, 20, 14), dark); e.position.set(s * 0.036, 0.4, 0.49); grp.add(e); }
   if (occAt) grp.userData.bake = () => { grp.updateMatrixWorld(true); grp.traverse((m) => { if (m.isMesh && m.geometry.attributes.normal) bakeOcc(m, occAt, { floor: 0.05 }); }); grp.traverse((m) => { if (m.isMesh) { m.material = m.material.clone(); occify(m.material); } }); };
   // breathing + ear twitches: a pure function of t
   grp.userData.update = (t) => {
@@ -666,10 +667,11 @@ export async function mountain_cave({ time = 'day', seed = 18, sleepers = 5, dog
   const sun = S.atmo.sun, target = V3(0, 1, -6);
   const shaft = W.lightShaft({ from: [0, 0, 0], to: [0, -1, 0], r0: 0.9, r1: 1.4, color: 0xfff0d0, op: 0.06 }); add(S, shaft);
   const bounce = new THREE.PointLight(0xffc89a, 0, 10, 1.6); add(S, bounce);
-  // the bright mouth seen from inside acts as a big soft light (faces into the cave; nothing outside is lit by it)
-  const mouthGlow = rectLight(dayMode ? 0xf4e4cc : time === 'bluehour' || time === 'night' ? 0x6a78a8 : 0xffc890, 1, 5.6, 1.7);
-  mouthGlow.position.set(0, 0.95, 0.3); mouthGlow.lookAt(0, 0.6, -6); add(S, mouthGlow);
-  const glowI = { day: 16, sunrise: 9, dusk: 8, bluehour: 3, night: 1.5 }[time] ?? 8; mouthGlow.intensity = glowI;
+  // the bright opening lights the cave: a soft shadow-casting spot from outside, so only what the opening sees is lit
+  const mouthGlow = new THREE.SpotLight(dayMode ? 0xf0e2cc : time === 'bluehour' || time === 'night' ? 0x6a78a8 : 0xffc890, 1, 0, 0.62, 1, 1.35);
+  mouthGlow.position.set(0, 1.1, 5.5); mouthGlow.target.position.set(0, 0.2, -9); mouthGlow.castShadow = true; mouthGlow.shadow.mapSize.set(1024, 1024); mouthGlow.shadow.bias = -0.0004; mouthGlow.shadow.radius = 6;
+  add(S, mouthGlow); add(S, mouthGlow.target);
+  const glowI = { day: 34, sunrise: 20, dusk: 18, bluehour: 7, night: 3 }[time] ?? 16; mouthGlow.intensity = glowI;
   const dust = motes({ count: 1600, box: [-4, 0, -12, 4, 3.2, 1.5] }); add(S, dust);
   const mouth = V3(0, 1.0, 0.6);
   const setDay = (p) => {
@@ -688,7 +690,7 @@ export async function mountain_cave({ time = 'day', seed = 18, sleepers = 5, dog
     const len = mouth.distanceTo(hit);
     shaft.position.copy(mouth); shaft.quaternion.setFromUnitVectors(V3(0, -1, 0), hit.clone().sub(mouth).normalize()); shaft.scale.set(1, Math.max(0.01, len), 1); shaft.visible = inside > 0.01;
     shaft.userData.k = inside;
-    bounce.position.copy(hit).add(V3(0, 1.5, -0.6)); bounce.intensity = 3.5 * inside * sun.intensity / 4.2;
+    bounce.position.copy(hit).add(V3(0, 1.8, -1.5)); bounce.intensity = 1.2 * inside * sun.intensity / 4.2;
     const U = dust.userData.U; U.ao.value.copy(mouth); U.ad.value.copy(hit.clone().sub(mouth).normalize()); U.k.value = inside;
   };
   setDay(day);
@@ -722,8 +724,9 @@ function grapeLeafTexture() {
       const tooth = 1 + 0.025 * Math.sin(a * 46), r = 104 * lob * tooth * (0.9 + 0.1 * Math.sin(a)); const px = Math.cos(a) * r, py = Math.sin(a) * r * 0.95;
       i ? path.lineTo(px, py) : path.moveTo(px, py); }
     path.closePath();
-    const gr = x.createRadialGradient(0, 0, 10, 0, 0, 120); gr.addColorStop(0, '#7a9448'); gr.addColorStop(1, '#4a6a2a'); x.fillStyle = gr; x.fill(path);
-    x.save(); x.clip(path); x.strokeStyle = 'rgba(220,235,170,0.55)'; x.lineWidth = 3;
+    const gr = x.createRadialGradient(0, 0, 10, 0, 0, 120); gr.addColorStop(0, '#6a8040'); gr.addColorStop(1, '#3e5a24'); x.fillStyle = gr; x.fill(path);
+    x.save(); x.clip(path); const rr = W.rng(4); for (let i = 0; i < 900; i++) { x.fillStyle = `rgba(${rr() < 0.5 ? '30,50,15' : '140,160,80'},${0.05 + rr() * 0.08})`; x.beginPath(); x.arc(-120 + rr() * 240, -120 + rr() * 240, 2 + rr() * 9, 0, TAU); x.fill(); }
+    x.strokeStyle = 'rgba(190,205,140,0.3)'; x.lineWidth = 2.2;
     for (let k = 0; k < 5; k++) { const a = -Math.PI / 2 + Math.PI + (k - 2) * 0.75; x.beginPath(); x.moveTo(0, 0); x.lineTo(Math.cos(a) * 110, -Math.sin(a) * 100); x.stroke();
       x.lineWidth = 1.2; for (let s = 1; s < 5; s++) { const bx = Math.cos(a) * s * 22, by = -Math.sin(a) * s * 20; for (const side of [-1, 1]) { x.beginPath(); x.moveTo(bx, by); x.lineTo(bx + Math.cos(a + side * 0.9) * 22, by - Math.sin(a + side * 0.9) * 22); x.stroke(); } } x.lineWidth = 3; }
     x.restore();
@@ -787,16 +790,24 @@ async function vineyard({ rows = [[0, 0]], len = 21, width = 2.4, h = 2.15, gap 
   leaves.castShadow = leaves.receiveShadow = true; grp.add(leaves);
   // grape bunches: a tapering cone of berries (instanced spheres with a dusty bloom); ruined = shrivelled heaps on the ground
   const berry = new THREE.SphereGeometry(1, 18, 14), bm = new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: ruined ? 0.85 : 0.5, sheen: ruined ? 0 : 0.18, sheenColor: new THREE.Color(0x7a7a9a), sheenRoughness: 0.6, clearcoat: ruined ? 0 : 0.15, clearcoatRoughness: 0.6 });
-  const per = ruined ? 30 : 64, berries = new THREE.InstancedMesh(berry, bm, bunchP.length * per);
+  const per = ruined ? 30 : 90, berries = new THREE.InstancedMesh(berry, bm, bunchP.length * per);
   let q = 0;
-  bunchP.forEach((b, bi) => { const L = 0.2 + r() * 0.08;
-    for (let k = 0; k < per; k++) { const f = Math.pow(k / per, 0.8), a = k * 2.39996 + bi, rad = (ruined ? 0.12 * (1 - f) + 0.05 : 0.07 * (1 - f * 0.85)) * Math.sqrt(r() * 0.6 + 0.4);
-      const p = ruined ? V3(b.x + Math.cos(a) * rad * 1.6, b.y + 0.006 + (1 - f) * 0.01, b.z + Math.sin(a) * rad * 1.6) : V3(b.x + Math.cos(a) * rad, b.y - f * L + 0.02 * Math.sin(k), b.z + Math.sin(a) * rad);
-      const s = ruined ? 0.006 + r() * 0.004 : 0.0085 + r() * 0.0035; M4.compose(p, Q.identity(), V3(s, ruined ? s * 0.6 : s * 1.08, s)); berries.setMatrixAt(q, M4);
+  bunchP.forEach((b, bi) => { const L = 0.17 + r() * 0.07, pts = [];
+    for (let tries = 0; pts.length < per && tries < per * 40; tries++) {
+      const s = ruined ? 0.006 + r() * 0.004 : 0.0085 + r() * 0.003, f = r(), a = r() * TAU;
+      let p;
+      if (ruined) { const rad = Math.sqrt(r()) * 0.13; p = V3(b.x + Math.cos(a) * rad, b.y + s * 0.6, b.z + Math.sin(a) * rad); }
+      else { const rad = (0.055 * (1 - f * 0.8) + 0.008) * Math.sqrt(0.35 + 0.65 * r()); p = V3(b.x + Math.cos(a) * rad, b.y - f * L, b.z + Math.sin(a) * rad); }
+      if (pts.some((o) => o.p.distanceTo(p) < (o.s + s) * 0.92)) continue;
+      pts.push({ p, s });
+    }
+    for (const { p, s } of pts) { M4.compose(p, Q.identity(), V3(s, ruined ? s * 0.6 : s * 1.06, s)); berries.setMatrixAt(q, M4);
       if (ruined) C.setHSL(0.05 + r() * 0.04, 0.4, 0.07 + r() * 0.06); else C.setRGB(0.05 + r() * 0.03, 0.012 + r() * 0.008, 0.045 + r() * 0.03); berries.setColorAt(q++, C); }
-    if (!ruined) hangs.push(b);
+    if (!ruined) { hangs.push(b); caneG.push(tube([b.clone().add(V3(0, 0.06, 0)), b.clone(), b.clone().add(V3(0.004, -L * 0.5, 0.003)), b.clone().add(V3(0, -L * 0.9, 0))], 0.0025, 0.5)); }
   });
+  berries.count = q;
   berries.castShadow = berries.receiveShadow = true; grp.add(berries);
+  if (hangs.length) grp.add(W.shadows(new THREE.Mesh(merge(caneG.slice(-hangs.length)), bark)));
   grp.userData = { bunches: bunchP, leaves, berries };
   return grp;
 }
@@ -1070,7 +1081,7 @@ export async function rain_on_plants({ seed = 45, stage = 0.5 } = {}) {
   const crown = new THREE.Mesh(new THREE.CylinderGeometry(1, 0.6, 1, 48, 1, true), new THREE.MeshPhysicalMaterial({ color: 0xdde8f0, roughness: 0.05, transparent: true, opacity: 0.6, side: THREE.DoubleSide })); add(S, crown);
   const setDrop = (q) => { q = clamp(q); const fall = clamp(q / 0.5), imp = clamp((q - 0.5) / 0.5);
     drop.visible = q < 0.5; drop.position.set(MX + 0.012, my + 0.003 + 0.25 * (1 - fall * fall), MZ + 0.008); drop.scale.set(1, 1 + 0.6 * fall, 1);
-    crown.visible = q >= 0.5 && imp < 0.6; const cr = 0.004 + 0.016 * Math.sqrt(imp), ch = 0.006 * Math.sin(Math.PI * Math.min(1, imp / 0.6)); crown.scale.set(cr, ch + 1e-4, cr); crown.position.set(MX + 0.012, my + ch / 2 + 0.002, MZ + 0.008);
+    crown.visible = false; const cr = 0.004 + 0.016 * Math.sqrt(imp), ch = 0.006 * Math.sin(Math.PI * Math.min(1, imp / 0.6)); crown.scale.set(cr, ch + 1e-4, cr); crown.position.set(MX + 0.012, my + ch / 2 + 0.002, MZ + 0.008);
     spot.material.opacity = 0.55 * sstep(0.5, 0.7, q) * (1 - 0.3 * sstep(0.8, 1, q)); };
   setDrop(0);
   // stage
@@ -1109,4 +1120,112 @@ export async function rain_on_plants({ seed = 45, stage = 0.5 } = {}) {
 }
 
 // all builders by name (for the gallery and lesson films)
-export const SETS = { mountain_cave, two_gardens, rain_on_plants };
+export const SETS = { mountain_cave, two_gardens, rain_on_plants, confluence };
+
+// ------------------------------------------------------------------ the fish (SDF): silver body, darker back, forked tail; +z = head
+function fishMesh() {
+  const f = (x, y, z) => {
+    let d = sdEll(x, y, z, 0.024, 0.04, 0.12);                                                     // body
+    d = smin(d, sdEll(x, y - 0.002, z - 0.085, 0.02, 0.03, 0.045), 0.02);                           // head
+    const tz = z + 0.135, fork = Math.abs(y) - 0.036 * clamp(-tz / 0.05 + 0.2);
+    const tail = smax(smax(Math.abs(x) - 0.0025, -tz - 0.055, 0.004), smax(tz - 0.02, Math.abs(y) - 0.012 - 0.75 * Math.max(0, -tz), 0.004), 0.004);
+    d = smin(d, smax(tail, -(fork + 0.008) * 0.3 * (tz < -0.04 ? 1 : 0) , 0.002), 0.01);
+    const dors = smax(smax(Math.abs(x) - 0.0018, -(y - 0.03), 0.003), smax(Math.abs(z + 0.01) - 0.035 + (y - 0.03) * 0.6, y - 0.058, 0.004), 0.003);
+    return smin(d, dors, 0.006);
+  };
+  const M = sdfMesh(f, { min: [-0.035, -0.06, -0.2], max: [0.035, 0.07, 0.16], step: 0.0028, occ: false });
+  const p = M.geometry.attributes.position, c = new Float32Array(p.count * 3);
+  for (let i = 0; i < p.count; i++) { const y = p.getY(i), k = sstep(-0.01, 0.03, y); c.set([lerp(0.75, 0.16, k), lerp(0.78, 0.22, k), lerp(0.8, 0.26, k)], i * 3); }
+  M.geometry.setAttribute('color', new THREE.BufferAttribute(c, 3));
+  const m = furify(new THREE.MeshPhysicalMaterial({ color: 0xffffff, vertexColors: true, metalness: 0.85, roughness: 0.22, clearcoat: 0.8, clearcoatRoughness: 0.15, iridescence: 0.3 }), { scale: 900, amp: 0.25 });
+  const g = new THREE.Group(), body = W.shadows(new THREE.Mesh(M.geometry, m)); g.add(body);
+  const eye = new THREE.Mesh(new THREE.SphereGeometry(0.0055, 16, 12), new THREE.MeshStandardMaterial({ color: 0x080808, roughness: 0.1 }));
+  for (const s of [-1, 1]) { const e = eye.clone(); e.position.set(s * 0.019, 0.006, 0.105); g.add(e); }
+  g.name = 'fish'; return g;
+}
+// a flat-topped shore rock (SDF, triplanar), top at about h; footprint w x d
+async function shoreRock({ w = 3, d = 2.2, h = 0.9, seed = 3, tint = 0xd8d0c4, wet = 0.35 } = {}) {
+  const n3 = noise3(seed), f = (x, y, z) => {
+    let s = sdEll(x, (y - h * 0.45) * 1.0, z, w / 2, h * 0.75, d / 2);
+    s = smax(s, y - h + 0.03 * n3(x * 2, 0, z * 2), 0.12);                                     // flat, worn top
+    if (s < 0.4) s += 0.07 * fbm3(n3, x * 1.7, y * 2.2, z * 1.7, 4) + 0.025 * Math.sin(y * 18 + n3(x, y, z) * 3);
+    return smax(s, -y - 0.6, 0.05);
+  };
+  const M = sdfMesh(f, { min: [-w / 2 - 0.4, -0.65, -d / 2 - 0.4], max: [w / 2 + 0.4, h + 0.3, d / 2 + 0.4], step: 0.03, occ: false });
+  const m = await triMat('rocky_terrain', { tile: 1.6, tint, normal: 1.4, macro: 0.2, desat: 0.4 });
+  // darker wet band near the waterline (vertex colour via onBeforeCompile on world y)
+  const prev = m.onBeforeCompile; m.onBeforeCompile = (s2, r) => { prev(s2, r); s2.fragmentShader = s2.fragmentShader.replace('diffuseColor.rgb *= tcol;', `diffuseColor.rgb *= tcol * mix(1., ${(1 - wet).toFixed(2)}, smoothstep(0.35, 0.05, vTW.y));`); };
+  m.customProgramCacheKey = () => 'tri1wet';
+  return W.shadows(new THREE.Mesh(M.geometry, m));
+}
+
+// ================================================================== CONFLUENCE: the meeting of two seas
+// A rocky shore where two bands of water meet in a visible, slowly moving seam (clear turquoise to the west,
+// murky green to the east), a flat-topped rock at the water's edge with a reed basket, a silver fish, a cloth bag
+// and a skin water bottle, wet sand with a double line of footprints, and inland a dusty track across dry plains.
+// props.setFish(q): 0 in the basket .. flips out, slides over the wet rock, drops into the sea, darts away (gone by 1).
+// time: 'day' (midday glare, lesson 9) | 'golden' (lesson 8 shore). Lessons 8, 9.
+export async function confluence({ time = 'day', seed = 60 } = {}) {
+  const S = await base('confluence', time, { sun: { azim: time === 'day' ? 115 : 160 }, shadowBox: 22, focus: [0, 0, 2], fog: 0.0011 });
+  const n = W.noise2(seed), n2 = W.noise2(seed + 1);
+  const ROCK = [0.5, 1.2], SEAM_X = 2.8;
+  // footprints: two walkers coming from the track down to the rock (alternating left/right ellipses, 1.5 cm deep)
+  const prints = [];
+  for (const [ox, ph] of [[-2.4, 0], [-1.7, 0.35]]) for (let i = 0; i < 46; i++) { const z = 3.0 + i * 0.36 + ph * 0.36, x = ox + 0.35 * Math.sin(z / 6) + (i % 2 ? 0.09 : -0.09); prints.push([x, z, 0.08 * Math.sin(z / 6)]); }
+  const fp = (x, z) => { let d = 0; for (const [px, pz, a] of prints) { const dx = x - px, dz = z - pz; if (Math.abs(dz) > 0.2 || Math.abs(dx) > 0.12) continue;
+    const u = dx * Math.cos(a) - dz * Math.sin(a), v = dx * Math.sin(a) + dz * Math.cos(a), e = (u / 0.055) ** 2 + (v / 0.13) ** 2; if (e < 1.6) d = Math.min(d, -0.016 * (1 - sstep(0.6, 1.6, e)) + 0.004 * sstep(1.0, 1.4, e) * (1 - sstep(1.4, 1.6, e))); } return d; };
+  const shore = (x) => 0.0 + 1.6 * Math.sin(x / 23) + 0.8 * Math.sin(x / 7.3);
+  const height = (x, z) => {
+    const zz = z - shore(x);
+    let h = zz > 0 ? 0.035 * zz + 0.06 * n(x / 6, z / 6) : 0.06 * zz - 0.0012 * zz * zz;             // beach slope / sea floor
+    h += sstep(30, 60, zz) * (1.5 + 3 * W.fbm(n2, x / 60, z / 60, 4)) + 30 * sstep(260, 600, Math.hypot(x, z)) * W.ridged(n, x / 200, z / 200, 4) * sstep(-20, 40, zz);
+    h += sstep(80, 140, Math.abs(x)) * sstep(-60, 10, zz) * 14 * W.ridged(n2, x / 40, z / 40, 4);   // rocky headlands on both sides
+    return h + (zz > 0 && zz < 25 ? fp(x, z) : 0);
+  };
+  const wetLine = (x, z) => z - shore(x);
+  const mt = await W.terrainMaterial([{ name: 'sand_01', tile: 3.2, tint: 0xf4e4c8 }, { name: 'sand_01', tile: 2.6, tint: 0xa89070 }, { name: 'rocky_terrain', tile: 4, tint: 0xd8ccb8 }], { macro: 0.2, normal: 0.8 });
+  const T = W.terrain({ size: 1400, seg: 720, warp: 0.035, centre: [-1.5, 4], height, material: mt,
+    weights: (x, z, h, sl) => { const zz = wetLine(x, z), rock = sstep(0.2, 0.45, sl) + sstep(70, 120, Math.abs(x)) * sstep(-40, 0, zz) * 0.8; return [sstep(1.2, 4.5, zz) * (1 - rock), (1 - sstep(1.2, 4.5, zz)) * (1 - rock), rock * 1.5 + sstep(40, 80, zz) * 0.6]; } });
+  add(S, T.mesh);
+  const hy = height;
+  // the two seas
+  const sea = seaMat({ colA: 0x1aa6b0, colB: 0x4f6234, shallow: 0x8ad0c0, seam: { a: [1, 0, 0, -SEAM_X], b: [0.04, 0.02, 3, 0.6] }, foam: 0.7, tile: 6, opacity: 0.93 });
+  const water = new THREE.Mesh(waterSheet({ rect: [-700, -900, 700, 40], seg: [420, 420], y: 0.0, bed: hy }), sea); water.receiveShadow = true; add(S, water); S.updaters.push((t) => sea.userData.update(t));
+  // the flat rock, scattered boulders along the shore
+  const rock = await shoreRock({ w: 3.0, d: 2.3, h: 0.95, seed }); rock.position.set(ROCK[0], hy(...ROCK) - 0.05, ROCK[1]); rock.rotation.y = 0.3; add(S, rock);
+  const top = rock.position.y + 0.95;
+  for (const [x, z, s, h] of [[-6, 0.2, 1.6, 0.6], [5.5, -0.8, 1.2, 0.5], [9, 1.4, 2.0, 0.9], [-11, -1.2, 2.4, 1.1], [14, -2, 1.4, 0.7]]) { const b = await shoreRock({ w: 1.6 * s, d: 1.3 * s, h, seed: seed + x | 0 }); b.position.set(x, hy(x, z) - 0.08, z + shore(x)); b.rotation.y = x; add(S, b); }
+  add(S, await W.scatter('rock_09', W.scatterPoints({ seed: seed + 4, count: 260, rect: [-30, -6, 30, 10], heightAt: hy, s: [0.4, 2.2], sink: 0.01, area: (x, z) => Math.abs(wetLine(x, z) - 0.5) < 3 && Math.hypot(x - ROCK[0], z - ROCK[1]) > 1.8 ? 0.8 : 0 }), { tint: 0xcfc4b4, matte: true }));
+  add(S, await W.groundCover({ heightAt: hy, focus: [0, 18], radius: 30, seed: seed + 7, pebbles: 500, rocks: 30, tuftN: 140, boulders: 20, tuftColor: 0xb8a878, rockTint: 0xe0d4c0, area: (x, z) => wetLine(x, z) > 5 ? 1 : 0 }));
+  // on the rock: the reed basket (lid ajar), a cloth bag, a skin water bottle
+  const basket = await W.prop('wicker_basket_01', { height: 0.24 }); basket.position.set(ROCK[0] - 0.35, top - 0.01, ROCK[1] + 0.25); basket.rotation.y = 0.4; add(S, basket);
+  const lid = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.18, 0.025, 48), basket.children[0]?.children?.[0]?.material ?? new THREE.MeshStandardMaterial({ color: 0x8a6a40 }));
+  lid.position.set(ROCK[0] - 0.12, top + 0.05, ROCK[1] + 0.33); lid.rotation.set(0.25, 0, -0.55); add(S, W.shadows(lid));
+  const hs = await MATS.hessian(), bag = W.sack(hs, { w: 0.42, h: 0.38, seed: 5 }); bag.position.set(ROCK[0] + 0.45, top - 0.02, ROCK[1] - 0.1); bag.rotation.set(0, 1, 0.1); add(S, bag);
+  const leather = new THREE.MeshStandardMaterial({ color: 0x5a3a22, roughness: 0.55, normalMap: fibreNormal(4), normalScale: new THREE.Vector2(0.3, 0.3) });
+  const skin = W.sack(leather, { w: 0.34, h: 0.42, seed: 8 }); skin.rotation.set(0, 0.3, Math.PI / 2 - 0.15); skin.scale.set(1, 0.7, 0.8); skin.position.set(ROCK[0] + 0.85, top + 0.14, ROCK[1] + 0.35); add(S, skin);
+  // the fish: lies in the basket; setFish(q) moves it along a closed-form path into the sea and away
+  const fish = fishMesh(); add(S, fish);
+  const P0 = V3(ROCK[0] - 0.35, top + 0.13, ROCK[1] + 0.25), P1 = V3(ROCK[0] - 0.55, top + 0.42, ROCK[1] + 0.55), P2 = V3(ROCK[0] - 0.9, top + 0.01, ROCK[1] + 0.85), P3 = V3(ROCK[0] - 1.35, hy(ROCK[0] - 1.6, ROCK[1] + 0.2) + 0.05, ROCK[1] + 0.2);
+  const setFish = (q) => {
+    q = clamp(q); let p, rx = 0, rz = Math.PI / 2, ry = -2.4;
+    if (q < 0.2) { const f = q / 0.2; p = P0.clone().lerp(P1, f).add(V3(0, Math.sin(Math.PI * f) * 0.2, 0)); rz = Math.PI / 2 + f * 3.5; }
+    else if (q < 0.45) { const f = (q - 0.2) / 0.25; p = P1.clone().lerp(P2, f); p.y = lerp(P1.y, P2.y, Math.min(1, f * 1.6)) ; rz = Math.PI / 2 + 3.5 + f * 2.8; ry = -2.4 + f * 0.6; }
+    else if (q < 0.6) { const f = (q - 0.45) / 0.15; p = P2.clone().lerp(P3, f); p.y = lerp(P2.y, P3.y - 0.25, f * f); rz = Math.PI / 2 + 6.3 - f * 1.2; rx = f * 0.8; ry = -1.8; }
+    else { const f = (q - 0.6) / 0.4; p = P3.clone().add(V3(-f * 1.5 + 2.2 * f * f, -0.25 - 0.15 * f, -f * 7 - 8 * f * f)); rz = 0; rx = 0; ry = Math.PI + 0.3 * Math.sin(f * 20); }
+    fish.position.copy(p); fish.rotation.set(rx, ry, rz); fish.visible = q < 0.995;
+  };
+  setFish(0);
+  // the track inland across the dry plain toward the sea
+  const cameras = {
+    hero:       { pos: [ROCK[0] - 1.6, top + 0.55, ROCK[1] + 3.6], look: [ROCK[0] + 1.2, top - 0.2, ROCK[1] - 6], fov: 46 },   // the rock, the basket, the seam beyond
+    basket:     { pos: [ROCK[0] - 0.05, top + 0.42, ROCK[1] + 0.95], look: [ROCK[0] - 0.4, top + 0.08, ROCK[1] + 0.2], fov: 38 },
+    seam:       { pos: [SEAM_X - 1.5, 0.45, -1.2], look: [SEAM_X, 0.0, -80], fov: 40 },                                         // at the water, the two colours meeting
+    footprints: { pos: [-0.6, hy(-0.6, 8) + 1.2, 8.5], look: [-2.2, hy(-2.2, 4), 4], fov: 42 },
+    track:      { pos: [-14, hy(-14, 70) + 1.7, 70], look: [SEAM_X, 0, -120], fov: 44 },
+    wide:       { pos: [12, 9, 26], look: [-2, 0, -20], fov: 46 },
+  };
+  const slots = { traveller_tall: [ROCK[0] + 0.2, top, ROCK[1] + 0.8, Math.PI + 0.3], traveller_young: [ROCK[0] - 0.9, hy(ROCK[0] - 0.9, ROCK[1] + 1.6), ROCK[1] + 1.6, Math.PI],
+    seated_figure: [9, hy(9, 1.4 + shore(9)) + 0.9, 1.4 + shore(9), Math.PI] };
+  return finish(S, 'confluence', cameras, { water, sea, rock, basket, lid, bag, skin, fish, setFish, prints, terrain: T, sun: S.atmo.sun }, slots);
+}
