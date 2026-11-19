@@ -98,7 +98,7 @@ async function build() {
   const pit = W.contactShadow(0.9, 0.9, { op: 0.35 }); pit.position.set(TREEP[0], hAt(...TREEP) + 0.01, TREEP[1]); g.add(pit);
   // the light shaft through the gap + dust motes in it
   SHAFT = W.lightShaft({ from: [GAP[0], h0 + GAP[1], GAP[2]], to: [3.6, h0, 1.9], r0: 0.18, r1: 0.26, op: 0.07, color: 0xffe2b0 }); g.add(SHAFT);
-  const N = 260, mg2 = new THREE.SphereGeometry(0.0022, 6, 4), mm2 = new THREE.MeshBasicMaterial({ color: 0xfff0d0, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending, depthWrite: false });
+  const N = 260, mg2 = new THREE.SphereGeometry(0.0011, 6, 4), mm2 = new THREE.MeshBasicMaterial({ color: 0xfff0d0, transparent: true, opacity: 0.45, blending: THREE.AdditiveBlending, depthWrite: false });
   MOTES = new THREE.InstancedMesh(mg2, mm2, N); MOTES.frustumCulled = false; g.add(MOTES);
   // people: Yaʿqūb (elder) and five of his sons
   const PE = await K.people();
@@ -181,7 +181,7 @@ function shots() {
       sons(t, [[-0.3, 4.2 + w(0), 0.05, 'walk'], [0.5, 4.5 + w(1), -0.05, 'walk'], [1.2, 4.1 + w(2), 0, 'walk'], [-1.0, 4.6 + w(3), 0.1, 'walk'], [0.2, 5.3 + w(4), 0, 'walk']]);
     } },
     // 10 the patch of sun crawls across the stones toward him
-    { t0: 18.9, t1: 21.89, a: C([4.6, y + 0.75, 3.0], [3.6, y + 0.05, 1.7], 44), b: C([4.5, y + 0.72, 2.85], [3.5, y + 0.08, 1.6], 42), s(t) { yaqub(t, { fold: true }); } },
+    { t0: 18.9, t1: 21.89, a: C([5.9, y + 1.0, 0.2], [3.5, y + 0.15, 1.9], 44), b: C([5.7, y + 0.95, 0.35], [3.4, y + 0.18, 1.8], 42), s(t) { yaqub(t, { fold: true }); } },
     // 11 olive leaves turn in the rising wind (the old olive by the yard)
     { t0: 21.89, t1: 24.7, a: C([7.4, y + 2.0, 5.6], [9.5, hAt(9.5, 3.5) + 4.2, 3.5], 40), b: C([7.45, y + 2.0, 5.55], [9.5, hAt(9.5, 3.5) + 4.3, 3.5], 39.5), s(t) { yaqub(t, { fold: true }); } },
     // 12 the water jar fills, drop by drop, from the hanging waterskin
