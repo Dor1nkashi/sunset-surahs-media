@@ -1835,7 +1835,7 @@ export async function night_shore({ seed = 150 } = {}) {
   const setTide = (q) => { q = clamp(q); sea.position.y = -0.04 - 0.22 * q; sea.position.z = -1.5 - 3.2 * q; };
   // the driftwood table, the inkwell, the reed pen, the parchment
   const drift = (await MATS.planks()).clone(); drift.color.set(0x8a8478);
-  const table = new THREE.Group(); const top = W.rbox(1.1, 0.06, 0.6, drift, { r: 0.025, seg: 3 }); top.position.y = 0.72; table.add(top);
+  const table = new THREE.Group(); const top = W.rbox(1.1, 0.06, 0.6, drift, { r: 0.025, seg: 3 }); top.position.y = 0.69; table.add(top);   // rbox sits on its base: top face at 0.75 = ty
   for (const [x, z] of [[-0.45, -0.22], [0.45, -0.22], [-0.45, 0.22], [0.45, 0.22]]) { const leg = new THREE.Mesh(W.boxUV(new THREE.CylinderGeometry(0.035, 0.045, 0.74, 12)), drift); leg.position.set(x, 0.37, z); leg.rotation.set(z * 0.12, 0, x * 0.1); table.add(W.shadows(leg)); }
   table.position.set(0, height(0, 0.6) - 0.02, 0.6); add(S, W.shadows(table));
   const ty = table.position.y + 0.75;

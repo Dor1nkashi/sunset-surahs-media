@@ -71,19 +71,19 @@ M.film({
     const key = new THREE.SpotLight(0xb8c8ff, 6, 8, 0.5, 0.6, 1.5); key.position.set(-1.8, TY + 2.2, -1.2); key.target.position.set(0, TY, 0.6); S.add(key, key.target);
     const wx = WELL.position.x, wz = WELL.position.z, px = PARCH.position.x, pz = PARCH.position.z;
     Object.assign(C, {
-      dip:     { pos: [wx + 0.11, TY + 0.13, wz + 0.12], look: [wx, TY + 0.06, wz], fov: 30 },
-      bead_a:  { pos: [wx + 0.09, TY + 0.11, wz + 0.1], look: [wx, TY + 0.064, wz], fov: 26 },
-      bead_b:  { pos: [wx + 0.075, TY + 0.1, wz + 0.085], look: [wx, TY + 0.064, wz], fov: 25 },
-      pull_a:  { pos: [wx + 0.06, TY + 0.11, wz + 0.09], look: [wx - 0.02, TY + 0.06, wz - 0.05], fov: 28 },
+      dip:     { pos: [wx + 0.26, TY + 0.24, wz + 0.3], look: [wx, TY + 0.07, wz], fov: 30 },
+      bead_a:  { pos: [wx + 0.2, TY + 0.2, wz + 0.22], look: [wx, TY + 0.064, wz], fov: 28 },
+      bead_b:  { pos: [wx + 0.17, TY + 0.18, wz + 0.19], look: [wx, TY + 0.064, wz], fov: 27 },
+      pull_a:  { pos: [wx + 0.17, TY + 0.18, wz + 0.19], look: [wx, TY + 0.064, wz], fov: 27 },
       pull_b:  { pos: [1.4, TY + 0.55, 2.3], look: [-1.0, TY - 0.6, -9], fov: 46 },
       table:   SET.cameras.hero,
       write_a: { pos: [px + 0.15, TY + 0.38, pz + 0.38], look: [px + 0.05, TY, pz], fov: 36 },
       write_b: { pos: [px - 0.08, TY + 0.38, pz + 0.38], look: [px - 0.08, TY, pz], fov: 36 },
-      level:   { pos: [wx + 0.1, TY + 0.15, wz + 0.1], look: [wx, TY + 0.05, wz], fov: 28 },
+      level:   { pos: [wx + 0.22, TY + 0.24, wz + 0.22], look: [wx, TY + 0.05, wz], fov: 28 },
       shore:   { pos: [1.6, 0.45, 1.2], look: [-0.8, -0.2, -6], fov: 44 },
       far_a:   { pos: [1.8, 0.6, 1.6], look: [-0.8, -0.3, -7], fov: 44 },
       far_b:   { pos: [2.6, 1.3, 3.6], look: [-0.8, -0.4, -8], fov: 48 },
-      empty:   { pos: [wx + 0.08, TY + 0.14, wz + 0.09], look: [wx, TY + 0.04, wz], fov: 26 },
+      empty:   { pos: [wx + 0.2, TY + 0.25, wz + 0.2], look: [wx, TY + 0.045, wz], fov: 26 },
       wave:    { pos: [0.8, 0.3, -0.6], look: [-0.5, -0.15, -4.5], fov: 40 },
       laid:    { pos: [PEN0.x + 0.22, TY + 0.2, PEN0.z + 0.28], look: [PEN0.x - 0.02, TY, PEN0.z], fov: 32 },
       finger:  null,
@@ -143,12 +143,13 @@ M.film({
       HAND.object3d.updateMatrixWorld(true);
       const tip = (HAND.bones('RightHandIndex4') || HAND.bones('RightHandIndex3')).getWorldPosition(V());
       const a = t - 24.2; BEAD.visible = a < 0.6; BEAD.scale.setScalar(1.6); BEAD.position.copy(tip).add(V(0, -0.006 - (a > 0 ? 4.9 * a * a : 0), 0));
-      fingerCam = { pos: tip.clone().add(V(0.12, -0.08, 0.16)).toArray(), look: tip.clone().add(V(-0.05, 0.03, -0.2)).toArray(), fov: K.lensFov(32) };
+      fingerCam = { pos: tip.clone().add(V(0.06, -0.1, 0.24)).toArray(), look: tip.clone().add(V(-0.02, 0.05, -0.3)).toArray(), fov: K.lensFov(30) };
     }
     // camera
     let cam = fingerCam || K.camLerp(s.a, s.b, (s.ease || E.linear)(p));
     if (!fingerCam) cam = K.breathe(cam, t, s.b ? 0.0006 : 0.0009, 11 + i);
-    G.renderSet(ctx, ST, t, u, { cam, ink: inkAt(t), writing: writingAt(t), tide: tideAt(t, i) });
+    const ex = [6, 7, 9].includes(i) ? 0.55 : i === 2 || i === 3 ? 0.8 : 1;
+    G.renderSet(ctx, ST, t, u, { cam, exposure: SET.exposure * ex, ink: inkAt(t), writing: writingAt(t), tide: tideAt(t, i) });
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.6);
   },
