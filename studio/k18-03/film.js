@@ -106,7 +106,7 @@ M.film({
     MAN = PE.make({ kind: 'man', outfit: 'worker', palette: { ...PALETTES.earth, robe: '#8a6a4a', wrap: '#cfc2a8', skin: '#8e5e3e' }, beard: 'short', headwear: 'wrap', seed: 33, detail: 1 });
     { const pts = []; for (let i = 0; i <= 160; i++) { const a = i / 160 * Math.PI * 2 * 2.3, y = 0.006 + 0.016 * i / 160; pts.push(V(Math.cos(a) * 0.0095, y, Math.sin(a) * 0.0095)); }
       pts.push(V(0.02, 0.03, 0.0), V(0.035, 0.024, 0.006));
-      const g = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 400, 0.0014, 8);
+      const g = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 400, 0.0022, 8);
       CORD = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: 0x7a2618, roughness: 0.8 })); CORD.userData.n = g.index.count; CORD.castShadow = true;
       const b = MAN.bones('LeftHandIndex1'); b.add(CORD); CORD.scale.setScalar(100); CORD.rotation.set(0, 0, 0); }
     DUST_SET = { d, m };
@@ -154,7 +154,7 @@ M.film({
     if (s.who === 'hand') {
       // over his left shoulder, from behind: the hand, the sleeve, the cord (never the face)
       const hp = K.handPos(MAN, 'Left'), k = (s.ease || E.linear)(p);
-      const near = { 7: [0.42, 1.92, -0.62, 30], 8: [0.4, 1.88, -0.55, 26], 11: [0.45, 1.95, -0.68, 32], 12: [0.38, 1.82, -0.45, 22] }[i] || [0.42, 1.92, -0.62, 30];
+      const near = { 7: [0.62, 1.9, -0.38, 28], 8: [0.6, 1.86, -0.32, 24], 11: [0.66, 1.92, -0.42, 30], 12: [0.56, 1.8, -0.26, 20] }[i] || [0.62, 1.9, -0.38, 28];
       const pos = K.onBody(MAN, near[0] - 0.02 * k, near[1] - 0.03 * k, near[2] + 0.05 * k);
       cam = { pos: pos.toArray(), look: hp.toArray(), fov: K.lensFov(near[3]) };
     }
