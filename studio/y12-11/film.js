@@ -100,14 +100,14 @@ const C = {
   sun: { pos: [GX - 1, 1.6, GZ + 8.3], look: [GX - 4, 2.0, GZ - 4], fov: 58 },
   domes_a: { pos: [GX + 6, 1.4, GZ + 8.2], look: [GX - 2, 2.2, GZ - 4.5], fov: 46 },
   domes_b: { pos: [GX + 6, 4.6, GZ + 8.2], look: [GX - 2, 3.0, GZ - 4.5], fov: 46 },
-  pour_a: { pos: [GX + 2.95, 1.55, GZ + 5.7], look: [GX + 2.0, 0.6, GZ + 7.5], fov: 40 },
-  pour_b: { pos: [GX + 2.85, 1.5, GZ + 5.9], look: [GX + 2.0, 0.6, GZ + 7.5], fov: 38 },
+  pour_a: { pos: [GX + 3.6, 1.25, GZ + 7.9], look: [GX + 2.0, 0.75, GZ + 7.4], fov: 40 },
+  pour_b: { pos: [GX + 3.45, 1.22, GZ + 7.85], look: [GX + 2.0, 0.75, GZ + 7.4], fov: 37 },
   lock: { pos: [STORE.x0 - 0.65, 1.3, STORE.door.z - 0.3], look: [STORE.x0 - 0.2, 1.08, STORE.door.z + 0.45], fov: 34 },
-  table_a: { pos: [GX + 4.6, 1.75, GZ + 6.5], look: [GX + 4.1, 0.75, GZ + 4.95], fov: 40 },
-  table_b: { pos: [GX + 4.1, 1.75, GZ + 6.55], look: [GX + 4.25, 0.75, GZ + 4.9], fov: 40 },
+  table_a: { pos: [GX + 5.4, 1.35, GZ + 5.3], look: [GX + 4.15, 0.8, GZ + 4.95], fov: 40 },
+  table_b: { pos: [GX + 5.3, 1.35, GZ + 4.7], look: [GX + 4.2, 0.8, GZ + 4.95], fov: 40 },
   sacks: { pos: [GX - 7.4, 1.4, GZ + 5.0], look: [GX - 7.6, 0.6, GZ + 1.2], fov: 44 },
-  lift_a: { pos: [GX - 5.0, 1.3, GZ + 2.5], look: [GX - 7.4, 1.0, GZ + 1.5], fov: 40 },
-  lift_b: { pos: [GX - 5.0, 1.35, GZ + 2.5], look: [GX - 4.5, 3.0, GZ - 4.5], fov: 34 },
+  lift_a: { pos: [GX - 4.3, 1.5, GZ + 3.6], look: [GX - 7.0, 0.9, GZ + 1.6], fov: 46 },
+  lift_b: { pos: [GX - 4.3, 1.55, GZ + 3.6], look: [GX - 5.0, 3.0, GZ - 4.5], fov: 38 },
 };
 const SHOTS = [
   { t0: 0.00, t1: 1.23, set: 'pal', a: C.dais_a, b: C.dais_b, ex: 0.7 },
@@ -155,7 +155,7 @@ M.film({
     const { i, s, p } = K.shotAt(SHOTS, t);
     if (s.set === 'pal') palace(t, i); else yard(t, i);
     let cam = K.camLerp(s.a, s.b, (s.ease || E.inOutSine)(p));
-    if (i === 6) { X.keys.updateMatrixWorld(true); const k = X.keys.getWorldPosition(V()); cam = { ...cam, pos: [k.x - 0.32, k.y + 0.1, k.z - 0.62], look: [k.x, k.y - 0.04, k.z] }; }
+    if (i === 6) { X.keys.updateMatrixWorld(true); const k = X.keys.getWorldPosition(V()); cam = { ...cam, pos: [k.x - 0.75, k.y + 0.2, k.z - 1.35], look: [k.x + 0.25, k.y - 0.02, k.z + 0.3], fov: K.lensFov(34) }; }
     cam = K.breathe(cam, t, 0.002, 61 + i);
     // the sun comes out over the yard in shot 7 (clouds clear): the exposure and the sun rise together
     const sunK = i === 7 ? 0.45 + 0.55 * E.inOutSine(prog(t, 12.9, 14.4)) : 1;
