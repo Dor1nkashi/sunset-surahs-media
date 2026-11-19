@@ -201,8 +201,8 @@ const C = {
   spikeA: { pos: [14.22, 0.96, 5.95], look: [14.22, 0.93, 5.0], fov: 26 },
   plots_a: { pos: [-21, 2.0, 32], look: [-21, 0.4, 19], fov: 52 },
   plots_b: { pos: [-21, 14, 38], look: [-21, 0, 18], fov: 54 },
-  bundle_a: { pos: [-27.6, 0.95, 14.5], look: [-28.9, 0.55, 15.05], fov: 40 },
-  bundle_b: { pos: [-27.85, 0.9, 14.65], look: [-28.9, 0.55, 15.05], fov: 36 },
+  bundle_a: { pos: [-27.1, 1.25, 13.4], look: [-28.95, 0.5, 15.1], fov: 46 },
+  bundle_b: { pos: [-27.3, 1.2, 13.65], look: [-28.95, 0.5, 15.1], fov: 42 },
   fill_a: { pos: [31.0, 1.45, -11.9], look: [32.7, 0.85, -13.5], fov: 52 },
   fill_b: { pos: [30.9, 1.5, -11.75], look: [32.7, 0.85, -13.5], fov: 56 },
   green: { pos: [-10, 0.7, 11.5], look: [-6, 0.6, 3], fov: 40 },
@@ -224,7 +224,7 @@ const SHOTS = [
   { t0: 18.65, t1: 20.73, set: 'dream', a: C.spikeB_b, locked: true, spike: 1, ex: 0.8 },
   { t0: 20.73, t1: 23.27, set: 'nile', a: C.plots_a, b: C.plots_b, ease: E.inOutCubic },
   { t0: 23.27, t1: 25.60, set: 'nile', a: C.bundle_a, b: C.bundle_b },
-  { t0: 25.60, t1: 28.52, set: 'nile', a: C.fill_a, b: C.fill_b, ex: 1.3 },
+  { t0: 25.60, t1: 28.52, set: 'nile', a: C.fill_a, b: C.fill_b, ex: 1.0 },
   { t0: 28.52, t1: 30.00, set: 'nile', a: C.green, locked: true },
   { t0: 30.00, t1: 31.52, set: 'nile', a: C.full, locked: true },
   { t0: 31.52, t1: 34.16, set: 'nile', a: C.drought, locked: true },
@@ -314,7 +314,7 @@ function fields(t, i) {
   // storeroom: the heap grows while grain is poured (shot 14); full afterwards
   const fill = 0.4 + 0.3 * E.inOutSine(prog(t, 25.6, 28.5));
   X.heap.scale.set(fill, fill, fill);
-  X.inLight.intensity = i >= 13 ? 1.6 : 0;
+  X.inLight.intensity = i >= 13 ? 0.8 : 0;
   if (i === 13) {
     const l = P.lab, S_ = STORE, x = S_.x0 + 2.6 + 0.62, z = S_.door.z + 0.95; l.object3d.visible = true;
     l.object3d.position.set(x, X.store.position.y, z); l.object3d.rotation.y = Math.PI + 0.55; l.setPose('stand', t);
