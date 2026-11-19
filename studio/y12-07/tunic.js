@@ -9,7 +9,7 @@ const TW = 1.24, TH = 1.1, MW = 512, MH = 454;      // size (m) and mask canvas 
 const TEAR_X = 0.015, TEAR_Y0 = -0.14, TEAR_MAX = 0.56;
 // jagged tear centre line: x offset at depth s (0..1 down the tear), seeded
 function tearPath(s) { return TEAR_X + 0.012 * Math.sin(s * 23.0) + 0.007 * Math.sin(s * 61.0 + 1.3) - 0.02 * s; }
-const tearHalf = (s, open) => open * (0.004 + 0.03 * Math.sin(Math.PI * Math.min(1, s * 1.05)) ** 0.8) * (1 - 0.6 * s);
+const tearHalf = (s, open) => open * (0.005 + 0.045 * Math.sin(Math.PI * Math.min(1, s * 1.05)) ** 0.8) * (1 - 0.6 * s);
 
 function outline(x, w, h, back) {
   // T-shaped tunic outline in canvas pixels (x right, y down from the top edge = shoulders)
@@ -42,7 +42,7 @@ function drawMask(c, back, L, open) {
 
 export async function makeTunic({ seed = 5, linen = null } = {}) {
   const g = new THREE.Group();
-  const base = linen || await W.pbr('hessian_230', { tile: 0.3, tint: 0xf3ead6, res: 1024, side: THREE.DoubleSide, normal: 0.55 });
+  const base = linen || await W.pbr('hessian_230', { tile: 0.07, tint: 0xf3ead6, res: 1024, side: THREE.DoubleSide, normal: 0.35 });
   const n = W.noise2(seed);
   const geo = (back) => {
     const G = new THREE.PlaneGeometry(TW, TH, 160, 140); G.translate(0, -TH / 2, 0);
@@ -67,6 +67,9 @@ export async function makeTunic({ seed = 5, linen = null } = {}) {
     const mesh = new THREE.Mesh(geo(back), m); mesh.castShadow = true; mesh.receiveShadow = true; mesh.customDepthMaterial = new THREE.MeshDepthMaterial({ alphaMap: am, alphaTest: 0.5, depthPacking: THREE.RGBADepthPacking });
     g.add(mesh); panels[back ? 'back' : 'front'] = { mesh, c, am, m };
   }
+  // the shaded inside of the garment, seen through the tear (stops the front panel's glow showing through)
+  const inner = new THREE.Mesh(new THREE.PlaneGeometry(0.22, 0.66), new THREE.MeshStandardMaterial({ color: 0x3a2c1e, roughness: 1, side: THREE.DoubleSide }));
+  inner.position.set(TEAR_X - 0.01, TEAR_Y0 - 0.31, 0.0); g.add(inner);
   // loose threads along both torn edges: thin curved tubes (instanced), shown once the tear passes them
   const NT = 90, r = W.rng(seed + 3), th = [];
   const tg = new THREE.CylinderGeometry(0.00045, 0.0003, 1, 5, 6, true); tg.translate(0, 0.5, 0);
@@ -107,7 +110,7 @@ export async function makeTunic({ seed = 5, linen = null } = {}) {
 
 // the tunic folded on a bench: a soft stack of linen with the torn back panel on top
 export async function foldedTunic({ linen = null } = {}) {
-  const base = linen || await W.pbr('hessian_230', { tile: 0.3, tint: 0xf3ead6, res: 1024, side: THREE.DoubleSide, normal: 0.55 });
+  const base = linen || await W.pbr('hessian_230', { tile: 0.07, tint: 0xf3ead6, res: 1024, side: THREE.DoubleSide, normal: 0.35 });
   const g = new THREE.Group();
   for (let i = 0; i < 4; i++) { const b = W.rbox(0.42 - i * 0.004, 0.022, 0.34 - i * 0.006, base, { r: 0.01, seg: 4 }); b.position.y = i * 0.021; b.rotation.y = (i % 2 ? 1 : -1) * 0.01; g.add(b); }
   // top layer: a cloth sheet with the tear drawn as a dark jagged slit with a lighter fray

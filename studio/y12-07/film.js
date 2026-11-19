@@ -16,28 +16,28 @@ const D = 27.13;
 
 // places (world): the courtyard doorway is at x = 4.75, z -4.2..-1.8
 const T_HELD = { pos: [3.7, 1.95, -3.2], ry: -Math.PI / 2 };          // held up against the bright doorway
-const T_HANG = { pos: [-2.4, 2.15, -4.9] };                             // hung from a beam in the window light
-const HANG_FACE = Math.atan2(2.0, 3.0);                                  // back panel toward the camera side
+const T_HANG = { pos: [-0.9, 2.1, -6.2] };                             // hung from a beam in the window light
+const HANG_FACE = Math.atan2(1.5, 3.3);                                  // back panel toward the camera side
 const BENCH = [-3.2, 0.45, -1.0];
 
 // camera poses: { pos, look, fov } in world, or { local: true, ... } in the tunic's frame
 const C = {
-  held_a:  { local: true, pos: [-0.75, -0.42, 1.55], look: [0, -0.42, 0], fov: 42 },
-  held_b:  { local: true, pos: [-0.5, -0.4, 1.62], look: [0, -0.42, 0], fov: 41 },
-  witness: { pos: [0.4, 1.62, -1.3], look: [3.9, 1.4, -3.0], fov: 46 },
-  race:    { pos: [-2.2, 1.5, -2.4], look: [4.75, 1.25, -3.0], fov: 48 },
-  pull:    { pos: [2.05, 1.32, -2.5], look: [2.78, 1.22, -3.2], fov: 32 },
+  held_a:  { local: true, pos: [-0.5, -0.45, 2.3], look: [0, -0.5, 0], fov: 40 },
+  held_b:  { local: true, pos: [-0.18, -0.45, 2.32], look: [0, -0.5, 0], fov: 39 },
+  witness: { pos: [0.9, 1.6, -0.55], look: [3.9, 1.4, -3.1], fov: 46 },
+  race:    { pos: [-2.6, 1.75, -1.7], look: [4.75, 1.2, -3.1], fov: 44 },
+  pull:    { pos: [2.45, 1.42, -3.78], look: [2.76, 1.25, -3.2], fov: 26 },
   husband: { pos: [-1.6, 1.5, -2.1], look: [4.8, 1.45, -3.0], fov: 46 },
-  turn:    { pos: [-0.5, 1.75, -2.0], look: [-2.4, 1.62, -4.9], fov: 40 },
+  turn:    { pos: [0.6, 1.7, -2.9], look: [-0.9, 1.55, -6.2], fov: 40 },
   back_a:  { local: true, pos: [0.0, -0.36, 1.05], look: [0, -0.4, 0], fov: 32 },
   back_b:  { local: true, pos: [0.0, -0.37, 0.95], look: [0, -0.4, 0], fov: 31 },
   graze_a: { local: true, pos: [0.25, -0.3, 0.6], look: [0.01, -0.36, 0], fov: 24 },
   graze_b: { local: true, pos: [0.18, -0.34, 0.42], look: [0.0, -0.4, 0], fov: 22 },
-  thread:  { local: true, pos: [0.06, -0.3, 0.2], look: [0.02, -0.33, 0], fov: 16 },
+  thread:  { local: true, pos: [0.08, -0.3, 0.22], look: [0.02, -0.33, 0], fov: 18 },
   fold_a:  { pos: [-2.55, 1.2, -0.25], look: [BENCH[0], 0.5, BENCH[2]], fov: 34 },
   fold_b:  { pos: [-2.7, 1.05, -0.45], look: [BENCH[0], 0.5, BENCH[2]], fov: 32 },
-  door:    { pos: [1.0, 1.55, -1.55], look: [8.0, 1.25, -3.6], fov: 46 },
-  macro:   { local: true, pos: [0.07, -0.2, 0.16], look: [0.02, -0.23, 0], fov: 14 },
+  door:    { pos: [2.0, 1.55, -3.7], look: [8.0, 1.3, -3.2], fov: 46 },
+  macro:   { local: true, pos: [0.09, -0.21, 0.2], look: [0.025, -0.24, 0], fov: 16 },
 };
 // tunic: where it is (held | worn | hang), tear state; who is visible; camera
 const SHOTS = [
@@ -66,7 +66,7 @@ M.film({
     await G.initGL({ exposure: 1.0 }); W.init(G.R);
     SET = await ministers_house({ time: 'morning' });
     const S = SET.scene;
-    const linen = await W.pbr('hessian_230', { tile: 0.3, tint: 0xf3ead6, res: 1024, side: THREE.DoubleSide, normal: 0.55 });
+    const linen = await W.pbr('hessian_230', { tile: 0.07, tint: 0xf3ead6, res: 1024, side: THREE.DoubleSide, normal: 0.35 });
     TUN = await makeTunic({ seed: 5, linen }); S.add(TUN);
     FOLD = await foldedTunic({ linen }); FOLD.position.set(...BENCH); FOLD.rotation.y = 0.25; S.add(FOLD);
     // a wooden shoulder rod on a cord from the ceiling beam, for the hung tunic
@@ -110,7 +110,7 @@ function tearAt(t) { const k = E.outCubic(prog(t, 7.55, 8.45)); return { L: TUN.
 
 function placeTunic(t, i, s) {
   const mode = s.tun;
-  TUN.visible = mode === 'held' || mode === 'worn' || mode === 'hang';
+  TUN.visible = mode === 'held' || (mode === 'worn' && i === 3) || mode === 'hang';
   FOLD.visible = mode === 'folded';
   ROD.visible = CORD.visible = mode === 'hang';
   GRAZE.intensity = 0;
@@ -168,7 +168,7 @@ function posePeople(t, i) {
     const x = manXat(t), walking = t < RUN1;
     const m = show('man', x, -3.2, Math.PI / 2, walking ? 'walk' : 'stand', walking ? t * 1.25 : t);
     const wx = x - 0.75 - 0.25 * (1 - prog(t, RUN0, 7.6));
-    const wo = show('woman', wx, -3.05, Math.PI / 2, walking ? 'walk' : 'stand', walking ? t * 1.25 + 0.4 : t);
+    const wo = show('woman', wx, i === 2 ? -2.85 : -3.05, Math.PI / 2, walking ? 'walk' : 'stand', walking ? t * 1.25 + 0.4 : t);
     if (i >= 3 || t > 6.6) {
       // her right hand grips the cloth at the top of the tear and pulls it down
       TUN.updateMatrixWorld(true);
