@@ -26,7 +26,7 @@ const MATS = {
   rusticDisp: () => mat('rusticDisp', 'rustic_stone_wall', { tile: 2.0, tint: 0xeee2cc, res: 2048, normal: 1.2, disp: 0.09 }),
   planks: () => mat('planks', 'old_planks_02', { tile: 1.6, tint: 0xcaa880, res: 1024 }),
   darkPlanks: () => mat('darkPlanks', 'old_planks_02', { tile: 1.6, tint: 0x8a6a4e, res: 1024 }),
-  hessian: () => mat('hessian', 'hessian_230', { tile: 0.5, tint: 0xd8c09a, res: 1024 }),
+  hessian: () => mat('hessian', 'hessian_230', { tile: 0.5, tint: 0xc8b8a0, res: 1024 }),
   linen: () => mat('linen', 'hessian_230', { tile: 0.35, tint: 0xf2ebdd, res: 1024, side: THREE.DoubleSide, normal: 0.5 }),
   tentCloth: () => mat('tentCloth', 'hessian_230', { tile: 0.6, tint: 0x3a2e26, res: 1024, side: THREE.DoubleSide, normal: 1.4 }),
   reed: () => mat('reed', 'reed_roof_03', { tile: 1.6, res: 1024, side: THREE.DoubleSide }),
@@ -42,7 +42,7 @@ const TIMES = {
              sky: { zenith: 0x040a1e, sunColor: 0x000000, glow: 0, hazeH: 0.45 }, fogColor: 0x1c2640, moon: { dir: dirFrom(30, 210), phase: 0.4 }, hemi: 0.2 },
   dawn:    { hdri: 'rogland_sunset', background: 'hdri', sun: { azim: -25 }, sunI: 2.4, envI: 1.0, exposure: 1.0, fog: 0.0022 },
   day:     { hdri: 'goegap', background: 'hdri', sun: { azim: 40 }, sunI: 3.6, envI: 1.0, exposure: 0.85, fog: 0.0016 },
-  golden:  { hdri: 'plains_sunset', background: 'hdri', bgI: 0.75, sun: { azim: -30 }, sunI: 3.2, envI: 0.9, exposure: 0.72, fog: 0.0011, fogGain: 0.55 },
+  golden:  { hdri: 'rogland_sunset', background: 'hdri', sun: { azim: -30 }, sunI: 2.6, sunColor: 0xffc890, envI: 1.0, exposure: 0.95, fog: 0.0016, fogGain: 0.8 },
   dusk:    { hdri: 'rogland_sunset', background: 'hdri', sun: { azim: -35 }, sunI: 2.0, envI: 1.1, exposure: 1.0, fog: 0.0018, fogGain: 0.8 },
 };
 async function base(name, time, extra = {}) {
@@ -252,6 +252,7 @@ export async function canaan_hills({ time = 'dusk', seed = 12, olives = 14, tent
   const oliveProto = await Promise.all([1, 2, 3].map((s) => W.oliveTree({ seed: seed * 10 + s, height: 5.2 + s * 0.5 })));
   const spots = W.scatterPoints({ seed: seed + 5, count: olives, rect: [-60, -70, 60, 25], heightAt: hy, s: [0.8, 1.15], minDist: 7, sink: 0,
     area: (x, z) => { const d = Math.hypot(x - HOUSE[0], z - HOUSE[1]), sl = 1 - T.normalAt(x, z, 0.6).y; return d > 15 && Math.hypot(x - WELL[0], z - WELL[1]) > 6 && Math.hypot(x - 12, z + 10) > 7 && sl < 0.05 ? 1 : 0; } });
+  for (const [x, z] of [[-8.5, -7.5], [9.5, 3.5], [-7.5, 8.5], [13, 6]]) spots.push({ x, z, y: hy(x, z), s: 0.95, ry: x * z });
   const oliveList = spots.map((p, i) => { const o = oliveProto[i % 3].clone(true); o.position.set(p.x, p.y, p.z); o.rotation.y = p.ry; o.scale.setScalar(p.s); add(S, o); return o; });
   S.updaters.push((t) => oliveProto.forEach((o) => o.userData.update(t)));
   // tents of the brothers' camp further along the slope
@@ -387,7 +388,8 @@ export async function egypt_market({ time = 'day', seed = 61 } = {}) {
         add(S, await W.scatter(fr, Array.from({ length: 7 }, (_, q) => ({ x: gx + Math.cos(q * 0.9) * 0.08 * (q % 3), y: 0.85 + 0.18 + (q > 4 ? 0.05 : 0), z: gz + Math.sin(q * 0.9) * 0.08 * (q % 3), s: fs * (1 + 0.1 * Math.sin(q)) * (fr === 'lemon' ? 0.9 : 1), ry: q }))));
       } else { const p = await W.prop(['ceramic_pot', 'jug_01', 'antique_ceramic_vase_01'][k], { pos: [gx, 0.85, gz], height: [0.4, 0.3, 0.45][k], ry: k }); add(S, p); goods.push(p); }
     }
-    for (let k = 0; k < 2; k++) { const sk = W.sack(hs, { w: 0.5, h: 0.7, seed: i * 31 + k }); sk.position.set(x - side * 1.9, height(x, z), z - 1.3 + k * 2.4); sk.rotation.y = r() * 6; add(S, sk); }
+    if (i % 2 === 0) for (let k = 0; k < 2; k++) { const sx = x - side * (1.85 + r() * 0.3), sz = z - 1.2 + k * 2.1 + r() * 0.4, sk = W.sack(hs, { w: 0.5 + r() * 0.12, h: 0.5 + r() * 0.15, seed: i * 31 + k, open: true }); add(S, sk); W.ground(sk, sx, sz, height, { sink: 0.02, ry: r() * 6, parent: S.group });
+      const gr = new THREE.Mesh(new THREE.SphereGeometry(0.26, 32, 12, 0, Math.PI * 2, 0, 1.1), new THREE.MeshStandardMaterial({ color: [0xd8b060, 0x9a6a3a, 0xe8d8a0][(i + k) % 3], roughness: 1 })); gr.scale.y = 0.35; gr.position.set(sx, sk.position.y + 0.5 + 0.0, sz); gr.position.y = sk.position.y + (sk.userData.h ?? 0.55) * 0.9; add(S, gr); }
   }
   // the small square with the stone block, and the brass scale
   const stone = await MATS.rustic();
@@ -550,7 +552,7 @@ export async function nile_fields_granary({ time = 'golden', seed = 91, ripe = 0
   const n = W.noise2(seed), n2 = W.noise2(seed + 3);
   const desert = (x, z) => sstep(70, 140, x + 10 * n(z / 50, 0)) ;
   const chan = (x, z) => Math.min(Math.abs(z + 2), Math.abs(x + 12));
-  const height = (x, z) => 0.12 * n(x / 10, z / 10) + desert(x, z) * (6 + 14 * W.fbm(n2, x / 60, z / 60, 4)) - 0.5 * (1 - sstep(0.6, 1.4, chan(x, z))) + 8 * sstep(260, 420, Math.hypot(x, z)) * W.ridged(n2, x / 150, z / 150);
+  const height = (x, z) => 0.12 * n(x / 10, z / 10) + desert(x, z) * (6 + 14 * W.fbm(n2, x / 60, z / 60, 4)) - 0.5 * (1 - sstep(0.6, 1.4, chan(x, z))) + 26 * sstep(220, 420, Math.hypot(x, z)) * (0.4 + 0.6 * W.ridged(n2, x / 150, z / 150));
   const plot = (x, z) => { const fx = Math.floor((x + 4) / 14), fz = Math.floor((z + 2) / 12); return ((fx * 7 + fz * 13) & 3); };
   const mt = await W.terrainMaterial([{ name: 'farm_furrows', tile: 7, tint: 0xf0e0cc }, { name: 'grass_ground', tile: 3 }, { name: 'sand_01', tile: 4, tint: 0xf0d8b0 }], { macro: 0.2 });
   const T = W.terrain({ size: 900, seg: 440, centre: [0, -10], height, material: mt,
@@ -648,7 +650,7 @@ export async function palace_hall({ time = 'day', seed = 101 } = {}) {
 // REUNION: the city gate (two battered mud-brick pylons, great wooden gate open) onto an open court with
 // a colonnade, palms and a dais; golden hour with the first stars. time: 'golden' | 'dusk' | 'day'
 export async function reunion({ time = 'golden', seed = 111, stars = 0.6 } = {}) {
-  const S = await base('reunion', time === 'golden' ? 'dusk' : time, { sun: { azim: 150 }, shadowBox: 36, focus: [0, 0, -8], starsOn: time === 'day' ? 0 : stars, exposure: 0.8 });
+  const S = await base('reunion', time, { background: 'sky', sky: { glow: 1.2 }, sun: { azim: 250 }, shadowBox: 36, focus: [0, 0, -8], starsOn: time === 'day' ? 0 : stars, exposure: 0.8 });
   const n = W.noise2(seed), height = (x, z) => 0.06 * n(x / 4, z / 4) + 6 * sstep(80, 200, Math.hypot(x, z)) * W.fbm(n, x / 80, z / 80, 4);
   const mt = await W.terrainMaterial([{ name: 'dry_ground_rocks', tile: 3 }, { name: 'sand_01', tile: 3.5, tint: 0xf0d8b0 }, { name: 'brown_mud_dry', tile: 2.6 }], { macro: 0.2 });
   const T = W.terrain({ size: 900, seg: 380, height, material: mt, weights: (x, z) => [1, sstep(20, 60, Math.hypot(x, z)) * 1.4, 0.4 * (1 + n(x / 6, z / 6))] });
