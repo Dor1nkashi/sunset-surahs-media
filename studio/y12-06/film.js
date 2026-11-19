@@ -34,8 +34,8 @@ const C = {
   emb_a:    { pos: [0.05, 2.9, DZ + 1.9], look: [0.0, 3.38, ZB], fov: 30 },
   emb_b:    { pos: [0.05, 3.05, DZ + 1.45], look: [0.0, 3.38, ZB], fov: 28 },
   lamp:     { pos: [-3.25, 1.86, -0.35], look: [LAMP3[0], 1.5, LAMP3[2]], fov: 28 },
-  boltc_a:  { pos: [0.78, 1.40, DZ + 0.5], look: [0.64, 1.36, DZ], fov: 22 },
-  boltc_b:  { pos: [0.77, 1.40, DZ + 0.45], look: [0.64, 1.36, DZ], fov: 21 },
+  boltc_a:  { pos: [0.98, 1.46, DZ + 0.9], look: [0.6, 1.36, DZ], fov: 24 },
+  boltc_b:  { pos: [0.96, 1.45, DZ + 0.82], look: [0.6, 1.36, DZ], fov: 23 },
   flame:    { pos: [0.0, 1.42, DZ + 0.36], look: [0.55, 1.36, DZ], fov: 26 },
 };
 // the shot table (times from shotlists/y12_06.md)
