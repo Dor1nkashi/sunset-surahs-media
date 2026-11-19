@@ -106,8 +106,8 @@ M.film({
       wide_b:  { pos: [6.2, 2.1, 13.4], look: [0, 0.8, -0.6], fov: 40 },
       shadows: { b: 1, pos: [-0.3, 2.25, -0.75], look: [-0.45, fy, -1.55], fov: 50 },
       shadows2:{ b: 1, pos: [-0.3, 2.2, -0.8], look: [-0.42, fy, -1.5], fov: 48 },
-      over_a:  { b: 1, pos: out(0.95, 0.12, 0.45), look: out(0, 0.2, 0.0), fov: 32 },
-      over_b:  { b: 1, pos: out(0.85, 0.1, 0.38), look: out(0, 0.2, 0.0), fov: 31 },
+      over_a:  { b: 1, pos: out(1.1, 0.2, 0.55), look: out(0, 0.3, 0.05), fov: 36 },
+      over_b:  { b: 1, pos: out(1.0, 0.18, 0.48), look: out(0, 0.3, 0.05), fov: 35 },
       floor:   { b: 1, pos: [0.15, fy + 0.36, -1.75], look: [0.3, fy + 0.02, 0.4], fov: 56 },
       tilt_a:  { b: 1, pos: [0.45, 1.25, 0.2], look: [0.5, fy, 1.3], fov: 54 },
       tilt_b:  { b: 1, pos: [0.45, 1.27, 0.22], look: [0.7, 3.4, 2.6], fov: 54 },
@@ -188,7 +188,7 @@ M.film({
       K.handAim(MUSA, 'Right', gW, 0); K.flatHand(MUSA, 'Right', 1 - 0.9 * k);
     }
     if (i === 5) {
-      MUSA.object3d.visible = true; MUSA.object3d.position.set(0.05, fy, -0.75); MUSA.object3d.rotation.y = 0; MUSA.setPose('stand', t);
+      MUSA.object3d.visible = true; MUSA.object3d.position.set(0.05, fy, 0.0); MUSA.object3d.rotation.y = Math.PI; MUSA.setPose('stand', t);
       MUSA.object3d.updateMatrixWorld(true);
       const k = E.inOutCubic(prog(t, 10.55, 11.5)), fw = V(0, 0, 1).applyQuaternion(MUSA.object3d.getWorldQuaternion(new THREE.Quaternion())), hd = MUSA.bones('Head').getWorldPosition(V());
       for (const sd of ['Right', 'Left']) { const sh = MUSA.bones(sd + 'Arm').getWorldPosition(V()), h0 = MUSA.bones(sd + 'Hand').getWorldPosition(V());

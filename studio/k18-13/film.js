@@ -44,7 +44,7 @@ M.film({
     const PP = await K.people();
     const slot = (n) => EAST.group.getObjectByName('people_slots').getObjectByName(n);
     MG = slot('ruler').position.clone();
-    RULER = PP.make({ kind: 'man', outfit: 'noble', palette: { robe: '#3a3530', cloak: '#2a2622', wrap: '#d8d0c0', sash: '#5a4a38', trousers: '#4a4440', trim: '#6a5a40' }, headwear: 'wrap', beard: 'full', seed: 90 });
+    RULER = PP.make({ kind: 'man', outfit: 'noble', palette: { robe: '#3a3530', cloak: '#2a2622', wrap: '#9c9080', sash: '#5a4a38', trousers: '#4a4440', trim: '#6a5a40' }, headwear: 'wrap', beard: 'full', seed: 90 });
     EAST.scene.add(RULER.object3d);
     const pals = ['earth', 'sand', 'olive', 'indigo', 'rust', 'cream', 'earth', 'sand', 'olive', 'rust'], kinds = ['man', 'woman', 'elder', 'man', 'boy', 'woman', 'man', 'elder', 'man', 'woman'];
     for (let i = 0; i < 10; i++) { const f = PP.make({ kind: kinds[i], outfit: kinds[i] === 'woman' ? 'abaya' : i % 3 ? 'worker' : 'thobe', palette: pals[i], seed: 100 + i, detail: 0.6 }); EAST.scene.add(f.object3d); CROWD.push(f); }
@@ -63,9 +63,9 @@ M.film({
       sun_a:   { pos: [1.5, 0.9, 7.5], look: [0, 0.6, -200], fov: 30 },
       sun_b:   { pos: [1.5, 0.88, 7.0], look: [0, 0.6, -200], fov: 29 },
       sink:    { pos: [-3.5, 0.6, 9.0], look: [0, 0.4, -200], fov: 16 },
-      shore_a: { pos: [-6, 1.6, 14], look: [-2, 0.3, -60], fov: 46 },
-      shore_b: { pos: [2, 1.6, 14], look: [6, 0.3, -60], fov: 46 },
-      ridge:   { pos: [-10, 2, 20], look: [-27, HE(-27, -110) + 1.2, -110], fov: 5.2 },
+      shore_a: { pos: [-8, 3.4, 17], look: [-3, 0.0, -60], fov: 44 },
+      shore_b: { pos: [0, 3.4, 17], look: [5, 0.0, -60], fov: 44 },
+      ridge:   { pos: [-10, 2, 20], look: [-30, HE(-30, -110) + 1.0, -110], fov: 9 },
       plain:   { pos: [-2, 1.2, 12], look: [3, 2.5, -120], fov: 44 },
       airW_a:  { pos: [-50, 45, 70], look: [0, 0, -10], fov: 44 },
       airW_b:  { pos: [10, 42, 75], look: [40, 0, -5], fov: 44 },
@@ -132,7 +132,7 @@ M.film({
       // villagers in a half circle, facing him; they step forward from shot 10
       const step = i < 9 ? 0 : E.inOutSine(prog(t, 17.6, 19.4));
       CROWD.forEach((f, k) => { const sl = EAST.group.getObjectByName('people_slots').getObjectByName(`crowd_${k + 1}`).position, d = V(MG.x - sl.x, 0, MG.z - sl.z).normalize();
-        const pos = sl.clone().addScaledVector(d, 1.3 * step); f.object3d.visible = true; f.object3d.position.set(pos.x, HE(pos.x, pos.z), pos.z); f.object3d.rotation.y = Math.atan2(d.x, d.z);
+        const pos = sl.clone().add(V(0, 0, 2.6)).addScaledVector(d, 1.3 * step); f.object3d.visible = true; f.object3d.position.set(pos.x, HE(pos.x, pos.z), pos.z); f.object3d.rotation.y = Math.atan2(d.x, d.z);
         f.setPose(i === 9 && step > 0.02 && step < 0.98 ? 'walk' : 'stand', t + k * 0.6); });
     }
     if (i === 10) {
@@ -152,7 +152,7 @@ M.film({
       const shR = RULER.bones('RightArm').getWorldPosition(V()), shL = RULER.bones('LeftArm').getWorldPosition(V());
       const tR = shR.clone().add(V(0.08, -0.3, 0.42)), tL = shL.clone().add(V(-0.08, -0.3, 0.42));
       K.reach(RULER, 'Right', tR, shR.clone().add(V(-0.5, -0.5, -0.2))); K.handAim(RULER, 'Right', tR.clone().add(V(0, 0, 0.3)), 0); curl(RULER, 'Right', 1);
-      K.reach(RULER, 'Left', tL, shL.clone().add(V(0.5, -0.5, -0.2))); K.handAim(RULER, 'Left', tL.clone().add(V(0, 0, 0.3)), -Math.PI / 2); K.flatHand(RULER, 'Left', 0.15);
+      K.reach(RULER, 'Left', tL, shL.clone().add(V(0.5, -0.5, -0.2))); K.handAim(RULER, 'Left', tL.clone().add(V(0, 0, 0.3)), Math.PI / 2); K.flatHand(RULER, 'Left', 0.15);
       RULER.object3d.updateMatrixWorld(true);
       C.fistW = RULER.bones('RightHand').getWorldPosition(V()); C.palmW = RULER.bones('LeftHandMiddle1').getWorldPosition(V());
       BREAD[0].visible = i >= 13; BREAD[0].position.copy(C.palmW).add(V(0, 0.035, 0)); BREAD[0].rotation.set(0, 0, 0);
@@ -164,7 +164,8 @@ M.film({
       const off = s.a === 'both' ? V(0.0, -0.05, 0.85) : V(s.a === 'fist' ? 0.12 : -0.12, -0.02, 0.48);
       cam = { pos: tg.clone().add(off).toArray(), look: tg.toArray(), fov: K.lensFov(s.a === 'both' ? 30 : 28) };
     } else { cam = K.camLerp(s.a, s.b, (s.ease || E.linear)(p)); cam = K.breathe(cam, t, s.b ? 0.0015 : 0.0025, 11 + i); }
-    G.renderSet(ctx, st, t, u, { cam, exposure: set.exposure * (s.w ? (i === 5 ? 1.2 : 1) : s.m ? 1.05 : 1) });
+    st.bloom = s.m ? 0.06 : s.w && i < 3 ? 0.12 : 0.2;
+    G.renderSet(ctx, st, t, u, { cam, exposure: set.exposure * (s.w ? (i === 5 ? 1.0 : i < 2 ? 0.5 : 0.7) : s.m ? 0.95 : 1) });
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.6);
   },

@@ -13,11 +13,12 @@ const { prog, E, clamp, lerp } = M;
 const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
 const D = 33.39;
 
+let FILL;
 let ST, SET, CAP, HT, RULER, VILL = [], WORK = [], BAG, STONE, CARRY = [], C = {}, SHOTS, BELLOWS_BODY, SITE;
 const RUL = [0.5, 17.6], ST0 = [0.5, 19.0];          // the ruler, the flat stone between him and the villagers
 
 // story state
-const buildAt = (t) => (t < 16.62 ? 0.04 : t < 19.53 ? lerp(0.08, 0.92, E.inOutSine(prog(t, 16.62, 19.53))) : 1);
+const buildAt = (t) => (t < 3.73 ? 1 : t < 16.62 ? 0.04 : t < 19.53 ? lerp(0.08, 0.92, E.inOutSine(prog(t, 16.62, 19.53))) : 1);
 const pourAt = (t, i) => (i === 0 || i === 1 ? 0.3 : i === 9 ? 0.35 : i === 10 || i === 11 ? 1 : i === 13 ? lerp(0.4, 1, E.inOutSine(prog(t, 28.63, 30.4))) : i === 14 ? lerp(1, 0.32, E.inOutSine(prog(t, 31.6, D))) : 0.3);
 // the coin bag on the stone: pushed toward the ruler (5.4-6.4), pushed back toward the villagers (9.0-10.2)
 const bagZ = (t) => ST0[1] + 0.35 - 0.5 * E.inOutCubic(prog(t, 5.4, 6.4)) + 0.62 * E.inOutCubic(prog(t, 9.0, 10.2));
@@ -53,21 +54,21 @@ M.film({
       pour:    SET.cameras.pour,
       seam_a:  { pos: [1.2, 1.5, 1.6], look: [0.5, 1.3, 0.5], fov: 30 },
       seam_b:  { pos: [0.9, 1.45, 1.25], look: [0.3, 1.3, 0.5], fov: 28 },
-      mouth:   { pos: [4.5, 1.7, 32], look: [0, 4.5, 0], fov: 46 },
+      mouth:   { pos: [3.2, HT(3.2, 27) + 1.6, 27], look: [-0.5, HT(0, 20) + 1.6, 12], fov: 46 },
       bag_a:   { pos: [ST0[0] + 0.75, sg + 0.35, ST0[1] + 0.55], look: [ST0[0], sg + 0.06, ST0[1] + 0.05], fov: 34 },
       bag_b:   { pos: [ST0[0] + 0.6, sg + 0.3, ST0[1] + 0.42], look: [ST0[0], sg + 0.06, ST0[1] + 0.0], fov: 32 },
       gap_a:   { pos: [0, 2.2, 46], look: [0, 4, 0], fov: 44 },
       gap_b:   { pos: [0, 2.2, 44], look: [0, 22, 0], fov: 44 },
       back:    { pos: [RUL[0] - 0.55, rg + 0.75, RUL[1] - 2.2], look: [RUL[0] + 0.1, rg + 1.0, ST0[1] + 3], fov: 42 },
-      carry_a: { pos: [-4.5, 1.6, 15.5], look: [1, 1.0, 8], fov: 42 },
-      carry_b: { pos: [-4.0, 1.6, 12.5], look: [1, 1.0, 5], fov: 42 },
-      fire:    { pos: [si.x + 0.9, si.y + 0.9, si.z + 2.2], look: [si.x - 0.9, si.y + 0.35, si.z], fov: 40 },
+      carry_a: { pos: [2.6, HT(2.6, 17) + 1.7, 17], look: [-0.2, HT(0, 10) + 0.8, 10], fov: 44 },
+      carry_b: { pos: [2.6, HT(2.6, 15) + 1.7, 15], look: [-0.2, HT(0, 8) + 0.8, 8], fov: 44 },
+      fire:    { pos: [si.x + 1.6, si.y + 1.3, si.z + 3.2], look: [si.x - 0.9, si.y + 0.35, si.z], fov: 42 },
       stack_a: { pos: [-3, 1.5, 22], look: [0, 2, 0], fov: 50 },
       stack_b: { pos: [-3, 6.5, 24], look: [0, 6.5, 0], fov: 50 },
       up:      { pos: [0.8, 0.35, 3.2], look: [0.0, 9.0, 0], fov: 64 },
-      palm:    { pos: [-0.25, 1.5, 1.35], look: [0.3, 1.32, 0.5], fov: 30 },
-      bagm:    { pos: [ST0[0] - 0.55, sg + 0.18, ST0[1] + 0.25], look: [ST0[0], sg + 0.06, ST0[1] + 0.2], fov: 30 },
-      belh:    { pos: [si.x - 0.6, si.y + 0.75, si.z + 1.35], look: [si.x - 1.55, si.y + 0.3, si.z + 0.2], fov: 34 },
+      palm:    { pos: [-0.3, 1.5, 1.4], look: [0.35, 1.32, 0.52], fov: 32 },
+      bagm:    { pos: [ST0[0] - 0.6, sg + 0.3, ST0[1] - 0.15], look: [ST0[0], sg + 0.05, ST0[1] + 0.2], fov: 32 },
+      belh:    { pos: [si.x - 0.3, si.y + 1.0, si.z + 2.0], look: [si.x - 1.5, si.y + 0.3, si.z + 0.3], fov: 38 },
       cool:    { pos: [0.75, 1.36, 1.0], look: [0.4, 1.3, 0.5], fov: 24 },
       warm_a:  { pos: [0.8, 1.38, 1.05], look: [0.4, 1.3, 0.5], fov: 24 },
       warm_b:  { pos: [0.7, 1.36, 0.95], look: [0.4, 1.3, 0.5], fov: 23 },
@@ -89,6 +90,7 @@ M.film({
       { t0: 28.63, t1: 30.55, a: C.cool },
       { t0: 30.55, t1: D, a: C.warm_a, b: C.warm_b, ease: E.inOutSine },
     ];
+    FILL = new THREE.SpotLight(0xffc890, 0, 30, 0.5, 0.6, 1.2); FILL.position.set(4, 4, 7); FILL.target.position.set(0.3, 1.3, 0.5); S.add(FILL, FILL.target);
     ST = W.stage(SET);
     SET.update(0, null, {}); G.R.compile(S, ST.camera);
     CAP = captions(await loadLines('lines.json'), { display: 'Display', ui: 'UI' });
@@ -118,10 +120,10 @@ M.film({
       else { f.object3d.visible = true; f.object3d.position.set(RUL[0], HT(...RUL), ST0[1] - 0.85); f.object3d.rotation.y = 0; f.setPose('stand', t); }
       f.object3d.updateMatrixWorld(true);
       const bz = bagZ(t), k = i === 3 ? 1 - E.inOutCubic(prog(t, 6.45, 6.7)) : 1 - E.inOutCubic(prog(t, 26.2, 26.9));
-      const tg = V(ST0[0] + 0.02, sg + 0.08, i === 3 ? bz + 0.1 : bz - 0.1), h0 = f.bones('RightHand').getWorldPosition(V());
+      const tg = V(ST0[0] + 0.02, sg + 0.08, i === 3 ? bz + 0.1 : BAG.position.z - 0.1), h0 = f.bones('RightHand').getWorldPosition(V());
       K.reach(f, 'Right', h0.lerp(tg, i === 3 ? clamp((t - 5.25) / 0.2) * k : k), tg.clone().add(V(0.4, 0.3, i === 3 ? 0.4 : -0.4)));
       K.handAim(f, 'Right', tg.clone().add(V(0, -0.02, i === 3 ? -0.2 : 0.2)), 0); K.flatHand(f, 'Right', 0.4);
-      if (i === 11) BAG.position.z = ST0[1] + 0.35 + 0.12 + 0.3 * E.inOutCubic(prog(t, 25.5, 26.2));
+      if (i === 11) BAG.position.z = ST0[1] + 0.05 + 0.3 * E.inOutCubic(prog(t, 25.5, 26.2));
     }
     if (i === 5) {
       // the ruler, back to us, before the villagers: his hand pushes the bag back across the stone
@@ -153,7 +155,10 @@ M.film({
     // camera
     let cam = K.camLerp(s.a, s.b, (s.ease || E.linear)(p));
     cam = K.breathe(cam, t, s.b ? 0.0012 : 0.002, 11 + i);
-    G.renderSet(ctx, ST, t, u, { cam, build: buildAt(t), pour: pourAt(t, i), sparks: i === 0 ? 1 : i === 7 ? 0.6 : 0, fire: 1 });
+    FILL.intensity = i === 1 || i >= 10 && i !== 11 && i !== 12 ? 60 : 0;
+    ST.bloom = i === 0 ? 0.08 : 0.15;
+    const ex = i === 0 ? 0.55 : i === 7 || i === 12 ? 0.55 : 1;
+    G.renderSet(ctx, ST, t, u, { cam, exposure: SET.exposure * ex, build: buildAt(t), pour: pourAt(t, i), sparks: i === 0 ? 1 : i === 7 ? 0.6 : 0, fire: 1 });
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.6);
   },
