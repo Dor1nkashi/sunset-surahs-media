@@ -144,7 +144,7 @@ M.film({
       const M4 = new THREE.Matrix4(), Q = new THREE.Quaternion();
       VLEAF_BASE.forEach(([uu, pp, j]) => { const sc = clamp((gk - uu) * 8) * (0.7 + 0.3 * Math.sin(j * 2.3)); Q.setFromEuler(new THREE.Euler(-1.1 + 0.3 * Math.sin(j), j * 2.1, 0.2 * Math.sin(L * 3 + j)));
         M4.compose(pp, Q, V(sc + 1e-4, sc + 1e-4, sc + 1e-4)); VLEAF.setMatrixAt(j, M4); }); VLEAF.instanceMatrix.needsUpdate = true; }
-    const ex = i === 3 ? 0.75 : i === 10 ? 0.85 : i === 7 ? 0.9 : 1.45;
+    const ex = i === 3 ? 0.75 : i === 10 ? 0.85 : i === 7 ? 0.9 : i === 0 || i === 1 || i === 8 ? 0.62 : i === 11 ? 1.45 - 0.83 * E.inOutSine(prog(t, 28.6, 30.0)) : 1.45;
     G.renderSet(ctx, ST, t, u, { cam, exposure: ex, day, mist: 0, breath: 1 });
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.6);
