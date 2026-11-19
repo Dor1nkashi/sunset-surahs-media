@@ -75,7 +75,7 @@ M.film({
     boat.add(SPLINTERS);
     // the patch: a fresh board nailed over the mended plank
     PATCH = new THREE.Group();
-    const pb = W.rbox(0.2, 0.17, 0.022, new THREE.MeshStandardMaterial({ color: 0xb08c62, roughness: 0.8, map: (await W.pbr('old_planks_02', { tile: 0.8, res: 1024 })).map }), { r: 0.006, centre: true });
+    const pb = W.rbox(0.2, 0.17, 0.022, new THREE.MeshStandardMaterial({ color: 0xe8c898, roughness: 0.8, map: (await W.pbr('old_planks_02', { tile: 0.8, res: 1024 })).map }), { r: 0.006, centre: true });
     pb.scale.set(5.2, 1, 1); PATCH.add(pb);
     const nail = new THREE.MeshStandardMaterial({ color: 0x2a2622, roughness: 0.4, metalness: 0.7 });
     for (let k = 0; k < 10; k++) { const nm = new THREE.Mesh(new THREE.SphereGeometry(0.006, 10, 8), nail); nm.position.set(-0.48 + 0.96 * (k % 5) / 4, k < 5 ? 0.06 : -0.06, 0.013); PATCH.add(nm); }
@@ -83,7 +83,7 @@ M.film({
     // bubbles drawn toward the gap at the waterline
     const bm = new THREE.MeshStandardMaterial({ color: 0xc8d4d2, roughness: 0.6, metalness: 0, transparent: true, opacity: 0.4 });
     BUBBLES = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 10, 8), bm, 70); BUBBLES.frustumCulled = false; S.add(BUBBLES);
-    BUBBLES.userData.base = Array.from({ length: 70 }, (_, i) => { const q = W.rng(100 + i); return [q(), q(), q(), 0.002 + 0.005 * q(), q() * 6.28]; });
+    BUBBLES.userData.base = Array.from({ length: 70 }, (_, i) => { const q = W.rng(100 + i); return [q(), q(), q(), 0.0015 + 0.0035 * q(), q() * 6.28]; });
     // ropes from the royal ship to the seized boat
     const rm = new THREE.MeshStandardMaterial({ color: 0x6a5238, roughness: 0.9 });
     for (let k = 0; k < 2; k++) { const m = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 1, 6).translate(0, 0.5, 0), rm); S.add(m); ROPES.push(m); }
@@ -98,10 +98,10 @@ M.film({
     const g = GC, n = GN;
     const nh = V(n.x, 0, n.z).normalize(), out = (d, up = 0, along = 0) => g.clone().addScaledVector(nh, d).add(V(0, up, along)).toArray();
     Object.assign(C, {
-      hull_a:  { b: 1, pos: out(1.7, 0.75, 0.9), look: out(0, -0.02, 0.05), fov: 34 },
-      hull_b:  { b: 1, pos: out(1.5, 0.66, 0.75), look: out(0, -0.02, 0.0), fov: 33 },
-      gap_a:   { b: 1, pos: out(1.0, 0.45, 0.45), look: out(0, -0.03, -0.1), fov: 28 },
-      gap_b:   { b: 1, pos: out(0.8, 0.36, 0.35), look: out(0, -0.03, -0.1), fov: 26 },
+      hull_a:  { b: 1, pos: out(1.25, 0.12, 0.6), look: out(0, 0.02, 0.0), fov: 34 },
+      hull_b:  { b: 1, pos: out(1.1, 0.1, 0.5), look: out(0, 0.02, 0.0), fov: 33 },
+      gap_a:   { b: 1, pos: out(0.85, 0.1, 0.32), look: out(0, 0.0, -0.05), fov: 28 },
+      gap_b:   { b: 1, pos: out(0.7, 0.08, 0.26), look: out(0, 0.0, -0.05), fov: 26 },
       wide_a:  { pos: [8.5, 2.3, 12], look: [0, 0.8, -0.3], fov: 40 },
       wide_b:  { pos: [6.2, 2.1, 13.4], look: [0, 0.8, -0.6], fov: 40 },
       shadows: { b: 1, pos: [-0.3, 2.25, -0.75], look: [-0.45, fy, -1.55], fov: 50 },
@@ -113,11 +113,11 @@ M.film({
       fine_a:  { pos: [-0.6, 1.5, -2.6], fov: 3.4 },
       fine_b:  { pos: [-0.6, 1.5, -2.6], fov: 2.7 },
       pass:    { pos: [-1.8, 1.0, 9.1], fov: 34 },
-      glide_a: { b: 1, pos: out(2.2, 1.3, -1.8), look: out(0, 0.1, -0.3), fov: 40 },
-      glide_b: { b: 1, pos: out(1.5, 0.6, -0.5), look: out(0, 0.0, 0.0), fov: 34 },
-      close:   { b: 1, pos: out(0.75, 0.3, 0.3), look: out(0, 0.0, -0.05), fov: 26 },
+      glide_a: { b: 1, pos: out(2.2, 1.0, -1.8), look: out(0, 0.05, -0.3), fov: 40 },
+      glide_b: { b: 1, pos: out(1.2, 0.15, -0.4), look: out(0, 0.02, 0.0), fov: 34 },
+      close:   { b: 1, pos: out(0.6, 0.06, 0.22), look: out(0, 0.0, -0.03), fov: 26 },
       far:     { b: 1, pos: [1.6, 1.0, -0.5], fov: 9 },
-      patch:   { b: 1, pos: out(1.25, 0.5, -0.4), look: out(0, 0.03, 0.0), fov: 30 },
+      patch:   { b: 1, pos: out(0.95, 0.1, -0.35), look: out(0, 0.02, 0.0), fov: 30 },
       end_a:   { pos: [5.5, 0.55, 7.5], look: [0, 0.4, 0], fov: 44 },
     });
     SHOTS = [
@@ -159,7 +159,7 @@ M.film({
     const mtx = new THREE.Matrix4(), on = t > 1.15 && t < T_PATCH ? clamp((dmg - 0.4) / 0.3) * (t > 12 ? 0.5 : 1) : 0;
     const gw = L2W(t, GC.toArray()), nW = GN.clone().applyQuaternion(boatXf(t).quaternion), uW = GU.clone().applyQuaternion(XF.quaternion);
     BUBBLES.userData.base.forEach(([a, b, c, rad, ph], k) => {
-      const life = 1.3 + a, age = ((t * 0.9 + ph) % life) / life, d = 0.32 * (1 - age) + 0.01, along = (b - 0.5) * 0.7 * (1 - age * 0.6);
+      const life = 1.3 + a, age = ((t * 0.9 + ph) % life) / life, d = 0.12 * (1 - age) + 0.005, along = (b - 0.5) * 0.4 * (1 - age * 0.6);
       const pt = gw.clone().addScaledVector(nW, d).addScaledVector(uW, along); const w = swellAt(pt.x, pt.z, t); pt.y = w.h + rad * 0.3;
       const sc = on > 0 ? rad * on * Math.sin(Math.PI * age) : 0; mtx.compose(pt, new THREE.Quaternion(), V(sc, sc * 0.7, sc)); BUBBLES.setMatrixAt(k, mtx);
     });
@@ -197,10 +197,10 @@ M.film({
     // camera
     let cam;
     if (s.a === 'pov') {
-      const hd = MUSA.bones('Head').getWorldPosition(V()), fw = V(0, 0, 1).applyQuaternion(MUSA.object3d.getWorldQuaternion(new THREE.Quaternion()));
-      const pos = hd.clone().addScaledVector(fw, 0.16).add(V(0, 0.02, 0)), k = E.inOutCubic(prog(t, 10.5, 12.6));
-      const look = pos.clone().addScaledVector(fw, 2).add(V(0, lerp(-1.8, 0.45, k), 0));
-      cam = { pos: pos.toArray(), look: look.toArray(), fov: K.lensFov(62) };
+      const fw = V(0, 0, 1).applyQuaternion(MUSA.object3d.getWorldQuaternion(new THREE.Quaternion())), sp = MUSA.bones('Spine2').getWorldPosition(V());
+      const pos = sp.clone().addScaledVector(fw, -0.75).add(V(0.0, -0.15, 0)), k = E.inOutCubic(prog(t, 10.45, 12.5));
+      const look = pos.clone().addScaledVector(fw, 2).add(V(0, lerp(-1.3, 1.5, k), 0));
+      cam = { pos: pos.toArray(), look: look.toArray(), fov: K.lensFov(58) };
     } else if (s.a === 'point') {
       const h = MUSA.bones('RightHand').getWorldPosition(V()), gw2 = L2W(t, GC.toArray()), d = gw2.clone().sub(h).normalize();
       cam = { pos: h.clone().addScaledVector(d, -0.42).add(V(0, 0.08, 0)).toArray(), look: gw2.toArray(), fov: K.lensFov(42) };
@@ -221,7 +221,8 @@ M.film({
       cam = K.camLerp(a, b, (s.ease || E.linear)(p));
       if (!s.a.b) cam = K.breathe(cam, t, 0.004, 11 + i);
     }
-    G.renderSet(ctx, ST, t, u, { cam, damage: dmg, flood: fl, exposure: SET.exposure * (i === 4 ? 1.25 : 1) });
+    if (P.plank) { const H = HULL.H, a0 = H.pt(0.43, 6 / 8, 1), k = dmg / 0.85; P.plank.quaternion.setFromAxisAngle(P.plank.userData.axis, -1.05 * E.outCubic(clamp(k * 1.2))); P.plank.position.copy(a0).addScaledVector(GN, 0.07 * k).add(V(0, -0.02 * k, 0)); }
+    G.renderSet(ctx, ST, t, u, { cam, flood: fl, exposure: SET.exposure * (i === 4 ? 1.25 : 1) });
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.6);
   },
