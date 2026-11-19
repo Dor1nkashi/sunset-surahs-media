@@ -198,7 +198,7 @@ M.film({
     K.lamp.userData.set(t, 1 - 0.55 * gust, 1.1 * gust * Math.sin(clamp((t - 25.35) / 0.8) * Math.PI) + 0.04 * Math.sin(t * 2.1), close ? 0.3 : 1);
     K.door.leaf.rotation.y = -0.5 + 0.035 * Math.sin(t * 0.9) + 0.02 * Math.sin(t * 2.3);
     { const L = K.lampW, a = t * 3.1, rr = 0.16 + 0.04 * Math.sin(t * 1.3); K.moth.g.position.set(L[0] + Math.cos(a) * rr, L[1] + 0.12 + 0.05 * Math.sin(t * 2.2), L[2] + Math.sin(a) * rr);
-      K.moth.g.rotation.y = -a; const fl = 0.9 * Math.sin(t * 60); K.moth.l.rotation.x = fl; K.moth.r.rotation.x = -fl; K.moth.g.visible = t < 24.4; }
+      K.moth.g.rotation.y = -a; const fl = 0.9 * Math.sin(t * 60); K.moth.l.rotation.x = fl; K.moth.r.rotation.x = -fl; K.moth.g.visible = t < 1.17; }
     G.renderSet(ctx, HILLS, t, u, { cam, exposure: t > 24.48 ? 0.95 : t < 3.41 && t > 1.17 ? 0.95 : 1.25, fire: 0 });
     CAP.draw(ctx, t);
     const su = prog(t, 26.33, D - 0.05), a = Math.sin(Math.PI * su);
