@@ -172,7 +172,7 @@ M.film({
     MLIGHT.intensity = t < 20.32 ? 0.6 : 0.6 - 0.4 * sunUp;
     DUSK.bloom = i === 5 ? 0.05 : DUSK.set.bloom;
     { const k = E.inOutSine(prog(t, 20.4, 22.5)), cpos = V(...C.sun_a.pos), dir = V(...C.sun_a.look).sub(cpos).normalize();
-      const at = cpos.clone().addScaledVector(dir, 70); at.y = gy + 2.6 + (cpos.y > 0 ? 0 : 0) - 6.5 + 9.0 * k; SUN.position.copy(at); SUN.lookAt(cpos); SUN.visible = i === 10; }
+      const at = cpos.clone().addScaledVector(dir, 70); at.y += -7.5 + 9.5 * k; SUN.position.copy(at); SUN.lookAt(cpos); SUN.visible = i === 10; }
     const ex = s.set === 'd' ? (i === 5 ? 0.75 : 1.0) : i === 10 ? 0.55 : (t < 20.32 ? 0.9 : 1.0);
     G.renderSet(ctx, ST, t, u, { cam, exposure: ex, lamp: s.set === 'd' ? 1 - 0.3 * E.inOutSine(prog(t, 8.2, 10.1)) : 0 });
     CAP.draw(ctx, t);
