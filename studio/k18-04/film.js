@@ -47,11 +47,11 @@ function camFor(s, t, p, pe) {
   if (s.cam === 'pullup') { const k = E.inOutCubic(p); const a = C.g2, b = C.aerial; const L = (x, y) => x.map((v, i) => v + (y[i] - v) * k);
     return { pos: L(a.pos, b.pos), look: L(a.look, b.look), fov: K.lensFov(a.fov * (b.fov / a.fov) ** k) }; }
   if (s.cam === 'glide') { const z = glideZ(t), x = sx(z) + 0.15;
-    const ls = { vines: [-15, 1.9, z - 5], palms: [-7.3, 8.5, z - 5], barley: [-3.0, 0.45, z - 6.5] };
+    const ls = { vines: [-14, 0.8, z - 4], palms: [-7.3, 8.5, z - 5], barley: [-3.0, 0.45, z - 6.5] };
     // look blends across the joins so the glide never jumps
     const j0 = prog(t, 7.6, 8.3), j1 = prog(t, 10.4, 11.1);
     const lk = ls.vines.map((v, i) => v + (ls.palms[i] - v) * E.inOutSine(j0) + (ls.barley[i] - ls.palms[i]) * E.inOutSine(j1));
-    const y = hy(x, z) + 3.6 - 2.7 * E.inOutSine(j1);
+    const y = hy(x, z) + 5.0 - 4.1 * E.inOutSine(j1);
     return { pos: [x, y, z], look: lk, fov: K.lensFov(44) }; }
   if (s.cam === 'follow') { const z = walkZ(t) + 2.6; return { pos: [AISLE + 0.55, hy(AISLE, z) + 1.5, z], look: [AISLE - 0.3, 1.4, z - 9], fov: K.lensFov(42) }; }
   if (s.cam === 'sweep') { const z = walkZ(18.42) + 2.4; return { pos: [AISLE + 1.3, hy(AISLE, z) + 1.35, z - 0.15 * p], look: [AISLE - 1.2, 1.55, z - 4.0], fov: K.lensFov(44) }; }
@@ -110,7 +110,7 @@ function posePeople(t, i) {
     const P = PALM2.position, at = V(P.x + 0.62, hy(P.x + 0.62, P.z + 0.35), P.z + 0.35);
     K.place(OWN, at.x, at.y, at.z, Math.atan2(P.x - at.x, P.z - at.z)); OWN.setPose('stand', 2.0);
     const tgt = V(P.x + 0.2, at.y + 1.42, P.z + 0.12);
-    K.reach(OWN, 'Right', tgt, K.onBody(OWN, -0.8, 0.5, -0.3)); K.handAim(OWN, 'Right', tgt.clone().add(V(-0.02, 0.15, -0.02)), 1.3); K.flatHand(OWN, 'Right', 0.2);
+    K.reach(OWN, 'Right', tgt, K.onBody(OWN, -0.8, 0.5, -0.3)); K.handAim(OWN, 'Right', tgt.clone().add(V(-0.02, 0.15, -0.02)), 1.3 + Math.PI); K.flatHand(OWN, 'Right', 0.2);
   }
 }
 
@@ -148,7 +148,7 @@ M.film({
     C.dates_b = { pos: [P.x + 7.5, hy(P.x, P.z) + 1.6, P.z + 3.0], look: [P.x, TOPY - 1.6, P.z], fov: 24 };
     C.stream = { pos: [sx(14) + 0.25, -0.05, 14], look: [sx(8), -0.2, 8], fov: 34 };
     const P2 = PALM2.position;
-    C.ring = { pos: [P2.x + 0.55, hy(P2.x, P2.z) + 1.62, P2.z + 0.62], look: [P2.x + 0.2, hy(P2.x, P2.z) + 1.42, P2.z + 0.12], fov: 24 };
+    C.ring = { pos: [P2.x + 0.55, hy(P2.x, P2.z) + 1.62, P2.z + 0.62], look: [P2.x + 0.2, hy(P2.x, P2.z) + 1.45, P2.z + 0.12], fov: 30 };
     const PL = near(-34, -15).position;
     C.lone_a = { pos: [PL.x + 5, hy(PL.x, PL.z) + 0.4, PL.z + 4], look: [PL.x, hy(PL.x, PL.z) + 4, PL.z], fov: 50 };
     C.lone_b = { pos: [PL.x + 5, hy(PL.x, PL.z) + 0.4, PL.z + 4], look: [PL.x, hy(PL.x, PL.z) + 9, PL.z], fov: 50 };
