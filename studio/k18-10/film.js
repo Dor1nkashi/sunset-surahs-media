@@ -32,7 +32,7 @@ const fineAt = (t) => FINE0.clone().addScaledVector(DIR, t < 15.5 ? 0 : 2.0 * (t
 
 // ------------------------------------------------------------------ props added on the hull
 function hullFrame(H) {
-  const v = 4.5 / 8, c = H.pt(0.5, v, 1), du = H.pt(0.51, v, 1).sub(H.pt(0.49, v, 1)).normalize(), dv = H.pt(0.5, v + 0.01, 1).sub(H.pt(0.5, v - 0.01, 1)).normalize();
+  const v = 5.5 / 8, c = H.pt(0.5, v, 1), du = H.pt(0.51, v, 1).sub(H.pt(0.49, v, 1)).normalize(), dv = H.pt(0.5, v + 0.01, 1).sub(H.pt(0.5, v - 0.01, 1)).normalize();
   const n = new THREE.Vector3().crossVectors(dv, du).normalize(); if (n.x < 0) n.negate();
   const dv2 = new THREE.Vector3().crossVectors(n, du).normalize();
   return { c, du, dv: dv2, n };
@@ -53,6 +53,12 @@ M.film({
     { const ms = new Set(); boat.traverse((m) => { if (m.isMesh && m.material?.vertexColors && m.material.map) ms.add(m.material); }); ms.forEach((m) => m.color.multiplyScalar(1.7)); }   // weathered hull reads lighter
     // a livelier sea: lower roughness for sun glints, stronger ripples, sky in the water
     { const o = P.ocean; o.roughness = 0.045; o.normalScale.set(0.9, 0.9); o.envMapIntensity = 1.05; const U = o.userData.U; U.colA.value.set(0x0b4250); U.colB.value.set(0x0b4250); U.shal.value.set(0x0b4250); }
+    // keep the sea out of the hull: a depth-only lid inside the hull a little above the waterline (drawn after the boat, before the sea)
+    { const H = HULL.H, y = 0.45, N = 64, pts = []; for (let k = 0; k <= N; k++) { const u = 0.02 + 0.96 * k / N; pts.push(new THREE.Vector2(H.halfAt(u, y) - 0.01, (u - 0.5) * H.L)); }
+      for (let k = N; k >= 0; k--) { const u = 0.02 + 0.96 * k / N; pts.push(new THREE.Vector2(-(H.halfAt(u, y) - 0.01), (u - 0.5) * H.L)); }
+      const lid = new THREE.Mesh(new THREE.ShapeGeometry(new THREE.Shape(pts)).rotateX(Math.PI / 2), new THREE.MeshBasicMaterial({ colorWrite: false, side: THREE.DoubleSide }));
+      lid.position.y = y; lid.renderOrder = 1; boat.add(lid); P.sea.renderOrder = 2;
+      P.flood.material.transparent = false; P.flood.material.opacity = 1; }
     const F = hullFrame(HULL.H); GC = F.c; GN = F.n; GU = F.du; GV = F.dv;
     // the short iron bar (pushes out through the gap from inside, levers, then withdraws)
     const iron = W.ironMat ? W.ironMat() : new THREE.MeshStandardMaterial({ color: 0x3a3632, roughness: 0.5, metalness: 0.8 });
@@ -64,7 +70,7 @@ M.film({
     // fresh pale splinters on the broken plank ends (hidden behind the plank until it is prised out)
     SPLINTERS = new THREE.Group();
     const pale = new THREE.MeshStandardMaterial({ color: 0xd9c49a, roughness: 0.85 }), r = W.rng(5);
-    for (const u of [0.43, 0.57]) for (let k = 0; k < 5; k++) { const p = HULL.H.pt(u + (u < 0.5 ? 0.004 : -0.004), (4 + 0.15 + 0.17 * k) / 8, 1);
+    for (const u of [0.43, 0.57]) for (let k = 0; k < 5; k++) { const p = HULL.H.pt(u + (u < 0.5 ? 0.004 : -0.004), (5 + 0.15 + 0.17 * k) / 8, 1);
       const s = new THREE.Mesh(new THREE.BoxGeometry(0.008 + 0.006 * r(), 0.012, 0.03 + 0.05 * r()), pale); s.position.copy(p).addScaledVector(GN, -0.004); s.quaternion.copy(basisQ(GN, GV, GU)); s.rotateY((r() - 0.5) * 0.6); SPLINTERS.add(s); }
     boat.add(SPLINTERS);
     // the patch: a fresh board nailed over the mended plank
@@ -75,7 +81,7 @@ M.film({
     for (let k = 0; k < 10; k++) { const nm = new THREE.Mesh(new THREE.SphereGeometry(0.006, 10, 8), nail); nm.position.set(-0.48 + 0.96 * (k % 5) / 4, k < 5 ? 0.06 : -0.06, 0.013); PATCH.add(nm); }
     PATCH.position.copy(GC).addScaledVector(GN, 0.02); PATCH.quaternion.copy(basisQ(GU, GV, GN)); W.shadows(PATCH); boat.add(PATCH);
     // bubbles drawn toward the gap at the waterline
-    const bm = new THREE.MeshStandardMaterial({ color: 0xd8e2e0, roughness: 0.35, metalness: 0, transparent: true, opacity: 0.55 });
+    const bm = new THREE.MeshStandardMaterial({ color: 0xc8d4d2, roughness: 0.6, metalness: 0, transparent: true, opacity: 0.4 });
     BUBBLES = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 10, 8), bm, 70); BUBBLES.frustumCulled = false; S.add(BUBBLES);
     BUBBLES.userData.base = Array.from({ length: 70 }, (_, i) => { const q = W.rng(100 + i); return [q(), q(), q(), 0.002 + 0.005 * q(), q() * 6.28]; });
     // ropes from the royal ship to the seized boat
@@ -184,7 +190,7 @@ M.film({
       MUSA.object3d.updateMatrixWorld(true);
       const k = E.inOutCubic(prog(t, 10.55, 11.5)), fw = V(0, 0, 1).applyQuaternion(MUSA.object3d.getWorldQuaternion(new THREE.Quaternion()));
       for (const sd of ['Right', 'Left']) { const sh = MUSA.bones(sd + 'Arm').getWorldPosition(V()), h0 = MUSA.bones(sd + 'Hand').getWorldPosition(V());
-        const tgt = sh.clone().addScaledVector(fw, 0.42).add(L2W(t, [sd === 'Right' ? -0.08 : 0.08, 0.22, 0]).sub(L2W(t, [0, 0, 0])));
+        const tgt = sh.clone().addScaledVector(fw, 0.46).add(L2W(t, [sd === 'Right' ? -0.1 : 0.1, 0.4, 0]).sub(L2W(t, [0, 0, 0])));
         K.reach(MUSA, sd, h0.lerp(tgt, k), sh.clone().add(V(sd === 'Right' ? -0.5 : 0.5, -0.6, 0)));
         K.handAim(MUSA, sd, tgt.clone().add(V(0, 0.35, 0)).addScaledVector(fw, 0.1), 0); K.flatHand(MUSA, sd, 0.08); }
     }
@@ -193,7 +199,7 @@ M.film({
     if (s.a === 'pov') {
       const hd = MUSA.bones('Head').getWorldPosition(V()), fw = V(0, 0, 1).applyQuaternion(MUSA.object3d.getWorldQuaternion(new THREE.Quaternion()));
       const pos = hd.clone().addScaledVector(fw, 0.16).add(V(0, 0.02, 0)), k = E.inOutCubic(prog(t, 10.5, 12.6));
-      const look = pos.clone().addScaledVector(fw, 2).add(V(0, lerp(-2.4, 1.6, k), 0));
+      const look = pos.clone().addScaledVector(fw, 2).add(V(0, lerp(-1.8, 0.45, k), 0));
       cam = { pos: pos.toArray(), look: look.toArray(), fov: K.lensFov(62) };
     } else if (s.a === 'point') {
       const h = MUSA.bones('RightHand').getWorldPosition(V()), gw2 = L2W(t, GC.toArray()), d = gw2.clone().sub(h).normalize();
