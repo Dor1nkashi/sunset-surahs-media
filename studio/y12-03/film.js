@@ -42,10 +42,10 @@ function reach(p, side, target, pole) {
 
 // a fern frond: curved rachis with paired pinnae (each a tapered blade), merged; double-sided, translucent green
 function frond(len, seed) {
-  const r = mulberry32(seed), geos = [], N = 18;
+  const r = mulberry32(seed), geos = [], N = 26;
   const rach = (s) => V3(0, Math.sin(s * 1.3) * len * 0.35 - s * s * len * 0.25, s * len);      // out from the wall (+z), arching down
   for (let i = 1; i < N; i++) {
-    const s = i / N, p = rach(s), nx = rach(Math.min(1, s + 0.02)).sub(p).normalize(), pl = len * 0.22 * Math.sin(Math.PI * (0.15 + 0.85 * s)) * (1 - 0.5 * s);
+    const s = i / N, p = rach(s), nx = rach(Math.min(1, s + 0.02)).sub(p).normalize(), pl = len * 0.3 * Math.sin(Math.PI * (0.15 + 0.85 * s)) * (1 - 0.5 * s);
     for (const sd of [-1, 1]) {
       const g = new THREE.PlaneGeometry(pl, pl * 0.22, 6, 1), q = g.attributes.position;
       for (let k = 0; k < q.count; k++) { const x = q.getX(k) + pl / 2, w = 1 - Math.pow(Math.min(1, Math.max(0, x / pl)), 1.6); q.setXYZ(k, x * sd, q.getY(k) * w, -0.12 * x * x / pl); }
@@ -94,7 +94,7 @@ M.film({
     const rope = P.rope, piv = new THREE.Group(); piv.position.set(0, h0 + 1.86, 0); sc.add(piv);
     rope.parent.remove(rope); rope.position.set(0, -1.86, 0); piv.add(rope); K.ropePiv = piv;
     // ---- ferns on the shaft wall (rooted in seams, arching out and down), cool green, translucent
-    const fm = new THREE.MeshStandardMaterial({ color: 0x4a7a32, roughness: 0.62, side: THREE.DoubleSide, emissive: 0x0a1a04 });
+    const fm = new THREE.MeshPhysicalMaterial({ color: 0x5a8a34, roughness: 0.55, side: THREE.DoubleSide, emissive: 0x0c1a04, sheen: 0.4, sheenColor: 0x9ac860, transmission: 0.0 });
     K.ferns = [];
     const spots = [[-2.6, 0.3], [-2.75, 1.1], [-4.9, 3.6], [-5.1, 4.2], [-6.6, 2.0], [-6.75, 2.5], [-7.4, 5.0], [-3.8, 5.6]];
     spots.forEach(([dy, a], i) => {
@@ -116,7 +116,7 @@ M.film({
     K.dropSeam = V3(-0.62, h0 - 3.4, 0.45);
     K.drop = new THREE.Mesh(new THREE.SphereGeometry(0.012, 16, 12), new THREE.MeshPhysicalMaterial({ color: 0xcfe0e8, roughness: 0.05, transmission: 0.6, thickness: 0.02 })); K.drop.scale.y = 1.4; sc.add(K.drop);
     // a cool fill so the shaft is not black where the sun does not reach
-    const cool = new THREE.PointLight(0x7a9ac8, 0.6, 9, 1.2); cool.position.set(0, WY + 3, 0); sc.add(cool); K.cool = cool;
+    const cool = new THREE.PointLight(0x5a7ab8, 0.6, 9, 1.2); cool.position.set(0, WY + 3, 0); sc.add(cool); K.cool = cool;
     // ---- five brothers at the rim (backs to camera), two pay out the rope
     const PP = await loadPeople(THREE, GLTFLoader);
     const PAL = [['#7a3a22', '#3a2b22'], ['#5a6030', '#3b3528'], ['#3a3634', '#2a2624'], ['#9a7034', '#4a3626'], ['#6a2a1c', '#2e2a28']];
@@ -163,7 +163,9 @@ M.film({
     else if (t < 6.49) { inside = false; cam = camL(C.ropeA, C.ropeB, E.inOutSine(prog(t, 4.45, 6.49))); }
     else if (t < 7.6) { inside = false; cam = C.leaveA; }
     else if (t < 8.46) { const p = E.inOutCubic(prog(t, 7.6, 8.46)); cam = camL(C.leaveB, C.sink, p); inside = p > 0.3; }
-    else if (t < 12.43) cam = camL(C.descA, C.descB, E.inOutSine(prog(t, 8.46, 12.43)));
+    else if (t < 12.43) { const el0 = lerp(62, 82.5, E.inOutSine(prog(t, 8.46, 15.0))) * Math.PI / 180, edge = K.top - 1.56 * Math.tan(el0);
+      const blend = sm(prog(t, 8.46, 9.2)), fol = { pos: [0.42, edge + 1.0, 0.3], look: [-0.7, edge - 0.15, -0.5], fov: fv(48) };
+      cam = camL(C.descA, fol, blend); }
     else if (t < 15.15) cam = camL(C.waterA, C.waterB, E.inOutSine(prog(t, 12.43, 14.6)));
     else if (t < 17.49) cam = C.settle;
     else if (t < 20.0) cam = camL(C.coinA, C.coinB, E.inOutSine(prog(t, 17.49, 19.9)));
@@ -174,10 +176,10 @@ M.film({
     const el = t < 8.46 ? 62 : t < 15.0 ? lerp(62, 82.5, E.inOutSine(prog(t, 8.46, 15.0))) : lerp(82.5, 85, prog(t, 15, D));
     const e = el * Math.PI / 180, az = 35 * Math.PI / 180, dir = V3(Math.cos(az) * Math.cos(e), Math.sin(e), Math.sin(az) * Math.cos(e));
     A.sun.target.position.set(0, K.h0 - 4, 0); A.sun.position.copy(A.sun.target.position).addScaledVector(dir, 200); A.sun.target.updateMatrixWorld();
-    A.sun.shadow.camera.far = 400; A.sun.intensity = 3.6;
+    A.sun.shadow.camera.far = 400; A.sun.intensity = inside ? 9 : 3.6;
     WELL.scene.environmentIntensity = inside ? 0.14 : 1.0; if (A.hemi) A.hemi.intensity = inside ? 0.02 : 0.25;
-    K.cool.intensity = inside ? 0.5 + 0.25 * prog(t, 17.5, 20) : 0;
-    expo = inside ? 1.15 + 0.15 * prog(t, 17.5, 20) : 0.9;
+    K.cool.intensity = inside ? 0.28 + 0.15 * prog(t, 17.5, 20) : 0;
+    expo = inside ? 1.0 + 0.1 * prog(t, 17.5, 20) : 0.9;
     // rope end swings (damped pendulum restarted when the rope is let go at 6.4) and drifts in the draught
     const sw = 0.05 * Math.sin(t * 1.9) * Math.exp(-0.15 * t) + (t > 6.4 ? 0.09 * Math.exp(-0.5 * (t - 6.4)) * Math.sin((t - 6.4) * 2.1) : 0) + 0.012 * Math.sin(t * 0.7);
     K.ropePiv.rotation.set(sw, 0, 0.6 * sw);
