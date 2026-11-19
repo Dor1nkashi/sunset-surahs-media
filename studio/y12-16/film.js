@@ -29,6 +29,8 @@ async function build() {
   ST = W.stage(SET); const P0 = SET.props; hy = P0.terrain.heightAt; h0 = P0.house.position.y;
   BASE.env = SET.scene.environmentIntensity; BASE.hemi = SET.atmo.hemi?.intensity ?? 0;
   E11 = elevenStars(THREE, { size: 17 }); SET.scene.add(E11);
+  // same olive clearing as y12-00 (its lamp terrace), so frame 1 of the series matches exactly
+  for (const o of P0.olives) { const dx = o.position.x - 12, dz = o.position.z - 15, d = Math.hypot(dx, dz), c = (dx * 0.52 - dz * 0.85) / d; if (d < 10 || (d < 60 && c > 0.75)) o.visible = false; }
   const g = SET.group, pl = await K.mats.planks();
   // a low stone ledge by the courtyard wall with a clay oil lamp
   const stone = await W.pbr('rustic_stone_wall', { tile: 1.2, tint: 0xeee2cc, res: 1024 });
@@ -71,7 +73,7 @@ function light(t) {
   sky.hor.value.setRGB(lerp(0.5, 1.0, k), lerp(0.28, 0.62, k), lerp(0.2, 0.38, k));
   sky.moonOn.value = 0;
   const L = SET.atmo.sun, f = V3(0, h0, 0); L.position.copy(f).addScaledVector(d, 200); L.target.position.copy(f); L.target.updateMatrixWorld();
-  L.color.setRGB(1, 0.66 + 0.15 * k, 0.38 + 0.2 * k); L.intensity = 3.2 * sstep(-0.035, 0.06, e);
+  L.color.setRGB(1, 0.6 + 0.18 * k, 0.3 + 0.22 * k); L.intensity = 5.0 * sstep(-0.03, 0.035, e);
   SET.scene.environmentIntensity = BASE.env * lerp(0.55, 0.42, k); if (SET.atmo.hemi) SET.atmo.hemi.intensity = BASE.hemi;
   if (SET.scene.fog) SET.scene.fog.color.setRGB(lerp(0.2, 0.62, k), lerp(0.16, 0.45, k), lerp(0.2, 0.36, k));
   return k;
@@ -83,7 +85,7 @@ function shots() {
   const crB = (() => { const p = G0(10.5, 21.5, 1.5); return C(p, toward(p, 10.5 + SUN_AZ.x * 50, 21.5 + SUN_AZ.z * 50, 5), 58); })();
   const zen = (() => { const p = G0(10.5, 21.5, 1.5); return C(p, ELEVEN_CENTRE.map((v, i) => p[i] + v * 30 - (i === 1 ? 3 : 0)), 56); })();
   const W0 = SET.props.well.position, H = SET.props.house.position;
-  const hand = () => { const h = K.handPos(P.m, 'Right'); return C(h.clone().add(V3(-0.4, 0.22, 0.3)).toArray(), h.toArray(), 30); };
+  const hand = () => { const h = K.handPos(P.m, 'Right'), sd = V3(-SUN_AZ.x, 0, -SUN_AZ.z); return C(h.clone().addScaledVector(sd, 0.75).add(V3(0.25, 0.3, 0)).toArray(), h.toArray(), 28); };
   return [
     { t0: 0, t1: 2.2, a: zen, b: crB, ease: (x) => K.easeIO(clamp(x * 1.05)) },                                                                                       // 1 sunrise over the eastern ridge; the eleven fade above it
     { t0: 2.2, t1: 3.56, a: C(G0(16, 24, 4.2), [H.x + 1, H.y + 2, H.z], 46), b: C(G0(11, 15, 3.0), [H.x + 0.5, H.y + 2, H.z], 44) },   // 2 gliding over the terraces toward the house
@@ -92,7 +94,7 @@ function shots() {
     { t0: 5.6, t1: 6.32, a: C(G0(-6, 18, 1.8), [-20, hy(-20, -10) + 3, -10], 46), b: C(G0(-6, 18, 3.0), [-20, hy(-20, -10) + 4.5, -10], 46) }, // 5 the terraces light up, one by one
     { t0: 6.32, t1: 8.29, a: SET.cameras.wide, b: null },                                                                       // 6 the whole hillside in warm light
     { t0: 8.29, t1: 8.96, a: C([LX - 0.35, h0 + 1.12, LZ + 0.75], [LX + 0.1, h0 + 0.9, LZ + 0.05], 30), b: null },                  // 7 patience: a lamp burning on the ledge
-    { t0: 8.96, t1: 9.56, a: C([LX - 0.3, h0 + 1.45, LZ + 3.2], [LX - 0.25, h0 + 1.4, LZ + 1.4], 40), b: null },                    // 8 honesty: a whole shirt hanging straight
+    { t0: 8.96, t1: 9.56, a: C([LX + 0.1, h0 + 1.5, LZ - 0.35], [LX - 0.25, h0 + 1.35, LZ + 1.41], 46), b: null },                    // 8 honesty: a whole shirt hanging straight
     { t0: 9.56, t1: 10.87, cam: hand },                                                                                         // 9 forgiveness: an open hand in the light
     { t0: 10.87, t1: D + 0.01, a: wideA, b: zen, ease: (x) => K.easeIO(clamp(x * 1.1)) },                                        // 10 up into the still-dark zenith: the eleven
   ];
@@ -100,7 +102,7 @@ function shots() {
 function person(t) {
   const p = P.m; p.object3d.visible = t >= 9.56 && t < 10.87;
   if (!p.object3d.visible) return;
-  K.place(p, LX - 1.0, h0, LZ + 0.2, 2.2); p.setPose('stand', t);
+  K.place(p, LX - 1.0, h0, LZ + 0.2, Math.atan2(SUN_AZ.x, SUN_AZ.z)); p.setPose('stand', t);
   const e = sm(t, 9.6, 10.5); K.reach(p, 'Right', K.onBody(p, -0.18, 1.12, 0.42), K.onBody(p, -0.8, 0.6, -0.5)); K.tilt(p, 'RightHand', 0, -70 * e, 0); K.fingers(p, 'Right', 1 - e);
 }
 
