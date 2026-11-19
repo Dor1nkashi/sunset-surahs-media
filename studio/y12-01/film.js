@@ -163,9 +163,9 @@ M.film({
       replay: { pos: [0.1, R + 1.1, -2.2], look: far([0.1, R + 1.1, -2.2], [EC[0], EC[1] - 0.08, EC[2]]), fov: fv(56) },
       bowCloseA: { pos: [0.1, R + 1.1, -2.2], look: far([0.1, R + 1.1, -2.2], EC), fov: fv(40) },
       bowCloseB: { pos: [0.1, R + 1.1, -2.2], look: far([0.1, R + 1.1, -2.2], EC), fov: fv(33) },
-      warnA: { pos: [2.5, R + 1.05, -3.45], look: [7.2, hy(7.2, -4.5) + 0.4, -4.6], fov: fv(44) },
-      warnB: { pos: [2.7, R + 1.05, -3.55], look: [7.2, hy(7.2, -4.5) + 0.3, -4.6], fov: fv(38) },
-      panA: { pos: [2.7, R + 1.05, -3.55], look: [7.2, hy(7.2, -4.5) + 0.3, -4.6], fov: fv(38) },
+      warnA: { pos: [2.9, R + 1.75, -3.3], look: [7.2, hy(7.2, -4.5) + 0.4, -4.6], fov: fv(44) },
+      warnB: { pos: [3.1, R + 1.7, -3.45], look: [7.2, hy(7.2, -4.5) + 0.3, -4.6], fov: fv(38) },
+      panA: { pos: [3.1, R + 1.7, -3.45], look: [7.2, hy(7.2, -4.5) + 0.3, -4.6], fov: fv(38) },
       panB: { pos: [2.2, R + 2.0, -2.9], look: [7.2, hy(7.2, -4.5), -4.5], fov: fv(40) },
       bedA: { pos: G0(9.6, -1.0, 1.7), look: [6.6, hy(6.6, -4.9), -4.9], fov: fv(46) },
       bedB: { pos: G0(9.2, -1.6, 1.5), look: [6.8, hy(6.8, -4.9), -4.9], fov: fv(42) },
@@ -199,7 +199,7 @@ M.film({
     // ------------------------------------------------------------ world state (pure in t)
     const P = HILLS.set.props, sky = P.sky.userData.u, A = HILLS.set.atmo;
     const ground = dreamOp === 0;                               // ground shots: moonlight only, lamps and embers carry the warmth
-    HILLS.scene.environmentIntensity = ground ? (t > 23.43 ? 0.55 : 0.28) : 1.8; A.sun.intensity = ground ? 0.5 : 0.4; if (A.hemi) A.hemi.intensity = ground ? 0.05 : 0.2;
+    HILLS.scene.environmentIntensity = ground ? (t > 23.43 && t < 25.71 ? 0.9 : t > 23.43 ? 0.55 : 0.28) : 1.8; A.sun.intensity = ground ? 0.5 : 0.4; if (A.hemi) A.hemi.intensity = ground ? 0.05 : 0.2;
     const dawn = lerp(0.35, 1.1, sm(prog(t, 4.0, 30)));                         // the band of first light in the east grows all film
     sky.sunD.value.set(0.52, -0.06, -0.85).normalize(); sky.sunC.value.setRGB(1.0 * dawn, 0.58 * dawn, 0.22 * dawn); sky.glow.value = 1.0; sky.sunDisc.value = 2.0;
     sky.moonD.value.set(-0.93, 0.2, -0.3).normalize(); sky.moonOn.value = 1;
