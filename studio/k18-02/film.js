@@ -75,8 +75,9 @@ M.film({
     if (body) { FUR = K.shellFur(body, { layers: 12, len: 0.011, dens: 1100, wind: 0.0015, tint: 0.55 }); FUR.shells.forEach((m) => { m.material.envMapIntensity = 0.3; m.material.color.multiply(new THREE.Color(0.75, 0.5, 0.32)); }); }
     // the near sleeper (faceless, from behind): wool cloak over a plain tunic, head-cloth
     const PE = await K.people();
-    MAN = PE.make({ kind: 'man', outfit: 'traveller', palette: { robe: '#4a3c30', cloak: '#4a3c30', wrap: '#4a3c30', sash: '#4a3a2c', trousers: '#6a5a46', skin: '#8a5c3c' }, beard: 'none', headwear: 'wrap', seed: 151, detail: 1 });
+    MAN = PE.make({ kind: 'man', outfit: 'traveller', palette: { robe: '#4a3c30', cloak: '#4a3c30', wrap: '#4a3c30', sash: '#4a3a2c', trousers: '#6a5a46', skin: '#6e4630' }, beard: 'none', headwear: 'wrap', seed: 151, detail: 1 });
     S.add(MAN.object3d);
+    MAN.object3d.traverse((o) => { if (o.isMesh && o.material && 'sheen' in o.material) { o.material.sheen = Math.min(o.material.sheen, 0.12); o.material.envMapIntensity = 0.5; } });
     // his own cloak drawn over him (the same wool as the others): only the sleeve and hand come out from under its edge
     { const src = SET.props.sleepers[0]; const cm = src.material.clone(); cm.onBeforeCompile = src.material.onBeforeCompile; cm.customProgramCacheKey = src.material.customProgramCacheKey; cm.alphaHash = false; cm.opacity = 1; COVER = new THREE.Mesh(src.geometry, cm); COVER.userData.U = src.userData.U; COVER.castShadow = COVER.receiveShadow = true;
       COVER.position.set(MX - 0.05, H(MX, MZ) - 0.01, MZ - 0.05); COVER.rotation.y = -Math.PI / 2; COVER.scale.set(0.78, 1.3, 1.0); S.add(COVER); }
