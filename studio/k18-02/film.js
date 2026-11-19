@@ -78,7 +78,9 @@ M.film({
     MAN = PE.make({ kind: 'man', outfit: 'traveller', palette: { robe: '#4a3c30', cloak: '#4a3c30', wrap: '#4a3c30', sash: '#4a3a2c', trousers: '#6a5a46', skin: '#6e4630' }, beard: 'none', headwear: 'wrap', seed: 151, detail: 1 });
     S.add(MAN.object3d);
     MAN.object3d.traverse((o) => { if (o.isMesh && o.material && 'sheen' in o.material) { o.material.sheen = Math.min(o.material.sheen, 0.12); o.material.envMapIntensity = 0.5; if (o.material.emissive && o.material.emissive.getHex() === 0 && o.material.color.getHSL({}).l > 0.3) o.material.color.set(0x4a3c30); } });
-    { const seen = []; MAN.object3d.traverse((o) => { if (o.isMesh) seen.push(`${o.name}:${o.material.color?.getHexString()}:${o.material.emissive?.getHexString()}`); }); console.error('[k18-02] mats ' + seen.join(' ')); }
+    // his clothes in the same coarse wool as the cloaks (plain standard material on the skinned meshes)
+    { const src = SET.props.sleepers[0].material, wool = new THREE.MeshStandardMaterial({ map: src.map, normalMap: src.normalMap, roughnessMap: src.roughnessMap, aoMap: src.aoMap, color: 0x6e5c48, roughness: 0.95, envMapIntensity: 0.4 });
+      MAN.object3d.traverse((o) => { if (o.isMesh && !/hand|head|foot|sandal/i.test(o.name)) o.material = wool; }); }
     // his own cloak drawn over him (the same wool as the others): only the sleeve and hand come out from under its edge
     { const src = SET.props.sleepers[0]; const cm = src.material.clone(); cm.onBeforeCompile = src.material.onBeforeCompile; cm.customProgramCacheKey = src.material.customProgramCacheKey; cm.alphaHash = false; cm.opacity = 1; COVER = new THREE.Mesh(src.geometry, cm); COVER.userData.U = src.userData.U; COVER.castShadow = COVER.receiveShadow = true;
       COVER.position.set(MX - 0.05, H(MX, MZ) - 0.01, MZ - 0.05); COVER.rotation.y = -Math.PI / 2; COVER.scale.set(0.78, 1.3, 1.0); S.add(COVER); }
