@@ -117,7 +117,7 @@ M.film({
     K.holder = K.bros[2];
     // ---- cameras
     const G0 = (x, z, dy) => [x, hy(x, z) + dy, z], L = K.lampW;
-    const moonDir = V3(0.35, 0.36, 0.86).normalize(); K.moonDir = moonDir;       // the thin moon hangs over the hills beyond the yard gate
+    const moonDir = V3(-0.9, 0.36, 0.22).normalize(); K.moonDir = moonDir;       // the thin moon hangs over the hills beyond the yard gate
     const sky = (p) => [p[0] + moonDir.x * 40, p[1] + moonDir.y * 40 - 3, p[2] + moonDir.z * 40];
     K.cams = {
       door: { pos: [1.9, h0 + 1.75, DZ + 3.6], look: [0.1, h0 + 1.15, DZ], fov: fv(46) },
@@ -130,7 +130,7 @@ M.film({
       pastA: { pos: [0.9, h0 + 2.3, DZ + 6.0], look: [-0.4, h0 + 1.0, DZ + 0.3], fov: fv(44) },
       pastB: { pos: [0.2, h0 + 1.6, DZ + 2.6], look: [-0.6, h0 + 0.85, DZ + 0.3], fov: fv(40) },
       staff: { pos: [0.45, h0 + 1.35, DZ + 2.1], look: [-0.55, h0 + 0.85, DZ + 0.3], fov: fv(42) },
-      skyA: { pos: [-0.5, h0 + 1.1, DZ + 0.75], look: [1.5, h0 + 0.9, DZ + 8], fov: fv(48) },
+      skyA: { pos: [-0.5, h0 + 1.1, DZ + 0.75], look: [-6, h0 + 0.9, DZ + 1.9], fov: fv(48) },
       skyB: { pos: [-0.5, h0 + 1.1, DZ + 0.75], look: sky([-0.5, h0 + 1.1, DZ + 0.75]), fov: fv(48) },
       court: { pos: [2.3, h0 + 1.5, DZ + 3.0], look: [0.6, h0 + 1.3, DZ + 0.3], fov: fv(46) },
       step: { pos: [1.3, h0 + 1.25, DZ + 2.2], look: [0.2, h0 + 0.3, DZ + 0.3], fov: fv(40) },
@@ -139,7 +139,7 @@ M.film({
     };
     K.door = P.door; P.door.leaf.rotation.y = -0.5;
     // cool moonlight rim from behind-left so the figures read against the dark hills, and a faint sky fill
-    const rim = new THREE.DirectionalLight(0x9ab4ff, 0.9); rim.position.set(6, h0 + 9, DZ + 18); rim.target.position.set(0, h0, DZ + 2); sc.add(rim, rim.target);
+    const rim = new THREE.DirectionalLight(0x9ab4ff, 0.9); rim.position.set(-14, h0 + 9, DZ + 4); rim.target.position.set(0, h0, DZ + 2); sc.add(rim, rim.target);
     P.fire.visible = false;
     HILLS.bloom = 0;                                                            // no bloom: a NaN pixel in the terrain shader at grazing angles spreads into black blocks through the bloom mips                                                    // no fire tonight: lamp and moon only
     HILLS.update(0, 0, {}); G.R.compile(HILLS.scene, HILLS.camera);
@@ -152,7 +152,7 @@ M.film({
     K.bros.forEach((b, i) => {
       const p = b.p, o = p.object3d, sp = 0.9, dist = Math.hypot(b.ex - b.sx, b.ez - b.sz), dur = dist / sp, k = clamp((t - b.t0) / dur);
       const x = lerp(b.sx, b.ex, k), z = lerp(b.sz, b.ez, k);
-      if (k < 1) p.setPose('walk', (t - b.t0) * 0.8 + i * 0.3); else p.setPose('sad_pose', t + i * 0.7);
+      if (k < 1) p.setPose('walk', (t - b.t0) * 0.8 + i * 0.3); else { p.setPose('stand', t + i * 0.7); const hd = p.bones('Head'); if (hd) hd.rotation.x += 0.35; const sp1 = p.bones('Spine1'); if (sp1) sp1.rotation.x += 0.12; }
       o.position.set(x, K.hy(x, z), z); o.rotation.y = Math.PI + Math.atan2(b.sx - b.ex, b.sz - b.ez) * (k < 1 ? 1 : 0.4);
       const sh = p.bones('Spine2'); if (sh && t > 4) sh.rotation.x += 0.03 * Math.sin(t * 9 + i) * Math.exp(-0.25 * Math.max(0, t - 6));
       o.visible = t > 3.0;
@@ -178,13 +178,14 @@ M.film({
     else if (t < 6.41) { const p = E.inOutSine(prog(t, 3.41, 6.41)); cam = camL(C.gateA, C.gateB, p); const sh = 0.012 * Math.sin(t * 7.3) + 0.008 * Math.sin(t * 11.1); cam = { ...cam, pos: [cam.pos[0] + sh, cam.pos[1] + sh * 0.6, cam.pos[2]] }; }
     else if (t < 9.05) {
       const c = K.tHeldC || V3(0, h0 + 1.0, DZ + 3.0);           // seen from the lamp side of the yard, the door dark behind
-      if (t < 8.0) cam = { pos: [c.x + 1.5, c.y + 0.25, c.z + 0.9], look: [c.x, c.y - 0.05, c.z - 0.2], fov: fv(42) };
-      else { const p = E.inOutSine(prog(t, 8.0, 9.05)); cam = { pos: [c.x + lerp(0.9, 0.7, p), c.y + 0.15, c.z + lerp(0.6, 0.45, p)], look: [c.x, c.y - 0.12, c.z], fov: fv(28) }; }
+      if (t < 8.0) cam = { pos: [c.x + 1.5, c.y + 0.25, c.z + 0.9], look: [c.x, c.y - 0.05, c.z - 0.2], fov: PORT ? 42 : 34 };
+      else { const p = E.inOutSine(prog(t, 8.0, 9.05)); cam = { pos: [c.x + lerp(0.9, 0.7, p), c.y + 0.15, c.z + lerp(0.6, 0.45, p)], look: [c.x, c.y - 0.12, c.z], fov: PORT ? 28 : 24 }; }
     }
     else if (t < 11.34) cam = camL(C.pastA, C.pastB, E.inOutSine(prog(t, 9.05, 11.34)));
     else if (t < 13.68) cam = C.staff;
     else if (t < 15.56) cam = camL(C.skyA, C.skyB, E.inOutSine(prog(t, 13.68, 15.4)));
-    else if (t < 20.30) cam = C.court;
+    else if (t < 18.43) cam = C.court;
+    else if (t < 20.30) cam = camL(C.court, { ...C.court, pos: L3(C.court.pos, K.lampW, 0.25) }, E.inOutSine(prog(t, 18.43, 20.3)));
     else if (t < 22.34) cam = camL(C.step, C.stepB, E.inOutSine(prog(t, 20.3, 22.34)));
     else if (t < 24.48) cam = camL(C.skyA, C.skyB, E.inOutSine(prog(t, 22.34, 24.3)));
     else cam = C.flame;
