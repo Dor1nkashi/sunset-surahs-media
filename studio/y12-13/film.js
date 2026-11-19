@@ -11,7 +11,8 @@ import * as GR from '../lib_shared/growth.js';
 import * as K from '../y12-12/kit.js';
 const { THREE, clamp, lerp } = W;
 const V3 = K.V3, D = 34.17;
-const DBG = { notree: 1 };
+const DBG = { bisect: 1 };
+const OBJ = {};
 
 let SET, ST, CAP, hAt, h0, P = {}, TREE, SHAFT, MOTES, JAR = {}, SKIN, DROPS = [], SHOTS;
 const pr = (t, a, b) => clamp((t - a) / (b - a));
@@ -59,10 +60,10 @@ async function build() {
   const sh = new THREE.Shape(); sh.moveTo(-1.15, -1.35); sh.lineTo(1.15, -1.35); sh.lineTo(1.15, 1.35); sh.lineTo(-1.15, 1.35); sh.lineTo(-1.15, -1.35);
   const hole = new THREE.Path(), hx = GAP[0] - 3.02, hz = GAP[2] - 0.78; hole.moveTo(hx - 0.2, hz - 0.16); hole.lineTo(hx + 0.17, hz - 0.2); hole.lineTo(hx + 0.21, hz + 0.18); hole.lineTo(hx - 0.16, hz + 0.21); hole.lineTo(hx - 0.2, hz - 0.16); sh.holes.push(hole);
   const mg = new THREE.ShapeGeometry(sh, 24); mg.rotateX(Math.PI / 2); W.boxUV(mg);
-  const mat = new THREE.Mesh(mg, reed); mat.position.set(3.02, h0 + 2.46, 0.78); g.add(W.shadows(mat));
+  const mat = new THREE.Mesh(mg, reed); mat.position.set(3.02, h0 + 2.46, 0.78); g.add(W.shadows(mat)); OBJ.mat = mat;
   // the bench and the worn mat
   const bench = W.rbox(1.1, 0.42, 0.38, pl, { r: 0.03 }); bench.position.set(YQ[0], h0, YQ[1] - 0.12); g.add(W.shadows(bench));
-  const mm = await K.mats.dyed(0x8a5a3a); const rug = W.cloth(1.3, 0.85, mm, { segW: 60, segH: 40, folds: 0.004, seed: 4 }); rug.rotation.x = -Math.PI / 2; rug.position.set(YQ[0] + 0.1, h0 + 0.012, YQ[1] + 0.85); g.add(rug);
+  const mm = await K.mats.dyed(0x8a5a3a); const rug = W.cloth(1.3, 0.85, mm, { segW: 60, segH: 40, folds: 0.004, seed: 4 }); rug.rotation.x = -Math.PI / 2; rug.position.set(YQ[0] + 0.1, h0 + 0.012, YQ[1] + 0.85); g.add(rug); OBJ.rug = rug;
   // the old staff leaning on the wall
   const st = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.028, 1.95, 16, 12), new THREE.MeshStandardMaterial({ color: 0x6a4a30, roughness: 0.75 }));
   { const a = V3(STAFF[0][0], h0 + 0.02, STAFF[0][1]), b = V3(STAFF[1][0], h0 + STAFF[1][1], STAFF[1][2]); st.position.copy(a).lerp(b, 0.5); st.quaternion.setFromUnitVectors(V3(0, 1, 0), b.clone().sub(a).normalize());
@@ -76,7 +77,7 @@ async function build() {
   JAR.water = W.water(new THREE.CircleGeometry(0.12, 48).rotateX(-Math.PI / 2), { color: 0x24343a, rough: 0.04, tile: 0.4, flow: [0.0, 0.0] }); JAR.water.position.set(JARP[0], h0 + 0.5, JARP[1]); g.add(JAR.water);
   JAR.ringTex = G.canvasTexture(256, 256);
   JAR.rings = new THREE.Mesh(new THREE.CircleGeometry(0.118, 48).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: JAR.ringTex, transparent: true, depthWrite: false, opacity: 0.8 }));
-  JAR.rings.position.copy(JAR.water.position); g.add(JAR.rings);
+  JAR.rings.position.copy(JAR.water.position); g.add(JAR.rings); OBJ.rings = JAR.rings; OBJ.water = JAR.water; OBJ.jar = jar;
   const hs = await K.mats.dyed(0x5a3a26);
   SKIN = W.sack(hs, { w: 0.34, h: 0.44, seed: 9, tie: true }); SKIN.rotation.z = Math.PI; SKIN.position.set(JARP[0], h0 + 2.62, JARP[1] - 0.02); g.add(SKIN);
   g.add(W.rope([V3(JARP[0], h0 + 3.12, JARP[1] - 0.06), V3(JARP[0], h0 + 2.95, JARP[1] - 0.03), V3(JARP[0], h0 + 2.66, JARP[1] - 0.02)], 0.008));
@@ -211,7 +212,13 @@ M.film({
     dust(t, g, d, tgt);
     MOTES.visible = SHAFT.visible;
     if (s.t0 === 12.81) SET.scene.backgroundRotation.y = SET.scene.environmentRotation.y + 0.04 * pr(t, 12.81, 14.14); else SET.scene.backgroundRotation.y = SET.scene.environmentRotation.y;
-    const cam = s.cam ? s.cam(t) : K.camAt(s, t);
+    let cam = s.cam ? s.cam(t) : K.camAt(s, t);
+    if (DBG.bisect) { cam = SHOTS[2].a; const k = Math.floor(t);
+      const sets = [[], ['mat'], ['rug'], ['rings', 'water'], ['jar'], ['shaft', 'motes'], ['tree', 'yq'], ['sky']];
+      for (const n of Object.keys(OBJ)) OBJ[n].visible = true; SHAFT.visible = MOTES.visible = true; TREE.object3d.visible = true;
+      for (const n of sets[k] || []) { if (OBJ[n]) OBJ[n].visible = false; if (n === 'shaft') SHAFT.visible = false; if (n === 'motes') MOTES.visible = false; if (n === 'tree') TREE.object3d.visible = false; if (n === 'yq') P.yq.object3d.visible = false; }
+      if (k === 7) SET.scene.traverse((o) => { if (o.isInstancedMesh && o !== MOTES) o.visible = false; });
+    }
     G.renderSet(ctx, ST, t, u, { cam, exposure: 0.72 });
     K.vignette(ctx, 0.3);
     CAP.draw(ctx, t);
