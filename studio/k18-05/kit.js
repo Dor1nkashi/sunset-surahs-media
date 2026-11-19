@@ -133,3 +133,42 @@ export function flatHand(p, side, k = 0.15) {
   for (const f of ['Index', 'Middle', 'Ring', 'Pinky']) for (let i = 1; i <= 3; i++) { const b = p.bones(`${side}Hand${f}${i}`); if (b) b.quaternion.slerp(new THREE.Quaternion(), 1 - k); }
   p.object3d.updateMatrixWorld(true);
 }
+// ---- placement + pose helpers (after setPose)
+export const onBody = (p, x, y, z) => p.object3d.localToWorld(new THREE.Vector3(x, y, z));
+export const handPos = (p, side) => p.bones(side + 'Hand').getWorldPosition(new THREE.Vector3());
+export function place(p, x, y, z, yaw = 0) { p.object3d.position.set(x, y, z); p.object3d.rotation.set(0, yaw, 0); p.object3d.updateMatrixWorld(true); }
+export function tilt(p, bone, x = 0, y = 0, z = 0) { const b = p.bones(bone); if (!b) return; b.quaternion.multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(x * Math.PI / 180, y * Math.PI / 180, z * Math.PI / 180))); p.object3d.updateMatrixWorld(true); }
+// two-bone IK on any chain (legs): bone names without prefix
+export function limb(p, nUp, nLo, nEnd, target, pole) {
+  const B = p.bones, U = B(nUp), L = B(nLo), H = B(nEnd);
+  p.object3d.updateMatrixWorld(true);
+  const a = U.getWorldPosition(_v()), b = L.getWorldPosition(_v()), c = H.getWorldPosition(_v());
+  const L1 = a.distanceTo(b), L2 = b.distanceTo(c), toT = target.clone().sub(a);
+  const d = M.clamp(toT.length(), Math.abs(L1 - L2) + 1e-4, L1 + L2 - 1e-4), dir = toT.normalize();
+  const pv = pole.clone().sub(a), n = pv.sub(dir.clone().multiplyScalar(pv.dot(dir))).normalize();
+  const cosA = M.clamp((L1 * L1 + d * d - L2 * L2) / (2 * L1 * d), -1, 1), sinA = Math.sqrt(1 - cosA * cosA);
+  aimBone(U, L, a.clone().addScaledVector(dir, L1 * cosA).addScaledVector(n, L1 * sinA)); aimBone(L, H, a.clone().addScaledVector(dir, d));
+  p.object3d.updateMatrixWorld(true);
+}
+// seat a person on a seat of height seatY above their feet (cross-legged-ish when footFwd is small)
+export function sit(p, seatY = 0.45, { lean = 12, footFwd = 0.5, footW = 0.13 } = {}) {
+  const H = p.bones('Hips'); p.object3d.updateMatrixWorld(true);
+  const hw = H.getWorldPosition(_v()), base = p.object3d.position.y, drop = hw.y - base - (seatY + 0.09);
+  const s = p.object3d.scale.y || 1, unit = 0.01 * (p.scale || 1) * s;
+  H.position.y -= drop / unit; H.position.z -= 0.06 / unit; p.object3d.updateMatrixWorld(true);
+  tilt(p, 'Spine', lean * 0.5, 0, 0); tilt(p, 'Spine1', lean * 0.5, 0, 0);
+  for (const [side, sx] of [['Left', 1], ['Right', -1]]) limb(p, side + 'UpLeg', side + 'Leg', side + 'Foot', onBody(p, sx * footW, 0.09, footFwd), onBody(p, sx * 0.2, 0.6, 3));
+  for (const side of ['Left', 'Right']) tilt(p, side + 'Foot', -25, 0, 0);
+}
+// open hands raised palms-up in front of the chest (k 0..1 = how far raised)
+export function palmsUp(p, k = 1, { y = 1.12, fwd = 0.34, w = 0.13 } = {}) {
+  if (k <= 0) return;
+  const h = p.height / 1.8;
+  for (const [side, sx] of [['Left', 1], ['Right', -1]]) {
+    p.object3d.updateMatrixWorld(true);
+    const h0 = p.bones(side + 'Hand').getWorldPosition(_v()), tgt = onBody(p, sx * w * h, y * h, fwd * h);
+    reach(p, side, h0.lerp(tgt, k), onBody(p, sx * 0.7, 0.7 * h, -0.4));
+    handAim(p, side, onBody(p, sx * (w + 0.02) * h, (y + 0.01) * h, (fwd + 0.25) * h), sx * -1.45 * k);
+    flatHand(p, side, 0.35);
+  }
+}

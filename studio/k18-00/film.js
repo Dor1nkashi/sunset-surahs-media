@@ -37,8 +37,8 @@ function poses() {
   C.mouth_b = { pos: [2.1, 0.42, 6.6], look: [0, 0.95, -1.5], fov: 42 };
   C.stones = { pos: [1.15, 0.42, 1.55], look: [0.35, 0.12, 0.25], fov: 30 };
   C.g_lip = { pos: [-1.15, 0.36, 1.45], look: [-1.75, 0.15, 0.3], fov: 28 };
-  C.row_a = { pos: [wickX(0) - 0.6, 0.55, LEDGE_Z + 2.2], look: [wickX(0) - 0.2, 0.2, LEDGE_Z], fov: 32 };
-  C.row_b = { pos: [wickX(NW - 1) + 0.2, 0.62, LEDGE_Z + 2.6], look: [wickX(NW - 1) - 0.7, 0.2, LEDGE_Z], fov: 34 };
+  C.row_a = { pos: [wickX(0) - 0.5, 0.48, LEDGE_Z + 1.35], look: [wickX(0) - 0.2, 0.22, LEDGE_Z], fov: 30 };
+  C.row_b = { pos: [wickX(NW - 1) + 0.2, 0.62, LEDGE_Z + 2.4], look: [wickX(NW - 1) - 0.9, 0.2, LEDGE_Z], fov: 36 };
   C.back_a = { pos: [0.25, 1.05, -0.6], look: [0.1, 0.75, 8], fov: 58 };
 }
 // the shot table (times from shotlists/k18_00.md)
@@ -105,12 +105,12 @@ M.film({
     // a palm by the back wall of garden A
     let best = null; for (const p of gard.props.palms) { const d = Math.hypot(p.position.x - (-21 - 7.5), p.position.z - (-15.8)); if (!best || d < best.d) best = { p, d }; }
     PALM = best.p.position.clone();
-    C.g_palm = { pos: [PALM.x - 2.6, PALM.y + 1.5, PALM.z + 5.2], look: [PALM.x + 0.5, PALM.y + 1.8, PALM.z - 1.5], fov: 34 };
+    C.g_palm = { pos: [PALM.x - 3.2, PALM.y + 1.4, PALM.z + 8.0], look: [PALM.x + 0.9, PALM.y + 3.0, PALM.z - 1.5], fov: 36 };
     SPOTS.palm = spot(gard.scene, [PALM.x - 2, PALM.y + 3.5, PALM.z + 3], [PALM.x + 0.15, PALM.y + 1.4, PALM.z], 0xffc070, 120, 0.09);
     GARD = W.stage(gard);
 
     const seas = await confluence({ time: 'golden' });
-    C.g_seam = { pos: [1.9, 0.5, -0.4], look: [2.4, 0.0, -14], fov: 30 };
+    C.g_seam = { pos: [1.6, 1.7, 1.2], look: [2.9, 0.0, -26], fov: 30 };
     SEAS = W.stage(seas);
     const pass = await mountain_pass_barrier({ time: 'golden', build: 1, pour: 0.3 });
     C.g_iron = { pos: [1.45, 1.4, 2.0], look: [0.55, 1.25, 0.5], fov: 30 };
@@ -144,12 +144,12 @@ M.film({
       ROWLIGHT.intensity = 6 * lit / NW; ROWLIGHT.position.x = 0.5 * rx;
       // the sun comes up over shots 5-7; it never goes back (the loop shot is again blue: the light fades with the wicks)
       const sunK = i <= 2 ? 0 : i === 3 ? 0.25 * prog(t, 5.56, 7.81) : i === 4 ? 0.25 + 0.75 * E.inOutSine(prog(t, 7.81, 9.9)) : i === 5 ? 1 : i === 9 ? 0.35 : 0;
-      WARM.intensity = 3.2 * sunK; WARM.position.set(60, 4 + 10 * sunK, 18);
+      WARM.intensity = 6 * sunK; WARM.position.set(60, 4 + 10 * sunK, 18);
       SPOTS.lip.intensity = i === 5 ? 40 : 0;
       CAVE.set.props.vista.rays.forEach((r, j) => { const c = [0.1, 0.36, 0.62, 0.86][[3, 0, 1, 2].indexOf(j)]; const kp = s.vista ? Math.exp(-(((prog(t, 3.26, 5.56) - c) / 0.16) ** 2)) : 0; r.userData.update(t, 1.6 * kp); });
-      const ex = i === 0 || i === 10 ? 2.3 : i === 2 ? 2.4 : i === 4 || i === 5 ? 1.3 : i === 9 ? 1.9 : 1.6;
+      const ex = i === 0 || i === 10 ? 2.3 : i === 2 ? 1.45 : i === 4 || i === 5 ? 1.3 : i === 9 ? 1.9 : 1.6;
       CAVE.scene.fog.density = FOG0 * (s.vista ? 0.3 : 1);
-      G.renderSet(ctx, CAVE, t, u, { cam, exposure: ex, mist: s.vista ? 0 : 1, lamp: i === 0 || i === 10 ? 0.4 : 1 });
+      G.renderSet(ctx, CAVE, t, u, { cam, exposure: ex, mist: i === 0 || i === 10 ? 1 : 0, lamp: i === 0 || i === 10 ? 0.4 : 1 });
     } else if (s.set === 'gard') G.renderSet(ctx, GARD, t, u, { cam });
     else if (s.set === 'seas') G.renderSet(ctx, SEAS, t, u, { cam, fish: 0 });
     else G.renderSet(ctx, PASS, t, u, { cam, build: 1, pour: 0.3 });
