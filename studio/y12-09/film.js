@@ -21,7 +21,7 @@ const C = {
   gate_a:  { pos: [-1.2, 1.45, 1.55], look: [DX, 1.1, DZ], fov: 46 },
   gate_b:  { pos: [-0.2, 1.4, 1.5], look: [DX, 1.05, DZ], fov: 44 },
   gate_c:  { pos: [0.6, 1.35, 1.45], look: [DX + 1, 1.0, DZ], fov: 40 },
-  two:     { pos: [0.35, 1.6, 2.4], look: [-0.25, 0.85, -0.2], fov: 62 },
+  two:     { pos: [-1.85, 1.55, -2.25], look: [0.6, 0.85, 0.7], fov: 56 },
   step_a:  { pos: [-0.6, 1.4, 0.1], look: [DX, 1.05, DZ], fov: 40 },
   step_b:  { pos: [-0.25, 1.4, 0.35], look: [DX, 1.05, DZ], fov: 38 },
   cup:     { pos: [0.75, 0.42, -0.45], look: [CUP[0], 0.08, CUP[2]], fov: 26 },
@@ -33,7 +33,7 @@ const C = {
   shaft:   { pos: [-0.1, 1.2, 1.5], look: [-2.0, 0.75, -0.1], fov: 38 },
   dust_a:  { pos: [1.0, 1.4, 1.2], look: [-0.5, 1.6, -1.3], fov: 40 },
   dust_b:  { pos: [0.75, 1.42, 0.85], look: [-0.5, 1.6, -1.3], fov: 36 },
-  hand:    { pos: [-0.55, 1.3, -1.45], look: [-1.42, 1.15, -0.62], fov: 30 },
+  hand:    { pos: [-0.4, 1.32, -1.5], look: [-1.3, 1.15, -0.72], fov: 30 },
 };
 const SHOTS = [
   { t0: 0.00, t1: 1.71, a: C.gate_a, b: C.gate_b },
@@ -78,7 +78,7 @@ M.film({
     S.add(OUT);
     // the cup (a plain clay drinking cup) on the floor in the window light
     const clay = new THREE.MeshStandardMaterial({ color: 0x9a5a36, roughness: 0.7 });
-    CUPM = W.lathe([[0.001, 0], [0.032, 0], [0.036, 0.01], [0.042, 0.075], [0.046, 0.09], [0.04, 0.09], [0.036, 0.012], [0.001, 0.012]], clay, { seg: 48 }); CUPM.position.set(...CUP); S.add(W.shadows(CUPM));
+    CUPM = W.lathe([[0.001, 0], [0.034, 0], [0.036, 0.008], [0.012, 0.016], [0.009, 0.05], [0.014, 0.06], [0.04, 0.075], [0.05, 0.11], [0.046, 0.112], [0.036, 0.08], [0.001, 0.07]], W.brassMat(), { seg: 64 }); CUPM.position.set(...CUP); S.add(W.shadows(CUPM));
     DUST = K.dustMotes({ centre: [0.1, 1.5, -1.3], size: [1.6, 2.6, 2.0], count: 500, seed: 19, px: 0.007, op: 0.6, fall: 0.01 }); S.add(DUST);
     FILL = new THREE.PointLight(0xffd8b0, 0, 6, 2); FILL.position.set(-0.8, 1.0, 0.6); S.add(FILL);
     const PP = await K.people();
@@ -151,8 +151,8 @@ function people(t, i) {
     const sp = FM.speed('walk');
     let x, z, ry = Math.PI / 2, walk = true, tt = t;
     if (i <= 1) { x = 0.9 + sp * t; z = DZ; }                              // walking out into the light
-    else if (i === 2) { x = 0.75; z = 0.55; ry = -2.0; walk = false; }       // by the door, turned to the young man
-    else if (i === 3) { const w = Math.min(t - 4.83, 1.0); x = 0.75 + 0.6 * w; z = 0.55 + 0.4 * w; ry = Math.PI / 2 - 0.6; walk = t < 5.83; }
+    else if (i === 2) { x = 0.95; z = 0.85; ry = Math.PI / 2 - 0.3; walk = false; }       // by the door, turned to the young man
+    else if (i === 3) { const w = Math.min(t - 4.83, 1.0); x = 0.95 + 0.45 * w; z = 0.85 + 0.2 * w; ry = Math.PI / 2 - 0.3; walk = t < 5.83; }
     else { const w = t - 9.16; x = 0.0 + sp * w; z = 0.4 + 0.35 * w; ry = Math.PI / 2 - 0.4; }
     FM.object3d.position.set(x, 0, z); FM.object3d.rotation.y = ry;
     FM.setPose(walk ? 'walk' : 'stand', tt);
@@ -167,7 +167,7 @@ function people(t, i) {
     if (i === 5) {
       for (const [side, sx] of [['Left', 1], ['Right', -1]]) {
         const g = Math.sin((t - 7.63) * 2.2 + (sx > 0 ? 0 : 1.3));
-        const tgt = YM.object3d.localToWorld(V(sx * (0.22 + 0.06 * g), 0.95 + 0.07 * g, 0.38));
+        const tgt = YM.object3d.localToWorld(V(sx * (0.2 + 0.05 * g), 0.74 + 0.05 * g, 0.42));
         K.reach(YM, side, tgt, YM.object3d.localToWorld(V(sx * 0.6, 0.4, -0.2)));
         K.flatHand(YM, side, 0.4); K.handAim(YM, side, tgt.clone().add(YM.object3d.localToWorld(V(sx * 0.05, 0.08, 0.1)).sub(YM.object3d.localToWorld(V(0, 0, 0)))), 0);
       }
