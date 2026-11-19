@@ -20,7 +20,7 @@ const G0 = (x, z, dy) => [x, hy(x, z) + dy, z];
 const toward = (pos, tx, tz, el, d = 30) => { const dx = tx - pos[0], dz = tz - pos[2], l = Math.hypot(dx, dz); return [pos[0] + dx / l * d, pos[1] + Math.tan(el * Math.PI / 180) * d, pos[2] + dz / l * d]; };
 // the sun: just under the eastern ridge at 0, clear of it by ~2 s, about 9 degrees up by the end
 const SUN_AZ = new THREE.Vector3(0.52, 0, -0.85).normalize();
-const sunEl = (t) => (1.2 + 8.5 * sm(t, 0, D)) * Math.PI / 180;
+const sunEl = (t) => (5.5 + 8.5 * sm(t, 0, D)) * Math.PI / 180;   // the eastern ridge stands ~5 degrees high
 const sunDir = (t) => { const e = sunEl(t); return V3(SUN_AZ.x * Math.cos(e), Math.sin(e), SUN_AZ.z * Math.cos(e)); };
 const LX = 3.9, LZ = 1.6;          // the lamp ledge and shirt line, in the house courtyard
 
@@ -66,7 +66,7 @@ async function build() {
 }
 
 function light(t) {
-  const sky = SET.props.sky.userData.u, d = sunDir(t), e = sunEl(t), k = sstep(0.0, 0.17, e);
+  const sky = SET.props.sky.userData.u, d = sunDir(t), e = sunEl(t), k = sstep(0.09, 0.24, e);
   const dawn = 0.55 + 0.45 * k;
   sky.sunD.value.copy(d); sky.sunC.value.setRGB(1.0 * dawn, 0.62 * dawn, 0.25 * dawn); sky.glow.value = 1.0; sky.sunDisc.value = 0.99993;
   sky.zen.value.setRGB(lerp(0.016, 0.06, k * 0.6), lerp(0.04, 0.12, k * 0.6), lerp(0.12, 0.28, k * 0.6));
