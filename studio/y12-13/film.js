@@ -9,9 +9,9 @@ import { canaan_hills } from '../lib_shared/sets_yusuf.js';
 import { captions, loadLines } from '../lib_shared/captions.js';
 import * as GR from '../lib_shared/growth.js';
 import * as K from '../y12-12/kit.js';
-const { THREE, clamp, lerp } = W;
+const { THREE, clamp, lerp, sstep } = W;
 const V3 = K.V3, D = 34.17;
-const DBG = { bisect: 1 };
+const DBG = {};
 const OBJ = {};
 
 let SET, ST, CAP, hAt, h0, P = {}, TREE, SHAFT, MOTES, JAR = {}, SKIN, DROPS = [], SHOTS;
@@ -54,6 +54,13 @@ async function build() {
   ST = W.stage(SET); hAt = SET.props.terrain.heightAt; h0 = SET.props.house.position.y; OBJ.n0 = SET.group.children.length;
   for (const c of SET.group.children) if (/^scatter:|ground_cover/.test(c.name)) K.clearScatter(c, 1.0, 1.2, 8.5);
   const g = SET.group, pl = await K.mats.planks();
+  // the packed-earth courtyard floor (a PBR ground laid over the terrain: the terrain shader goes black from cameras under the awning)
+  { const fm = await W.pbr('brown_mud_dry', { tile: 2.2, res: 2048, tint: 0xe8d6c0 }), fw = 16, fd = 14, cx = 1.0, cz = 2.0;
+    const fg = new THREE.PlaneGeometry(fw, fd, 160, 140).rotateX(-Math.PI / 2), fp = fg.attributes.position, nn = W.noise2(19);
+    for (let i = 0; i < fp.count; i++) { const x = fp.getX(i) + cx, z = fp.getZ(i) + cz, e = Math.min(fw / 2 - Math.abs(x - cx), fd / 2 - Math.abs(z - cz));
+      fp.setXYZ(i, x, hAt(x, z) + 0.018 + 0.006 * nn(x * 3, z * 3) - 0.08 * (1 - sstep(0, 1.2, e)), z); }
+    fg.computeVertexNormals(); W.boxUV(fg);
+    const fl = new THREE.Mesh(fg, fm); fl.receiveShadow = true; g.add(fl); }
   // the reed awning: four posts, two beams, a reed mat with one gap
   const reed = await W.pbr('reed_roof_03', { tile: 1.4, res: 1024, side: THREE.DoubleSide });
   for (const [x, z] of [[2.0, 2.05], [4.05, 2.05], [2.0, -0.5], [4.05, -0.5]]) { const p = W.rbox(0.11, 2.42, 0.11, pl, { r: 0.02 }); p.position.set(x, h0, z); g.add(W.shadows(p)); }
@@ -148,7 +155,7 @@ function shots() {
     // 2 low behind the seated father: he lifts the edge of his head-cloth to his face; shoulders still
     { t0: 2.26, t1: 3.97, a: C([YQ[0] + 0.35, y + 0.72, YQ[1] - 1.05], [YQ[0], y + 0.95, YQ[1] + 0.6], 40), b: C([YQ[0] + 0.3, y + 0.72, YQ[1] - 0.9], [YQ[0], y + 0.95, YQ[1] + 0.6], 38), s(t) { yaqub(t, { face: sm(t, 2.4, 3.4) }); } },
     // 3 the years: locked wide; the patch races across wall and floor, the sapling grows, the father never moves
-    { t0: 3.97, t1: 6.73, a: C([-1.7, y + 1.75, 3.3], [2.4, y + 0.9, 0.4], 50), b: null, s(t) { yaqub(t); } },
+    { t0: 3.97, t1: 6.73, a: C([-1.2, y + 1.75, 3.6], [2.4, y + 0.9, 0.4], 50), b: null, s(t) { yaqub(t); } },
     // 4 the sons at the gate, one with a raised arm (seen past the father's shoulder)
     { t0: 6.73, t1: 8.47, a: C([YQ[0] + 0.45, y + 1.15, YQ[1] - 0.7], [0.4, y + 1.3, 4.6], 40), b: C([YQ[0] + 0.42, y + 1.15, YQ[1] - 0.62], [0.4, y + 1.3, 4.6], 39), s(t) {
       yaqub(t); sons(t, [[-0.3, 3.9, Math.PI + 0.3, 'stand'], [0.5, 4.2, Math.PI - 0.1, 'agree'], [1.3, 4.0, Math.PI - 0.4, 'headShake'], [-1.1, 4.4, Math.PI + 0.5, 'stand'], [0.1, 5.0, Math.PI, 'stand']]);
