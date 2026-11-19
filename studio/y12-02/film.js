@@ -142,6 +142,7 @@ M.film({
       spark: { pos: G0(FX + 1.0, FZ + 1.2, 1.1), look: [FX, F[1] + 0.12, FZ], fov: fv(25) },
     };
     K.wellP = [wellP.x, wellP.y, wellP.z];
+    { const rim = new THREE.DirectionalLight(0x9ab4ff, 0.8); rim.position.set(FX - 8, FY + 10, FZ - 9); rim.target.position.set(FX, FY, FZ); sc.add(rim, rim.target); }
     { const a = K.cams.well.pos, b = K.wellP; for (const o of P.olives) { const ox = o.position.x - a[0], oz = o.position.z - a[2], dx = b[0] - a[0], dz = b[2] - a[2], L = dx * dx + dz * dz;
       const k = clamp((ox * dx + oz * dz) / L), ex = ox - k * dx, ez = oz - k * dz; if (Math.hypot(ex, ez) < 3.5 && k < 0.9) o.visible = false; } }
     HILLS.update(0, 0, {}); G.R.compile(HILLS.scene, HILLS.camera);

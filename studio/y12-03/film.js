@@ -110,7 +110,7 @@ M.film({
       gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.35, 'rgba(255,255,255,0.35)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); cx.fillStyle = gr; cx.fillRect(0, 0, 64, 64);
       const m = new THREE.PointsMaterial({ color: 0xffe8c0, size: 0.009, map: new THREE.CanvasTexture(cv), transparent: true, opacity: 0.5, depthWrite: false, blending: THREE.AdditiveBlending });
       const pts = new THREE.Points(g, m); pts.frustumCulled = false; sc.add(pts);
-      K.motes = { pts, m, upd: (t) => { base.forEach(([x, y, z, ph, v], i) => pos.set([x + 0.08 * Math.sin(t * 0.3 + ph), y + ((v * t + ph) % 1.2) - 0.6, z + 0.08 * Math.cos(t * 0.27 + ph)], i * 3)); g.attributes.position.needsUpdate = true; } }; }
+      K.motes = { pts, m, upd: (t) => { base.forEach(([x, y, z, ph, v], i) => pos.set([x + 0.08 * Math.sin(t * 0.3 + ph), Math.max(K.WY + 0.08, y + ((v * t + ph) % 1.2) - 0.6), z + 0.08 * Math.cos(t * 0.27 + ph)], i * 3)); g.attributes.position.needsUpdate = true; } }; }
     // ---- water rings: grit at 13.3, the droplet at 23.35; a seam drop falls from the wall
     K.rings = rings(R0, [13.3, 23.35]); K.rings.position.y = WY + 0.004; sc.add(K.rings);
     K.dropSeam = V3(-0.62, h0 - 3.4, 0.45);
@@ -200,7 +200,7 @@ M.film({
           const pole = o.position.clone().add(V3(0, 0.2, 0)).addScaledVector(fw, -0.3); reach(p, 'Right', h1, pole); reach(p, 'Left', h2, pole);
           const hw = p.bones('RightHand').getWorldPosition(_v()), top = V3(0, K.h0 + 1.86, 0), c = K.pull[i], d = top.clone().sub(hw);
           c.visible = t < 6.45; c.position.copy(hw).addScaledVector(d, 0.5); c.scale.set(1, d.length(), 1); c.quaternion.setFromUnitVectors(V3(0, 1, 0), d.normalize()); } }
-      else { const tw = t - 6.5 - i * 0.12, sp = p.speed ? p.speed('walk') : 1.2, d = sp * tw, sx = b.x >= 0 ? 1 : -1, dx = sx * 0.55, dz = -1, n = Math.hypot(dx, dz);
+      else { const tw = t - 6.5 - i * 0.12, sp = clamp(p.speed ? p.speed('walk') : 1.2, 0.7, 1.4), d = sp * tw, sx = b.x >= 0 ? 1 : -1, dx = sx * 0.55, dz = -1, n = Math.hypot(dx, dz);
         // walk out round the well and on up the slope (-z), backs to the camera
         const x = b.x + Math.min(d, 1.6) * sx * 0.9 + Math.max(0, d - 1.6) * dx / n, z = b.z - d * 0.8;
         p.setPose('walk', tw + i * 0.4); o.rotation.y = Math.atan2(d < 1.6 ? sx * 0.9 : dx / n, d < 1.6 ? -0.8 : dz / n); o.position.set(x, K.hy(x, z), z); }

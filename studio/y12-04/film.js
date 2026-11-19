@@ -132,12 +132,14 @@ M.film({
       staff: { pos: [0.35, h0 + 1.2, DZ + 1.9], look: [-0.6, h0 + 0.75, DZ + 0.3], fov: fv(40) },
       skyA: { pos: [-0.2, h0 + 1.25, DZ + 2.2], look: [-0.6, h0 + 1.8, DZ + 0.3], fov: fv(46) },
       skyB: { pos: [-0.2, h0 + 1.25, DZ + 2.2], look: sky([-0.2, h0 + 1.25, DZ + 2.2]), fov: fv(46) },
-      court: { pos: [2.6, h0 + 1.45, DZ + 3.6], look: [0.4, h0 + 1.3, DZ + 0.2], fov: fv(42) },
+      court: { pos: [2.3, h0 + 1.5, DZ + 3.0], look: [0.6, h0 + 1.3, DZ + 0.3], fov: fv(46) },
       step: { pos: [0.75, h0 + 0.85, DZ + 1.35], look: [0.25, h0 + 0.05, DZ + 0.42], fov: fv(34) },
       stepB: { pos: [0.6, h0 + 0.68, DZ + 1.05], look: [0.25, h0 + 0.05, DZ + 0.42], fov: fv(32) },
       flame: { pos: [1.05 + 0.08, h0 + 1.5, DZ + 0.72], look: L, fov: fv(26) },
     };
     K.door = P.door; P.door.leaf.rotation.y = -0.5;
+    // cool moonlight rim from behind-left so the figures read against the dark hills, and a faint sky fill
+    const rim = new THREE.DirectionalLight(0x9ab4ff, 0.9); rim.position.set(-6, h0 + 9, DZ - 10); rim.target.position.set(0, h0, DZ + 2); sc.add(rim, rim.target);
     P.fire.visible = false;                                                    // no fire tonight: lamp and moon only
     HILLS.update(0, 0, {}); G.R.compile(HILLS.scene, HILLS.camera);
     console.error(`[y12-04] init ${((performance.now() - T0) / 1000).toFixed(1)} s`);
