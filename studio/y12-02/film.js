@@ -102,7 +102,7 @@ M.film({
     const EL = new THREE.PointLight(0xff7a30, 2.5, 9, 1.6); EL.position.set(FX, FY + 0.5, FZ); sc.add(EL); K.EL = EL;
     // ---- the father's lit window on the slope (the house front faces +z)
     const H = P.house;
-    const pane = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.34), new THREE.MeshBasicMaterial({ color: new THREE.Color(1.0, 0.5, 0.16), toneMapped: false }));
+    const pane = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.34), new THREE.MeshBasicMaterial({ color: new THREE.Color(0.95, 0.36, 0.07), toneMapped: false }));
     pane.position.set(3.83, 1.95, -0.85); pane.rotation.y = Math.PI / 2; H.add(pane);                      // a small window in the side wall that faces the pen
     const dpl = await W.pbr('old_planks_02', { tile: 1.6, tint: 0x8a6a4e, res: 1024 });
     for (const [y, h] of [[1.68, 0.07], [2.18, 0.07]]) { const fr = W.rbox(0.09, h, 0.7, dpl, { r: 0.015 }); fr.position.set(3.86, y, -0.85); H.add(fr); }
@@ -129,12 +129,12 @@ M.film({
       fireA: { pos: G0(FX + 0.6, FZ + 4.4, 0.75), look: [FX - 0.3, F[1] + 0.8, FZ - 1], fov: fv(46) },
       fireB: { pos: G0(FX + 0.57, FZ + 4.25, 0.75), look: [FX - 0.3, F[1] + 0.8, FZ - 1], fov: fv(45) },
       rackA: { pos: G0(11.6, -1.2, 1.3), look: [FX, F[1] + 0.4, FZ], fov: fv(30) },
-      rackB: { pos: G0(11.6, -1.2, 1.3), look: K.win, fov: fv(24) },
+      rackB: { pos: G0(11.6, -1.2, 1.3), look: K.win, fov: fv(40) },
       ringA: { pos: G0(FX + 5.6, FZ + 2.0, 2.2), look: [FX, F[1] + 0.7, FZ], fov: fv(48) },
       ringB: { pos: G0(FX + 4.6, FZ + 3.8, 2.2), look: [FX, F[1] + 0.7, FZ], fov: fv(48) },
       wallA: { pos: G0(12.6, -2.6, 1.6), look: [FX, F[1] + 0.6, FZ], fov: fv(42) },
       wallB: { pos: G0(10.4, -0.9, 1.6), look: [FX, F[1] + 0.6, FZ], fov: fv(42) },
-      winA: { pos: G0(11.6, -1.2, 1.5), look: K.win, fov: fv(26) },
+      winA: { pos: G0(11.6, -1.2, 1.5), look: K.win, fov: fv(40) },
       winB: { pos: G0(11.6, -1.2, 1.5), look: [FX - 0.4, F[1] + 0.5, FZ - 0.2], fov: fv(46) },
       listen: { pos: G0(10.2, -0.6, 1.75), look: [FX - 0.2, F[1] + 0.75, FZ - 0.5], fov: fv(46) },
       leanA: { pos: G0(10.0, -0.9, 1.7), look: [FX - 0.2, F[1] + 0.7, FZ - 0.5], fov: fv(44) },

@@ -1,0 +1,5 @@
+# y12-02 critique log (hook, phone readability, motion, variety, world logic, quality)
+Round 1: 6, 7, 6, 6, 5, 5. Worst: dusk read as broad daylight; flame a white torch; ember close-ups showed faceted low-poly blobs. Fixed: after-sunset sky and moon-only grade, softer flame, smooth high-detail coals.
+Round 2: 7, 7, 6, 7, 6, 6. Worst: cameras sat inside the sheep-pen wall (brown blocks); ring too tight (figures overlap); olive tree blocked the well. Fixed: cameras outside the ring, ring radius 2.25 m, line to the well cleared.
+Round 3: 8, 8, 7, 8, 7, 7. Worst: window a white rectangle; spark shot inside the ring stones; coals read as pebbles. Fixed: dim warm window, true-scale ember framing, per-coal hue.
+Round 4: 8, 8, 8, 8, 8, 8. Fixed: coals with glowing cracks in an ash crust (embers die edge-inward, one stays lit), moonlight rim on the brothers, rack/window from beyond the ring, deeper orange window. Remaining: window shot is mostly house wall; brothers' kneel pose is static apart from the head turn and the pointing arm.
