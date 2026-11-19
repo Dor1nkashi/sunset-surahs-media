@@ -70,6 +70,7 @@ M.film({
   images: { seal: 'assets/seal.png' },
   samples: 1,
   async init() {
+    const T0 = performance.now();
     await G.initGL({ exposure: 1.0 }); W.init(G.R);
     HILLS = W.stage(await canaan_hills({ time: 'dusk' }));
     const fixT = (x) => x.replace(/ʿ/g, '‘').replace(/ʾ/g, '’').replace(/ṣ/g, 's').replace(/ḥ/g, 'h');
@@ -107,8 +108,9 @@ M.film({
     for (let i = 0; i < 10; i++) {
       const apart = i === 9, a = (i / 9.6) * Math.PI * 2 + 0.55, rad = apart ? 2.75 : 1.65;
       const x = FX + Math.cos(a) * rad, z = FZ + Math.sin(a) * rad;
-      const p = PP.make({ kind: 'man', outfit: i % 3 === 0 ? 'traveller' : 'thobe', palette: { robe: PAL[i][0], cloak: PAL[i][1], wrap: '#d8ccb4', trousers: '#9a8a70', sash: '#6a4a2a' },
-        beard: i === 2 ? 'full' : ['short', 'full', 'short', 'none'][i % 4], headwear: i % 4 === 3 ? 'wrap' : 'keffiyeh', seed: 41 + (i % 4), detail: 0.6, height: 0.95 + 0.07 * Math.sin(i * 2.7) });
+      // three body builds (geometry is cached per build), ten palettes and heights
+      const T = [{ outfit: 'traveller', beard: 'full', headwear: 'keffiyeh', seed: 41 }, { outfit: 'thobe', beard: 'short', headwear: 'keffiyeh', seed: 42 }, { outfit: 'thobe', beard: 'full', headwear: 'wrap', seed: 43 }][i % 3];
+      const p = PP.make({ kind: 'man', ...T, palette: { robe: PAL[i][0], cloak: PAL[i][1], wrap: '#d8ccb4', trousers: '#9a8a70', sash: '#6a4a2a' }, detail: 0.6, height: 0.95 + 0.07 * Math.sin(i * 2.7) });
       p.object3d.position.set(x, hy(x, z) - 0.02, z); p.object3d.rotation.y = Math.atan2(FX - x, FZ - z); sc.add(p.object3d);
       K.bros.push({ p, a, x, z, apart });
     }
@@ -137,6 +139,7 @@ M.film({
     };
     K.wellP = [wellP.x, wellP.y, wellP.z];
     HILLS.update(0, 0, {}); G.R.compile(HILLS.scene, HILLS.camera);
+    console.error(`[y12-02] init ${((performance.now() - T0) / 1000).toFixed(1)} s`);
   },
   draw(ctx, u, t, IMG) {
     ctx.fillStyle = '#000'; ctx.fillRect(0, 0, FW, FH);
