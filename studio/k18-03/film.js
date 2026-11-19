@@ -154,7 +154,7 @@ M.film({
     if (s.who === 'hand') {
       // over his left shoulder, from behind: the hand, the sleeve, the cord (never the face)
       const hp = K.handPos(MAN, 'Left'), k = (s.ease || E.linear)(p);
-      const near = { 7: [0.2, 1.62, -0.28, 32], 8: [0.17, 1.58, -0.18, 28], 11: [0.24, 1.66, -0.36, 34], 12: [0.14, 1.52, -0.08, 24] }[i] || [0.2, 1.62, -0.3, 32];
+      const near = { 7: [0.42, 1.92, -0.62, 30], 8: [0.4, 1.88, -0.55, 26], 11: [0.45, 1.95, -0.68, 32], 12: [0.38, 1.82, -0.45, 22] }[i] || [0.42, 1.92, -0.62, 30];
       const pos = K.onBody(MAN, near[0] - 0.02 * k, near[1] - 0.03 * k, near[2] + 0.05 * k);
       cam = { pos: pos.toArray(), look: hp.toArray(), fov: K.lensFov(near[3]) };
     }
