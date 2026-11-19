@@ -88,7 +88,7 @@ async function build() {
   JAR.ringTex = G.canvasTexture(256, 256);
   JAR.rings = new THREE.Mesh(new THREE.CircleGeometry(0.118, 48).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: JAR.ringTex, transparent: true, depthWrite: false, opacity: 0.8 }));
   JAR.rings.position.copy(JAR.water.position); g.add(JAR.rings); OBJ.rings = JAR.rings; OBJ.water = JAR.water; OBJ.jar = jar;
-  const hs = await K.mats.dyed(0x5a3a26);
+  const hs = await K.mats.dyed(0x9a7048);
   SKIN = W.sack(hs, { w: 0.34, h: 0.44, seed: 9, tie: true }); SKIN.rotation.z = Math.PI; SKIN.position.set(JARP[0], h0 + 2.2, JARP[1] - 0.02); g.add(SKIN);
   g.add(W.rope([V3(JARP[0], h0 + 2.42, JARP[1] - 0.06), V3(JARP[0], h0 + 2.36, JARP[1] - 0.03), V3(JARP[0], h0 + 2.24, JARP[1] - 0.02)], 0.008));
   const dm = new THREE.MeshStandardMaterial({ color: 0xbfd6de, roughness: 0.03, metalness: 0.1, transparent: true, opacity: 0.85, envMapIntensity: 2.5 });
@@ -164,7 +164,7 @@ function shots() {
       const b = P.bro[1]; K.reach(b, 'Right', K.onBody(b, -0.25, 1.95, 0.45), K.onBody(b, -0.9, 1.0, -0.4), sm(t, 6.8, 7.4));
     } },
     // 5 the father lifts one hand slowly
-    { t0: 8.47, t1: 9.48, a: C([YQ[0] - 0.55, y + 0.95, YQ[1] - 0.55], [YQ[0] - 0.1, y + 0.85, YQ[1] + 0.35], 36), b: C([YQ[0] - 0.5, y + 0.95, YQ[1] - 0.48], [YQ[0] - 0.1, y + 0.88, YQ[1] + 0.35], 35), s(t) {
+    { t0: 8.47, t1: 9.48, a: C([YQ[0] - 1.25, y + 1.25, YQ[1] - 0.2], [YQ[0] - 0.1, y + 0.95, YQ[1] + 0.35], 38), b: C([YQ[0] - 1.18, y + 1.25, YQ[1] - 0.15], [YQ[0] - 0.1, y + 0.98, YQ[1] + 0.35], 37), s(t) {
       const p = P.yq; yaqub(t); const e = sm(t, 8.47, 9.4); K.reach(p, 'Right', K.onBody(p, -0.16, 0.56 + 0.5 * e, 0.36 + 0.12 * e), K.onBody(p, -0.6, 0.6, -0.4));
     } },
     // 6 close on the folded hands in the lap
@@ -181,7 +181,7 @@ function shots() {
       sons(t, [[-0.3, 4.2 + w(0), 0.05, 'walk'], [0.5, 4.5 + w(1), -0.05, 'walk'], [1.2, 4.1 + w(2), 0, 'walk'], [-1.0, 4.6 + w(3), 0.1, 'walk'], [0.2, 5.3 + w(4), 0, 'walk']]);
     } },
     // 10 the patch of sun crawls across the stones toward him
-    { t0: 18.9, t1: 21.89, a: C([5.9, y + 1.0, 0.2], [3.5, y + 0.15, 1.9], 44), b: C([5.7, y + 0.95, 0.35], [3.4, y + 0.18, 1.8], 42), s(t) { yaqub(t, { fold: true }); } },
+    { t0: 18.9, t1: 21.89, a: C([4.75, y + 0.95, 3.75], [3.15, y + 0.3, 1.15], 46), b: C([4.65, y + 0.9, 3.6], [3.1, y + 0.32, 1.1], 44), s(t) { yaqub(t, { fold: true }); } },
     // 11 olive leaves turn in the rising wind (the old olive by the yard)
     { t0: 21.89, t1: 24.7, a: C([7.4, y + 2.0, 5.6], [9.5, hAt(9.5, 3.5) + 4.2, 3.5], 40), b: C([7.45, y + 2.0, 5.55], [9.5, hAt(9.5, 3.5) + 4.3, 3.5], 39.5), s(t) { yaqub(t, { fold: true }); } },
     // 12 the water jar fills, drop by drop, from the hanging waterskin
