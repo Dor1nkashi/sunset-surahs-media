@@ -42,7 +42,7 @@ function shot(t) {
 }
 function orbitCam(t) {
   // one continuous orbit (shots 6-9): from behind (+z) round his left to the front-left; knee height rising to the belt
-  const k = prog(t, 10.69, 21.75), a = 0.1 + 1.25 * k, R = 3.2 - 0.6 * k;
+  const k = prog(t, 10.69, 21.75), a = 0.1 + 1.95 * k, R = 2.8;
   const y = hy(OR[0], OR[1]) + 0.5 + 0.35 * E.inOutSine(prog(t, 15.5, 19.5));
   const pos = [OR[0] - Math.sin(a) * R, y, OR[1] + Math.cos(a) * R];
   return { pos, look: [OR[0], hy(OR[0], OR[1]) + 0.72, OR[1]], fov: K.lensFov(30) };
