@@ -24,7 +24,7 @@ const GAP = [3.55, 2.36, 2.05];               // the hole in the reed awning (wo
 const YQ = [3.0, 0.85];                      // Yaʿqūb's bench
 const STAFF = [[3.25, -0.33], [3.42, 1.72, -0.55]];
 const JARP = [1.55, -0.3];
-const TREEP = [0.15, 0.9];
+const TREEP = [0.9, 1.95];
 
 // ------------------------------------------------------------------ sun: always aimed through the awning gap at a target
 const staffMid = () => V3(3.33, h0 + 1.0, -0.44);
@@ -52,6 +52,8 @@ function aimSun(t) {
 async function build() {
   SET = await canaan_hills({ time: 'day', olives: 12 });
   ST = W.stage(SET); hAt = SET.props.terrain.heightAt; h0 = SET.props.house.position.y; OBJ.n0 = SET.group.children.length;
+  // the HDRI's own sun lights everything without shadows: turn the image light down so the awning's shade (and the patch) read
+  SET.scene.environmentIntensity *= 0.32; SET.atmo.sun.intensity = 5.2; if (SET.atmo.hemi) SET.atmo.hemi.intensity *= 0.4;
   for (const c of SET.group.children) if (/^scatter:|ground_cover/.test(c.name)) K.clearScatter(c, 1.0, 1.2, 8.5);
   const g = SET.group, pl = await K.mats.planks();
   // the packed-earth courtyard floor (a PBR ground laid over the terrain: the terrain shader goes black from cameras under the awning)
@@ -183,7 +185,7 @@ function shots() {
     // 11 olive leaves turn in the rising wind (the old olive by the yard)
     { t0: 21.89, t1: 24.7, a: C([7.4, y + 2.0, 5.6], [9.5, hAt(9.5, 3.5) + 4.2, 3.5], 40), b: C([7.45, y + 2.0, 5.55], [9.5, hAt(9.5, 3.5) + 4.3, 3.5], 39.5), s(t) { yaqub(t, { fold: true }); } },
     // 12 the water jar fills, drop by drop, from the hanging waterskin
-    { t0: 24.7, t1: 26.94, a: C([JARP[0] + 0.75, JAR.top + 0.25, JARP[1] + 1.3], jarTop.clone().add(V3(0, 0.55, 0)).toArray(), 40), b: C([JARP[0] + 0.7, JAR.top + 0.25, JARP[1] + 1.2], jarTop.clone().add(V3(0, 0.5, 0)).toArray(), 38), s(t) { yaqub(t, { fold: true }); } },
+    { t0: 24.7, t1: 26.94, a: C([JARP[0] + 0.85, JAR.top + 0.3, JARP[1] + 1.55], jarTop.clone().add(V3(0, 0.72, 0)).toArray(), 56), b: C([JARP[0] + 0.8, JAR.top + 0.3, JARP[1] + 1.45], jarTop.clone().add(V3(0, 0.7, 0)).toArray(), 54), s(t) { yaqub(t, { fold: true }); } },
     // 13 the staff in the light, slow push
     { t0: 26.94, t1: 28.9, a: C([3.7, y + 1.15, 0.9], [sm0.x, sm0.y + 0.2, sm0.z], 36), b: C([3.6, y + 1.12, 0.6], [sm0.x, sm0.y + 0.2, sm0.z], 32), s(t) { yaqub(t, { fold: false }); } },
     // 14 his hand opens slowly on his knee
@@ -238,7 +240,7 @@ M.film({
       if (k === 7) cam = C([-6, h0 + 1.75, 8], [2.4, h0 + 0.9, 0.4], 50);
     }
     if (OVER) cam = C([3.0, h0 + 9, 4.5], [3.0, h0, 0.8], 50);
-    G.renderSet(ctx, ST, t, u, { cam, exposure: 0.72 });
+    G.renderSet(ctx, ST, t, u, { cam, exposure: 0.95 });
     K.vignette(ctx, 0.3);
     CAP.draw(ctx, t);
     K.drawSeal(ctx, IMG.seal, t, 32.6, D);
