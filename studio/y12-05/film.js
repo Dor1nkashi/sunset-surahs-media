@@ -103,28 +103,28 @@ M.film({
     // ---------------- cameras
     const PW = K.panW, PL = [-2.4 - 0.29, PW.y, -21];
     K.cams = {
-      coinsA: { pos: [-1.6, 0.99, -20.3], look: [-2.35, 0.84, -20.9], fov: fv(34) },
-      coinsB: { pos: [-1.63, 0.98, -20.33], look: [-2.35, 0.84, -20.9], fov: fv(33) },
+      coinsA: { pos: [-1.82, 1.0, -20.3], look: [-2.07, 0.806, -20.63], fov: fv(24) },
+      coinsB: { pos: [-1.84, 0.99, -20.33], look: [-2.07, 0.806, -20.63], fov: fv(23) },
       wellA: { pos: [WP.x + 5.5, rhy(WP.x + 5.5, WP.z + 6.5) + 1.6, WP.z + 6.5], look: [WP.x, WP.y + 1.0, WP.z], fov: fv(48) },
       wellB: { pos: [WP.x + 4.6, rhy(WP.x + 4.6, WP.z + 5.4) + 1.5, WP.z + 5.4], look: [WP.x, WP.y + 1.0, WP.z], fov: fv(46) },
       haulA: { pos: [WP.x + 1.95, K.rimY + 0.8, WP.z + 1.65], look: [WP.x + 0.1, K.rimY + 0.15, WP.z + 0.1], fov: fv(42) },
       haulB: { pos: [WP.x + 1.85, K.rimY + 0.75, WP.z + 1.55], look: [WP.x + 0.1, K.rimY + 0.35, WP.z + 0.1], fov: fv(40) },
-      call: { pos: [WP.x + 2.7, K.rimY + 0.5, WP.z + 2.0], look: [WP.x + 0.5, K.rimY + 0.8, WP.z + 0.3], fov: fv(44) },
+      call: { pos: [WP.x + 3.8, K.rimY + 0.9, WP.z + 3.2], look: [WP.x + 0.4, K.rimY + 0.6, WP.z + 0.2], fov: fv(46) },
       laneA: { pos: [1.4, 1.6, 2.0], look: [-0.6, 1.2, -12], fov: fv(46) },
       laneB: { pos: [-0.2, 1.6, 1.0], look: [-1.4, 1.2, -12], fov: fv(46) },
-      count: { pos: [-1.35, 1.25, -20.45], look: [-2.45, 1.0, -21.05], fov: fv(36) },
-      scoopA: { pos: [-1.6, 1.24, -20.6], look: [PW.x - 0.05, PW.y + 0.02, PW.z], fov: fv(32) },
-      scoopB: { pos: [-1.65, 1.22, -20.64], look: [PW.x - 0.05, PW.y + 0.02, PW.z], fov: fv(31) },
+      count: { pos: [-2.0, 1.32, -20.25], look: [PW.x, PW.y + 0.02, PW.z], fov: fv(34) },
+      scoopA: { pos: [-2.0, 1.25, -20.45], look: [PW.x, PW.y + 0.02, PW.z], fov: fv(30) },
+      scoopB: { pos: [-2.02, 1.23, -20.5], look: [PW.x, PW.y + 0.02, PW.z], fov: fv(29) },
       blockA: { pos: [2.6, 0.45, -21.8], look: [0.3, 0.9, -26], fov: fv(44) },
       blockB: { pos: [2.1, 0.5, -22.6], look: [0.3, 0.9, -26], fov: fv(42) },
       craneA: { pos: [2.1, 1.0, -22.6], look: [0.3, 0.8, -26], fov: fv(44) },
       craneB: { pos: [4, 13, -14], look: [0.3, 0, -24], fov: fv(48) },
       patch: { pos: [3.0, 2.6, -21.5], look: [0.4, 0.75, -25.9], fov: fv(34) },
-      swing: { pos: [-1.3, 1.3, -20.5], look: [-2.45, 1.05, -21.05], fov: fv(38) },
-      drop: { pos: [-1.55, 1.08, -20.3], look: [-2.2, 0.88, -20.85], fov: fv(36) },
+      swing: { pos: [-2.25, 1.42, -19.95], look: [-2.4, 1.12, -21], fov: fv(40) },
+      drop: { pos: [-1.85, 1.0, -20.28], look: [-2.0, 0.81, -20.6], fov: fv(28) },
       widenA: { pos: [1.8, 1.0, -23.4], look: [0.3, 0.7, -26], fov: fv(36) },
       widenB: { pos: [3.2, 1.7, -20.5], look: [0.3, 0.7, -26], fov: fv(46) },
-      empty: { pos: [-2.3, 1.42, -20.55], look: [PL[0], PL[1] + 0.02, PL[2]], fov: fv(32) },
+      empty: { pos: [-2.55, 1.36, -20.55], look: [PL[0], PL[1] + 0.02, PL[2]], fov: fv(30) },
     };
     for (const s of [ROAD, MKT]) { s.update(0, 0, {}); G.R.compile(s.scene, s.camera); }
     console.error(`[y12-05] init ${((performance.now() - T0) / 1000).toFixed(1)} s`);
