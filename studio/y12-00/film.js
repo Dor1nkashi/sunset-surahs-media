@@ -94,7 +94,8 @@ M.film({
     K.h0 = hp.y; K.hx = hp.x; K.hz = hp.z; K.hy = hy;
     K.LX = 12; K.LZ = 15; K.LRY = -0.55;   // ledge on the terrace, facing back toward the house, the eastern glow beyond it
     // the lamp terrace is kept clear of olive trees (for every shot, so the world never changes)
-    for (const o of P.olives) if (Math.hypot(o.position.x - K.LX, o.position.z - K.LZ) < 10) o.visible = false;
+    for (const o of P.olives) { const dx = o.position.x - K.LX, dz = o.position.z - K.LZ, d = Math.hypot(dx, dz), c = (dx * 0.52 - dz * 0.85) / d;
+      if (d < 10 || (d < 60 && c > 0.75)) o.visible = false; }
     E11 = elevenStars(THREE, { size: 17 }); HILLS.scene.add(E11);
     windowGlow();
     await buildLamps(hy);
@@ -111,14 +112,14 @@ M.film({
     K.cams = {
       wideA, wideB: { ...wideA, pos: G0(10.1, 20.6, 1.5), look: toward(G0(10.1, 20.6, 1.5), -3, -10, PORT ? 13 : 9) },
       tiltA: { pos: G0(9.8, 19.8, 1.5), look: toward(G0(9.8, 19.8, 1.5), -3, -10, PORT ? 14 : 10), fov: fv(48) },
-      tiltB: { pos: G0(9.8, 19.8, 1.5), look: toward(G0(9.8, 19.8, 1.5), -4, -12, PORT ? 33 : 30), fov: fv(48) },
-      skyHold: { pos: G0(6, 14, 1.6), look: toward(G0(6, 14, 1.6), 0.5, -20, PORT ? 24 : 26), fov: fv(52) },
+      tiltB: { pos: G0(9.8, 19.8, 1.5), look: toward(G0(9.8, 19.8, 1.5), -4, -12, PORT ? 33 : 37), fov: fv(48) },
+      skyHold: { pos: G0(6, 14, 1.6), look: toward(G0(6, 14, 1.6), 0.5, -20, PORT ? 24 : 31), fov: fv(52) },
       craneA: { pos: G0(-24.5, 12.5, 9), look: ((p) => ELEVEN_C.map((v, i) => p[i] + v * 40))(G0(-24.5, 12.5, 9)), fov: fv(46) },
       craneB: { pos: G0(-24.5, 12.5, 2.7), look: [-3, h0 + 1.3, -1], fov: fv(46) },
       settleA: { pos: G0(-24.5, 12.5, 2.7), look: [-3, h0 + 1.3, -1], fov: fv(46) },
       settleB: { pos: G0(-23.9, 12.0, 2.6), look: [-3.2, h0 + 1.25, -1], fov: fv(45) },
-      lampA: { pos: K.LW(-1.5, 1.06, 1.25), look: K.LW(-1.0, 0.86, -3), fov: fv(30) },
-      lampB: { pos: K.LW(1.3, 1.06, 1.25), look: K.LW(0.95, 0.88, -3), fov: fv(30) },
+      lampA: { pos: K.LW(-1.5, 1.06, 1.25), look: K.LW(-1.0, PORT ? 0.86 : 0.6, -3), fov: PORT ? 30 : 24 },
+      lampB: { pos: K.LW(1.3, 1.06, 1.25), look: K.LW(0.95, PORT ? 0.88 : 0.62, -3), fov: PORT ? 30 : 24 },
     };
     { const sp = G0(4, 12, 1.6); K.cams.stars = aimAt(sp, far(ELEVEN[BRIGHTEST]).map((v, i) => v + sp[i]), fv(24)); }
     const wc = WELL.set.cameras, pc = PRISON.set.cameras, qc = PALACE.set.cameras;
