@@ -141,7 +141,7 @@ M.film({
     PAL.scene.add(P.yusuf.object3d);
     P.scribes = [0, 1].map((k) => PP.make({ kind: 'man', outfit: 'thobe', palette: 'white', beard: k ? 'short' : 'full', headwear: 'kufi', seed: 90 + k, detail: 0.55 }));
     for (const s of P.scribes) PAL.scene.add(s.object3d);
-    P.steward = PP.make({ kind: 'man', outfit: 'thobe', palette: 'white', beard: 'full', headwear: 'wrap', seed: 95, detail: 0.8 });
+    P.steward = PP.make({ kind: 'man', outfit: 'thobe', palette: 'earth', beard: 'full', headwear: 'wrap', seed: 95, detail: 0.8 });
     P.s1 = PP.make({ kind: 'man', outfit: 'thobe', palette: 'cream', beard: 'short', headwear: 'kufi', seed: 96, detail: 0.6 });
     P.worker = PP.make({ kind: 'man', outfit: 'worker', palette: 'white', beard: 'short', headwear: 'wrap', seed: 97, detail: 0.7 });
     P.worker2 = PP.make({ kind: 'man', outfit: 'worker', palette: 'sand', beard: 'full', headwear: 'keffiyeh', seed: 98, detail: 0.5 });
