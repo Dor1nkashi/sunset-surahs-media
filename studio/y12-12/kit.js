@@ -183,8 +183,9 @@ function aimBone(bone, child, target) {
   bone.quaternion.copy(bone.parent.getWorldQuaternion(_q3).invert().multiply(qw)); bone.updateMatrixWorld(true);
 }
 // two-bone IK on a person's arm: side 'Left'|'Right', target + pole in world space (metres). Call after setPose.
-export function reach(p, side, target, pole, k = 1) {
-  const B = p.bones, up = B(side + 'Arm'), lo = B(side + 'ForeArm'), end = B(side + 'Hand');
+export function reach(p, side, target, pole, k = 1) { limb(p, side + 'Arm', side + 'ForeArm', side + 'Hand', target, pole, k); }
+export function limb(p, nUp, nLo, nEnd, target, pole, k = 1) {
+  const B = p.bones, up = B(nUp), lo = B(nLo), end = B(nEnd);
   p.object3d.updateMatrixWorld(true);
   if (k < 1) { const h = end.getWorldPosition(V3()); target = h.lerp(V3().copy(target), k); }
   const a = up.getWorldPosition(V3()), b = lo.getWorldPosition(V3()), c = end.getWorldPosition(V3());
@@ -225,4 +226,24 @@ export function starfield({ count = 2600, seed = 7, minY = -0.02, bright = 1 } =
   const pts = new THREE.Points(g, m); pts.frustumCulled = false; pts.renderOrder = -1;
   pts.userData.update = (cam, t, k = 1) => { pts.position.copy(cam.position); m.uniforms.time.value = t; m.uniforms.k.value = bright * k; };
   return pts;
+}
+
+// rotate a bone by local euler degrees (after setPose)
+export function tilt(p, bone, x = 0, y = 0, z = 0) { const b = p.bones(bone); b.quaternion.multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(x * Math.PI / 180, y * Math.PI / 180, z * Math.PI / 180))); p.object3d.updateMatrixWorld(true); }
+// seat a person (after setPose('stand')) on a seat of height seatY (metres above their feet): hips down and back, thighs forward, shins down
+export function sit(p, seatY = 0.45, { lean = 12, footFwd = 0.5, footW = 0.13 } = {}) {
+  const H = p.bones('Hips'); p.object3d.updateMatrixWorld(true);
+  const hw = H.getWorldPosition(V3()), base = p.object3d.position.y, drop = hw.y - base - (seatY + 0.09);
+  const s = p.object3d.scale.y || 1, unit = 0.01 * (p.scale || 1) * s;
+  H.position.y -= drop / unit; H.position.z -= 0.06 / unit;
+  p.object3d.updateMatrixWorld(true);
+  tilt(p, 'Spine', lean * 0.5, 0, 0); tilt(p, 'Spine1', lean * 0.5, 0, 0);
+  for (const [side, sx] of [['Left', 1], ['Right', -1]]) limb(p, side + 'UpLeg', side + 'Leg', side + 'Foot', onBody(p, sx * footW, 0.09, footFwd), onBody(p, sx * 0.2, 0.6, 3));
+  // feet flat-ish
+  for (const side of ['Left', 'Right']) tilt(p, side + 'Foot', -25, 0, 0);
+}
+// curl (k=1, the rest curl x2) or open (k=0, flat) the fingers of one hand
+export function fingers(p, side, k = 1) {
+  const sg = side === 'Left' ? -1 : 1;
+  for (const f of ['Index', 'Middle', 'Ring', 'Pinky']) for (const [i, a] of [[1, 22], [2, 26], [3, 16]]) tilt(p, side + 'Hand' + f + i, 0, 0, sg * (k * a - (1 - k) * a * 0.55));
 }
