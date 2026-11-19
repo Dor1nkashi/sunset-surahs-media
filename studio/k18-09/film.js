@@ -114,8 +114,7 @@ function pointPose(t) {
   K.reach(TALL, 'Right', h0.clone().lerp(tgt, k), sh.clone().add(V(0.6, -0.6, 0.3)));
   K.handAim(TALL, 'Right', tgt.clone().addScaledVector(dir, 0.5), 0);
   // index straight, the other fingers curled in
-  for (const f of ['Middle', 'Ring', 'Pinky']) for (let j = 1; j <= 3; j++) { const b = TALL.bones(`RightHand${f}${j}`); if (b) b.quaternion.slerp(b.quaternion.clone().multiply(b.quaternion).multiply(b.quaternion), k); }
-  for (let j = 1; j <= 3; j++) { const b = TALL.bones(`RightHandIndex${j}`); if (b) b.quaternion.slerp(new THREE.Quaternion(), k); }
+  K.flatHand(TALL, 'Right', 1 - 0.95 * k);                                            // the open hand straightens toward the seam
   TALL.object3d.updateMatrixWorld(true);
 }
 function walkBack(t) {
@@ -138,7 +137,9 @@ M.film({
     SET = await confluence({ time: 'day' });
     const S = SET.scene, P = SET.props;
     // less sky glare on the water and a clearer horizon (the seam reads to the far distance)
-    P.sea.envMapIntensity = 0.16; if (S.fog) S.fog.density = 0.0005;
+    // the HDRI carries its own (unshadowed) sun: less env, more direct sun, so cast shadows read at midday
+    S.environmentIntensity = 0.42; P.sun.intensity = 5.2;
+    P.sea.envMapIntensity = 0.3; if (S.fog) S.fog.density = 0.0005;
     { const U = P.sea.userData.U; U.foamK.value = 0.3; U.colA.value.set(0x066272); U.colB.value.set(0x2c3c18); U.shal.value.set(0x2a8a86); }
     HT = P.terrain.heightAt;
     TOP = P.rock.position.y + 0.95; BK0 = P.basket.position.clone();
@@ -180,7 +181,7 @@ M.film({
       water_b: { pos: [0.25, 0.86, 0.15], look: [1.6, -0.05, -5.2], fov: 31 },
       pull_a:  { pos: [0.45, top + 0.45, 0.95], look: [-0.25, 0.0, -0.7], fov: 36 },
       pull_b:  { pos: C.shadowCam.pos, look: C.shadowCam.look, fov: 44 },
-      far:     { pos: [-3.5, 2.3, 1.2], look: [0.4, top + 0.6, 1.3], fov: 50 },   // DEBUG
+      far:     { pos: [-6, 3.4, 62], look: [0.6, 1.3, 1.5], fov: 9 },
       basket_a:{ pos: [bx + 1.25, top + 0.8, bz + 0.85], look: [bx - 0.05, top + 0.08, bz], fov: 46 },
       basket_b:{ pos: [bx + 1.0, top + 0.66, bz + 0.68], look: [bx - 0.05, top + 0.08, bz], fov: 44 },
       seam:    { pos: [0.6, 2.0, 0.4], look: [2.8, 0.0, -9], fov: 40 },
@@ -244,7 +245,7 @@ M.film({
       const sh = TALL.bones('RightArm').getWorldPosition(V()), dd = C.pointAt.clone().sub(sh).normalize(), h = sh.clone().addScaledVector(dd, 0.56), d = C.pointAt.clone().sub(h).normalize();
       const side = V(-d.z, 0, d.x).normalize();                                          // to the right of the pointing line
       const k = i === 7 ? E.inOutSine(p) : 1;
-      const pos = h.clone().addScaledVector(d, -lerp(0.5, 0.38, k)).addScaledVector(side, 0.07).add(V(0, -0.09, 0));
+      const pos = h.clone().addScaledVector(d, -lerp(0.78, 0.66, k)).addScaledVector(side, 0.13).add(V(0, 0.0, 0));
       cam = { pos: pos.toArray(), look: h.clone().addScaledVector(d, 1.6).add(V(0, -0.12, 0)).toArray(), fov: K.lensFov(i === 7 ? 36 : 32) };
     } else {
       cam = K.camLerp(s.a, s.b, (s.ease || E.linear)(p));

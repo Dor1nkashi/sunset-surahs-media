@@ -47,6 +47,7 @@ M.film({
     await G.initGL({ exposure: 1.0 }); W.init(G.R);
     SET = await sea_boat({ time: 'day' });
     const S = SET.scene, P = SET.props, boat = P.boat;
+    S.environmentIntensity = 0.5; P.sun.intensity = 5.0;            // the HDRI's own sun is unshadowed: let the real sun carry the light
     HULL = P.hull;
     // a livelier sea: lower roughness for sun glints, stronger ripples, sky in the water
     { const o = P.ocean; o.roughness = 0.045; o.normalScale.set(0.9, 0.9); o.envMapIntensity = 1.05; const U = o.userData.U; U.colA.value.set(0x0b4250); U.colB.value.set(0x0b4250); U.shal.value.set(0x0b4250); }
@@ -87,7 +88,7 @@ M.film({
     const fy = HULL.floorY;
     // camera poses: boat coordinates (b: true) ride with the boat; others are world
     const g = GC, n = GN;
-    const out = (d, up = 0, along = 0) => g.clone().addScaledVector(n, d).add(V(0, up, along)).toArray();
+    const nh = V(n.x, 0, n.z).normalize(), out = (d, up = 0, along = 0) => g.clone().addScaledVector(nh, d).add(V(0, up, along)).toArray();
     Object.assign(C, {
       hull_a:  { b: 1, pos: out(1.05, 0.42, 0.55), look: out(0, -0.02, 0.05), fov: 34 },
       hull_b:  { b: 1, pos: out(0.95, 0.38, 0.45), look: out(0, -0.02, 0.0), fov: 33 },
@@ -95,17 +96,19 @@ M.film({
       gap_b:   { b: 1, pos: out(0.5, 0.24, 0.22), look: out(0, -0.03, 0.0), fov: 26 },
       wide_a:  { pos: [8.5, 2.3, 12], look: [0, 0.8, -0.3], fov: 40 },
       wide_b:  { pos: [6.2, 2.1, 13.4], look: [0, 0.8, -0.6], fov: 40 },
+      shadows: { b: 1, pos: [-0.3, 2.25, -0.75], look: [-0.45, fy, -1.55], fov: 50 },
+      shadows2:{ b: 1, pos: [-0.3, 2.2, -0.8], look: [-0.42, fy, -1.5], fov: 48 },
       floor:   { b: 1, pos: [0.15, fy + 0.36, -1.75], look: [0.3, fy + 0.02, 0.4], fov: 56 },
-      tilt_a:  { b: 1, pos: [0.25, 1.4, -0.15], look: [0.45, fy, 1.0], fov: 54 },
-      tilt_b:  { b: 1, pos: [0.25, 1.42, -0.12], look: [0.7, 3.4, 2.4], fov: 54 },
+      tilt_a:  { b: 1, pos: [0.45, 1.25, 0.2], look: [0.5, fy, 1.3], fov: 54 },
+      tilt_b:  { b: 1, pos: [0.45, 1.27, 0.22], look: [0.7, 3.4, 2.6], fov: 54 },
       stern:   { pos: [-0.6, 1.5, -2.6], fov: 5.5 },
       fine_a:  { pos: [-0.6, 1.5, -2.6], fov: 3.4 },
       fine_b:  { pos: [-0.6, 1.5, -2.6], fov: 2.7 },
-      pass:    { pos: [-4.2, 1.25, 10.5], fov: 16 },
+      pass:    { b: 1, pos: [-1.0, 1.15, -0.9], fov: 24 },
       glide_a: { b: 1, pos: out(1.6, 1.0, -1.4), look: out(0, 0.1, -0.2), fov: 40 },
       glide_b: { b: 1, pos: out(0.85, 0.3, -0.35), look: out(0, 0.0, 0.0), fov: 34 },
       close:   { b: 1, pos: out(0.45, 0.1, 0.18), look: out(0, 0.0, 0.0), fov: 26 },
-      far:     { pos: [-1.2, 1.1, 3.0], fov: 9 },
+      far:     { b: 1, pos: [1.6, 1.0, -0.5], fov: 9 },
       patch:   { b: 1, pos: out(0.8, 0.22, -0.3), look: out(0, 0.03, 0.0), fov: 30 },
       end_a:   { pos: [5.5, 0.55, 7.5], look: [0, 0.4, 0], fov: 44 },
     });
@@ -113,7 +116,7 @@ M.film({
       { t0: 0.00, t1: 1.93, a: C.hull_a, b: C.hull_b },
       { t0: 1.93, t1: 3.85, a: C.gap_a, b: C.gap_b, ease: E.inOutSine },
       { t0: 3.85, t1: 5.85, a: C.wide_a, b: C.wide_b, ease: E.inOutSine },
-      { t0: 5.85, t1: 7.85, a: 'point' },
+      { t0: 5.85, t1: 7.85, a: C.shadows, b: C.shadows2 },
       { t0: 7.85, t1: 10.33, a: C.floor },
       { t0: 10.33, t1: 12.80, a: C.tilt_a, b: C.tilt_b, ease: E.inOutCubic },
       { t0: 12.80, t1: 15.55, a: C.stern, ship: 1 },
@@ -163,19 +166,16 @@ M.film({
     // people (in boat coordinates)
     MUSA.object3d.visible = KHIDR.object3d.visible = BOATMAN.object3d.visible = false;
     if (i === 2 || i === 13) {
-      for (const [f, x, z, ry, ph] of [[MUSA, 0.3, -1.95, 0.3, 0], [KHIDR, -0.3, -1.35, -0.2, 3], [BOATMAN, 0.05, -2.75, 0, 6]]) { f.object3d.visible = true; f.object3d.position.set(x, fy, z); f.object3d.rotation.y = ry; f.setPose('stand', t + ph); }
+      for (const [f, x, z, ry, ph] of [[MUSA, 0.3, -1.95, 0.3, 0], [KHIDR, -0.3, -1.35, -0.2, 3], [BOATMAN, 0.05, -2.75, 0, 6]]) { if (i === 13 && f !== BOATMAN) continue; f.object3d.visible = true; f.object3d.position.set(x, fy, z); f.object3d.rotation.y = ry; f.setPose('stand', t + ph); }
     }
     if (i === 3) {
-      // kneeling at the starboard side, one hand on the gunwale, the other pointing down at the gap
-      MUSA.object3d.visible = true; MUSA.object3d.position.set(0.32, fy, -0.55); MUSA.object3d.rotation.y = Math.PI / 2 + 0.25; MUSA.setPose('kneel', t);
+      // two passengers at the starboard rail looking down at the gap: only their shadows cross the boards
+      for (const [f, z, ph] of [[MUSA, -1.0, 0], [KHIDR, -1.75, 2]]) { f.object3d.visible = true; f.object3d.position.set(0.42, fy, z); f.object3d.rotation.y = Math.PI / 2; f.setPose('stand', t + ph); }
       MUSA.object3d.updateMatrixWorld(true);
       const sh = MUSA.bones('RightArm').getWorldPosition(V()), tgtW = L2W(t, GC.toArray()), dir = tgtW.clone().sub(sh).normalize();
-      const k = E.inOutCubic(prog(t, 6.15, 6.9)), h0 = MUSA.bones('RightHand').getWorldPosition(V());
+      const k = E.inOutCubic(prog(t, 6.2, 6.9)), h0 = MUSA.bones('RightHand').getWorldPosition(V());
       K.reach(MUSA, 'Right', h0.lerp(sh.clone().addScaledVector(dir, 0.55), k), sh.clone().add(V(0, -0.5, 0)));
-      K.handAim(MUSA, 'Right', sh.clone().addScaledVector(dir, 1.2), 0);
-      for (const f of ['Middle', 'Ring', 'Pinky']) for (let j = 1; j <= 3; j++) { const b = MUSA.bones(`RightHand${f}${j}`); if (b) b.rotation.x += 0.9 * k; }
-      for (let j = 1; j <= 3; j++) { const b = MUSA.bones(`RightHandIndex${j}`); if (b) b.quaternion.slerp(new THREE.Quaternion(), k); }
-      MUSA.object3d.updateMatrixWorld(true);
+      K.handAim(MUSA, 'Right', sh.clone().addScaledVector(dir, 1.2), 0); K.flatHand(MUSA, 'Right', 1 - 0.9 * k);
     }
     if (i === 5) {
       // standing amidships: the right hand comes up, open, in protest
@@ -198,8 +198,8 @@ M.film({
       cam = K.camLerp(A, { ...B, fov: C.hull_a.fov }, k);
     } else if (s.ship) {
       const tgt = s.ship === 2 ? sp.clone().lerp(V(0, 0.6, 0), 0.0).add(V(0, 5, 0)) : sp.clone().lerp(fp, 0.4).add(V(0, 5, 0));
-      let pos = s.a.pos, fov = s.b ? Math.exp(lerp(Math.log(s.a.fov), Math.log(s.b.fov), E.inOutSine(p))) : s.a.fov;
-      if (s.ship === 2) { const look = V(0, 0.9, 0).lerp(tgt, 0.016 + 0.006 * p); cam = { pos, look: look.toArray(), fov: K.lensFov(fov) }; }
+      let pos = s.a.b ? L2W(t, s.a.pos).toArray() : s.a.pos, fov = s.b ? Math.exp(lerp(Math.log(s.a.fov), Math.log(s.b.fov), E.inOutSine(p))) : s.a.fov;
+      if (s.ship === 2) { const look = tgt.clone().add(V(0, -58 + 6 * p, 0)); cam = { pos, look: look.toArray(), fov: K.lensFov(fov) }; }
       else cam = { pos, look: tgt.toArray(), fov: K.lensFov(fov) };
       cam = K.breathe(cam, t, 0.004, 21 + i);
     } else {
