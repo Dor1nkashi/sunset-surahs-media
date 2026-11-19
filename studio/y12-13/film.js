@@ -198,6 +198,10 @@ M.film({
     await build();
     CAP = captions(await loadLines('lines.json'));
     SHOTS = shots();
+    if (DBG.bisect) { const pts = [V3(-3.4, h0 + 1.7, 4.6), V3(2.45, h0 + 0.95, 0.3), V3(2.8, h0 + 1.3, 0.45)];
+      console.error('h0', h0.toFixed(3), 'hy', pts.map((p) => hAt(p.x, p.z).toFixed(3)).join(','));
+      SET.group.children.slice(0, OBJ.n0).forEach((o, i) => { const b = new THREE.Box3().setFromObject(o); const hit = pts.map((p) => b.containsPoint(p) ? 1 : 0).join('');
+        console.error('child', i, o.name || o.type, o.isInstancedMesh ? 'inst' + o.count : '', hit, b.min.toArray().map((v) => v.toFixed(1)).join('/'), b.max.toArray().map((v) => v.toFixed(1)).join('/')); }); }
     ST.update(0, 0, {}); G.R.compile(ST.scene, ST.camera);
   },
   draw(ctx, u, t, IMG) {
