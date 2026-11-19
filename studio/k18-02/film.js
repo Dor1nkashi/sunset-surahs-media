@@ -62,7 +62,7 @@ M.film({
     SET = await mountain_cave({ time: 'day', day: 0.5, sleepers: 5, dog: true, lamp: false, vista: false });
     H = SET.props.terrain.heightAt;
     const S = SET.scene;
-    HAND = V(MX - 0.75, H(MX - 0.75, MZ + 0.78) + 0.03, MZ + 0.78);
+    HAND = V(MX - 0.58, H(MX - 0.58, MZ + 0.5) + 0.03, MZ + 0.5);
     // mirrored twins of each cloak (the turned side), dissolved with alpha-hash so the cloaks turn without a hand
     for (const sl of SET.props.sleepers) {
       const m0 = sl.material; m0.alphaHash = true; m0.transparent = false; m0.needsUpdate = true;
@@ -79,7 +79,7 @@ M.film({
     S.add(MAN.object3d);
     // his own cloak drawn over him (the same wool as the others): only the sleeve and hand come out from under its edge
     { const src = SET.props.sleepers[0]; const cm = src.material.clone(); cm.onBeforeCompile = src.material.onBeforeCompile; cm.customProgramCacheKey = src.material.customProgramCacheKey; cm.alphaHash = false; cm.opacity = 1; COVER = new THREE.Mesh(src.geometry, cm); COVER.userData.U = src.userData.U; COVER.castShadow = COVER.receiveShadow = true;
-      COVER.position.set(MX - 0.05, H(MX, MZ) - 0.01, MZ - 0.05); COVER.rotation.y = -Math.PI / 2; COVER.scale.set(1.12, 1.25, 1.0); S.add(COVER); }
+      COVER.position.set(MX - 0.05, H(MX, MZ) - 0.01, MZ - 0.05); COVER.rotation.y = -Math.PI / 2; COVER.scale.set(0.78, 1.3, 1.0); S.add(COVER); }
     // dust in the shaft
     DUST = K.dustMotes({ centre: [0.2, 0.9, -5.6], size: [3.4, 1.8, 3.2], count: 420, seed: 8, px: 0.006, op: 0.55, fall: 0.008 }); S.add(DUST);
     // a drip far back in the dark (a falling bead + a ring)
