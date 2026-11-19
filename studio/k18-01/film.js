@@ -49,7 +49,7 @@ function posePeople(t, i) {
       return;
     }
     const [x, z, yaw] = SEAT[k];
-    K.place(p, x, 0.0, z, yaw);
+    K.place(p, x, H(x, z), z, yaw);
     const rise = t < RISE(k) ? 0 : E.inOutSine(prog(t, RISE(k), RISE(k) + 0.75));
     p.setPose('stand', t + k * 1.3);
     if (rise < 1) K.sit(p, 0.24 + 0.62 * rise, { lean: 8 * (1 - rise), footFwd: 0.42 - 0.3 * rise, footW: 0.16 });
@@ -82,8 +82,8 @@ const SHOTS = [
 function camFor(s, i, t, pe) {
   if (s.cam === 'feet') { const w = walkerAt(0, t), z = w.z - 1.9; return { pos: [PX(z) + 0.15, H(PX(z), z) + 0.32, z], look: [w.x - 0.1, w.y + 0.18, w.z + 0.9], fov: 44 }; }
   if (s.cam === 'climb') { const w = walkerAt(1, t), z = w.z + 5.2; return { pos: [PX(z) - 0.9, H(PX(z), z) + 1.55, z], look: [PX(w.z - 3.5), H(PX(w.z - 3.5), w.z - 3.5) + 1.0, w.z - 3.5], fov: 40 }; }
-  if (s.cam === 'glance') { const w = walkerAt(3, 3.3), k = E.inOutSine(prog(t, 2.98, 4.45)), z = w.z - 1.7 + 0.35 * k;
-    return { pos: [w.x - 0.35, H(w.x, z) + 1.85 - 0.05 * k, z], look: [w.x + 25, H(w.x, w.z) - 12, w.z + 70], fov: 34 }; }
+  if (s.cam === 'glance') { const w = walkerAt(3, 3.3), k = E.inOutSine(prog(t, 2.98, 4.45)), z = w.z - 2.7 + 0.4 * k;
+    return { pos: [w.x - 0.55, H(w.x, z) + 2.0 - 0.05 * k, z], look: [w.x + 25, H(w.x, w.z) - 14, w.z + 70], fov: 38 }; }
   return K.camLerp(C[s.a], s.b ? C[s.b] : null, pe);
 }
 
@@ -94,14 +94,14 @@ M.film({
   async init() {
     const T0 = performance.now();
     await G.initGL({ exposure: 1.0 }); W.init(G.R);
-    SET = await mountain_cave({ time: 'dusk', sleepers: 0, dog: false, lamp: true, vista: false });
+    SET = await mountain_cave({ time: 'day', day: 0.88, sleepers: 0, dog: false, lamp: true, vista: false });
     H = SET.props.terrain.heightAt; PX = SET.props.pathX;
     const S = SET.scene;
     // the lamp sits behind the group (on a flat stone), so the last shots see the group past its flame
     LAMP = SET.props.lamp; LAMP.position.set(LAMP_AT[0], 0.0, LAMP_AT[1]); LAMP.rotation.y = 0.6;
-    const flat = new THREE.MeshStandardMaterial({ color: 0x8a7a68, roughness: 0.95 });
-    for (const [x, z] of SEAT) { const st = W.rbox(0.62, 0.2, 0.5, flat, { r: 0.06, seg: 3 }); st.position.set(x, -0.02, z - 0.06); S.add(W.shadows(st)); }
-    const ls = W.rbox(0.36, 0.06, 0.3, flat, { r: 0.02, seg: 2 }); ls.position.set(LAMP_AT[0], -0.03, LAMP_AT[1]); S.add(W.shadows(ls)); LAMP.position.y = 0.035;
+    const flat = new THREE.MeshStandardMaterial({ color: 0x5e5246, roughness: 0.95 });
+    for (const [x, z] of SEAT) { const st = W.rbox(0.5, 0.16, 0.42, flat, { r: 0.05, seg: 3 }); st.position.set(x, H(x, z) - 0.04, z - 0.08); S.add(W.shadows(st)); }
+    const ls = W.rbox(0.36, 0.06, 0.3, flat, { r: 0.02, seg: 2 }); const LY = H(LAMP_AT[0], LAMP_AT[1]); ls.position.set(LAMP_AT[0], LY - 0.02, LAMP_AT[1]); S.add(W.shadows(ls)); LAMP.position.y = LY + 0.045;
     // amber light from the opening spreading on the floor between their feet
     FLOOR_SPOT = new THREE.SpotLight(0xffb060, 0, 18, 0.45, 0.85, 1.3); FLOOR_SPOT.position.set(0, 1.6, 2.4); FLOOR_SPOT.target.position.set(0, 0, -4.6);
     FLOOR_SPOT.castShadow = true; FLOOR_SPOT.shadow.mapSize.set(1024, 1024); FLOOR_SPOT.shadow.bias = -0.0005; S.add(FLOOR_SPOT, FLOOR_SPOT.target);
@@ -129,10 +129,10 @@ M.film({
     C.floor_b = { pos: [0.02, 0.12, -5.0], look: [0.0, 0.14, 0.5], fov: 34 };
     C.palms2 = { pos: [-0.12, 1.42, -4.85], look: [-0.5, 1.08, -3.85], fov: 22 };
     C.sandals = { pos: [-2.75, 0.16, -4.05], look: [0.6, 0.08, -4.55], fov: 36 };
-    const LF = [LAMP_AT[0], 0.13, LAMP_AT[1] + 0.12];
-    C.lamp1 = { pos: [LF[0] - 0.22, 0.2, LF[2] - 0.5], look: LF, fov: 16 };
-    C.lamp2 = { pos: [LF[0] - 0.42, 0.26, LF[2] - 1.35], look: [-0.1, 0.62, -2.0], fov: 30 };
-    C.lamp3 = { pos: [LF[0] - 0.1, 0.17, LF[2] - 0.36], look: [LF[0], 0.15, LF[2]], fov: 11 };
+    const LF = [LAMP_AT[0], LY + 0.13, LAMP_AT[1] + 0.12];
+    C.lamp1 = { pos: [LF[0] - 0.22, LF[1] + 0.06, LF[2] - 0.5], look: LF, fov: 16 };
+    C.lamp2 = { pos: [LF[0] - 0.42, LF[1] + 0.12, LF[2] - 1.35], look: [-0.1, 0.62, -2.0], fov: 30 };
+    C.lamp3 = { pos: [LF[0] - 0.1, LF[1] + 0.03, LF[2] - 0.36], look: [LF[0], LF[1] + 0.01, LF[2]], fov: 11 };
     ST = W.stage(SET);
     SET.update(0, null, {}); G.R.compile(S, ST.camera);
     CAP = captions(await loadLines('lines.json'), { display: 'Display', ui: 'UI' });
@@ -146,13 +146,13 @@ M.film({
     posePeople(t, i);
     // floor light grows from the standing line onward (shot 8 on)
     const fl = E.inOutSine(prog(t, 13.9, 17.6));
-    FLOOR_SPOT.intensity = 40 + 260 * fl; BEAM.intensity = 4 + 4 * fl;
+    FLOOR_SPOT.intensity = 10 + 70 * fl; BEAM.intensity = 1.2 + 1.5 * fl;
     DUST.userData.update(t, t > 5.9 && t < 22.7 ? 1 : 0);
     // the lamp: leans in a draught, then steadies and grows (shots 12-14)
     const f = LAMP.userData.flame, lean = (1 - E.inOutSine(prog(t, 23.3, 24.5))) * (0.32 + 0.12 * Math.sin(t * 9.0) + 0.06 * Math.sin(t * 23));
     f.rotation.z = t > 22.69 ? lean : 0.04 * Math.sin(t * 5); f.scale.setScalar(1 + 0.35 * E.inOutSine(prog(t, 24.0, 25.5)));
-    const ex = t < 5.92 ? 1.0 : i === 11 || i === 13 ? 1.6 : 2.4;
-    G.renderSet(ctx, ST, t, u, { cam, exposure: ex, mist: 0, lamp: t > 22.69 ? 1 : 0.7, shaft: 1 });
+    const ex = t < 5.92 ? 0.95 : i === 11 || i === 13 ? 1.1 : 1.25;
+    G.renderSet(ctx, ST, t, u, { cam, exposure: ex, mist: 0, day: 0.88, lamp: t > 22.69 ? 1 : 0.7, shaft: 1 });
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.6);
   },
