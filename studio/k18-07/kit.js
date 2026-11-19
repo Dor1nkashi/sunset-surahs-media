@@ -100,7 +100,17 @@ export function doorBolt(iron, { len = 0.36, travel = 0.24 } = {}) {
 import { loadPeople } from '../lib_shared/people.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 let _people = null;
-export async function people() { return _people || (_people = await loadPeople(THREE, GLTFLoader)); }
+// every setPose starts from the figure's own rest state (bones restored), so IK / tilts / finger curls never
+// accumulate across frames: frames rendered in any order on any worker page come out identical
+export async function people() {
+  if (_people) return _people;
+  const P = await loadPeople(THREE, GLTFLoader), make0 = P.make;
+  P.make = (o) => { const p = make0(o), rest = [];
+    p.object3d.traverse((b) => { if (b.isBone) rest.push([b, b.position.clone(), b.quaternion.clone(), b.scale.clone()]); });
+    const sp = p.setPose; p.setPose = (clip, t, op) => { for (const [b, q0, r0, s0] of rest) { b.position.copy(q0); b.quaternion.copy(r0); b.scale.copy(s0); } return sp(clip, t, op); };
+    return p; };
+  return (_people = P);
+}
 // two-bone IK on a built figure, after setPose: put the hand at a world target, elbow toward pole
 const _v = () => new THREE.Vector3(), _q = () => new THREE.Quaternion();
 function aimBone(bone, child, target) {
