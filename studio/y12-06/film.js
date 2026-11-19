@@ -14,17 +14,17 @@ const P = M.FORMAT.portrait;
 // world coordinates of the set (see sets_yusuf.js ministers_house)
 const ZB = -9.25, DZ = -9.10;            // back wall centre, door face
 const XL = -4.75, LAMP3 = [-4.37, 1.72, -1.2];
-const BOLT1 = [0.6, 1.36, DZ + 0.018], BOLT2 = [0.6, 1.95, DZ + 0.045];
+const BOLT1 = [0.6, 1.36, DZ + 0.018], BOLT2 = [0.6, 1.74, DZ + 0.045];
 
 // camera poses (fov = vertical degrees in 9x16; 16x9 is tightened in K.lensFov)
 const C = {
-  bolt_a:   { pos: [1.15, 1.45, DZ + 1.0], look: [0.45, 1.33, DZ], fov: 30 },
-  bolt_b:   { pos: [1.08, 1.43, DZ + 0.86], look: [0.47, 1.33, DZ], fov: 29 },
+  bolt_a:   { pos: [0.9, 1.42, DZ + 0.78], look: [0.52, 1.35, DZ], fov: 27 },
+  bolt_b:   { pos: [0.86, 1.41, DZ + 0.68], look: [0.53, 1.35, DZ], fov: 26 },
   push_a:   { pos: [0.15, 1.45, DZ + 3.6], look: [0.05, 1.35, DZ], fov: 46 },
   push_b:   { pos: [0.18, 1.42, DZ + 2.3], look: [0.10, 1.38, DZ], fov: 44 },
   court_a:  { pos: [5.7, 1.5, 0.9], look: [10.5, 1.6, -2.6], fov: 50 },
   court_b:  { pos: [5.3, 1.7, 2.3], look: [10.5, 1.7, -2.6], fov: 52 },
-  bolt2:    { pos: [1.3, 1.8, DZ + 1.2], look: [0.45, 1.85, DZ], fov: 36 },
+  bolt2:    { pos: [1.25, 1.62, DZ + 1.1], look: [0.45, 1.66, DZ], fov: 34 },
   back_a:   { pos: [-0.9, 1.55, DZ + 4.3], look: [0.25, 1.35, DZ], fov: 48 },
   back_b:   { pos: [-0.86, 1.55, DZ + 4.15], look: [0.25, 1.35, DZ], fov: 48 },
   hand_a:   { pos: [0.8, 1.62, DZ + 2.7], look: [0.1, 1.3, DZ], fov: 34 },
@@ -34,8 +34,8 @@ const C = {
   emb_a:    { pos: [0.05, 2.9, DZ + 1.9], look: [0.0, 3.38, ZB], fov: 30 },
   emb_b:    { pos: [0.05, 3.05, DZ + 1.45], look: [0.0, 3.38, ZB], fov: 28 },
   lamp:     { pos: [-3.25, 1.86, -0.35], look: [LAMP3[0], 1.5, LAMP3[2]], fov: 28 },
-  boltc_a:  { pos: [0.3, 1.64, DZ + 0.5], look: [0.62, 1.36, DZ], fov: 25 },
-  boltc_b:  { pos: [0.32, 1.62, DZ + 0.46], look: [0.62, 1.36, DZ], fov: 24 },
+  boltc_a:  { pos: [0.78, 1.40, DZ + 0.5], look: [0.64, 1.36, DZ], fov: 22 },
+  boltc_b:  { pos: [0.77, 1.40, DZ + 0.45], look: [0.64, 1.36, DZ], fov: 21 },
   flame:    { pos: [0.0, 1.42, DZ + 0.36], look: [0.55, 1.36, DZ], fov: 26 },
 };
 // the shot table (times from shotlists/y12_06.md)
@@ -78,14 +78,14 @@ function posePeople(t, i) {
     }
   }
   if (WOMAN.object3d.visible) {
-    WOMAN.object3d.position.set(0.2, 0, DZ + 0.4); WOMAN.object3d.rotation.y = Math.PI;
+    WOMAN.object3d.position.set(0.22, 0, DZ + 0.34); WOMAN.object3d.rotation.y = Math.PI;
     WOMAN.setPose('stand', t);
     const b2 = E.inOutCubic(prog(t, 6.75, 7.35)), knob = V(BOLT2[0] - 0.24 * (1 - b2) - 0.08, BOLT2[1], BOLT2[2] + 0.07);
     const reachK = E.inOutCubic(prog(t, 6.23, 6.7));
     WOMAN.object3d.updateMatrixWorld(true);
     const h0 = WOMAN.bones('RightHand').getWorldPosition(V());
     K.reach(WOMAN, 'Right', h0.clone().lerp(knob, reachK), V(0.9, 0.9, DZ + 0.9));
-    K.handAim(WOMAN, 'Right', knob.clone().add(V(0.07, 0.0, -0.04)), 0); K.flatHand(WOMAN, 'Right', 1.6);
+    K.handAim(WOMAN, 'Right', knob.clone().add(V(0.05, 0.03, -0.07)), 0); K.flatHand(WOMAN, 'Right', 1.7);
   }
   if (SERV.object3d.visible) {
     // a servant carries a water jar across the courtyard, away from us
