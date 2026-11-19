@@ -82,7 +82,9 @@ export function doorBolt(iron, { len = 0.36, travel = 0.24 } = {}) {
   const knob = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.015, 0.05, 16).rotateX(Math.PI / 2), iron); knob.position.set(-len * 0.22, 0, 0.035);
   const ball = new THREE.Mesh(new THREE.SphereGeometry(0.02, 20, 14), iron); ball.position.set(-len * 0.22, 0, 0.06);
   const slider = new THREE.Group(); slider.add(bar, knob, ball); g.add(slider);
-  const staple = (x) => { const s = new THREE.Mesh(new THREE.TorusGeometry(0.03, 0.007, 10, 24, Math.PI), iron); s.rotation.set(0, Math.PI / 2, Math.PI / 2); s.position.set(x, 0, -0.003); s.scale.set(1, 1, 1.0); return s; };
+  const staple = (x) => { const s = new THREE.Group(), f = W.rbox(0.028, 0.07, 0.008, iron, { r: 0.003, centre: true }); f.position.z = 0.019; s.add(f);
+    for (const yy of [-0.03, 0.03]) { const q = W.rbox(0.028, 0.008, 0.03, iron, { r: 0.002, centre: true }); q.position.set(0, yy, 0.004); s.add(q); }
+    for (const yy of [-0.028, 0.028]) { const n = new THREE.Mesh(new THREE.SphereGeometry(0.006, 10, 8), iron); n.position.set(0, yy, 0.024); s.add(n); } s.position.set(x, 0, 0); return s; };
   // staples are fixed to the door (not to the slider)
   const st1 = staple(-travel - len * 0.1), st2 = staple(-travel + len * 0.3);
   const plate = W.rbox(0.07, 0.12, 0.012, iron, { r: 0.004 }); plate.position.set(len / 2 - 0.02, -0.06, -0.012);

@@ -33,7 +33,7 @@ const C = {
   tilt_b:   { pos: [0.1, 1.6, DZ + 2.9], look: [0.0, 3.25, DZ], fov: 46 },
   emb_a:    { pos: [0.05, 2.9, DZ + 1.9], look: [0.0, 3.38, ZB], fov: 30 },
   emb_b:    { pos: [0.05, 3.05, DZ + 1.45], look: [0.0, 3.38, ZB], fov: 28 },
-  lamp:     { pos: [-3.25, 1.86, -0.35], look: [LAMP3[0], 1.74, LAMP3[2]], fov: 26 },
+  lamp:     { pos: [-3.25, 1.86, -0.35], look: [LAMP3[0], 1.5, LAMP3[2]], fov: 28 },
   boltc_a:  { pos: [0.98, 1.47, DZ + 0.8], look: [0.6, 1.36, DZ], fov: 26 },
   boltc_b:  { pos: [0.95, 1.46, DZ + 0.72], look: [0.6, 1.36, DZ], fov: 25 },
   flame:    { pos: [0.0, 1.42, DZ + 0.36], look: [0.55, 1.36, DZ], fov: 26 },
@@ -70,10 +70,10 @@ function posePeople(t, i) {
     const k = i === 5 ? E.inOutCubic(prog(t, 10.45, 11.5)) : i === 11 ? 1 : 0;
     if (k > 0) {
       MAN.object3d.updateMatrixWorld(true);
-      const h0 = MAN.bones('RightHand').getWorldPosition(V()), tgt = V(0.2, 1.32, DZ + 0.13);
+      const h0 = MAN.bones('RightHand').getWorldPosition(V()), tgt = V(0.2, 1.32, DZ + 0.095);
       const pt = h0.clone().lerp(tgt, k), pole = V(0.8, 0.2, DZ + 0.9);
       K.reach(MAN, 'Right', pt, pole);
-      K.flatHand(MAN, 'Right', 0.1 + 0.9 * (1 - k));
+      K.flatHand(MAN, 'Right', 0.03 + 0.97 * (1 - k));
       K.handAim(MAN, 'Right', pt.clone().add(V(0.02, 0.2 * k - 0.2 * (1 - k), 0.0)), HROLL);
     }
   }
@@ -90,11 +90,11 @@ function posePeople(t, i) {
   if (SERV.object3d.visible) {
     // a servant carries a water jar across the courtyard, away from us
     const w = t - 3.55;
-    const sp = SERV.speed('walk') * w; SERV.object3d.position.set(6.0 + 0.95 * sp, 0, 0.4 - 0.3 * sp); SERV.object3d.rotation.y = 1.876;
+    const sp = SERV.speed('walk') * w; SERV.object3d.position.set(6.9 + 0.95 * sp, 0, 0.1 - 0.3 * sp); SERV.object3d.rotation.y = 1.876;
     SERV.setPose('walk', t, { carry: 'jar' });
   }
 }
-const HROLL = Math.PI;
+const HROLL = 0;
 M.film({
   fonts: ['800 76px Display', '600 64px UI', '600 30px Display'],
   images: { seal: 'assets/seal.png' },
@@ -159,7 +159,7 @@ M.film({
     DUST2.userData.update(t, i === 8 || i === 10 ? 1 : 0);
     FALLDUST.userData.update(t, i === 9 ? 1 : 0);
     posePeople(t, i);
-    G.renderSet(ctx, ST, t, u, { cam, exposure: SET.exposure * (i === 2 ? 0.62 : i === 8 || i === 10 ? 0.45 : 1) });
+    G.renderSet(ctx, ST, t, u, { cam, exposure: SET.exposure * (i === 2 ? 0.62 : i === 8 || i === 10 ? 0.3 : 1) });
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.5);
   },
