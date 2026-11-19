@@ -70,7 +70,7 @@ function makeBee() {
   const c = document.createElement('canvas'); c.width = 64; c.height = 16; const x = c.getContext('2d');
   for (let i = 0; i < 8; i++) { x.fillStyle = i % 2 ? '#1a1208' : '#d89a2a'; x.fillRect(i * 8, 0, 8, 16); }
   const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
-  const body = new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.6 })); body.scale.set(0.0042, 0.0042, 0.0075); body.rotation.y = Math.PI / 2; g.add(body);
+  const body = new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.6 })); body.scale.set(0.0062, 0.0062, 0.011); body.rotation.y = Math.PI / 2; g.add(body);
   const head = new THREE.Mesh(new THREE.SphereGeometry(0.0032, 16, 12), new THREE.MeshStandardMaterial({ color: 0x140e08, roughness: 0.4 })); head.position.set(0, 0.001, 0.0085); g.add(head);
   const wm = new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.35, roughness: 0.1, side: THREE.DoubleSide, depthWrite: false });
   for (const s of [-1, 1]) { const w = new THREE.Mesh(new THREE.CircleGeometry(0.0055, 16), wm); w.scale.set(0.5, 1, 1); const piv = new THREE.Group(); piv.position.set(s * 0.002, 0.003, 0.002); w.position.set(s * 0.004, 0, -0.002); w.rotation.x = -Math.PI / 2; piv.add(w); g.add(piv); WINGS.push([piv, s]); }
@@ -82,9 +82,9 @@ function posePeople(t, i) {
   FRI.object3d.visible = i === 7 || i === 8;
   if (i <= 1) {
     // beside and a little behind the camera: the ringed hand comes in from the lower right and cups the bunch
-    const at = V(HB.x + 0.62, hy(HB.x, HB.z), HB.z - 0.12); K.place(OWN, at.x, at.y, at.z, Math.atan2(HB.x - at.x, HB.z - at.z));
+    const at = V(HB.x + 0.5, hy(HB.x, HB.z), HB.z + 0.12); K.place(OWN, at.x, at.y, at.z, Math.atan2(HB.x - at.x, HB.z - at.z));
     OWN.setPose('stand', 1.0);
-    const k = E.inOutSine(prog(t, 0.25, 1.15)), tug = i === 1 ? 0.05 * E.inOutSine(prog(t, 1.7, 2.4)) : 0;
+    const k = E.inOutSine(prog(t, 0.05, 0.9)), tug = i === 1 ? 0.05 * E.inOutSine(prog(t, 1.7, 2.4)) : 0;
     const tgt = V(HB.x + 0.035 + tug * 0.5, HB.y - 0.1, HB.z + 0.05 + tug);
     OWN.object3d.updateMatrixWorld(true);
     const h0 = K.handPos(OWN, 'Right');
@@ -124,7 +124,7 @@ M.film({
     SET = await two_gardens({ state: 'lush' });
     hy = SET.props.terrain.heightAt; HB = SET.props.heroBunch;
     const S = SET.scene;
-    BEE = makeBee(); S.add(BEE);
+    BEE = makeBee(); BEE.scale.setScalar(1.5); S.add(BEE);
     // a palm on the east side of garden A (shots 10, 12), and one at the far south-west corner for the lone palm
     const palms = SET.props.palms;
     const near = (x, z) => palms.reduce((b, p) => (Math.hypot(p.position.x - x, p.position.z - z) < Math.hypot(b.position.x - x, b.position.z - z) ? p : b), palms[0]);
@@ -132,7 +132,7 @@ M.film({
     { const bb = new THREE.Box3().setFromObject(PALM); TOPY = bb.max.y; }
     const PE = await K.people();
     OWN = PE.make({ kind: 'man', outfit: 'noble', palette: { ...PALETTES.noble, robe: '#f1e8d6', cloak: '#2a1f3a', trim: '#d4a63c', sash: '#7a2e24', skin: '#9a6a48' }, beard: 'full', headwear: 'turban', seed: 41, build: 1.25, detail: 0.9 });
-    FRI = PE.make({ kind: 'man', outfit: 'thobe', palette: { ...PALETTES.earth, robe: '#8a7a62', cloak: '#5a4a3a', skin: '#8a5a3a' }, beard: 'short', headwear: 'wrap', seed: 17, build: 0.85, detail: 0.7 });
+    FRI = PE.make({ kind: 'man', outfit: 'traveller', palette: { ...PALETTES.earth, robe: '#8a7a62', cloak: '#6a5a44', wrap: '#cfc2a8', skin: '#8a5a3a' }, beard: 'short', headwear: 'wrap', seed: 17, build: 0.85, detail: 0.7 });
     S.add(OWN.object3d, FRI.object3d);
     const gold = new THREE.MeshStandardMaterial({ color: 0xf0c050, metalness: 1, roughness: 0.18 }), ruby = new THREE.MeshPhysicalMaterial({ color: 0x9a0a1a, roughness: 0.05, transmission: 0.2, clearcoat: 1 });
     OWN.bones('RightHandRing1').add(ring(gold, ruby)); OWN.bones('RightHandIndex1').add(ring(gold, null)); OWN.bones('LeftHandRing1').add(ring(gold, null));
@@ -144,8 +144,8 @@ M.film({
     C.gate_a = { pos: [GATE[0] + 2.2, hy(...GATE) + 1.55, GATE[1] + 7], look: [GATE[0], hy(...GATE) + 1.9, GATE[1]], fov: 44 };
     C.gate_b = { pos: [GATE[0] + 0.15, hy(...GATE) + 1.6, GATE[1] - 1.8], look: [GATE[0] - 0.6, hy(...GATE) + 2.2, GATE[1] - 14], fov: 52 };
     const P = PALM.position;
-    C.dates_a = { pos: [P.x + 5.5, TOPY - 4.2, P.z + 4.2], look: [P.x, TOPY - 2.6, P.z], fov: 30 };
-    C.dates_b = { pos: [P.x + 5.5, TOPY - 4.2, P.z + 4.2], look: [P.x, TOPY - 1.8, P.z], fov: 30 };
+    C.dates_a = { pos: [P.x + 7.5, hy(P.x, P.z) + 1.6, P.z + 3.0], look: [P.x, TOPY - 2.4, P.z], fov: 26 };
+    C.dates_b = { pos: [P.x + 7.5, hy(P.x, P.z) + 1.6, P.z + 3.0], look: [P.x, TOPY - 1.6, P.z], fov: 24 };
     C.stream = { pos: [sx(14) + 0.25, -0.05, 14], look: [sx(8), -0.2, 8], fov: 34 };
     const P2 = PALM2.position;
     C.ring = { pos: [P2.x + 0.55, hy(P2.x, P2.z) + 1.62, P2.z + 0.62], look: [P2.x + 0.2, hy(P2.x, P2.z) + 1.42, P2.z + 0.12], fov: 24 };

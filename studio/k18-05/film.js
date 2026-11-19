@@ -111,7 +111,7 @@ M.film({
     hy = l.props.terrain.heightAt; gy = hy(...GATE);
     const PE = await K.people();
     OWN = PE.make({ kind: 'man', outfit: 'noble', palette: { ...PALETTES.noble, robe: '#f1e8d6', cloak: '#2a1f3a', trim: '#d4a63c', sash: '#7a2e24', skin: '#9a6a48' }, beard: 'full', headwear: 'turban', seed: 41, build: 1.25, detail: 0.9 });
-    FRI = PE.make({ kind: 'man', outfit: 'thobe', palette: { ...PALETTES.earth, robe: '#8a7a62', cloak: '#5a4a3a', skin: '#8a5a3a' }, beard: 'short', headwear: 'wrap', seed: 17, build: 0.85, detail: 0.7 });
+    FRI = PE.make({ kind: 'man', outfit: 'traveller', palette: { ...PALETTES.earth, robe: '#8a7a62', cloak: '#6a5a44', wrap: '#cfc2a8', skin: '#8a5a3a' }, beard: 'short', headwear: 'wrap', seed: 17, build: 0.85, detail: 0.7 });
     const gold = new THREE.MeshStandardMaterial({ color: 0xf0c050, metalness: 1, roughness: 0.18 }), ruby = new THREE.MeshPhysicalMaterial({ color: 0x9a0a1a, roughness: 0.05, clearcoat: 1 });
     const ring = (gem) => { const g = new THREE.Group(), q = new THREE.Mesh(new THREE.TorusGeometry(0.0125, 0.003, 12, 48), gold); q.rotation.x = Math.PI / 2; g.add(q); if (gem) { const s = new THREE.Mesh(new THREE.SphereGeometry(0.0042, 16, 12), ruby); s.position.z = 0.012; g.add(s); } g.scale.setScalar(100); return g; };
     OWN.bones('RightHandRing1').add(ring(true)); OWN.bones('RightHandIndex1').add(ring(false)); OWN.bones('LeftHandRing1').add(ring(false));
