@@ -20,15 +20,15 @@ const sm = (t, a, b) => K.easeIO(pr(t, a, b));
 const C = (pos, look, fov, roll = 0) => ({ pos, look, fov, roll });
 
 // key places (x, z) in the courtyard; y from h0
-const GAP = [3.2, 2.36, 1.55];               // the hole in the reed awning (world, y above h0)
+const GAP = [3.55, 2.36, 2.05];               // the hole in the reed awning (world, y above h0)
 const YQ = [3.0, 0.85];                      // Yaʿqūb's bench
 const STAFF = [[3.25, -0.33], [3.42, 1.72, -0.55]];
 const JARP = [1.55, -0.3];
-const TREEP = [-2.2, 2.3];
+const TREEP = [0.15, 0.9];
 
 // ------------------------------------------------------------------ sun: always aimed through the awning gap at a target
 const staffMid = () => V3(3.33, h0 + 1.0, -0.44);
-const T1 = () => V3(3.9, h0, 1.95), T2 = () => V3(3.45, h0, 1.62);
+const T1 = () => V3(4.25, h0, 2.75), T2 = () => V3(3.3, h0, 1.75);
 function sunTarget(t) {
   if (t < 3.97) return staffMid();
   if (t < 6.73) {                                     // time-lapse: three days race across wall and floor
@@ -63,12 +63,12 @@ async function build() {
     const fl = new THREE.Mesh(fg, fm); fl.receiveShadow = true; g.add(fl); }
   // the reed awning: four posts, two beams, a reed mat with one gap
   const reed = await W.pbr('reed_roof_03', { tile: 1.4, res: 1024, side: THREE.DoubleSide });
-  for (const [x, z] of [[2.0, 2.05], [4.05, 2.05], [2.0, -0.5], [4.05, -0.5]]) { const p = W.rbox(0.11, 2.42, 0.11, pl, { r: 0.02 }); p.position.set(x, h0, z); g.add(W.shadows(p)); }
-  for (const z of [2.05, -0.5]) { const b = W.rbox(2.35, 0.1, 0.12, pl, { r: 0.02 }); b.position.set(3.02, h0 + 2.38, z); g.add(W.shadows(b)); }
-  const sh = new THREE.Shape(); sh.moveTo(-1.15, -1.35); sh.lineTo(1.15, -1.35); sh.lineTo(1.15, 1.35); sh.lineTo(-1.15, 1.35); sh.lineTo(-1.15, -1.35);
-  const hole = new THREE.Path(), hx = GAP[0] - 3.02, hz = GAP[2] - 0.78; hole.moveTo(hx - 0.2, hz - 0.16); hole.lineTo(hx + 0.17, hz - 0.2); hole.lineTo(hx + 0.21, hz + 0.18); hole.lineTo(hx - 0.16, hz + 0.21); hole.lineTo(hx - 0.2, hz - 0.16); sh.holes.push(hole);
+  for (const [x, z] of [[1.25, 3.15], [4.75, 3.15], [1.25, -0.5], [4.75, -0.5]]) { const p = W.rbox(0.11, 2.42, 0.11, pl, { r: 0.02 }); p.position.set(x, h0, z); g.add(W.shadows(p)); }
+  for (const z of [3.15, -0.5]) { const b = W.rbox(3.75, 0.1, 0.12, pl, { r: 0.02 }); b.position.set(3.0, h0 + 2.38, z); g.add(W.shadows(b)); }
+  const sh = new THREE.Shape(); sh.moveTo(-1.85, -1.9); sh.lineTo(1.85, -1.9); sh.lineTo(1.85, 1.9); sh.lineTo(-1.85, 1.9); sh.lineTo(-1.85, -1.9);
+  const hole = new THREE.Path(), hx = GAP[0] - 3.0, hz = GAP[2] - 1.32; hole.moveTo(hx - 0.2, hz - 0.16); hole.lineTo(hx + 0.17, hz - 0.2); hole.lineTo(hx + 0.21, hz + 0.18); hole.lineTo(hx - 0.16, hz + 0.21); hole.lineTo(hx - 0.2, hz - 0.16); sh.holes.push(hole);
   const mg = new THREE.ShapeGeometry(sh, 24); mg.rotateX(Math.PI / 2); W.boxUV(mg);
-  const mat = new THREE.Mesh(mg, reed); mat.position.set(3.02, h0 + 2.46, 0.78); g.add(W.shadows(mat)); OBJ.mat = mat;
+  const mat = new THREE.Mesh(mg, reed); mat.position.set(3.0, h0 + 2.46, 1.32); g.add(W.shadows(mat)); OBJ.mat = mat;
   // the bench and the worn mat
   const bench = W.rbox(1.1, 0.42, 0.38, pl, { r: 0.03 }); bench.position.set(YQ[0], h0, YQ[1] - 0.12); g.add(W.shadows(bench));
   const mm = await K.mats.dyed(0x8a5a3a); const rug = W.cloth(1.3, 0.85, mm, { segW: 60, segH: 40, folds: 0.004, seed: 4 }); rug.rotation.x = -Math.PI / 2; rug.position.set(YQ[0] + 0.1, h0 + 0.012, YQ[1] + 0.85); g.add(rug); OBJ.rug = rug;
@@ -87,15 +87,15 @@ async function build() {
   JAR.rings = new THREE.Mesh(new THREE.CircleGeometry(0.118, 48).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: JAR.ringTex, transparent: true, depthWrite: false, opacity: 0.8 }));
   JAR.rings.position.copy(JAR.water.position); g.add(JAR.rings); OBJ.rings = JAR.rings; OBJ.water = JAR.water; OBJ.jar = jar;
   const hs = await K.mats.dyed(0x5a3a26);
-  SKIN = W.sack(hs, { w: 0.34, h: 0.44, seed: 9, tie: true }); SKIN.rotation.z = Math.PI; SKIN.position.set(JARP[0], h0 + 2.62, JARP[1] - 0.02); g.add(SKIN);
-  g.add(W.rope([V3(JARP[0], h0 + 3.12, JARP[1] - 0.06), V3(JARP[0], h0 + 2.95, JARP[1] - 0.03), V3(JARP[0], h0 + 2.66, JARP[1] - 0.02)], 0.008));
+  SKIN = W.sack(hs, { w: 0.34, h: 0.44, seed: 9, tie: true }); SKIN.rotation.z = Math.PI; SKIN.position.set(JARP[0], h0 + 2.2, JARP[1] - 0.02); g.add(SKIN);
+  g.add(W.rope([V3(JARP[0], h0 + 2.42, JARP[1] - 0.06), V3(JARP[0], h0 + 2.36, JARP[1] - 0.03), V3(JARP[0], h0 + 2.24, JARP[1] - 0.02)], 0.008));
   const dm = new THREE.MeshStandardMaterial({ color: 0xbfd6de, roughness: 0.03, metalness: 0.1, transparent: true, opacity: 0.85, envMapIntensity: 2.5 });
   for (let i = 0; i < 3; i++) { const d = new THREE.Mesh(new THREE.SphereGeometry(0.009, 16, 12), dm); d.scale.y = 1.5; g.add(d); DROPS.push(d); }
   // the olive sapling (growth.js): grows through the years in the time-lapse
   TREE = GR.makeTree(THREE, { species: 'olive', seed: 13 }); TREE.object3d.position.set(TREEP[0], hAt(...TREEP) - 0.02, TREEP[1]); g.add(TREE.object3d);
   const pit = W.contactShadow(0.9, 0.9, { op: 0.35 }); pit.position.set(TREEP[0], hAt(...TREEP) + 0.01, TREEP[1]); g.add(pit);
   // the light shaft through the gap + dust motes in it
-  SHAFT = W.lightShaft({ from: [GAP[0], h0 + GAP[1], GAP[2]], to: [3.4, h0, 1.6], r0: 0.18, r1: 0.26, op: 0.07, color: 0xffe2b0 }); g.add(SHAFT);
+  SHAFT = W.lightShaft({ from: [GAP[0], h0 + GAP[1], GAP[2]], to: [3.6, h0, 1.9], r0: 0.18, r1: 0.26, op: 0.07, color: 0xffe2b0 }); g.add(SHAFT);
   const N = 260, mg2 = new THREE.SphereGeometry(0.0022, 6, 4), mm2 = new THREE.MeshBasicMaterial({ color: 0xfff0d0, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending, depthWrite: false });
   MOTES = new THREE.InstancedMesh(mg2, mm2, N); MOTES.frustumCulled = false; g.add(MOTES);
   // people: Yaʿqūb (elder) and five of his sons
@@ -125,7 +125,7 @@ const hideAll = () => { P.yq.object3d.visible = false; P.bro.forEach((b) => (b.o
 function sons(t, list) { list.forEach(([x, z, yaw, clip, o], i) => { const b = P.bro[i]; b.object3d.visible = true; K.place(b, x, hAt(x, z), z, yaw); b.setPose(clip, t, { offset: i * 0.6, ...(o || {}) }); }); }
 function growth(t) { const gg = 0.07 + 0.43 * sm(t, 4.0, 6.7); TREE.setGrowth(gg); }
 function drops(t) {
-  const per = 0.9, top = h0 + 2.2, bot = JAR.top - 0.08, fall = Math.sqrt(2 * (top - bot) / 9.81), rings = [];
+  const per = 0.9, top = h0 + 1.78, bot = JAR.top - 0.08, fall = Math.sqrt(2 * (top - bot) / 9.81), rings = [];
   for (let i = 0; i < 3; i++) {
     const k = Math.floor(t / per) - i, t0 = k * per, a = t - t0, d = DROPS[i];
     if (a < 0.35) { d.visible = true; const s = 0.4 + 0.6 * a / 0.35; d.scale.set(s, s * 1.5, s); d.position.set(JARP[0], top + 0.01 - 0.01 * s, JARP[1] - 0.02); }
@@ -167,9 +167,9 @@ function shots() {
     } },
     // 6 close on the folded hands in the lap
     { t0: 9.48, t1: 12.81, cam: (t) => { const p = P.yq, hc = K.handPos(p, 'Left').lerp(K.handPos(p, 'Right'), 0.5), k = 1 - 0.15 * sm(t, 9.48, 12.81);
-      return C(hc.clone().add(V3(0.42 * k, 0.32 * k, -0.08)).toArray(), hc.toArray(), 30); }, s(t) { yaqub(t, { fold: true }); } },
+      return C(hc.clone().add(V3(0.62 * k, 0.52 * k, -0.2)).toArray(), hc.toArray(), 34); }, s(t) { yaqub(t, { fold: true }); } },
     // 7 up from his hands to the open sky (his gaze), a cloud drifts
-    { t0: 12.81, t1: 14.14, a: C([YQ[0] + 0.7, y + 1.0, YQ[1] + 0.2], [YQ[0] + 0.1, y + 0.75, YQ[1] + 0.4], 40), b: C([YQ[0] + 0.7, y + 1.05, YQ[1] + 0.2], [YQ[0] + 0.6, y + 8, YQ[1] + 6], 44), s(t) { yaqub(t, { fold: true }); } },
+    { t0: 12.81, t1: 14.14, a: C([YQ[0] + 0.4, y + 1.1, YQ[1] + 3.0], [YQ[0], y + 0.7, YQ[1] + 0.4], 40), b: C([YQ[0] + 0.4, y + 1.1, YQ[1] + 3.0], [YQ[0] + 0.6, y + 9, YQ[1] + 9], 46), s(t) { yaqub(t, { fold: true }); } },
     // 8 dust lifting through the shaft over the mat, the edge of his cloak in the light
     { t0: 14.14, t1: 16.37, a: C([YQ[0] + 1.25, y + 0.55, YQ[1] + 1.6], [YQ[0] + 0.25, y + 0.45, YQ[1] + 0.6], 34), b: C([YQ[0] + 1.15, y + 0.6, YQ[1] + 1.5], [YQ[0] + 0.25, y + 0.5, YQ[1] + 0.6], 33), s(t) { yaqub(t, { fold: true }); } },
     // 9 the sons leave through the gate and down the road toward the horizon
@@ -179,7 +179,7 @@ function shots() {
       sons(t, [[-0.3, 4.2 + w(0), 0.05, 'walk'], [0.5, 4.5 + w(1), -0.05, 'walk'], [1.2, 4.1 + w(2), 0, 'walk'], [-1.0, 4.6 + w(3), 0.1, 'walk'], [0.2, 5.3 + w(4), 0, 'walk']]);
     } },
     // 10 the patch of sun crawls across the stones toward him
-    { t0: 18.9, t1: 21.89, a: C([YQ[0] + 1.35, y + 0.42, YQ[1] + 2.4], [YQ[0] + 0.5, y + 0.05, YQ[1] + 0.9], 36), b: C([YQ[0] + 1.15, y + 0.42, YQ[1] + 2.15], [YQ[0] + 0.4, y + 0.08, YQ[1] + 0.8], 34), s(t) { yaqub(t, { fold: true }); } },
+    { t0: 18.9, t1: 21.89, a: C([4.6, y + 0.75, 3.0], [3.6, y + 0.05, 1.7], 44), b: C([4.5, y + 0.72, 2.85], [3.5, y + 0.08, 1.6], 42), s(t) { yaqub(t, { fold: true }); } },
     // 11 olive leaves turn in the rising wind (the old olive by the yard)
     { t0: 21.89, t1: 24.7, a: C([7.4, y + 2.0, 5.6], [9.5, hAt(9.5, 3.5) + 4.2, 3.5], 40), b: C([7.45, y + 2.0, 5.55], [9.5, hAt(9.5, 3.5) + 4.3, 3.5], 39.5), s(t) { yaqub(t, { fold: true }); } },
     // 12 the water jar fills, drop by drop, from the hanging waterskin
@@ -220,7 +220,7 @@ M.film({
     s.s(t);
     const { g, d } = aimSun(t), tgt = sunTarget(t);
     SHAFT.visible = !(t >= 3.97 && t < 6.73);
-    { const L0 = V3(GAP[0], h0 + GAP[1], GAP[2]).distanceTo(V3(3.4, h0, 1.6)), dv = tgt.clone().sub(g);
+    { const L0 = V3(GAP[0], h0 + GAP[1], GAP[2]).distanceTo(V3(3.6, h0, 1.9)), dv = tgt.clone().sub(g);
       SHAFT.position.copy(g); SHAFT.quaternion.setFromUnitVectors(V3(0, -1, 0), dv.clone().normalize()); SHAFT.scale.set(1, dv.length() / L0, 1); SHAFT.userData.update(t, 1); }
     dust(t, g, d, tgt);
     MOTES.visible = SHAFT.visible;

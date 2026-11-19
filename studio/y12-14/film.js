@@ -17,11 +17,11 @@ const C = (pos, look, fov, roll = 0) => ({ pos, look, fov, roll });
 const DZ = -24, FLOOR = 0.08;
 // the dais: three steps (tops 0.38, 0.68, 0.98), fronts at z -21.8, -22.55, -23.3; smooth risers so feet never pop
 const stepY = (z) => FLOOR + 0.3 * sstep(-21.7, -21.9, z) + 0.3 * sstep(-22.45, -22.65, z) + 0.3 * sstep(-23.2, -23.4, z);
-const BRO = [[-1.8, -10.9], [-0.9, -10.5], [0.0, -11.0], [0.9, -10.6], [1.8, -11.1]];
+const BRO = [[-1.4, -10.9], [-0.7, -10.5], [0.0, -11.0], [0.7, -10.6], [1.4, -11.1]];
 const YSTOP = -18.0;
 
 // the sun comes from the gate side (+z), low, and sinks a little through the film: shadows lengthen toward the dais
-function sunDir(t) { const e = (17 - 7 * sm(t, 15, 22)) * Math.PI / 180, a = 0.0; return V3(Math.sin(a) * Math.cos(e), Math.sin(e), Math.cos(a) * Math.cos(e)); }
+function sunDir(t) { const e = (18 - 6 * sm(t, 15, 22)) * Math.PI / 180, a = 0.0; return V3(Math.sin(a) * Math.cos(e), Math.sin(e), Math.cos(a) * Math.cos(e)); }
 function aimSun(t) {
   const L = SET.atmo.sun, f = V3(0, 0, -16), d = sunDir(t);
   L.position.copy(f).addScaledVector(d, 150); L.target.position.copy(f); L.target.updateMatrixWorld();
@@ -33,6 +33,7 @@ async function build() {
   ST = W.stage(SET);
   // turn the sky (env + background) so the HDRI's sun sits where our sun is (gate side, +z)
   const da = (250 - 78) * Math.PI / 180; SET.scene.environmentRotation.y += da; SET.scene.backgroundRotation.y += da;
+  for (const D0 of SET.props.gate) D0.leaf.rotation.y = 1.62;
   SET.atmo.sun.intensity *= 2.6; SET.scene.environmentIntensity *= 0.55; if (SET.atmo.hemi) SET.atmo.hemi.intensity *= 0.5; SET.atmo.sun.color.set(0xffc58a); ST.bloom = 0.1; ST.bloomThreshold = 0.96;
   // dust in the low sun across the court
   const N = 700, mg = new THREE.SphereGeometry(0.0022, 6, 4), mm = new THREE.MeshBasicMaterial({ color: 0xffd8a0, transparent: true, opacity: 0.7, blending: THREE.AdditiveBlending, depthWrite: false });
@@ -82,8 +83,8 @@ function dust(t) {
 }
 
 function shots() {
-  const floorA = C([2.3, 0.42, -12.0], [-0.5, 0.0, -19.5], 58), floorB = C([2.1, 0.42, -12.8], [-0.5, 0.0, -20.2], 58);
-  const armA = C([-1.6, 2.65, -23.65], [-0.62, 1.96, -24.95], 24), armB = C([-1.55, 2.62, -23.72], [-0.62, 1.96, -24.95], 22);
+  const floorA = C([0.9, 0.5, -12.2], [-0.1, 0.0, -18.0], 60), floorB = C([0.85, 0.5, -12.9], [-0.1, 0.0, -18.6], 60);
+  const armA = C([-2.3, 2.45, -23.3], [-0.62, 1.98, -24.95], 32), armB = C([-2.2, 2.42, -23.4], [-0.62, 1.98, -24.95], 30);
   return [
     { t0: 0, t1: 2.16, a: floorA, b: floorB },                                                                                  // 1 long shadows on the stone, toward the dais
     { t0: 2.16, t1: 4.04, a: C([0.6, 0.4, -15.5], [0, 0.7, -23.5], 50), b: C([0.5, 0.42, -16.8], [0, 0.8, -23.5], 46) },            // 2 the shadows reach for the steps; dust
@@ -93,7 +94,7 @@ function shots() {
     { t0: 10.84, t1: 13.5, a: C([0.9, 1.7, -16.4], [0, 1.1, -10.8], 46), b: C([0.8, 0.45, -15.8], [0, 0.5, -10.8], 50) },            // 6 lowering toward the stone between them
     { t0: 13.5, t1: 15.9, a: C([1.6, 0.16, -17.2], [-0.3, 0.1, -12.5], 70), b: C([1.5, 0.16, -16.9], [-0.3, 0.1, -12.5], 68) },        // 7 floor level: the shadows reach toward him
     { t0: 15.9, t1: 17.38, a: C([-1.0, 0.55, -19.6], [0, 1.4, -4], 56), b: C([-0.9, 0.58, -19.0], [0, 1.45, -4], 53) },               // 8 dust glowing in the low sun
-    { t0: 17.38, t1: 20.84, a: C([2.8, 7.6, -13.2], [0, 0, -14.5], 60), b: null },                                               // 9 the shadows merge into one (locked)
+    { t0: 17.38, t1: 20.84, a: C([2.9, 2.4, -9.6], [0, 0.0, -16.5], 54), b: null },                                               // 9 the shadows merge into one (locked)
     { t0: 20.84, t1: 22.64, a: armA, b: armB },                                                                                 // 10 the throne arm, empty: the power he had
     { t0: 22.64, t1: 24.48, a: C([0.55, 1.85, YSTOP - 1.3], [-0.1, 1.35, -11], 40), b: C([0.5, 1.8, YSTOP - 1.05], [-0.1, 1.35, -11], 37) }, // 11 his open hand lifted in the light
     { t0: 24.48, t1: 26.42, a: C([2.6, 1.25, -19.6], [0, 1.4, -25], 38), b: null },                                               // 12 the dais, empty
@@ -116,7 +117,7 @@ M.film({
     M.fill(ctx, '#000');
     aimSun(t); yusuf(t); brothers(t); dust(t);
     const s = K.shotAt(SHOTS, t), cam = K.camAt(s, t);
-    G.renderSet(ctx, ST, t, u, { cam, exposure: 0.78 });
+    G.renderSet(ctx, ST, t, u, { cam, exposure: s.t0 === 17.38 ? 0.95 : 0.78 });
     K.vignette(ctx, 0.3);
     CAP.draw(ctx, t);
     K.drawSeal(ctx, IMG.seal, t, 27.65, D);
