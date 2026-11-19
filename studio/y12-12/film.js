@@ -151,7 +151,7 @@ function shots() {
     // 12 one star among the rest: a slow push
     { t0: 21.23, t1: 22.93, a: C(at(22.0, 2.2, 1.0), starLook(at(22.0, 2.2, 1.0), 0.04), 34), b: C(at(22.0, 2.2, 1.0), starLook(at(22.0, 2.2, 1.0), 0), 20), s(t) { BOWL.visible = false; } },
     // 13 the folded hands again, unmoving
-    { t0: 22.93, t1: 24.69, a: C(at(YT[0] - 0.62, YT[1] + 0.55, 1.78), [YT[0] + 0.02, hAt(YT[0], YT[1]) + 0.95, YT[1] - 0.3], 36), b: C(at(YT[0] - 0.58, YT[1] + 0.5, 1.76), [YT[0] + 0.02, hAt(YT[0], YT[1]) + 0.95, YT[1] - 0.3], 34), s(t) {
+    { t0: 22.93, t1: 24.69, a: C(at(YT[0] + 0.5, YT[1] + 0.95, 2.1), [YT[0] + 0.02, hAt(YT[0], YT[1]) + 0.95, YT[1] - 0.3], 40), b: C(at(YT[0] + 0.46, YT[1] + 0.88, 2.08), [YT[0] + 0.02, hAt(YT[0], YT[1]) + 0.95, YT[1] - 0.3], 38), s(t) {
       BAGB.setOpen(1);
       show(P.yusuf); K.place(P.yusuf, ...at(YT[0], YT[1]), YT[2]); P.yusuf.setPose('stand', t);
       const pos = K.onBody(P.yusuf, 0, 1.0, 0.24); bowlAt(pos.clone().add(V3(0, -0.06, 0)), 0);
