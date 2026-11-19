@@ -256,7 +256,7 @@ export async function atmosphere(scene, { hdri: name = 'plains_sunset', envI = 1
   const H = await hdri(name), info = H.info;
   let dir = info.sunDir.clone();
   if (sun) {
-    const e = THREE.MathUtils.degToRad(sun.elev), a = THREE.MathUtils.degToRad(sun.azim);
+    const e = sun.elev === undefined ? Math.asin(info.sunDir.y) : THREE.MathUtils.degToRad(sun.elev), a = THREE.MathUtils.degToRad(sun.azim);
     const nd = V3(Math.cos(a) * Math.cos(e), Math.sin(e), Math.sin(a) * Math.cos(e));
     const rot = Math.atan2(info.sunDir.z, info.sunDir.x) - Math.atan2(nd.z, nd.x);
     scene.environmentRotation.set(0, rot, 0); scene.backgroundRotation.set(0, rot, 0);
@@ -711,6 +711,56 @@ export function lightShaft({ from, to, r0 = 0.3, r1 = 0.9, color = 0xffd9a0, op 
   const mesh = new THREE.Mesh(g, m); mesh.position.copy(a); mesh.quaternion.setFromUnitVectors(V3(0, -1, 0), b.clone().sub(a).normalize()); mesh.renderOrder = 5;
   mesh.userData.update = (t, k = 1) => { m.uniforms.time.value = Math.floor(t * 8); m.uniforms.op.value = op * k; };
   return mesh;
+}
+
+
+// ------------------------------------------------------------------ contact shadows + ground cover (scale cues)
+let _blob = null;
+function blobTex() {
+  if (_blob) return _blob;
+  const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d'), g = x.createRadialGradient(64, 64, 0, 64, 64, 64);
+  g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(0.45, 'rgba(0,0,0,0.7)'); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, 0, 128, 128);
+  return (_blob = new THREE.CanvasTexture(c));
+}
+// a soft dark contact patch under an object (ambient occlusion where it meets the ground)
+export function contactShadow(w, d, { op = 0.55, y = 0.012 } = {}) {
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, d).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: blobTex(), transparent: true, opacity: op, depthWrite: false,
+    polygonOffset: true, polygonOffsetFactor: -4, color: 0x000000 }));
+  m.position.y = y; m.renderOrder = 2; m.name = 'contact';
+  return m;
+}
+// put an object on the ground: sink it a little, align to slope, add its contact shadow. Returns the object.
+export function ground(o, x, z, heightAt, { sink = 0.03, ry = null, shadow = [1, 1], op = 0.5, parent = null, align = 0.6, normalAt = null } = {}) {
+  const y = heightAt(x, z); o.position.set(x, y - sink, z); if (ry !== null) o.rotation.y = ry;
+  if (normalAt && align) { const n = normalAt(x, z); o.rotation.x += Math.atan2(n.z, n.y) * align; o.rotation.z -= Math.atan2(n.x, n.y) * align; }
+  if (shadow) { const b = new THREE.Box3().setFromObject(o), sz = b.getSize(V3()); const c = contactShadow(Math.max(0.2, sz.x * 1.25 * shadow[0]), Math.max(0.2, sz.z * 1.25 * shadow[1]), { op });
+    c.position.set(x, y + 0.012, z); (parent || o.parent)?.add(c); o.userData.contact = c; }
+  return o;
+}
+// dry grass tufts: instanced clumps of curved blades
+export function tufts(items, { color = 0xb8a868, h = 0.35, blades = 14, seed = 2 } = {}) {
+  const r = rng(seed), geos = [];
+  for (let i = 0; i < blades; i++) { const a = r() * Math.PI * 2, lean = 0.3 + r() * 0.6, L = h * (0.6 + r() * 0.5);
+    const g = new THREE.PlaneGeometry(0.012, L, 1, 5).translate(0, L / 2, 0), p = g.attributes.position;
+    for (let k = 0; k < p.count; k++) { const y = p.getY(k) / L; p.setX(k, p.getX(k) * (1 - y * 0.8)); p.setZ(k, y * y * lean * L); }
+    g.rotateY(a); g.translate(Math.cos(a) * 0.03, 0, Math.sin(a) * 0.03); geos.push(g.toNonIndexed()); }
+  const geo = BGU.mergeGeometries(geos); geo.computeVertexNormals();
+  const im = new THREE.InstancedMesh(geo, new THREE.MeshStandardMaterial({ color, roughness: 0.9, side: THREE.DoubleSide }), items.length), M = new THREE.Matrix4(), Q = new THREE.Quaternion();
+  items.forEach((it, i) => { Q.setFromAxisAngle(V3(0, 1, 0), it.ry ?? 0); M.compose(V3(it.x, it.y, it.z), Q, V3(it.s, it.s * (0.8 + 0.4 * r()), it.s)); im.setMatrixAt(i, M);
+    im.setColorAt(i, new THREE.Color(color).multiplyScalar(0.75 + r() * 0.4)); });
+  im.castShadow = true; im.receiveShadow = true; im.name = 'tufts';
+  return im;
+}
+// pebbles + tufts + medium rocks over terrain near a focus (the scale cues the eye needs)
+export async function groundCover({ heightAt, focus = [0, 0], radius = 30, area = () => 1, seed = 5, pebbles = 900, rocks = 60, tuftN = 160, tuftColor = 0xb8a868, boulders = 0 }) {
+  const g = new THREE.Group(); g.name = 'ground_cover';
+  const rect = [focus[0] - radius, focus[1] - radius, focus[0] + radius, focus[1] + radius];
+  const near = (x, z) => area(x, z) * (1 - sstep(radius * 0.4, radius, Math.hypot(x - focus[0], z - focus[1])) * 0.7);
+  if (pebbles) g.add(await scatter('rock_09', scatterPoints({ seed, count: pebbles, rect, heightAt, s: [0.25, 1.6], sink: 0.004, area: near })));
+  if (rocks) g.add(await scatter('rock_07', scatterPoints({ seed: seed + 1, count: rocks, rect, heightAt, s: [1.5, 7], sink: 0.04, area: near })));
+  if (boulders) g.add(await scatter('namaqualand_boulder_03', scatterPoints({ seed: seed + 3, count: boulders, rect: [rect[0] * 3, rect[1] * 3, rect[2] * 3, rect[3] * 3], heightAt, s: [0.4, 1.2], sink: 0.25, area: (x, z) => area(x, z) * (Math.hypot(x - focus[0], z - focus[1]) > radius * 0.5 ? 1 : 0) }), { lod: { focus, far: 80 } }));
+  if (tuftN) g.add(tufts(scatterPoints({ seed: seed + 2, count: tuftN, rect, heightAt, s: [0.6, 1.4], sink: 0.01, area: near }), { color: tuftColor }));
+  return g;
 }
 
 // ------------------------------------------------------------------ people hooks

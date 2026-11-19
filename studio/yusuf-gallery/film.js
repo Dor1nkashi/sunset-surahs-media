@@ -50,7 +50,5 @@ M.film({
     G.renderSet(ctx, st, t, u, { cam });
     window.LAST_MS = performance.now() - a;
     CAP.draw(ctx, t);
-    ctx.save(); ctx.font = font(26, 600, 'UI'); ctx.fillStyle = 'rgba(255,255,255,0.75)'; ctx.textAlign = 'left';
-    ctx.fillText(`${i + 1}/${SLOTS.length}  ${name}.${anchor}`, M.FORMAT.safe.x, M.FORMAT.safe.y + 10); ctx.restore();
   },
 });

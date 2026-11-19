@@ -40,10 +40,10 @@ const TIMES = {
              sky: { zenith: 0x02040c, sunColor: 0x000000, glow: 0, hazeH: 0.35 }, fogColor: 0x0b1222, moon: { dir: dirFrom(38, 210), phase: 0.7 }, hemi: 0.15 },
   predawn: { hdri: 'rogland_moonlit_night', sun: { elev: 30, azim: 210 }, sunI: 0.4, sunColor: 0xb0c4ff, envI: 1.8, starsOn: 0.8, exposure: 1.9, fog: 0.004,
              sky: { zenith: 0x040a1e, sunColor: 0x000000, glow: 0, hazeH: 0.45 }, fogColor: 0x1c2640, moon: { dir: dirFrom(30, 210), phase: 0.4 }, hemi: 0.2 },
-  dawn:    { hdri: 'rogland_sunset', sun: { elev: 4, azim: -25 }, sunI: 2.2, envI: 1.0, exposure: 1.05, fog: 0.0035 },
-  day:     { hdri: 'goegap', sun: { elev: 62, azim: 40 }, sunI: 3.4, envI: 1.0, exposure: 0.95, fog: 0.0022 },
-  golden:  { hdri: 'plains_sunset', sun: { elev: 9, azim: -30 }, sunI: 3.0, envI: 1.0, exposure: 1.0, fog: 0.003 },
-  dusk:    { hdri: 'rogland_sunset', sun: { elev: 2.5, azim: -35 }, sunI: 1.6, envI: 1.1, exposure: 1.15, fog: 0.0035 },
+  dawn:    { hdri: 'rogland_sunset', background: 'hdri', sun: { azim: -25 }, sunI: 2.4, envI: 1.0, exposure: 1.0, fog: 0.0022 },
+  day:     { hdri: 'goegap', background: 'hdri', sun: { azim: 40 }, sunI: 3.6, envI: 1.0, exposure: 0.85, fog: 0.0016 },
+  golden:  { hdri: 'plains_sunset', background: 'hdri', sun: { azim: -30 }, sunI: 3.2, envI: 1.0, exposure: 0.95, fog: 0.0018 },
+  dusk:    { hdri: 'rogland_sunset', background: 'hdri', sun: { azim: -35 }, sunI: 2.0, envI: 1.1, exposure: 1.05, fog: 0.0022 },
 };
 async function base(name, time, extra = {}) {
   const scene = new THREE.Scene(), group = new THREE.Group(); group.name = name; scene.add(group);
@@ -71,7 +71,7 @@ async function buildWell(S, { depth = 9, r = 0.78, wall = 0.34, h = 0.82, beam =
   const ring = W.lathe(prof, rim, { seg: 180 }); g.add(ring);
   // the shaft, seen from inside: dense open cylinder, faces inward
   const sp = []; const n = Math.ceil(depth * 10); for (let i = 0; i <= n; i++) sp.push([r + 0.02 * Math.sin(i * 0.7), -0.35 - depth * i / n]);
-  const sh = W.lathe(sp, shaft, { seg: 160 }); sh.material = shaft.clone(); sh.material.side = THREE.BackSide; g.add(sh);
+  const sh = W.lathe(sp, shaft, { seg: 160 }); sh.material = shaft.clone(); sh.material.side = THREE.DoubleSide; sh.name = 'shaft'; g.add(sh);
   // water at the bottom (still, dark) and a wet stone floor ring
   const waterY = -depth + 0.25;
   const wat = W.water(new THREE.CircleGeometry(r + 0.02, 64).rotateX(-Math.PI / 2), { color: 0x0c1a1c, rough: 0.03, tile: 1.2, flow: [0.004, 0.002] });
@@ -151,13 +151,25 @@ async function slabFloor({ w = 20, d = 30, size = 1.4, seed = 4, rough = 0.5, ti
   const mesh = new THREE.Mesh(W.BGU.mergeGeometries(geos), m); mesh.receiveShadow = true; mesh.castShadow = false; mesh.name = 'slab_floor';
   return mesh;
 }
-// a pack bundle: hessian-wrapped rounded box with rope bands
-async function bundle({ w = 0.9, h = 0.5, d = 0.55 } = {}) {
-  const hs = await MATS.hessian(), g = new THREE.Group(), b = W.rbox(w, h, d, hs, { r: 0.16, seg: 6 }); g.add(b);
-  const p = b.geometry.attributes.position, n = W.noise2(Math.round(w * 100));
-  for (let i = 0; i < p.count; i++) p.setXYZ(i, p.getX(i) * (1 + 0.04 * n(p.getY(i) * 6, p.getZ(i) * 6)), p.getY(i) * (1 - 0.03 * Math.abs(p.getX(i))), p.getZ(i) * (1 + 0.05 * n(p.getX(i) * 5, p.getY(i) * 5)));
-  b.geometry.computeVertexNormals();
-  for (const x of [-w * 0.28, w * 0.28]) { const band = new THREE.Mesh(new THREE.TorusGeometry(1, 0.015, 8, 64).scale(d * 0.52, h * 0.53, 1).rotateY(Math.PI / 2).translate(x, h / 2, 0), W.ropeMat()); g.add(W.shadows(band)); }
+// a pack bundle: hessian-wrapped load, cloth sagging between rope lashings (two girths + one lengthwise), knot tails
+async function bundle({ w = 0.9, h = 0.5, d = 0.55, seed = 1 } = {}) {
+  const hs = await MATS.hessian(), g = new THREE.Group(), b = W.rbox(w, h, d, hs, { r: Math.min(h, d) * 0.32, seg: 10 }), n = W.noise2(seed * 7 + Math.round(w * 100));
+  const bands = [-w * 0.27, w * 0.27], p = b.geometry.attributes.position;
+  for (let i = 0; i < p.count; i++) {
+    const x = p.getX(i), y = p.getY(i) - h / 2, z = p.getZ(i);
+    // pinch toward the core at each rope, bulge between; cloth wrinkles; sag of the top
+    const pinch = bands.reduce((a, bx) => a + Math.exp(-((x - bx) ** 2) / 0.0012), 0) + Math.exp(-(z * z) / 0.0012) * (y > 0 ? 1 : 0) * 0.6;
+    const k = 1 - 0.07 * pinch + 0.025 * n(x * 9, y * 9 + z * 5) + 0.012 * n(x * 31, z * 31);
+    const sag = y > h * 0.3 ? -0.035 * Math.cos(Math.min(1, Math.abs(x) / (w / 2)) * Math.PI / 2) * (1 - 0.6 * pinch) : 0;
+    p.setXYZ(i, x * (1 + 0.02 * n(y * 5, z * 5)), (y * k + sag) + h / 2, z * k);
+  }
+  b.geometry.computeVertexNormals(); g.add(b);
+  const ring = (fn, segs = 64) => { const pts = []; for (let i = 0; i <= segs; i++) pts.push(fn(i / segs * Math.PI * 2)); return W.rope(pts, 0.011, { segs: 160 }); };
+  for (const bx of bands) g.add(ring((a) => V3(bx, h / 2 + Math.sin(a) * (h * 0.47 + 0.008), Math.cos(a) * (d * 0.47 + 0.008))));
+  g.add(ring((a) => V3(Math.cos(a) * (w * 0.49 + 0.008), h / 2 + Math.sin(a) * (h * 0.47 + 0.008), 0)));
+  const kx = bands[1], tail = W.rope([V3(kx, h + 0.005, 0.02), V3(kx + 0.05, h + 0.02, 0.06), V3(kx + 0.04, h * 0.7, d / 2 + 0.03), V3(kx + 0.07, h * 0.35, d / 2 + 0.05)], 0.01);
+  const knot = new THREE.Mesh(new THREE.SphereGeometry(0.022, 16, 12), W.ropeMat()); knot.position.set(kx, h + 0.01, 0.02);
+  g.add(tail, W.shadows(knot));
   return g;
 }
 // striped saddle blanket roll
@@ -218,7 +230,7 @@ export async function canaan_hills({ time = 'dusk', seed = 12, olives = 14, tent
     h = lerp(h, h0 + 0.15 * n(x * 0.4, z * 0.4), pad);
     return h + 0.05 * n2(x * 1.3, z * 1.3);
   };
-  const terrMat = await W.terrainMaterial([{ name: 'dry_ground_rocks', tile: 3.2, tint: 0xf4e6d0 }, { name: 'rustic_stone_wall', tile: 2.2, tint: 0xf0e6d4 }, { name: 'brown_mud_dry', tile: 2.6, tint: 0xe8d4b8 }], { macro: 0.22 });
+  const terrMat = await W.terrainMaterial([{ name: 'dry_ground_rocks', tile: 3.2 }, { name: 'rustic_stone_wall', tile: 2.2, tint: 0xf4ead8 }, { name: 'brown_mud_dry', tile: 2.6 }], { macro: 0.22 });
   const T = W.terrain({ size: 900, seg: 440, centre: [0, -6], height, material: terrMat,
     weights: (x, z, h, sl) => { const rock = sstep(0.18, 0.4, sl), yard = 1 - sstep(4, 10, Math.hypot(x - HOUSE[0], (z - HOUSE[1] - 3) * 1.1)); return [1 - rock, rock * 1.4, yard * (1 - rock) * 1.4]; } });
   add(S, T.mesh);
@@ -248,19 +260,22 @@ export async function canaan_hills({ time = 'dusk', seed = 12, olives = 14, tent
   // rocks (library, LOD) and dry shrubs on the hillside
   const rocks = W.scatterPoints({ seed: seed + 9, count: 260, rect: [-160, -200, 160, 60], heightAt: hy, s: [0.5, 2.2], sink: 0.15,
     area: (x, z) => Math.hypot(x - HOUSE[0], z - HOUSE[1]) > 12 && Math.hypot(x - 12, z + 10) > 6 && Math.hypot(x - WELL[0], z - WELL[1]) > 3 ? 0.55 + 0.45 * (1 - T.normalAt(x, z).y) * 3 : 0 });
-  add(S, await W.scatter('rock_07', rocks.filter((_, i) => i % 2), { lod: { focus: [0, 0], far: 45 } }));
-  add(S, await W.scatter('rock_09', rocks.filter((_, i) => !(i % 2)), { lod: { focus: [0, 0], far: 45 } }));
+  add(S, await W.scatter('rock_07', rocks.map((p) => ({ ...p, s: p.s * 5 })), { lod: { focus: [0, 0], far: 45 } }));
   const shrubs = W.scatterPoints({ seed: seed + 13, count: 90, rect: [-70, -90, 70, 30], heightAt: hy, s: [0.5, 0.9], sink: 0.05,
     area: (x, z) => Math.hypot(x - HOUSE[0], z - HOUSE[1]) > 11 && Math.hypot(x - 12, z + 10) > 6 ? 0.7 : 0 });
   add(S, await W.scatter('shrub_02', shrubs, { lod: null }));
+  const at = (x, z, dy) => [x, Math.max(hy(x, z), h0) + dy, z];
+  add(S, await W.groundCover({ heightAt: hy, focus: [3, 8], radius: 26, seed: seed + 21, pebbles: 700, rocks: 70, tuftN: 220, boulders: 30,
+    area: (x, z) => Math.hypot(x - HOUSE[0], z - HOUSE[1]) > 5.5 && Math.hypot(x - 12, z + 10) > 5.5 && Math.hypot(x - WELL[0], z - WELL[1]) > 2.2 ? 1 : 0 }));
+  wool.forEach((k) => S.group.add(W.contactShadow(0.9, 0.9, { op: 0.5 })).children.at(-1).position.set(k.position.x, k.position.y + 0.03, k.position.z));
   const cameras = {
-    hero:     { pos: [5.5, h0 + 2.2, 17], look: [0, h0 + 2.3, -2], fov: 46 },               // the house on its pad, olive terraces, sky
+    hero:     { pos: at(6.5, 16, 1.7), look: [0, h0 + 2.0, -2], fov: 48 },               // the house on its pad, olive terraces, sky
     roof:     { pos: [3.2, h0 + 4.4, 1.8], look: [-1.2, h0 + 4.0, -3.5], fov: 48 },          // on the flat roof
-    sky:      { pos: [2, h0 + 1.6, 14], look: [-2, h0 + 16, -20], fov: 58 },                 // the dream sky above the roof
+    sky:      { pos: at(2, 14, 1.6), look: [-2, h0 + 16, -20], fov: 58 },                 // the dream sky above the roof
     pen_fire: { pos: [4.6, hy(4.6, -1.8) + 1.0, -1.8], look: [8.5, hy(8.5, -6) + 0.6, -6], fov: 44 },
-    doorway:  { pos: [0.6, h0 + 1.4, 6.8], look: [0, h0 + 1.1, 1.2], fov: 38 },
+    doorway:  { pos: at(0.6, 6.8, 1.4), look: [0, h0 + 1.1, 1.2], fov: 38 },
     well:     { pos: [WELL[0] + 5, hy(...WELL) + 1.6, WELL[1] + 5], look: [WELL[0], hy(...WELL) + 0.6, WELL[1]], fov: 40 },
-    wide:     { pos: [22, h0 + 9, 34], look: [-4, h0 + 2, -8], fov: 42 },
+    wide:     { pos: at(22, 34, 9), look: [-4, h0 + 2, -8], fov: 42 },
   };
   const slots = { father_door: [0, h0, 2.2, 0], boy_roof: [-1.0, h0 + H.roofY, -1.5, Math.PI], brothers_fire_1: [6.2, hy(6.2, -3.4), -3.4, 2.2], brothers_fire_2: [8.2, hy(8.2, -5.8), -5.8, -0.6], brothers_fire_3: [6.4, hy(6.4, -5.6), -5.6, 0.9] };
   const props = { house: H.group, door: H.door, pen, fire, firepit: pit, wool, well: well.group, wellRope: well.rope, olives: oliveList, tents: tentList, terrain: T, sky: S.atmo.sky, stars: S.atmo.stars, sun: S.atmo.sun };
@@ -269,19 +284,18 @@ export async function canaan_hills({ time = 'dusk', seed = 12, olives = 14, tent
 
 // THE WELL: a stone-lined dry well on an open desert slope at midday; inside-looking-up shot.
 export async function the_well({ time = 'day', seed = 31 } = {}) {
-  const S = await base('the_well', time, { shadowBox: 18, sun: { elev: 72, azim: 35 } });
+  const S = await base('the_well', time, { shadowBox: 18, sun: { azim: 35 } });
   const n = W.noise2(seed), n2 = W.noise2(seed + 4);
-  const height = (x, z) => { const d = Math.hypot(x, z); return 4 * W.fbm(n, x / 70, z / 70, 5) + 0.035 * -z + 18 * sstep(120, 300, d) * W.ridged(n2, x / 90, z / 90) - 0.35 * (1 - sstep(2, 6, d)) * 0 + 0.04 * n2(x, z); };
+  const height = (x, z) => { const d = Math.hypot(x, z); return 3 * W.fbm(n, x / 70, z / 70, 5) + 0.03 * -z + 26 * sstep(160, 420, d) * (0.5 + 0.5 * W.fbm(n2, x / 200, z / 200, 4)) + 0.04 * n2(x, z); };
   const h0 = height(0, 0), hf = (x, z) => lerp(height(x, z), h0, 1 - sstep(2.2, 5, Math.hypot(x, z)));
-  const mt = await W.terrainMaterial([{ name: 'sandy_gravel', tile: 2.6, tint: 0xf4e4c8 }, { name: 'rocky_terrain', tile: 3.5 }, { name: 'dry_ground_rocks', tile: 3, tint: 0xf0dcc0 }], { macro: 0.2 });
-  const T = W.terrain({ size: 800, seg: 420, height: hf, material: mt, weights: (x, z, h, sl) => [0.6 + 0.4 * n(x / 12, z / 12), sstep(0.12, 0.35, sl) * 1.5, 0.5 + 0.5 * n2(x / 9, z / 9)] });
+  const mt = await W.terrainMaterial([{ name: 'dry_ground_rocks', tile: 3.0 }, { name: 'sand_01', tile: 3.5, tint: 0xe8d4b4 }, { name: 'brown_mud_dry', tile: 2.6 }], { macro: 0.25, normal: 1.0 });
+  const T = W.terrain({ size: 900, seg: 440, height: hf, material: mt, weights: (x, z, h, sl) => [0.7 + 0.3 * n(x / 12, z / 12), 0.6 * sstep(-0.2, 0.6, n2(x / 25, z / 25)), (1 - sstep(1.5, 4, Math.hypot(x, z))) * 1.2 + 0.3 * sstep(0, 0.6, n(x / 7, z / 7))] });
   add(S, T.mesh);
   const well = await buildWell(S, { depth: 9 }); add(S, well.group, 0, h0, 0);
-  const rocks = W.scatterPoints({ seed: seed + 2, count: 220, rect: [-120, -160, 120, 60], heightAt: hf, s: [0.4, 1.8], sink: 0.12, area: (x, z) => Math.hypot(x, z) > 3.5 ? 0.6 : 0 });
-  add(S, await W.scatter('rock_07', rocks.filter((_, i) => i % 2), { lod: { focus: [0, 0], far: 35 } }));
-  add(S, await W.scatter('rock_09', rocks.filter((_, i) => !(i % 2)), { lod: { focus: [0, 0], far: 35 } }));
+  add(S, await W.groundCover({ heightAt: hf, focus: [2, 4], radius: 24, seed: seed + 2, pebbles: 900, rocks: 90, tuftN: 200, boulders: 40, area: (x, z) => Math.hypot(x, z) > 1.35 ? 1 : 0 }));
   add(S, await W.scatter('dry_branches_medium_01', W.scatterPoints({ seed: seed + 3, count: 26, rect: [-40, -50, 40, 20], heightAt: hf, s: [0.6, 1.1], sink: 0.02, area: (x, z) => Math.hypot(x, z) > 4 ? 1 : 0 })));
-  add(S, await W.scatter('shrub_02', W.scatterPoints({ seed: seed + 7, count: 40, rect: [-60, -80, 60, 25], heightAt: hf, s: [0.4, 0.75], sink: 0.04, area: (x, z) => Math.hypot(x, z) > 5 ? 0.8 : 0 })));
+  add(S, await W.scatter('shrub_02', W.scatterPoints({ seed: seed + 7, count: 40, rect: [-60, -80, 60, 25], heightAt: hf, s: [0.3, 0.6], sink: 0.04, area: (x, z) => Math.hypot(x, z) > 5 ? 0.8 : 0 })));
+  S.group.add(W.contactShadow(3.4, 3.4, { op: 0.45 })).children.at(-1).position.set(0, h0 + 0.012, 0);
   const trunk = await W.prop('dead_tree_trunk', { pos: [-9, hf(-9, -7) - 0.1, -7], height: 3.2, ry: 1.1 }); add(S, trunk);
   const top = h0 + well.rimTop;
   const cameras = {
@@ -298,7 +312,7 @@ export async function the_well({ time = 'day', seed = 31 } = {}) {
 // CARAVAN ROUTE: dunes and rocky hills, a beaten track, a resting place with loaded pack bundles,
 // water jars, saddle blankets, and a wayside well. No camels (bundles tell the story).
 export async function caravan_route({ time = 'golden', seed = 51 } = {}) {
-  const S = await base('caravan_route', time, { hdri: 'goegap', sun: { elev: 12, azim: -20 }, sunI: 3.2, sunColor: 0xffc58a, shadowBox: 26, fog: 0.0028 });
+  const S = await base('caravan_route', time, { sun: { azim: -20 }, shadowBox: 26 });
   const n = W.noise2(seed), n2 = W.noise2(seed + 2);
   const path = (z) => 5 * Math.sin(z / 36) + 2 * Math.sin(z / 11);
   const raw = (x, z) => {
@@ -307,15 +321,15 @@ export async function caravan_route({ time = 'golden', seed = 51 } = {}) {
     return dune + hills;
   };
   const height = (x, z) => { const dp = Math.abs(x - path(z)), flat = 1 - sstep(2.5, 9, dp); return lerp(raw(x, z), raw(path(z), z) * 0.7 + 0.5, flat * 0.8) - flat * 0.06; };
-  const mt = await W.terrainMaterial([{ name: 'sand_01', tile: 3.0, tint: 0xf6dcb4 }, { name: 'rocky_terrain', tile: 4, tint: 0xe8c8a0 }, { name: 'sandy_gravel', tile: 2.4, tint: 0xe0c49c }], { macro: 0.24 });
+  const mt = await W.terrainMaterial([{ name: 'sand_01', tile: 4.0, tint: 0xf0d8b0 }, { name: 'dry_ground_rocks', tile: 3.2 }, { name: 'brown_mud_dry', tile: 2.8, tint: 0xe8d0b0 }], { macro: 0.28, normal: 0.6 });
   const T = W.terrain({ size: 1000, seg: 440, centre: [0, -10], height, material: mt,
     weights: (x, z, h, sl) => { const dp = Math.abs(x - path(z)); return [1, sstep(0.22, 0.45, sl) * 1.6 + sstep(80, 160, dp) * 0.7, (1 - sstep(1.2, 3.5, dp)) * 1.5]; } });
   add(S, T.mesh);
   const hy = height, CAMP = [path(4) + 6, 4];
   const items = [], hs = await MATS.hessian();
-  const place = (o, x, z, ry = 0, dy = 0) => { o.position.set(x, hy(x, z) + dy, z); o.rotation.y = ry; add(S, o); items.push(o); return o; };
+  const place = (o, x, z, ry = 0, dy = 0) => { add(S, o); W.ground(o, x, z, hy, { sink: 0.04 - dy, ry, op: 0.55, parent: S.group }); items.push(o); return o; };
   for (const [dx, dz, w, h, d, ry] of [[0, 0, 1.0, 0.55, 0.6, 0.3], [1.1, 0.2, 0.9, 0.5, 0.55, 0.1], [0.5, 0.9, 0.85, 0.45, 0.5, -0.4], [-1.0, -0.6, 0.8, 0.45, 0.5, 0.8]]) place(await bundle({ w, h, d }), CAMP[0] + dx, CAMP[1] + dz, ry, -0.03);
-  const top = await bundle({ w: 0.8, h: 0.4, d: 0.5 }); top.position.set(CAMP[0] + 0.55, hy(...CAMP) + 0.52, CAMP[1] + 0.1); top.rotation.y = 0.5; add(S, top);
+  const top = await bundle({ w: 0.8, h: 0.4, d: 0.5, seed: 9 }); top.position.set(CAMP[0] + 0.55, hy(...CAMP) + 0.46, CAMP[1] + 0.1); top.rotation.set(0.04, 0.5, -0.06); add(S, top);
   for (const [dx, dz, s] of [[2.2, -0.4, 1], [2.6, 0.3, 0.85], [-1.8, 0.9, 0.9]]) place(W.sack(hs, { w: 0.5 * s, h: 0.75 * s, seed: dx * 7 | 0 }), CAMP[0] + dx, CAMP[1] + dz, dx, -0.02);
   place(blanketRoll(1.2, 0.17), CAMP[0] - 0.2, CAMP[1] + 1.8, 0.4); place(blanketRoll(1.0, 0.15, ['#5a1a12', '#c8a060', '#1a2a3a']), CAMP[0] + 1.6, CAMP[1] + 1.5, -0.3);
   place(await W.prop('ceramic_pot', { height: 0.5 }), CAMP[0] + 2.0, CAMP[1] + 1.2, 0.2); place(await W.prop('antique_ceramic_vase_01', { height: 0.55 }), CAMP[0] + 2.4, CAMP[1] + 1.6, 1.2);
@@ -327,8 +341,8 @@ export async function caravan_route({ time = 'golden', seed = 51 } = {}) {
   // stones and dead wood along the route
   const rocks = W.scatterPoints({ seed: seed + 6, count: 260, rect: [-200, -260, 200, 60], heightAt: hy, s: [0.5, 2.6], sink: 0.2,
     area: (x, z) => { const dp = Math.abs(x - path(z)); return dp < 3.5 || Math.hypot(x - CAMP[0], z - CAMP[1]) < 4 || Math.hypot(x - WELL[0], z - WELL[1]) < 3 ? 0 : 0.25 + 0.75 * (1 - T.normalAt(x, z).y) * 3; } });
-  add(S, await W.scatter('rock_07', rocks.filter((_, i) => i % 3 === 0), { lod: { focus: CAMP, far: 50 } }));
-  add(S, await W.scatter('rock_09', rocks.filter((_, i) => i % 3 === 1), { lod: { focus: CAMP, far: 50 } }));
+  add(S, await W.scatter('rock_07', rocks.filter((_, i) => i % 3 !== 2).map((p) => ({ ...p, s: p.s * 4 })), { lod: { focus: CAMP, far: 50 } }));
+  add(S, await W.groundCover({ heightAt: hy, focus: CAMP, radius: 22, seed: seed + 11, pebbles: 700, rocks: 40, tuftN: 140, tuftColor: 0xc0a870, area: (x, z) => Math.abs(x - path(z)) > 1.2 && Math.hypot(x - CAMP[0], z - CAMP[1]) > 2.6 ? 1 : 0 }));
   add(S, await W.scatter('namaqualand_boulder_03', rocks.filter((_, i) => i % 3 === 2 && Math.hypot(rocks[i].x, rocks[i].z) > 30).map((p) => ({ ...p, s: p.s * 0.8 })), { lod: { focus: CAMP, far: 70 } }));
   add(S, await W.prop('dead_quiver_trunk', { pos: [CAMP[0] - 5, hy(CAMP[0] - 5, CAMP[1] - 6) - 0.1, CAMP[1] - 6], height: 2.4, ry: 2 }));
   add(S, await W.scatter('dry_branches_medium_01', W.scatterPoints({ seed: seed + 8, count: 30, rect: [-50, -80, 50, 30], heightAt: hy, s: [0.6, 1.1], area: (x, z) => Math.abs(x - path(z)) > 3 ? 0.6 : 0 })));
@@ -346,9 +360,9 @@ export async function caravan_route({ time = 'golden', seed = 51 } = {}) {
 // EGYPT MARKET: a lane of mud-brick stalls under reed awnings: grain sacks, baskets of fruit, pots,
 // a brass scale on a table, and a stone block (the sale platform) in a small square.
 export async function egypt_market({ time = 'day', seed = 61 } = {}) {
-  const S = await base('egypt_market', time, { sun: { elev: 38, azim: 160 }, sunI: 3.4, shadowBox: 24, focus: [0, 0, -8], fog: 0.006 });
+  const S = await base('egypt_market', time, { sun: { azim: 150 }, shadowBox: 24, focus: [0, 0, -8], fog: 0.004 });
   const n = W.noise2(seed), height = (x, z) => 0.05 * n(x / 3, z / 3) + 0.02 * n(x, z);
-  const mt = await W.terrainMaterial([{ name: 'sandy_gravel', tile: 2.2, tint: 0xeed8b8 }, { name: 'gravel_road', tile: 2.4, tint: 0xe8d4b4 }, { name: 'brown_mud_dry', tile: 2.4, tint: 0xf0dcc0 }], { macro: 0.2 });
+  const mt = await W.terrainMaterial([{ name: 'dry_ground_rocks', tile: 3 }, { name: 'raked_dirt', tile: 2.6, tint: 0xf0e0c8 }, { name: 'brown_mud_dry', tile: 2.4 }], { macro: 0.2 });
   const T = W.terrain({ size: 400, seg: 300, height, material: mt, weights: (x, z) => [1, (1 - sstep(1.2, 2.8, Math.abs(x))) * 1.4, sstep(3, 6, Math.abs(x)) * 0.8 + 0.3 * n(x / 4, z / 4)] });
   add(S, T.mesh);
   const [mud, plaster, reed, pl, dpl, hs] = await Promise.all([MATS.mudPlaster(), MATS.plaster(), MATS.reed(), MATS.planks(), MATS.darkPlanks(), MATS.hessian()]);
@@ -417,7 +431,7 @@ export async function ministers_house({ time = 'evening', seed = 71 } = {}) {
   // walls (pieces around the openings): back wall with the carved door, left wall with high window, right wall opening to the courtyard
   const wall = (w, h, d, x, y, z) => add(S, W.rbox(w, h, d, wash, { r: 0.05, seg: 3 }), x, y, z);
   const zb = -RD + 2 - t / 2, DW = 1.5, DH = 2.7;
-  wall((RW - DW) / 2, RH, t, -(RW + DW) / 4 - 0.0, 0, zb); wall((RW - DW) / 2, RH, t, (RW + DW) / 4, 0, zb); wall(DW + 0.02, RH - DH - 0.35, t, 0, DH + 0.35, zb);
+  wall((RW - DW) / 2, RH, t, -(RW + DW) / 4 - 0.0, 0, zb); wall((RW - DW) / 2, RH, t, (RW + DW) / 4, 0, zb); wall(DW + 0.02, RH - DH, t, 0, DH, zb);
   const xl = -RW / 2 - t / 2, WZ = -4.2, WW = 1.1, WH = 0.8, WY = 3.0;
   const lz0 = 2 + 0.5, lz1 = -RD + 2;                                   // left wall spans z from lz1..lz0
   wall(t, RH, lz0 - (WZ + WW / 2), xl, 0, (lz0 + WZ + WW / 2) / 2); wall(t, RH, (WZ - WW / 2) - lz1, xl, 0, (WZ - WW / 2 + lz1) / 2);
@@ -513,7 +527,7 @@ export async function prison({ time = 'morning', seed = 81 } = {}) {
   const bowl = await W.prop('wooden_bowl_01', { pos: [-0.4, 0, -1.6], height: 0.08 }); add(S, bowl);
   // heavy door in the side wall
   const D = W.door(pl, iron, { w: 0.95, h: 1.9, t: 0.12, frame: 0.12 }); D.group.rotation.y = -Math.PI / 2; add(S, D.group, CW / 2 - 0.08, 0, 1.2);
-  const shaft = W.lightShaft({ from: [WX, WY, zb], to: [WX - 0.6, 0.02, zb + 2.6], r0: 0.28, r1: 0.65, color: time === 'evening' ? 0xffc080 : 0xfff2d8, op: 0.13 }); add(S, shaft);
+  const shaft = W.lightShaft({ from: [WX, WY, zb], to: [WX - 0.6, 0.02, zb + 2.6], r0: 0.26, r1: 0.42, color: time === 'evening' ? 0xffc080 : 0xfff2d8, op: 0.05 }); add(S, shaft);
   S.updaters.push((tt, o) => shaft.userData.update(tt, o.shaft ?? 1));
   // aim the sun through the window onto the floor
   const sun = S.atmo.sun, dir = V3(WX, WY, zb).sub(V3(WX - 0.6, 0.02, zb + 2.6)).normalize();
@@ -532,13 +546,13 @@ export async function prison({ time = 'morning', seed = 81 } = {}) {
 // NILE FIELDS + GRANARY: irrigated plots (green crop, furrows), channels, palms, a row of beehive silos
 // in a walled yard with stacked sacks and a scribes' table; the desert edge beyond.
 export async function nile_fields_granary({ time = 'golden', seed = 91, ripe = 0 } = {}) {
-  const S = await base('nile_fields_granary', time, { sun: { elev: time === 'day' ? 50 : 14, azim: -40 }, shadowBox: 40, focus: [0, 0, -14], fog: 0.0028 });
+  const S = await base('nile_fields_granary', time, { sun: { azim: -40 }, shadowBox: 40, focus: [0, 0, -14], fog: 0.0016 });
   const n = W.noise2(seed), n2 = W.noise2(seed + 3);
   const desert = (x, z) => sstep(70, 140, x + 10 * n(z / 50, 0)) ;
   const chan = (x, z) => Math.min(Math.abs(z + 2), Math.abs(x + 12));
   const height = (x, z) => 0.12 * n(x / 10, z / 10) + desert(x, z) * (6 + 14 * W.fbm(n2, x / 60, z / 60, 4)) - 0.5 * (1 - sstep(0.6, 1.4, chan(x, z))) + 8 * sstep(260, 420, Math.hypot(x, z)) * W.ridged(n2, x / 150, z / 150);
   const plot = (x, z) => { const fx = Math.floor((x + 4) / 14), fz = Math.floor((z + 2) / 12); return ((fx * 7 + fz * 13) & 3); };
-  const mt = await W.terrainMaterial([{ name: 'farm_furrows', tile: 3.2, tint: 0xe8d0b8 }, { name: 'grass_ground', tile: 2.6, tint: 0xd8e0b0 }, { name: 'sand_01', tile: 3, tint: 0xf4dcb4 }], { macro: 0.2 });
+  const mt = await W.terrainMaterial([{ name: 'farm_furrows', tile: 7, tint: 0xf0e0cc }, { name: 'grass_ground', tile: 3 }, { name: 'sand_01', tile: 4, tint: 0xf0d8b0 }], { macro: 0.2 });
   const T = W.terrain({ size: 900, seg: 440, centre: [0, -10], height, material: mt,
     weights: (x, z, h) => { const d = desert(x, z), bank = 1 - sstep(1.0, 2.2, chan(x, z)); const k = plot(x, z); return [(1 - d) * (k < 2 ? 1 : 0.2), (1 - d) * (k >= 2 ? 1 : 0.15) + bank * 1.5, d * 1.6 + sstep(14, 26, -z + x * 0.2) * 0 ]; } });
   add(S, T.mesh);
@@ -584,7 +598,7 @@ export async function nile_fields_granary({ time = 'golden', seed = 91, ripe = 0
 export async function palace_hall({ time = 'day', seed = 101 } = {}) {
   const night = time === 'night';
   const S = await base('palace_hall', 'golden', { hdri: 'plains_sunset', envI: night ? 0.08 : 0.3, sun: { elev: night ? -10 : 52, azim: 70 }, sunI: night ? 0 : 6, sunColor: 0xfff0d0,
-    shadowBox: 22, focus: [0, 2, -16], fog: 0, exposure: night ? 1.5 : 1.15, hemi: night ? 0.02 : 0.08, background: 'sky' });
+    shadowBox: 22, focus: [0, 2, -16], fog: 0, exposure: night ? 1.4 : 0.95, hemi: night ? 0.02 : 0.08, background: 'sky' });
   const [plaster, wash, dpl, linen] = await Promise.all([MATS.plaster(), MATS.whitewash(), MATS.darkPlanks(), MATS.linen()]);
   const HW = 14, HL = 40, HH = 9;
   add(S, await slabFloor({ w: HW, d: HL, size: 1.6, seed, rough: 0.22, tint: 0xeee2cc, origin: [0, 0, -HL / 2 + 4] }));
@@ -593,7 +607,7 @@ export async function palace_hall({ time = 'day', seed = 101 } = {}) {
     for (const [y, c] of [[1.2, 0x8a3a22], [1.45, 0xb8892e], [1.6, 0x2a4a6a]]) add(S, W.rbox(0.02, 0.14, HL, new THREE.MeshStandardMaterial({ color: c, roughness: 0.85 }), { r: 0.004 }), s * (HW / 2 - 0.01), y, -HL / 2 + 4); }
   add(S, W.rbox(HW + 2, 0.8, 1, wash, { r: 0.05 }), 0, HH - 0.2, -HL + 4.5);
   for (let i = 0; i < 8; i++) add(S, W.rbox(HW + 1.6, 0.5, 3.2, dpl, { r: 0.05 }), 0, HH, 2 - i * 5.1);   // roof beams with gaps between
-  add(S, W.rbox(HW + 1.6, 6, 0.8, wash, { r: 0.05 }), 0, HH - 5.8, -HL + 4.4);                             // back wall
+  add(S, W.rbox(HW + 1.6, HH + 0.2, 0.8, wash, { r: 0.05 }), 0, 0, -HL + 4.4);                             // back wall
   // two rows of lotus columns (one instanced geometry, painted)
   const colMat = plaster.clone(); colMat.vertexColors = true;
   const proto = W.column(colMat, { h: HH - 0.3, r: 0.6, cap: 'lotus', flutes: 10 }), N = 7;
@@ -634,9 +648,9 @@ export async function palace_hall({ time = 'day', seed = 101 } = {}) {
 // REUNION: the city gate (two battered mud-brick pylons, great wooden gate open) onto an open court with
 // a colonnade, palms and a dais; golden hour with the first stars. time: 'golden' | 'dusk' | 'day'
 export async function reunion({ time = 'golden', seed = 111, stars = 0.6 } = {}) {
-  const S = await base('reunion', time, { sun: { elev: time === 'day' ? 45 : 7, azim: 95 }, shadowBox: 36, focus: [0, 0, -8], fog: 0.0025, starsOn: time === 'day' ? 0 : stars });
+  const S = await base('reunion', time, { sun: { azim: 75 }, shadowBox: 36, focus: [0, 0, -8], starsOn: time === 'day' ? 0 : stars, exposure: 0.8 });
   const n = W.noise2(seed), height = (x, z) => 0.06 * n(x / 4, z / 4) + 6 * sstep(80, 200, Math.hypot(x, z)) * W.fbm(n, x / 80, z / 80, 4);
-  const mt = await W.terrainMaterial([{ name: 'sandy_gravel', tile: 2.4, tint: 0xf0dcc0 }, { name: 'sand_01', tile: 3, tint: 0xf6dcb4 }, { name: 'brown_mud_dry', tile: 2.6 }], { macro: 0.2 });
+  const mt = await W.terrainMaterial([{ name: 'dry_ground_rocks', tile: 3 }, { name: 'sand_01', tile: 3.5, tint: 0xf0d8b0 }, { name: 'brown_mud_dry', tile: 2.6 }], { macro: 0.2 });
   const T = W.terrain({ size: 900, seg: 380, height, material: mt, weights: (x, z) => [1, sstep(20, 60, Math.hypot(x, z)) * 1.4, 0.4 * (1 + n(x / 6, z / 6))] });
   add(S, T.mesh);
   const [mud, wash, dpl, iron] = await Promise.all([MATS.mudPlaster(), MATS.whitewash(), MATS.darkPlanks(), Promise.resolve(W.ironMat())]);
@@ -651,7 +665,7 @@ export async function reunion({ time = 'golden', seed = 111, stars = 0.6 } = {})
   for (const s of [-1, 1]) for (const [y, c] of [[8.6, 0x2a4a6a], [8.9, 0xb8892e], [9.15, 0x8a3a22]]) add(S, W.rbox(4.3, 0.18, 0.02, new THREE.MeshStandardMaterial({ color: c, roughness: 0.85 }), { r: 0.004 }), s * 5.2, y, GZ - 1.5);
   add(S, W.rbox(5.2, 1.2, 3.0, mud, { r: 0.1 }), 0, 7.2, GZ);
   const leaves = [];
-  for (const s of [-1, 1]) { const D = W.door(dpl, iron, { w: 2.35, h: 7.0, t: 0.18, frame: 0.001 }); D.group.position.set(s * 1.2, 0, GZ - 1.3); D.group.scale.x = s; D.leaf.rotation.y = -1.25; add(S, D.group); leaves.push(D); }
+  for (const s of [-1, 1]) { const D = W.door(dpl, iron, { w: 2.3, h: 7.0, t: 0.18, frame: 0.001 }); D.group.position.set(s * (2.4 - 1.15), 0, GZ - 1.75); D.group.scale.x = -s; D.leaf.rotation.y = 1.3; add(S, D.group); leaves.push(D); }
   // colonnade along the left side of the court, a wall on the right
   const colMat = (await MATS.plaster()).clone(); colMat.vertexColors = true;
   const proto = W.column(colMat, { h: 6, r: 0.42, cap: 'papyrus' }), im = new THREE.InstancedMesh(proto.geometry, colMat, 6), M = new THREE.Matrix4();
