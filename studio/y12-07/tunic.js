@@ -68,8 +68,15 @@ export async function makeTunic({ seed = 5, linen = null } = {}) {
     g.add(mesh); panels[back ? 'back' : 'front'] = { mesh, c, am, m };
   }
   // the shaded inside of the garment, seen through the tear (stops the front panel's glow showing through)
-  const inner = new THREE.Mesh(new THREE.PlaneGeometry(0.22, 0.66), new THREE.MeshStandardMaterial({ color: 0x3a2c1e, roughness: 1, side: THREE.DoubleSide }));
-  inner.position.set(TEAR_X - 0.01, TEAR_Y0 - 0.31, 0.0); g.add(inner);
+  // (it follows the same folds, sitting just inside the back panel: the inside of the front panel)
+  const ig = new THREE.PlaneGeometry(0.2, 0.62, 30, 80), ip = ig.attributes.position;
+  for (let i = 0; i < ip.count; i++) { const x = ip.getX(i) + TEAR_X, y = ip.getY(i) + TEAR_Y0 - 0.3;
+    const fold = 0.026 * Math.sin(x * 12 + 2.2 * n(x * 1.5, y * 1.5)) * Math.min(1, -y * 1.6) + 0.008 * Math.sin(x * 31 + 3 * n(x * 4, y * 3)) * Math.min(1, -y * 2) + 0.005 * n(x * 7, y * 7);
+    const bow = 0.016 * Math.cos(Math.min(1, Math.abs(x) / 0.3) * Math.PI / 2) * Math.min(1, -y * 3);
+    ip.setXYZ(i, x, y, fold + bow - 0.01); }
+  ig.computeVertexNormals();
+  const im = base.clone(); im.color = new THREE.Color(0x8a7658); im.side = THREE.DoubleSide;
+  const inner = new THREE.Mesh(ig, im); inner.receiveShadow = true; g.add(inner);
   // loose threads along both torn edges: thin curved tubes (instanced), shown once the tear passes them
   const NT = 90, r = W.rng(seed + 3), th = [];
   const tg = new THREE.CylinderGeometry(0.00045, 0.0003, 1, 5, 6, true); tg.translate(0, 0.5, 0);
@@ -92,7 +99,7 @@ export async function makeTunic({ seed = 5, linen = null } = {}) {
         const x0 = tearPath(t.s) + t.side * hw;
         // threads point across the gap (and a little outward, toward +z), drooping slightly
         E.set(t.lift + 0.3, 0, -t.side * (Math.PI / 2) + t.ang * 0.6); Q.setFromEuler(E);
-        M4.compose(new THREE.Vector3(x0, y, 0.011), Q, new THREE.Vector3(1, t.len * (0.6 + 0.4 * open), 1)); threads.setMatrixAt(i, M4);
+        M4.compose(g.userData.edge(t.s, t.side).setX(x0), Q, new THREE.Vector3(1, t.len * (0.6 + 0.4 * open), 1)); threads.setMatrixAt(i, M4);
       }
       threads.instanceMatrix.needsUpdate = true;
     },
@@ -102,6 +109,10 @@ export async function makeTunic({ seed = 5, linen = null } = {}) {
     shoulder: (s) => new THREE.Vector3(s * 0.24, -0.02, -0.03),
     tearTip: () => new THREE.Vector3(tearPath(state.L / TEAR_MAX), TEAR_Y0 - state.L, 0.015),
     tearTop: () => new THREE.Vector3(tearPath(0), TEAR_Y0, 0.015),
+    // a point on the torn edge at depth s (0..1) on side -1/+1, on the panel surface (approx.)
+    edge: (s, side) => { const x = tearPath(s) + side * tearHalf(s, 1), y = TEAR_Y0 - s * TEAR_MAX;
+      const z = 0.006 + 0.016 * Math.cos(Math.min(1, Math.abs(x) / 0.3) * Math.PI / 2) * Math.min(1, -y * 3) + 0.026 * Math.sin(x * 12 + 2.2 * n(x * 1.5, y * 1.5)) * Math.min(1, -y * 1.6) + 0.008 * Math.sin(x * 31 + 3 * n(x * 4, y * 3)) * Math.min(1, -y * 2) + 0.005 * n(x * 7, y * 7);
+      return new THREE.Vector3(x, y, z); },
     TEAR_MAX, TEAR_Y0,
   };
   g.userData.tear(0, 0);

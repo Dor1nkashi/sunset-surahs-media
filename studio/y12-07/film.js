@@ -26,18 +26,18 @@ const C = {
   held_b:  { local: true, pos: [0.0, -0.42, 2.27], look: [0, -0.5, 0], fov: 39 },
   witness: { pos: [0.55, 1.62, -0.35], look: [3.6, 1.4, -3.1], fov: 48 },
   race:    { pos: [-2.6, 1.75, -1.7], look: [4.75, 1.2, -3.1], fov: 44 },
-  pull:    { pos: [2.45, 1.42, -3.78], look: [2.76, 1.25, -3.2], fov: 26 },
+  pull:    { local: 'grip', off: [-0.32, 0.12, 0.42], fov: 30 },
   husband: { pos: [-1.6, 1.5, -2.1], look: [4.8, 1.45, -3.0], fov: 46 },
   turn:    { pos: [0.6, 1.7, -2.9], look: [-0.9, 1.55, -6.2], fov: 40 },
   back_a:  { local: true, pos: [0.0, -0.36, 1.05], look: [0, -0.4, 0], fov: 32 },
   back_b:  { local: true, pos: [0.0, -0.37, 0.95], look: [0, -0.4, 0], fov: 31 },
   graze_a: { local: true, pos: [0.25, -0.3, 0.6], look: [0.01, -0.36, 0], fov: 24 },
   graze_b: { local: true, pos: [0.18, -0.34, 0.42], look: [0.0, -0.4, 0], fov: 22 },
-  thread:  { local: true, pos: [0.13, -0.31, 0.17], look: [0.057, -0.33, 0], fov: 18 },
+  thread:  { local: 'edge', s: 0.32, off: [0.07, 0.03, 0.16], fov: 20 },
   fold_a:  { pos: [-2.55, 1.2, -0.25], look: [BENCH[0], 0.5, BENCH[2]], fov: 34 },
   fold_b:  { pos: [-2.7, 1.05, -0.45], look: [BENCH[0], 0.5, BENCH[2]], fov: 32 },
   door:    { pos: [-0.2, 1.6, -3.3], look: [6.0, 1.4, -3.1], fov: 42 },
-  macro:   { local: true, pos: [0.1, -0.27, 0.16], look: [0.05, -0.24, 0], fov: 18 },
+  macro:   { local: 'edge', s: 0.18, off: [0.06, -0.02, 0.13], fov: 18 },
 };
 // tunic: where it is (held | worn | hang), tear state; who is visible; camera
 const SHOTS = [
@@ -94,7 +94,10 @@ M.film({
     placeTunic(t, i, s);
     posePeople(t, i);
     let cam = K.camLerp(s.a, s.b, (s.ease || E.linear)(p));
-    if (s.a.local) { TUN.updateMatrixWorld(true); cam = { ...cam, pos: TUN.localToWorld(V(...cam.pos)).toArray(), look: TUN.localToWorld(V(...cam.look)).toArray() }; }
+    TUN.updateMatrixWorld(true);
+    if (s.a.local === 'edge') { const e = TUN.userData.edge(s.a.s, 1); cam = { ...cam, pos: TUN.localToWorld(e.clone().add(V(...s.a.off))).toArray(), look: TUN.localToWorld(e).toArray() }; }
+    else if (s.a.local === 'grip') { const e = TUN.userData.edge(0.12, 0).lerp(TUN.userData.tearTip(), 0.5); cam = { ...cam, pos: TUN.localToWorld(e.clone().add(V(...s.a.off))).toArray(), look: TUN.localToWorld(e).toArray() }; }
+    else if (s.a.local) cam = { ...cam, pos: TUN.localToWorld(V(...cam.pos)).toArray(), look: TUN.localToWorld(V(...cam.look)).toArray() };
     if (s.shake) { const n = W.noise2(7); cam = { ...cam, pos: cam.pos.map((v, k) => v + 0.025 * n(t * 2.2, k * 5)), look: cam.look.map((v, k) => v + 0.05 * n(t * 1.7 + 9, k * 3)) }; }
     else cam = K.breathe(cam, t, 0.002, 21 + i);
     const ex = [0.95, 0.9, 0.8, 1.0, 0.85, 1.0, 1.0, 0.9, 0.9, 1.0, 0.9, 0.9][i];
