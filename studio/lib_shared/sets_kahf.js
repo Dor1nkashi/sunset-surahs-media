@@ -279,8 +279,8 @@ function ironTextures() {
   return cachedTex('iron', () => {
     const N = 512, n = W.noise2(41), H = new Float32Array(N * N), r = W.rng(5);
     for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) H[j * N + i] = W.fbm(n, i / 64, j / 64, 4) * 0.6;
-    for (let d = 0; d < 900; d++) { const cx = r() * N, cy = r() * N, rr = 6 + r() * 14;        // hammer dents
-      for (let j = -rr; j <= rr; j++) for (let i = -rr; i <= rr; i++) { const q = 1 - (i * i + j * j) / (rr * rr); if (q > 0) { const o = ((Math.floor(cy + j) + N) % N) * N + ((Math.floor(cx + i) + N) % N); H[o] -= q * q * 0.5; } } }
+    for (let d = 0; d < 2600; d++) { const cx = r() * N, cy = r() * N, rr = 3 + r() * 7;        // hammer dents
+      for (let j = -rr; j <= rr; j++) for (let i = -rr; i <= rr; i++) { const q = 1 - (i * i + j * j) / (rr * rr); if (q > 0) { const o = ((Math.floor(cy + j) + N) % N) * N + ((Math.floor(cx + i) + N) % N); H[o] -= q * q * 0.18; } } }
     const map = canvasTex(N, N, (x) => { const im = x.createImageData(N, N);
       for (let k = 0; k < N * N; k++) { const v = H[k], rust = Math.max(0, W.fbm(n, (k % N) / 40 + 9, Math.floor(k / N) / 40, 4)) * 1.6, o = k * 4, s = 0.85 + v * 0.25;
         im.data[o] = Math.min(255, (52 + rust * 70) * s); im.data[o + 1] = Math.min(255, (50 + rust * 30) * s); im.data[o + 2] = Math.min(255, (48 + rust * 10) * s); im.data[o + 3] = 255; }
@@ -671,6 +671,7 @@ export async function mountain_cave({ time = 'day', seed = 18, sleepers = 5, dog
   const mouthGlow = new THREE.SpotLight(dayMode ? 0xf0e2cc : time === 'bluehour' || time === 'night' ? 0x6a78a8 : 0xffc890, 1, 0, 0.62, 1, 1.35);
   mouthGlow.position.set(0, 1.1, 5.5); mouthGlow.target.position.set(0, 0.2, -9); mouthGlow.castShadow = true; mouthGlow.shadow.mapSize.set(1024, 1024); mouthGlow.shadow.bias = -0.0004; mouthGlow.shadow.radius = 6;
   add(S, mouthGlow); add(S, mouthGlow.target);
+  const fill = new THREE.PointLight(0xffd8b0, { day: 2.2, sunrise: 1.4, dusk: 1.2, bluehour: 0.5, night: 0.3 }[time] ?? 1, 13, 1.2); fill.position.set(0, 2.6, -6.5); add(S, fill);   // light bounced off the sunlit floor near the mouth
   const glowI = { day: 60, sunrise: 34, dusk: 30, bluehour: 12, night: 5 }[time] ?? 28; mouthGlow.intensity = glowI;
   const dust = motes({ count: 1600, box: [-4, 0, -12, 4, 3.2, 1.5] }); add(S, dust);
   const mouth = V3(0, 1.0, 0.6);
@@ -707,7 +708,7 @@ export async function mountain_cave({ time = 'day', seed = 18, sleepers = 5, dog
     threshold: { pos: [0.1, 0.36, 2.75], look: [-0.85, 0.32, 0.55], fov: 34 },                    // the dog on the stone lip
     path:      { pos: [pathX(34) + 2.5, H(pathX(34) + 2.5, 34) + 1.7, 34], look: [0, 3, -1], fov: 40 },
     ridge:     { pos: [-34, Hm(-34, -16) + 3, -16], look: [-90, -160, 420], fov: 44 },          // along the ridge, the valley below
-    vista:     { pos: [12, 4, 14], look: [-20, -175, 430], fov: 34 },                           // down to the four places
+    vista:     { pos: [12, 5, 16], look: [-40, -172, 400], fov: 40 },                           // down to the four places
   };
   const slots = { youth_1: [pathX(14), H(pathX(14), 14), 14, Math.PI + 0.3], youth_2: [pathX(17), H(pathX(17), 17), 17, Math.PI + 0.3], youth_3: [pathX(20), H(pathX(20), 20), 20, Math.PI + 0.2],
     youth_4: [pathX(23), H(pathX(23), 23), 23, Math.PI + 0.2], youth_5: [pathX(26), H(pathX(26), 26), 26, Math.PI + 0.1] };
@@ -1309,7 +1310,7 @@ async function buildBoat({ scale = 1, sailColors = null, seed = 1, damaged = tru
       x.strokeStyle = 'rgba(80,60,40,0.6)'; x.setLineDash([3, 4]); x.strokeRect(px + 3, py + 3, w - 6, h - 6); }
     x.setLineDash([]); x.strokeStyle = 'rgba(60,45,30,0.35)'; for (let i = 1; i < 8; i++) { x.beginPath(); x.moveTo(i * 64, 0); x.lineTo(i * 64, 512); x.stroke(); }
     for (let i = 0; i < 4000; i++) { x.fillStyle = `rgba(${rr() < 0.5 ? '255,255,255' : '40,30,20'},0.04)`; x.fillRect(rr() * 512, rr() * 512, 2, 2); } });
-  const sm = new THREE.MeshStandardMaterial({ map: sailTex, roughness: 0.9, side: THREE.DoubleSide, normalMap: hs.normalMap, normalScale: new THREE.Vector2(0.5, 0.5) });
+  const sm = new THREE.MeshStandardMaterial({ map: sailTex, color: 0x8a8274, roughness: 0.95, side: THREE.DoubleSide, normalMap: hs.normalMap, normalScale: new THREE.Vector2(0.5, 0.5) });
   const sail = W.cloth(3.0, 2.9, sm, { segW: 48, segH: 48, folds: 0.01, seed, sag: (u, v) => 0.32 * Math.sin(u * Math.PI) * Math.sin((1 - v * 0.8) * Math.PI * 0.9) });
   sail.geometry.attributes.uv.array.forEach((_, i, a) => { a[i] = i % 2 ? a[i] / 2.9 : a[i] / 3.0; }); sail.geometry.attributes.uv.needsUpdate = true;
   sail.position.set(0, 2.35, mastZ + 0.12); grp.add(sail);
@@ -1326,7 +1327,7 @@ async function buildBoat({ scale = 1, sailColors = null, seed = 1, damaged = tru
 // props.setFlood(q): water rises over the floorboards inside. Lesson 10.
 export async function sea_boat({ time = 'day', seed = 70 } = {}) {
   const S = await base('sea_boat', time, { sun: { azim: 120 }, shadowBox: 9, focus: [0, 0.8, 0], fog: 0.0007, exposure: 0.85 });
-  const ocean = oceanMaterial({ colA: 0x1e6a7a, colB: 0x1e6a7a, shallow: 0x2a8a90, foam: 0, tile: 5, flow: [0.01, 0.004], opacity: 1, rough: 0.05 });
+  const ocean = oceanMaterial({ colA: 0x0a3442, colB: 0x0a3442, shallow: 0x0e4a52, foam: 0, tile: 5, flow: [0.01, 0.004], opacity: 1, rough: 0.08, envI: 0.7 });
   const sea = new THREE.Mesh(warpedSheet(6000, 420, 0.012), ocean); sea.receiveShadow = true; add(S, sea);
   // the rocky coast to the west
   const n = W.noise2(seed), coastH = (x, z) => { const d = -x - 180 + 60 * Math.sin(z / 140); return -6 + 46 * sstep(-30, 120, d) * (0.5 + 0.5 * W.ridged(n, x / 70, z / 70, 5)) + 3 * W.fbm(n, x / 20, z / 20, 3); };
@@ -1348,7 +1349,7 @@ export async function sea_boat({ time = 'day', seed = 70 } = {}) {
   const dpl = await MATS.darkPlanks(); const oar = new THREE.Group(); oar.add(W.shadows(new THREE.Mesh(W.boxUV(new THREE.CylinderGeometry(0.03, 0.03, 2.6, 12)), dpl))); const blade = W.rbox(0.03, 0.7, 0.2, dpl, { r: 0.01 }); blade.position.y = -1.6; oar.add(blade);
   oar.position.set(0.55, 1.1, -3.2); oar.rotation.set(0.9, 0, -0.25); boat.add(oar);
   // the gap behind the loose plank (dark) and the water rising inside
-  const flood = new THREE.Mesh(new THREE.PlaneGeometry(1, 1, 40, 6), seaMat({ colA: 0x2a4a44, colB: 0x2a4a44, shallow: 0x4a6a5a, foam: 0, tile: 0.8, opacity: 0.88 }));
+  const flood = new THREE.Mesh(new THREE.PlaneGeometry(1, 1, 40, 6), seaMat({ colA: 0x1a2a26, colB: 0x1a2a26, shallow: 0x2a3a34, foam: 0, tile: 0.8, opacity: 0.85, envI: 0.4 }));
   flood.geometry.setAttribute('depth', new THREE.BufferAttribute(new Float32Array(flood.geometry.attributes.position.count).fill(1), 1)); boat.add(flood);
   const setFlood = (q) => { q = clamp(q); const h = B.floorY - 0.04 + 0.32 * q, p = flood.geometry.attributes.position;
     for (let i = 0; i < p.count; i++) { const iu = i % 41, iv = Math.floor(i / 41), u = lerp(0.1, 0.9, iu / 40), sgn = iv / 6 * 2 - 1; p.setXYZ(i, sgn * Math.max(0, H.halfAt(u, h) - 0.02), h, (u - 0.5) * H.L); }
@@ -1366,7 +1367,7 @@ export async function sea_boat({ time = 'day', seed = 70 } = {}) {
   const gp = H.pt(0.5, 2.5 / 8, 1);
   const cameras = {
     hero:      { pos: [8.5, 2.4, 12], look: [0, 0.7, 0], fov: 40 },                                   // the little boat on the sea
-    waterline: { pos: [gp.x + 0.95, gp.y - draft + 0.12, gp.z + 0.75], look: [gp.x, gp.y - draft + 0.02, gp.z], fov: 36 },   // the plank at the waterline
+    waterline: { pos: [gp.x + 1.5, gp.y - draft + 0.45, gp.z + 1.1], look: [gp.x, gp.y - draft + 0.05, gp.z], fov: 34 },   // the plank at the waterline
     inside:    { pos: [0.1, B.floorY - draft + 0.35, -1.0], look: [0.35, B.floorY - draft + 0.6, 1.6], fov: 58 },
     stern:     { pos: [0.4, 1.7, -5.6], look: [0, 0.9, 2.5], fov: 46 },
     horizon:   { pos: [-0.5, 1.35, -2.4], look: [253, 4, -512], fov: 30 },                             // past the stern to the king's ship
@@ -1408,7 +1409,7 @@ export async function village_wall({ time = 'day', seed = 82, repair = 0 } = {})
   const hy = height;
   // ---- the brick wall (two wythes of instanced sun-dried bricks over a mud core)
   const WL = 18, WH = 2.75, BW = 0.37, BH = 0.115, BD = 0.18, rows = Math.round(WH / BH), per = Math.round(WL / BW);
-  const brickM = await W.pbr('brown_mud_dry', { tile: 0.9, tint: 0xf2d8b8, res: 1024, normal: 1.2 });
+  const brickM = await W.pbr('clay_plaster', { tile: 0.7, tint: 0xd8b088, res: 1024, normal: 1.4 });
   const coreM = (await MATS.mudPlaster()).clone(); coreM.color.set(0xa88a6a);
   const core = W.rbox(WL - 0.1, WH - 0.05, 0.3, coreM, { r: 0.04 }); core.position.set(0, hy(0, 0) - 0.02, 0); add(S, core);
   const bricks = [], r = W.rng(seed);
@@ -1480,7 +1481,7 @@ export async function village_wall({ time = 'day', seed = 82, repair = 0 } = {})
     tree:    { pos: [-3.2, cg + 1.3, 7.6], look: [-6.8, cg + 1.2, 3.8], fov: 46 },
     track_a: { pos: [-8, cg + 1.5, 3.2], look: [-6, cg + 1.3, 0], fov: 40 },                            // tracking along the wall as it straightens
     track_b: { pos: [8, cg + 1.5, 3.2], look: [10, cg + 1.3, 0], fov: 40 },
-    jar:     { pos: [JAR[0] + 0.15, cg - 0.55, JAR[1] + 1.75], look: [JAR[0], cg - 0.65, JAR[1]], fov: 44 },   // below ground, through the soil section
+    jar:     { pos: [JAR[0] + 0.3, cg + 0.35, JAR[1] + 2.4], look: [JAR[0], cg - 0.6, JAR[1]], fov: 40 },   // below ground, through the soil section
   };
   const slots = { traveller_1: [-6.4, hy(-6.4, 5.2), 5.2, Math.PI * 0.9], traveller_2: [-7.4, hy(-7.4, 5.4), 5.4, Math.PI * 0.9], child_1: [-5.0, hy(-5, 7.1) + 0.3, 7.1, Math.PI], child_2: [-4.1, hy(-4.1, 7.1) + 0.3, 7.1, Math.PI], mason: [0, gy0, 1.1, Math.PI] };
   return finish(S, 'village_wall', cameras, { wall: im, freshBricks: fresh, rubble, setRepair, setCrack: (q) => setRepair(0, q), houses, thorn, jar, cutaway: cut.object3d, step, terrain: T, sun: S.atmo.sun }, slots);
@@ -1497,7 +1498,7 @@ function moltenMat({ heat = 1 } = {}) {
       float mn(vec3 p){ vec3 i = floor(p), f = fract(p); f = f*f*(3.-2.*f); return mix(mix(mix(mh(i), mh(i+vec3(1,0,0)), f.x), mix(mh(i+vec3(0,1,0)), mh(i+vec3(1,1,0)), f.x), f.y), mix(mix(mh(i+vec3(0,0,1)), mh(i+vec3(1,0,1)), f.x), mix(mh(i+vec3(0,1,1)), mh(i+vec3(1,1,1)), f.x), f.y), f.z); }`)
       .replace('#include <emissivemap_fragment>', `{ float fl = mn(vMW * 9. + vec3(0., time * 3.5, 0.)) * 0.6 + mn(vMW * 23. + vec3(0., time * 6., time)) * 0.4;
         float h = heat * (0.65 + 0.55 * fl);
-        totalEmissiveRadiance = mix(vec3(0.), mix(vec3(1.0, 0.18, 0.02), vec3(1.0, 0.72, 0.32), smoothstep(0.6, 1.2, h)), clamp(h, 0., 1.)) * 9. * h; }`);
+        totalEmissiveRadiance = mix(vec3(0.), mix(vec3(1.0, 0.16, 0.02), vec3(1.0, 0.6, 0.22), smoothstep(0.7, 1.3, h)), clamp(h, 0., 1.)) * 2.6 * h; }`);
   };
   m.customProgramCacheKey = () => 'molten1'; m.userData.U = U;
   return m;
@@ -1556,7 +1557,7 @@ export async function mountain_pass_barrier({ time = 'golden', seed = 98, build 
   const skin = await rockSkin({ H: height, box: [-60, -2, -60, 60, 95, 60], step: 0.45, lift: 0.6, amp: 1.4, seed, tile: 7, tint: 0xe2d4c0, strata: 0.3 });
   add(S, skin.mesh);
   // ---- the barrier: courses of iron blocks spanning the gap at z = 0, as high as the walls allow (to 14 m)
-  const iron = ironPBR({ tile: 0.8 }), BLW = 1.6, BLH = 0.42, BLD = 1.0, BH = 14;
+  const iron = ironPBR({ tile: 2.6 }), BLW = 1.6, BLH = 0.42, BLD = 1.0, BH = 14;
   const blocks = [];
   for (let k = 0; k * BLH < BH; k++) { const y = k * BLH; let xl = -GAPW(0) - 4, xr = GAPW(0) + 4;
     // the open width at this height (where the ground is below the course)
@@ -1599,11 +1600,11 @@ export async function mountain_pass_barrier({ time = 'golden', seed = 98, build 
   const testBlock = W.rbox(BLW - 0.02, BLH - 0.02, BLD, iron, { r: 0.03, seg: 3 }); testBlock.position.copy(R0); add(S, testBlock);
   const tilt = W.lathe([[0.001, 0], [0.14, 0.01], [0.18, 0.12], [0.18, 0.26], [0.15, 0.28], [0.14, 0.04], [0.001, 0.03]], clay, { seg: 48 }); tilt.position.set(R0.x - 0.25, R0.y + BLH + 0.75, R0.z); tilt.rotation.z = -1.1; add(S, tilt);
   const streamC = new THREE.CatmullRomCurve3([V3(R0.x - 0.06, R0.y + BLH + 0.78, R0.z), V3(R0.x - 0.02, R0.y + BLH + 0.5, R0.z), V3(R0.x, R0.y + BLH + 0.01, R0.z)]);
-  const stream = new THREE.Mesh(new THREE.TubeGeometry(streamC, 40, 0.012, 12), moltenMat({ heat: 1.3 })); add(S, stream);
+  const stream = new THREE.Mesh(new THREE.TubeGeometry(streamC, 40, 0.009, 12), moltenMat({ heat: 1.0 })); add(S, stream);
   const puddle = new THREE.Mesh(new THREE.CircleGeometry(0.09, 40).rotateX(-Math.PI / 2), moltenMat({ heat: 1.1 })); puddle.position.set(R0.x, R0.y + BLH + 0.002, R0.z); add(S, puddle);
   const spk = sparks({ origin: [R0.x, R0.y + BLH + 0.01, R0.z], count: 220 }); add(S, spk);
   const steam = mistLayer({ rect: [R0.x - 0.6, R0.z - 0.6, R0.x + 0.6, R0.z + 0.6], y: R0.y + BLH + 0.08, layers: 3, gap: 0.12, color: 0xe8e0d8, op: 0.25, speed: [0.05, 0.6], scale: 3 }); add(S, steam);
-  const glow = new THREE.PointLight(0xff7a2a, 3, 3, 2); glow.position.set(R0.x, R0.y + BLH + 0.15, R0.z); add(S, glow);
+  const glow = new THREE.PointLight(0xff6a20, 1.2, 2.5, 2); glow.position.set(R0.x, R0.y + BLH + 0.15, R0.z); add(S, glow);
   const mats = [copper, melt.material, stream.material, puddle.material];
   S.updaters.push((t, o) => { mats.forEach((m) => { m.userData.U.time.value = t; }); fire.userData.update(t, o.fire ?? 1); spk.userData.U.time.value = t; spk.userData.U.k.value = o.sparks ?? 1; steam.userData.update(t);
     if (o.build !== undefined) setBuild(o.build); if (o.pour !== undefined) setPour(o.pour); });
@@ -1614,18 +1615,18 @@ export async function mountain_pass_barrier({ time = 'golden', seed = 98, build 
     barrier: { pos: [-4, 2.2, 16], look: [1, 6.5, 0], fov: 50 },
     pour:    { pos: [R0.x + 0.55, R0.y + BLH + 0.32, R0.z + 0.65], look: [R0.x - 0.02, R0.y + BLH + 0.22, R0.z], fov: 34 },
     bellows: { pos: [site.x + 0.4, site.y + 1.1, site.z + 3.2], look: [site.x - 1, site.y + 0.4, site.z], fov: 44 },
-    hinge:   { pos: [1.2, 1.3, 1.6], look: [0.4, 1.0, 0.45], fov: 32 },                          // dark iron, a copper seam
+    hinge:   { pos: [1.5, 1.45, 2.1], look: [0.6, 1.25, 0.5], fov: 34 },                          // dark iron, a copper seam
     gap:     { pos: [0, 3, 70], look: [0, 10, 0], fov: 40 },
   };
   const slots = { ruler: [0.5, height(0.5, 18), 18, Math.PI], villager_1: [8, height(8, 22), 22, Math.PI + 0.4], villager_2: [9.5, height(9.5, 23), 23, Math.PI + 0.5], villager_3: [7, height(7, 24.5), 24.5, Math.PI + 0.3],
     villager_4: [10.5, height(10.5, 21), 21, Math.PI + 0.6], worker_bellows: [site.x - 2.1, site.y, site.z + 0.6, 1.4], worker_1: [3, height(3, 4), 4, Math.PI], worker_2: [-3, height(-3, 4), 4, Math.PI] };
-  return finish(S, 'mountain_pass_barrier', cameras, { blocks: bim, setBuild, setPour, copper: core, fire, crucible, bellows: bel, pour: { crucible: tilt, stream, puddle, sparks: spk, steam, glow }, skin: skin.mesh, terrain: T, barrierTop: top, sun: S.atmo.sun }, slots, { bloom: 0.3, bloomThreshold: 0.85 });
+  return finish(S, 'mountain_pass_barrier', cameras, { blocks: bim, setBuild, setPour, copper: core, fire, crucible, bellows: bel, pour: { crucible: tilt, stream, puddle, sparks: spk, steam, glow }, skin: skin.mesh, terrain: T, barrierTop: top, sun: S.atmo.sun }, slots, { bloom: 0.22, bloomThreshold: 0.92 });
 }
 
 // reeds: instanced tall blades with a plume, swaying with the shared wind (pure in t)
 function reeds(items, { h = 2.2, color = 0x6a6a3a, wind = 0.5 } = {}) {
   const parts = [], r = W.rng(5);
-  for (let k = 0; k < 5; k++) { const L = h * (0.7 + r() * 0.4), a = r() * TAU, g = new THREE.PlaneGeometry(0.02, L, 1, 8).translate(0, L / 2, 0), p = g.attributes.position;
+  for (let k = 0; k < 5; k++) { const L = h * (0.7 + r() * 0.4), a = r() * TAU, g = new THREE.PlaneGeometry(0.012, L, 1, 8).translate(0, L / 2, 0), p = g.attributes.position;
     for (let i = 0; i < p.count; i++) { const y = p.getY(i) / L; p.setX(i, p.getX(i) * (1 - y * 0.8)); p.setZ(i, y * y * 0.25 * L * r()); }
     g.rotateY(a); g.translate(Math.cos(a) * 0.04, 0, Math.sin(a) * 0.04); parts.push(g.toNonIndexed()); }
   const plume = new THREE.SphereGeometry(0.05, 8, 6).scale(0.6, 3, 0.6).translate(0, h * 1.05, 0.05); parts.push(plume.toNonIndexed());
@@ -1665,11 +1666,11 @@ export async function journeys({ side = 'west', seed = 130 } = {}) {
     add(S, T.mesh);
     const lag = seaMat({ colA: 0x231a10, colB: 0x2c2214, shallow: 0x4a3a26, foam: 0, rough: 0.035, tile: 9, flow: [0.004, 0.002], opacity: 1, envI: 1.1 });
     const water = new THREE.Mesh(waterSheet({ rect: [-800, -1500, 800, 20], seg: [300, 300], y: -0.08, bed: height }), lag); add(S, water); S.updaters.push((t) => lag.userData.update(t));
-    const rd = W.scatterPoints({ seed: seed + 2, count: 2600, rect: [-40, -6, 40, 14], heightAt: (x, z) => Math.max(height(x, z), -0.1), s: [0.7, 1.3], area: (x, z) => { const d = z - (6 + 4 * Math.sin(x / 19) + 2 * Math.sin(x / 7)); return Math.abs(d + 0.5) < 3 && n(x / 3, z / 3) > -0.2 ? 1 : 0; } });
-    const rb = reeds(rd, { h: 2.0, color: 0x4a4a2a, wind: 0.35 }); add(S, rb); S.updaters.push((t) => { rb.userData.U.time.value = t; });
+    const rd = W.scatterPoints({ seed: seed + 2, count: 1100, rect: [-40, -6, 40, 14], heightAt: (x, z) => Math.max(height(x, z), -0.1), s: [0.7, 1.3], area: (x, z) => { const d = z - (6 + 4 * Math.sin(x / 19) + 2 * Math.sin(x / 7)); return Math.abs(d + 0.5) < 2.5 && n(x / 4, z / 4) > 0.1 && Math.abs(x - 1.5) > 5 ? 1 : 0; } });
+    const rb = reeds(rd, { h: 1.8, color: 0x5a5a34, wind: 0.35 }); add(S, rb); S.updaters.push((t) => { rb.userData.U.time.value = t; });
     const mist = mistLayer({ rect: [-200, -400, 200, 10], y: 0.15, layers: 4, gap: 0.6, color: 0xe8a888, op: 0.3, speed: [0.12, 0.03], scale: 0.035 }); add(S, mist); S.updaters.push((t, o) => mist.userData.update(t, o.mist ?? 1));
     cameras = {
-      hero:  { pos: [1.5, 1.1, 14], look: [0, 0.6, -200], fov: 34 },                    // the red disc on the dark lagoon, reeds in silhouette
+      hero:  { pos: [1.5, 0.9, 7.5], look: [0, 0.6, -200], fov: 34 },                    // the red disc on the dark lagoon, reeds in silhouette
       reeds: { pos: [-3, 0.7, 10.5], look: [0, 1.2, -60], fov: 42 },
       wide:  { pos: [20, 14, 40], look: [-10, 0, -150], fov: 44 },
     };
@@ -1768,7 +1769,7 @@ export async function city_of_old({ time = 'dusk', seed = 11, yard = 'tools' } =
     // the wall niche with a lamp, by the doorway
     const niche = W.rbox(0.42, 0.42, 0.16, new THREE.MeshStandardMaterial({ color: 0x2a2018, roughness: 1 }), { r: 0.02 }); niche.position.set(front.x + 1.1, gy + 1.3, -YD / 2 - 0.03 + 0.05 - 0.1); add(S, niche);
     const L = oilLamp(S, { seed: 3, light: time === 'day' ? 0.25 : 1.2 }); L.position.set(front.x + 1.1, gy + 1.33, -YD / 2 - 0.05); add(S, L); lamps.push(L); P.nicheLamp = L;
-    const matTex = canvasTex(256, 256, (x) => { const rr = W.rng(3); for (let j = 0; j < 64; j++) for (let i = 0; i < 64; i++) { const k = ((i + j) % 2) ? 0.85 : 1, c = (j % 16 < 2 ? [150, 60, 40] : [205, 175, 120]).map((v) => v * k * (0.92 + rr() * 0.1)); x.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`; x.fillRect(i * 4, j * 4, 4, 4); } });
+    const matTex = canvasTex(256, 256, (x) => { const rr = W.rng(3); for (let j = 0; j < 128; j++) for (let i = 0; i < 128; i++) { const k = ((Math.floor(i / 2) + j) % 2) ? 0.82 : 1, c = (j % 32 < 3 ? [120, 52, 34] : [178, 146, 96]).map((v) => v * k * (0.9 + rr() * 0.12)); x.fillStyle = `rgb(${c[0] | 0},${c[1] | 0},${c[2] | 0})`; x.fillRect(i * 2, j * 2, 2, 2); } });
     const mat = W.cloth(1.6, 1.1, new THREE.MeshStandardMaterial({ map: matTex, roughness: 0.95, side: THREE.DoubleSide }), { segW: 32, segH: 24, folds: 0.004 }); mat.rotation.x = -Math.PI / 2; mat.position.set(-0.6, gy + 0.012, 0.4); add(S, mat);
     { const uv = mat.geometry.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) / 1.6, uv.getY(i) / 1.1); }
     const dish = W.lathe([[0.001, 0], [0.12, 0.004], [0.16, 0.025], [0.165, 0.03], [0.15, 0.028], [0.11, 0.01], [0.001, 0.008]], W.brassMat(), { seg: 72 }); dish.position.set(-0.85, gy + 0.016, 0.3); add(S, dish); P.dish = dish;
@@ -1801,10 +1802,10 @@ export async function city_of_old({ time = 'dusk', seed = 11, yard = 'tools' } =
   const lightK = { night: 1, dusk: 0.8, golden: 0.25, day: 0, dawn: 0.4 }[time] ?? 0.5; setLights(lightK);
   S.updaters.push((t, o) => { if (o.lights !== undefined) setLights(o.lights); });
   const cameras = {
-    hero:     { pos: [3.2, gy + 1.6, YD / 2 - 0.4], look: [doorX - 0.6, gy + 0.9, -YD / 2], fov: 50 },        // the courtyard toward the low doorway
+    hero:     { pos: [-1.8, gy + 1.55, YD / 2 - 0.5], look: [doorX + 0.4, gy + 1.0, -YD / 2], fov: 50 },        // the courtyard toward the low doorway
     doorway:  { pos: [front.x + 0.4, gy + 1.0, front.z + 2.2], look: [front.x - 0.4, gy + 0.4, front.z], fov: 44 },
     tally:    { pos: [-YW / 2 + 0.9, gy + 1.45, -1.55], look: [-YW / 2 + 0.23, gy + 1.35, -1.8], fov: 34 },
-    mat:      { pos: [-0.2, gy + 0.55, 1.1], look: [-0.7, gy + 0.05, 0.35], fov: 40 },
+    mat:      { pos: [-0.5, gy + 0.32, 0.78], look: [-0.82, gy + 0.03, 0.3], fov: 36 },
     town:     { pos: [7.5, hy(7.5, 30) + 1.7, 30], look: [-5, 8, -60], fov: 46 },                                // the town up the hill, windows glowing
     lane:     { pos: [7.2, hy(7.2, 2) + 1.6, 2], look: [7.5, hy(7.5, 20) + 1.2, 20], fov: 44 },                  // the lane of olive trees to the family doorway
     coins:    { pos: [12.9, hy(12.5, 6) + 1.05, 6.45], look: [12.5, hy(12.5, 6) + 0.8, 6], fov: 32 },
@@ -1821,19 +1822,19 @@ export async function city_of_old({ time = 'dusk', seed = 11, yard = 'tools' } =
 // parchment with abstract strokes that glow faintly gold as they are drawn (props.setWriting(q)). props.setTide(q):
 // the sea draws back down the shore, leaving wet stones (pure). Lesson 15.
 export async function night_shore({ seed = 150 } = {}) {
-  const S = await base('night_shore', 'night', { sun: { elev: 34, azim: 250 }, moon: { dir: dirFrom(30, 255), phase: 0.5 }, shadowBox: 8, focus: [0, 0.6, 0], fog: 0.004, exposure: 2.0 });
+  const S = await base('night_shore', 'night', { sun: { elev: 24, azim: 262 }, moon: { dir: dirFrom(24, 262), phase: 0.5 }, envI: 0.5, shadowBox: 8, focus: [0, 0.6, 0], fog: 0.004, exposure: 1.6 });
   const n = W.noise2(seed);
   const height = (x, z) => 0.07 * z + 0.04 * n(x / 2, z / 2) - 0.0008 * z * z * (z < 0 ? 1 : 0) + 8 * sstep(40, 160, z) * W.fbm(n, x / 80, z / 80, 3);
   const mt = await W.terrainMaterial([{ name: 'sandy_gravel', tile: 1.6 }, { name: 'gravel_road', tile: 1.4 }, { name: 'sand_01', tile: 3 }], { macro: 0.2 });
   const T = W.terrain({ size: 1200, seg: 520, warp: 0.06, centre: [0, 2], height, material: mt, weights: (x, z) => [1, 0.6 + 0.4 * n(x / 3, z / 3), sstep(4, 12, z)] });
   add(S, T.mesh);
   add(S, await W.scatter('rock_09', W.scatterPoints({ seed: seed + 1, count: 2600, rect: [-14, -8, 14, 9], heightAt: height, s: [0.25, 1.4], sink: 0.004 }), { tint: 0x8a8a90, matte: false }));
-  const ocean = oceanMaterial({ colA: 0x050a12, colB: 0x050a12, shallow: 0x0a1418, foam: 0, rough: 0.04, tile: 3.5, flow: [0.01, 0.004], opacity: 1, envI: 1.6 });
+  const ocean = oceanMaterial({ colA: 0x020408, colB: 0x020408, shallow: 0x04080a, foam: 0, rough: 0.06, tile: 3.5, flow: [0.01, 0.004], opacity: 1, envI: 0.12 });
   ocean.userData.U.swellK.value = 0.35;
   const sea = new THREE.Mesh(warpedSheet(5000, 360, 0.01), ocean); sea.position.z = -1.5; add(S, sea);
   const setTide = (q) => { q = clamp(q); sea.position.y = -0.04 - 0.22 * q; sea.position.z = -1.5 - 3.2 * q; };
   // the driftwood table, the inkwell, the reed pen, the parchment
-  const drift = (await MATS.planks()).clone(); drift.color.set(0xb8b0a4);
+  const drift = (await MATS.planks()).clone(); drift.color.set(0x8a8478);
   const table = new THREE.Group(); const top = W.rbox(1.1, 0.06, 0.6, drift, { r: 0.025, seg: 3 }); top.position.y = 0.72; table.add(top);
   for (const [x, z] of [[-0.45, -0.22], [0.45, -0.22], [-0.45, 0.22], [0.45, 0.22]]) { const leg = new THREE.Mesh(W.boxUV(new THREE.CylinderGeometry(0.035, 0.045, 0.74, 12)), drift); leg.position.set(x, 0.37, z); leg.rotation.set(z * 0.12, 0, x * 0.1); table.add(W.shadows(leg)); }
   table.position.set(0, height(0, 0.6) - 0.02, 0.6); add(S, W.shadows(table));
@@ -1863,8 +1864,8 @@ export async function night_shore({ seed = 150 } = {}) {
   setTide(0); setInk(0); setWriting(0);
   S.updaters.push((t, o) => { ocean.userData.update(t); if (o.tide !== undefined) setTide(o.tide); if (o.ink !== undefined) setInk(o.ink); if (o.writing !== undefined) setWriting(o.writing); });
   const cameras = {
-    hero:   { pos: [0.9, ty + 0.35, 1.9], look: [-0.2, ty - 0.3, -6], fov: 44 },                 // table height, the sea and the moon glint beyond
-    ink:    { pos: [0.42, ty + 0.12, 0.68], look: [0.32, ty + 0.06, 0.55], fov: 30 },
+    hero:   { pos: [0.75, ty + 0.22, 1.55], look: [-0.6, ty - 0.35, -8], fov: 46 },                 // table height, the sea and the moon glint beyond
+    ink:    { pos: [0.5, ty + 0.2, 0.86], look: [0.32, ty + 0.05, 0.55], fov: 30 },
     parchment: { pos: [-0.05, ty + 0.42, 0.95], look: [-0.12, ty, 0.56], fov: 38 },
     shore:  { pos: [2.5, 1.1, 3.5], look: [-1, 0, -4], fov: 46 },
     sky:    { pos: [0, 1.3, 3], look: [-2, 12, -40], fov: 60 },

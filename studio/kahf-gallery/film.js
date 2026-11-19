@@ -13,7 +13,7 @@ export const SLOTS = [
   ['cave_day', 'mountain_cave', { time: 'day' }, 'mouth_out', 'Looking out of the cave', { day: 0.3 }],
   ['cave_day', 'mountain_cave', { time: 'day' }, 'sleepers', 'The sleepers', { day: 0.8 }],
   ['cave_day', 'mountain_cave', { time: 'day' }, 'threshold', 'The dog at the threshold', { day: 0.6 }],
-  ['cave_day', 'mountain_cave', { time: 'day' }, 'vista', 'The valley below', { day: 0.5 }],
+  ['cave_day', 'mountain_cave', { time: 'day' }, 'vista', 'The valley below', { day: 0.2 }],
   ['town', 'city_of_old', { time: 'dusk', yard: 'tools' }, 'hero', 'A courtyard at dusk'],
   ['town', 'city_of_old', { time: 'dusk', yard: 'tools' }, 'lane', 'The lane of olive trees'],
   ['house', 'city_of_old', { time: 'golden', yard: 'adornment' }, 'mat', 'Wealth and adornment'],
