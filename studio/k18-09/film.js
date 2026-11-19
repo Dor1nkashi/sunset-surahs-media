@@ -148,8 +148,8 @@ M.film({
     const near = P.prints.filter(([, z]) => z < 12).sort((a, b) => a[1] - b[1]);
     // each print: a damp sandal-shaped hollow (always there) and the water that seeps into it (grows with fill)
     const pt = printTex();
-    const dryM = new THREE.MeshStandardMaterial({ color: 0x5a4632, roughness: 0.9, alphaMap: pt, transparent: true, opacity: 0.5, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 });
-    const wetM = new THREE.MeshPhysicalMaterial({ color: 0x2c3632, roughness: 0.03, metalness: 0, envMapIntensity: 0.75, alphaMap: pt, transparent: true, opacity: 0.9, clearcoat: 1, clearcoatRoughness: 0.02, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4 });
+    const dryM = new THREE.MeshStandardMaterial({ color: 0x4a3a2a, roughness: 0.6, alphaMap: pt, transparent: true, opacity: 0.6, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 });
+    const wetM = new THREE.MeshBasicMaterial({ color: 0xa9c6d6, alphaMap: pt, transparent: true, opacity: 0.9, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4 });
     for (const [x, z, a] of near) { const h = HT(x, z);
       const dry = new THREE.Mesh(new THREE.PlaneGeometry(0.13, 0.29).rotateX(-Math.PI / 2), dryM); dry.position.set(x, h + 0.003, z); dry.rotation.y = a; dry.receiveShadow = true; S.add(dry);
       const m = new THREE.Mesh(new THREE.PlaneGeometry(0.13, 0.29).rotateX(-Math.PI / 2), wetM.clone()); m.userData.base = [x, z, a, h]; m.receiveShadow = true; S.add(m); PUDDLES.push(m); }
@@ -173,16 +173,16 @@ M.film({
     const top = TOP, bx = BK0.x, bz = BK0.z;
     // camera poses (vertical fov for 9x16; 16x9 is tightened in K.lensFov)
     Object.assign(C, {
-      flip_a:  { pos: [bx + 0.8, top + 0.62, bz + 0.5], look: [bx - 0.12, top + 0.05, bz - 0.3], fov: 42 },
+      flip_a:  { pos: [bx + 0.5, top + 0.95, bz + 0.42], look: [bx - 0.1, top + 0.04, bz - 0.25], fov: 44 },
       flip_b:  { pos: [bx + 0.85, top + 0.55, bz + 0.1], look: [bx - 0.3, top - 0.2, -0.15], fov: 44 },
       water_a: { pos: [0.2, 0.9, 0.3], look: [1.4, -0.05, -4.5], fov: 32 },
       water_b: { pos: [0.25, 0.86, 0.15], look: [1.6, -0.05, -5.2], fov: 31 },
       pull_a:  { pos: [0.45, top + 0.45, 0.95], look: [-0.25, 0.0, -0.7], fov: 36 },
       pull_b:  { pos: C.shadowCam.pos, look: C.shadowCam.look, fov: 44 },
-      far:     { pos: [-6, 3.4, 62], look: [0.6, 1.3, 1.5], fov: 9 },
+      far:     { pos: [-3.5, 2.3, 1.2], look: [0.4, top + 0.6, 1.3], fov: 50 },   // DEBUG
       basket_a:{ pos: [bx + 1.25, top + 0.8, bz + 0.85], look: [bx - 0.05, top + 0.08, bz], fov: 46 },
       basket_b:{ pos: [bx + 1.0, top + 0.66, bz + 0.68], look: [bx - 0.05, top + 0.08, bz], fov: 44 },
-      seam:    { pos: [1.6, 0.42, -2.0], look: [2.9, 0.0, -9], fov: 36 },
+      seam:    { pos: [0.6, 2.0, 0.4], look: [2.8, 0.0, -9], fov: 40 },
       shadow:  C.shadowCam,
       feet_a:  { pos: [-2.05, 1.5, 1.9], look: [-2.05, 0.0, 4.0], fov: 46 },
       feet_b:  { pos: [-2.05, 0.2, 2.3], look: [-2.05, -0.2, 8.0], fov: 44 },
@@ -229,7 +229,7 @@ M.film({
     // the puddles in the prints: dry until the walkers have left; they fill slowly (seawater seeps up the sand)
     const fill = (k) => E.outQuad(clamp(k));
     PUDDLES.forEach((m, j) => { const [x, z, a, h] = m.userData.base; const k = fill(prog(t, 18.9 + 0.3 * j, 27.6 + 0.15 * j)) * (t > 16 ? 1 : 0);
-      m.visible = k > 0.01; m.position.set(x, h + 0.004, z); m.rotation.y = a; const q = 0.35 + 0.65 * Math.sqrt(k); m.scale.set(q, 1, q); m.material.opacity = 0.35 + 0.55 * k; });
+      m.visible = k > 0.01; m.position.set(x, h + 0.004, z); m.rotation.y = a; const q = 0.45 + 0.5 * Math.sqrt(k); m.scale.set(q, 1, q); m.material.opacity = 0.25 + 0.6 * k; });
     if (i === 12) { const pr = PUDDLES[0].userData.base, g = prog(t, 26.0, 27.2);
       GLINT.visible = g > 0 && g < 1; GLINT.position.set(pr[0] - 0.08 + 0.16 * g, pr[3] + 0.006, pr[1] + 0.02); GLINT.rotation.y = 0; GLINT.scale.set(0.05, 1, 0.006); GLINT.material.opacity = 0.9 * Math.sin(Math.PI * g); }
     // people per shot
@@ -243,8 +243,8 @@ M.film({
       const h = TALL.bones('RightHand').getWorldPosition(V()), d = C.pointAt.clone().sub(h).normalize();
       const side = V(-d.z, 0, d.x).normalize();                                          // to the right of the pointing line
       const k = i === 7 ? E.inOutSine(p) : 1;
-      const pos = h.clone().addScaledVector(d, -lerp(0.42, 0.34, k)).addScaledVector(side, 0.3).add(V(0, -0.1, 0));
-      cam = { pos: pos.toArray(), look: h.clone().addScaledVector(d, 1.2).addScaledVector(side, -0.05).toArray(), fov: K.lensFov(i === 7 ? 36 : 32) };
+      const pos = h.clone().addScaledVector(d, -lerp(0.5, 0.38, k)).addScaledVector(side, 0.07).add(V(0, -0.09, 0));
+      cam = { pos: pos.toArray(), look: h.clone().addScaledVector(d, 1.6).add(V(0, -0.12, 0)).toArray(), fov: K.lensFov(i === 7 ? 36 : 32) };
     } else {
       cam = K.camLerp(s.a, s.b, (s.ease || E.linear)(p));
       cam = K.breathe(cam, t, s.b ? 0.0015 : 0.0025, 11 + i);
