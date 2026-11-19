@@ -20,7 +20,7 @@ const G0 = (x, z, dy) => [x, hy(x, z) + dy, z];
 const toward = (pos, tx, tz, el, d = 30) => { const dx = tx - pos[0], dz = tz - pos[2], l = Math.hypot(dx, dz); return [pos[0] + dx / l * d, pos[1] + Math.tan(el * Math.PI / 180) * d, pos[2] + dz / l * d]; };
 // the sun: just under the eastern ridge at 0, clear of it by ~2 s, about 9 degrees up by the end
 const SUN_AZ = new THREE.Vector3(0.52, 0, -0.85).normalize();
-const sunEl = (t) => (-2.5 + 11.5 * sm(t, 0, D)) * Math.PI / 180;
+const sunEl = (t) => (1.2 + 8.5 * sm(t, 0, D)) * Math.PI / 180;
 const sunDir = (t) => { const e = sunEl(t); return V3(SUN_AZ.x * Math.cos(e), Math.sin(e), SUN_AZ.z * Math.cos(e)); };
 const LX = 3.9, LZ = 1.6;          // the lamp ledge and shirt line, in the house courtyard
 
@@ -68,12 +68,12 @@ async function build() {
 function light(t) {
   const sky = SET.props.sky.userData.u, d = sunDir(t), e = sunEl(t), k = sstep(-0.05, 0.12, e);
   const dawn = 0.55 + 0.45 * k;
-  sky.sunD.value.copy(d); sky.sunC.value.setRGB(1.0 * dawn, 0.62 * dawn, 0.25 * dawn); sky.glow.value = 1.0; sky.sunDisc.value = lerp(2.0, 0.99996, sstep(-0.01, 0.01, e));
+  sky.sunD.value.copy(d); sky.sunC.value.setRGB(1.0 * dawn, 0.62 * dawn, 0.25 * dawn); sky.glow.value = 1.0; sky.sunDisc.value = 0.99993;
   sky.zen.value.setRGB(lerp(0.016, 0.06, k * 0.6), lerp(0.04, 0.12, k * 0.6), lerp(0.12, 0.28, k * 0.6));
   sky.hor.value.setRGB(lerp(0.5, 1.0, k), lerp(0.28, 0.62, k), lerp(0.2, 0.38, k));
   sky.moonOn.value = 0;
   const L = SET.atmo.sun, f = V3(0, h0, 0); L.position.copy(f).addScaledVector(d, 200); L.target.position.copy(f); L.target.updateMatrixWorld();
-  L.color.setRGB(1, 0.6 + 0.18 * k, 0.3 + 0.22 * k); L.intensity = 5.0 * sstep(-0.03, 0.035, e);
+  L.color.setRGB(1, 0.62 + 0.16 * k, 0.32 + 0.2 * k); L.intensity = 5.5;
   SET.scene.environmentIntensity = BASE.env * lerp(0.55, 0.42, k); if (SET.atmo.hemi) SET.atmo.hemi.intensity = BASE.hemi;
   if (SET.scene.fog) SET.scene.fog.color.setRGB(lerp(0.2, 0.62, k), lerp(0.16, 0.45, k), lerp(0.2, 0.36, k));
   return k;
@@ -85,7 +85,7 @@ function shots() {
   const crB = (() => { const p = G0(10.5, 21.5, 1.5); return C(p, toward(p, 10.5 + SUN_AZ.x * 50, 21.5 + SUN_AZ.z * 50, 5), 58); })();
   const zen = (() => { const p = G0(10.5, 21.5, 1.5); return C(p, ELEVEN_CENTRE.map((v, i) => p[i] + v * 30 - (i === 1 ? 3 : 0)), 56); })();
   const W0 = SET.props.well.position, H = SET.props.house.position;
-  const hand = () => { const h = K.handPos(P.m, 'Right'), sd = V3(-SUN_AZ.x, 0, -SUN_AZ.z); return C(h.clone().addScaledVector(sd, 0.75).add(V3(0.25, 0.3, 0)).toArray(), h.toArray(), 28); };
+  const hand = () => { const h = K.handPos(P.m, 'Right'), side = V3(-SUN_AZ.z, 0, SUN_AZ.x); return C(h.clone().addScaledVector(side, -0.8).addScaledVector(SUN_AZ, -0.2).add(V3(0, 0.12, 0)).toArray(), h.toArray(), 30); };
   return [
     { t0: 0, t1: 2.2, a: zen, b: crB, ease: (x) => K.easeIO(clamp(x * 1.05)) },                                                                                       // 1 sunrise over the eastern ridge; the eleven fade above it
     { t0: 2.2, t1: 3.56, a: C(G0(16, 24, 4.2), [H.x + 1, H.y + 2, H.z], 46), b: C(G0(11, 15, 3.0), [H.x + 0.5, H.y + 2, H.z], 44) },   // 2 gliding over the terraces toward the house
