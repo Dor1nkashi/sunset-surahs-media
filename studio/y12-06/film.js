@@ -22,20 +22,20 @@ const C = {
   bolt_b:   { pos: [0.95, 1.31, DZ + 0.58], look: [0.54, 1.34, DZ], fov: 29 },
   push_a:   { pos: [0.15, 1.45, DZ + 3.6], look: [0.05, 1.35, DZ], fov: 46 },
   push_b:   { pos: [0.18, 1.42, DZ + 2.3], look: [0.10, 1.38, DZ], fov: 44 },
-  court_a:  { pos: [7.2, 1.5, 0.4], look: [8.6, 1.5, -4.5], fov: 50 },
-  court_b:  { pos: [7.5, 1.75, 2.3], look: [8.6, 1.6, -4.5], fov: 50 },
+  court_a:  { pos: [5.7, 1.5, 0.9], look: [10.5, 1.6, -2.6], fov: 50 },
+  court_b:  { pos: [5.3, 1.7, 2.3], look: [10.5, 1.7, -2.6], fov: 52 },
   bolt2:    { pos: [1.3, 1.8, DZ + 1.2], look: [0.45, 1.85, DZ], fov: 36 },
   back_a:   { pos: [-0.9, 1.55, DZ + 4.3], look: [0.25, 1.35, DZ], fov: 48 },
   back_b:   { pos: [-0.86, 1.55, DZ + 4.15], look: [0.25, 1.35, DZ], fov: 48 },
-  hand_a:   { pos: [0.75, 1.45, DZ + 1.6], look: [0.05, 1.42, DZ], fov: 40 },
-  hand_b:   { pos: [0.6, 1.45, DZ + 1.15], look: [0.05, 1.42, DZ], fov: 38 },
+  hand_a:   { pos: [1.0, 1.55, DZ + 2.1], look: [0.1, 1.3, DZ], fov: 40 },
+  hand_b:   { pos: [0.85, 1.5, DZ + 1.6], look: [0.1, 1.3, DZ], fov: 38 },
   tilt_a:   { pos: [0.1, 1.55, DZ + 2.9], look: [0.0, 1.9, DZ], fov: 48 },
   tilt_b:   { pos: [0.1, 1.6, DZ + 2.9], look: [0.0, 3.25, DZ], fov: 46 },
   emb_a:    { pos: [0.05, 2.9, DZ + 1.9], look: [0.0, 3.38, ZB], fov: 30 },
   emb_b:    { pos: [0.05, 3.05, DZ + 1.45], look: [0.0, 3.38, ZB], fov: 28 },
   lamp:     { pos: [-3.25, 1.86, -0.35], look: [LAMP3[0], 1.74, LAMP3[2]], fov: 26 },
-  boltc_a:  { pos: [0.82, 1.40, DZ + 0.42], look: [0.6, 1.36, DZ], fov: 24 },
-  boltc_b:  { pos: [0.80, 1.40, DZ + 0.38], look: [0.6, 1.36, DZ], fov: 23 },
+  boltc_a:  { pos: [0.98, 1.47, DZ + 0.8], look: [0.6, 1.36, DZ], fov: 26 },
+  boltc_b:  { pos: [0.95, 1.46, DZ + 0.72], look: [0.6, 1.36, DZ], fov: 25 },
   flame:    { pos: [0.0, 1.42, DZ + 0.36], look: [0.55, 1.36, DZ], fov: 26 },
 };
 // the shot table (times from shotlists/y12_06.md)
@@ -70,27 +70,27 @@ function posePeople(t, i) {
     const k = i === 5 ? E.inOutCubic(prog(t, 10.45, 11.5)) : i === 11 ? 1 : 0;
     if (k > 0) {
       MAN.object3d.updateMatrixWorld(true);
-      const h0 = MAN.bones('RightHand').getWorldPosition(V()), tgt = V(0.18, 1.52, DZ + 0.075);
-      const pt = h0.clone().lerp(tgt, k), pole = V(0.9, 0.6, DZ + 1.0);
+      const h0 = MAN.bones('RightHand').getWorldPosition(V()), tgt = V(0.2, 1.32, DZ + 0.13);
+      const pt = h0.clone().lerp(tgt, k), pole = V(0.8, 0.2, DZ + 0.9);
       K.reach(MAN, 'Right', pt, pole);
       K.flatHand(MAN, 'Right', 0.1 + 0.9 * (1 - k));
       K.handAim(MAN, 'Right', pt.clone().add(V(0.02, 0.2 * k - 0.2 * (1 - k), 0.0)), HROLL);
     }
   }
   if (WOMAN.object3d.visible) {
-    WOMAN.object3d.position.set(0.0, 0, DZ + 0.52); WOMAN.object3d.rotation.y = Math.PI;
+    WOMAN.object3d.position.set(0.2, 0, DZ + 0.4); WOMAN.object3d.rotation.y = Math.PI;
     WOMAN.setPose('stand', t);
     const b2 = E.inOutCubic(prog(t, 6.75, 7.35)), knob = V(BOLT2[0] - 0.24 * (1 - b2) - 0.08, BOLT2[1], BOLT2[2] + 0.07);
     const reachK = E.inOutCubic(prog(t, 6.23, 6.7));
     WOMAN.object3d.updateMatrixWorld(true);
     const h0 = WOMAN.bones('RightHand').getWorldPosition(V());
     K.reach(WOMAN, 'Right', h0.clone().lerp(knob, reachK), V(0.9, 0.9, DZ + 0.9));
-    K.handAim(WOMAN, 'Right', knob.clone().add(V(0.06, -0.02, 0.0)), 0);
+    K.handAim(WOMAN, 'Right', knob.clone().add(V(0.07, 0.0, -0.04)), 0); K.flatHand(WOMAN, 'Right', 1.6);
   }
   if (SERV.object3d.visible) {
     // a servant carries a water jar across the courtyard, away from us
     const w = t - 3.55;
-    SERV.object3d.position.set(6.25, 0, -0.2 - SERV.speed('walk') * w); SERV.object3d.rotation.y = Math.PI;
+    const sp = SERV.speed('walk') * w; SERV.object3d.position.set(6.0 + 0.95 * sp, 0, 0.4 - 0.3 * sp); SERV.object3d.rotation.y = 1.876;
     SERV.setPose('walk', t, { carry: 'jar' });
   }
 }
@@ -127,13 +127,15 @@ M.film({
     for (const f of [MAN, WOMAN, SERV]) S.add(f.object3d);
     const bangle = new THREE.Mesh(new THREE.TorusGeometry(0.034, 0.006, 12, 40), W.goldMat()); bangle.rotation.x = Math.PI / 2; WOMAN.bones('RightHand').add(bangle);
     bangle.scale.setScalar(100); bangle.position.set(0, -2, 0);     // the rig is in centimetres
-    // carve the emblem: a lotus rosette in relief (bump map from a canvas, petals around the disc)
-    { const c = document.createElement('canvas'); c.width = 1024; c.height = 256; const x = c.getContext('2d');
-      x.fillStyle = '#000'; x.fillRect(0, 0, 1024, 256);
-      for (let i = 0; i < 16; i++) { const cx = (i + 0.5) * 64; const g = x.createRadialGradient(cx, 150, 4, cx, 150, 60); g.addColorStop(0, '#fff'); g.addColorStop(0.7, '#888'); g.addColorStop(1, '#000');
-        x.fillStyle = g; x.beginPath(); x.ellipse(cx, 150, 26, 80, 0, 0, 7); x.fill(); x.fillStyle = '#333'; x.fillRect(cx - 1.5, 80, 3, 140); }
-      x.fillStyle = '#fff'; x.fillRect(0, 20, 1024, 10); x.fillRect(0, 236, 1024, 8);
-      const tex = new THREE.CanvasTexture(c); const em = SET.props.emblem, mm = em.material.clone(); mm.bumpMap = tex; mm.bumpScale = 6; mm.roughness = 0.5; em.material = mm; }
+    // the carved emblem: a lotus rosette in relief (16 petals + a boss) on the lintel disc
+    { const em = SET.props.emblem, wood = em.material, g = new THREE.Group();
+      const petal = new THREE.SphereGeometry(1, 24, 16); petal.scale(0.035, 0.12, 0.02);
+      for (let k = 0; k < 16; k++) { const a = k / 16 * Math.PI * 2, m = new THREE.Mesh(petal, wood); m.position.set(Math.sin(a) * 0.17, Math.cos(a) * 0.17, 0); m.rotation.z = -a; g.add(m); }
+      const petal2 = new THREE.SphereGeometry(1, 20, 12); petal2.scale(0.022, 0.06, 0.018);
+      for (let k = 0; k < 16; k++) { const a = (k + 0.5) / 16 * Math.PI * 2, m = new THREE.Mesh(petal2, wood); m.position.set(Math.sin(a) * 0.27, Math.cos(a) * 0.27, -0.035); m.rotation.z = -a; g.add(m); }
+      const boss = new THREE.Mesh(new THREE.SphereGeometry(0.06, 32, 16), wood); boss.scale.z = 0.6; g.add(boss);
+      const ringM = new THREE.Mesh(new THREE.TorusGeometry(0.315, 0.012, 12, 96), wood); ringM.position.z = -0.06; g.add(ringM);
+      W.shadows(g); g.position.set(0, 3.38, ZB + 0.25 + 0.115); S.add(g); }
     ST = W.stage(SET);
     SET.update(0, null, {}); G.R.compile(S, ST.camera);
     CAP = captions(await loadLines('lines.json'), { display: 'Display', ui: 'UI' });
@@ -157,7 +159,7 @@ M.film({
     DUST2.userData.update(t, i === 8 || i === 10 ? 1 : 0);
     FALLDUST.userData.update(t, i === 9 ? 1 : 0);
     posePeople(t, i);
-    G.renderSet(ctx, ST, t, u, { cam, exposure: SET.exposure * (i === 2 ? 0.85 : i === 8 || i === 10 ? 0.5 : 1) });
+    G.renderSet(ctx, ST, t, u, { cam, exposure: SET.exposure * (i === 2 ? 0.62 : i === 8 || i === 10 ? 0.45 : 1) });
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.5);
   },
