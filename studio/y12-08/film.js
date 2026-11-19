@@ -43,7 +43,7 @@ function cams() {
     hand_back: { pos: [0.65, 1.7, ZS + 1.6], look: [0.05, 1.2, ZS - 0.2], fov: 34 },
     close_a:   { pos: [0.85, 1.45, GATE_Z + 3.2], look: [0.0, 1.05, DOORF], fov: 38 },
     close_b:   { pos: [0.8, 1.45, GATE_Z + 2.8], look: [0.0, 1.05, DOORF], fov: 37 },
-    palm:      { pos: [-0.85, 1.62, GATE_Z - 2.35], look: [-0.2, 1.28, GATE_Z - 0.95], fov: 32 },
+    palm:      { pos: [-0.62, 1.52, GATE_Z - 2.05], look: [-0.12, 1.3, GATE_Z - 0.7], fov: 34 },
   });
 }
 const SHOTS = [
@@ -82,7 +82,7 @@ M.film({
     const wl = LANE.windows.filter((w) => w.side < 0 && w.wz < -4 && w.wz > -11).sort((a, b) => Math.abs(a.wz + 6.6) - Math.abs(b.wz + 6.6))[0];
     if (wl) ZS = wl.wz + 0.35;
     // the swinging lamp inside that window: its light falls through the lattice onto him
-    SWING = new THREE.SpotLight(0xffb060, 0, 9, 0.55, 0.25, 1.4); SWING.castShadow = true; SWING.shadow.mapSize.set(2048, 2048); SWING.shadow.bias = -0.0008; SWING.shadow.radius = 2;
+    SWING = new THREE.SpotLight(0xffb060, 0, 9, 0.4, 0.15, 1.4); SWING.castShadow = true; SWING.shadow.mapSize.set(2048, 2048); SWING.shadow.bias = -0.0008; SWING.shadow.radius = 2;
     SWING.userData.base = V(-(LANE_W / 2 + 0.75), (wl ? wl.wy : 2.4) + 0.75, wl ? wl.wz : ZS);
     S.add(SWING, SWING.target);
     if (wl) wl.lamp.userData.on = false;
@@ -116,7 +116,7 @@ M.film({
     cam = K.breathe(cam, t, 0.0025, 31 + i);
     // light fades from late afternoon to torchlit dusk over the film
     const dusk = prog(t, 2.0, 30.0);
-    const ex = SET.exposure * (1.0 - 0.25 * dusk) * ([1, 1, 1, 0.85, 0.85, 0.9, 0.85, 0.85, 0.6, 0.85, 0.62, 1, 0.85, 1, 0.7][i]);
+    const ex = SET.exposure * (1.0 - 0.25 * dusk) * ([1, 1, 1.1, 0.85, 0.85, 0.9, 0.85, 0.85, 0.42, 0.85, 0.45, 1, 0.85, 1, 0.8][i]);
     G.renderSet(ctx, ST, t, u, { cam, exposure: ex });
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.5);
@@ -135,7 +135,7 @@ function world(t, i) {
   const sw = 0.28 * Math.sin(t * 1.3), lift = prog(t, 18.2, 19.8);
   const b = SWING.userData.base; SWING.position.set(b.x, b.y + 0.05 * Math.cos(t * 2.6), b.z + sw);
   SWING.target.position.set(0.0, 1.45 + 1.6 * E.inOutSine(lift), ZS + 0.1);
-  SWING.intensity = (i >= 6 && i <= 9) || i === 12 ? 26 * (1 - 0.8 * lift * (i === 9 ? 1 : 0)) : 0;
+  SWING.intensity = (i >= 6 && i <= 9) || i === 12 ? 90 * (1 - 0.8 * lift * (i === 9 ? 1 : 0)) : 0;
   // torches: flicker that steadies in shot 11 (the light intensity jitter is damped)
   const steady = prog(t, 19.9, 21.8), base = 0.4 + 0.6 * dusk;
   for (const T of LANE.torches) T.flame.userData.update(t * (1 - 0.6 * steady), base * (1 + (1 - steady) * 0.18 * Math.sin(t * 17 + T.group.position.x)));
