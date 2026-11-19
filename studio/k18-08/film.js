@@ -56,7 +56,7 @@ function staffInHand(p, t, swing = true) {
 
 function posePeople(t, i) {
   TALL.object3d.visible = YOUNG.object3d.visible = SEAT.object3d.visible = false; STAFF.visible = false;
-  if (i <= 3 || i === 6) {
+  if (i <= 2 || i === 6) {
     const z = walkZ(t), stop = i === 2 && t > 4.6;
     placeWalker(TALL, z, -0.32, t, 0); placeWalker(YOUNG, z + 0.9, 0.42, t, 0.45);
     if (stop) { TALL.setPose('stand', t); TALL.object3d.updateMatrixWorld(true);
@@ -117,8 +117,8 @@ M.film({
     C.planted = { pos: [PLANT[0] - 0.75, hy(...PLANT) + 0.42, PLANT[1] + 1.05], look: [PLANT[0] + 0.05, hy(...PLANT) + 0.55, PLANT[1]], fov: 40 };
     C.prints_a = { ...SET.cameras.footprints };
     C.prints_b = { ...SET.cameras.footprints, pos: SET.cameras.footprints.pos.map((v, j) => v + [0.15, 0.05, 0.6][j]) };
-    C.seam_a = { pos: [2.0, 2.4, 0.6], look: [2.8, 0, -9], fov: 40 };
-    C.seam_b = { pos: [2.05, 2.35, 0.4], look: [2.8, 0, -9.5], fov: 40 };
+    C.seam_a = { ...SET.cameras.seam, fov: 30 };
+    C.seam_b = { ...SET.cameras.seam, pos: SET.cameras.seam.pos.map((v, j) => v + [0.1, 0, -0.3][j]), fov: 29 };
     C.upright = { pos: [PLANT[0] - 0.6, hy(PLANT[0], PLANT[1] + 2.4) + 0.65, PLANT[1] + 2.4], look: [PLANT[0] + 0.8, 0.7, PLANT[1] - 12], fov: 46 };
     ST = W.stage(SET);
     SET.update(0, null, {}); G.R.compile(S, ST.camera);
@@ -146,7 +146,7 @@ M.film({
     if (SEAT.object3d.visible) K.tilt(SEAT, 'Spine', 0.6 * Math.sin(t * 1.3), 0, 0);
     // afternoon: the sun lowers toward the shore shots
     SET.props.sun.intensity = 3.4 - 0.9 * E.inOutSine(prog(t, 12.0, 15.0));
-    G.renderSet(ctx, ST, t, u, { cam, fish: 1, exposure: SET.exposure * (i === 11 ? 0.42 : i === 12 ? 0.85 : 1) });
+    G.renderSet(ctx, ST, t, u, { cam, fish: 1, exposure: SET.exposure * (i === 11 ? 0.8 : i === 12 ? 0.85 : 1) });
     // heat shimmer on the far band (shots 2-4, 6): a gentle horizontal wobble of thin strips near the horizon
     if (i === 1 || i === 2 || i === 3 || i === 5) {
       const y0 = M.H * (M.FORMAT.portrait ? 0.4 : 0.38), h = M.H * 0.08, src = ctx.canvas;
