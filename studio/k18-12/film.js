@@ -88,9 +88,9 @@ M.film({
       jar_b:   { pos: [JAR[0] + 0.2, cg - 0.52, JAR[1] + 1.75], look: [JAR[0], cg - 0.74, JAR[1]], fov: 36 },
       kids:    { pos: [-3.0, cg + 1.0, 2.4], look: [-4.5, cg + 0.7, 7.3], fov: 40 },
       lapse:   { pos: [5.5, cg + 1.6, 6.0], look: [-1.5, cg + 1.3, 0], fov: 46 },
-      men:     { pos: [JAR[0] + 0.3, cg + 0.7, JAR[1] + 3.3], look: [JAR[0], cg + 0.65, 0], fov: 38 },
-      lift_a:  { pos: [JAR[0] + 1.7, cg + 1.0, JAR[1] + 2.4], look: [JAR[0], cg + 0.3, JAR[1]], fov: 38 },
-      lift_b:  { pos: [JAR[0] + 1.5, cg + 0.95, JAR[1] + 2.15], look: [JAR[0], cg + 0.35, JAR[1]], fov: 36 },
+      men:     { pos: [JAR[0] + 0.4, cg + 0.9, JAR[1] + 4.8], look: [JAR[0], cg + 0.6, 0], fov: 38 },
+      lift_a:  { pos: [JAR[0] + 2.6, cg + 1.5, JAR[1] + 1.0], look: [JAR[0], cg + 0.35, JAR[1] + 0.3], fov: 36 },
+      lift_b:  { pos: [JAR[0] + 2.3, cg + 1.4, JAR[1] + 0.95], look: [JAR[0], cg + 0.45, JAR[1] + 0.3], fov: 34 },
       jar_c:   { pos: [JAR[0] + 0.15, cg - 0.55, JAR[1] + 1.55], look: [JAR[0], cg - 0.75, JAR[1]], fov: 34 },
       straight:{ pos: [4.8, cg + 1.4, 6.5], look: [-1.0, cg + 1.35, 0], fov: 40 },
       plaster: { pos: [0.9, cg + 1.3, 1.6], look: [0.5, cg + 1.2, 0.3], fov: 30 },
@@ -124,9 +124,9 @@ M.film({
     // light per shot
     let expo = SET.exposure;
     if (s.l === 'noon') setSun(150, 62, SUN0.I, SUN0.col);
-    if (s.l === 'lapse') { const q = prog(t, 17.95, 20.26); setSun(lerp(20, 175, q), 18 + 50 * Math.sin(Math.PI * q), SUN0.I * (0.6 + 0.4 * Math.sin(Math.PI * q)), 0xffe8cc); }
-    if (s.l === 'gold') { setSun(165, 16, SUN0.I * 0.85, 0xffbe78, SUN0.env * 0.7); expo *= 1.05; }
-    if (s.l === 'sunset') { const q = prog(t, 31.8, D); setSun(lerp(-150, -146, q), lerp(11, 9, q), SUN0.I * lerp(0.9, 0.6, q), 0xff9a50, SUN0.env * lerp(1.0, 1.1, q)); expo *= lerp(1.1, 0.95, q); }
+    if (s.l === 'lapse') { const q = prog(t, 17.95, 20.26); setSun(lerp(-170, -10, q), 12 + 50 * Math.sin(Math.PI * q), SUN0.I * 1.6 * (0.6 + 0.4 * Math.sin(Math.PI * q)), 0xffe8cc, SUN0.env * 0.35); }
+    if (s.l === 'gold') { setSun(165, 16, SUN0.I * 1.4, 0xffbe78, SUN0.env * 0.4); expo *= 1.1; }
+    if (s.l === 'sunset') { const q = prog(t, 31.8, D); setSun(lerp(-150, -146, q), lerp(11, 9, q), SUN0.I * lerp(1.5, 1.0, q), 0xff9a50, SUN0.env * lerp(0.3, 0.5, q)); expo *= lerp(1.2, 1.0, q); }
     const under = i === 7 || i === 12;
     // the wall: crack opens in shots 1-2, repaired across shots 5-6
     const rep = repairAt(t);

@@ -29,7 +29,7 @@ M.film({
     const gard = await two_gardens({ time: 'golden' });
     let best = null; for (const p of gard.props.palms) { const d = Math.hypot(p.position.x - (-28.5), p.position.z - (-15.8)); if (!best || d < best.d) best = { p, d }; }
     const bb = new THREE.Box3().setFromObject(best.p), top = bb.max.y, pc = best.p.position;
-    C.dates = { pos: [pc.x - 1.6, top - 0.9, pc.z + 1.9], look: [pc.x, top - 1.05, pc.z], fov: 26 };
+    C.dates = { pos: [pc.x - 2.2, top - 2.6, pc.z + 2.6], look: [pc.x, top - 0.8, pc.z], fov: 36 };
     GARD = W.stage(gard);
     // the reed pen over the strokes (night shore table, a warm lamp-like key so it reads in a 0.7 s beat)
     const shore = await night_shore();
@@ -46,14 +46,14 @@ M.film({
       sun_b:   { pos: [2.5, 0.5, 8.3], look: [-1.5, 1.2, -1], fov: 45 },
       glide_a: { pos: [8.0, Hc(8, 16) + 1.8, 16], look: [-4, 0.5, 40], fov: 44 },
       glide_b: { pos: [4.0, Hc(4, 11) + 1.2, 11], look: [0, 1.2, -1], fov: 44 },
-      v_gard:  { pos: [10, 24, 12], look: [-150, -178, 360], fov: 13 },
-      v_seas:  { pos: [10, 24, 12], look: [140, -178, 470], fov: 13 },
-      v_wall:  { pos: [10, 24, 12], look: [250, -176, 320], fov: 13 },
-      v_pass:  { pos: [10, 24, 12], look: [-330, -120, 640], fov: 13 },
+      v_gard:  { pos: [10, 24, 12], look: [-150, -178, 360], fov: 24 },
+      v_seas:  { pos: [10, 24, 12], look: [140, -178, 470], fov: 24 },
+      v_wall:  { pos: [10, 24, 12], look: [250, -176, 320], fov: 24 },
+      v_pass:  { pos: [10, 24, 12], look: [-330, -120, 640], fov: 24 },
       mouth_a: { pos: [3.4, 0.55, 10.2], look: [0, 1.0, -1], fov: 44 },
-      mouth_b: { pos: [2.4, 0.45, 7.2], look: [0, 0.95, -1.5], fov: 42 },
+      mouth_b: { pos: [2.5, 0.85, 7.6], look: [0, 0.95, -1.5], fov: 44 },
       lamp:    { pos: [lamp.x + 0.36, lamp.y + 0.14, lamp.z + 0.3], look: [lamp.x, lamp.y + 0.06, lamp.z], fov: 26 },
-      tilt_a:  { pos: [0.5, 1.5, 3.2], look: [0.0, 4.5, -3], fov: 50 },
+      tilt_a:  { pos: [1.6, 1.3, 6.2], look: [0.0, 3.5, -3], fov: 50 },
       tilt_b:  { pos: [0.3, 1.0, -1.0], look: [0.0, 0.9, -10], fov: 54 },
       in_a:    { pos: [0.3, 0.85, -8.2], look: [0, 1.0, 6], fov: 54 },
       in_b:    { pos: [0.3, 0.85, -7.75], look: [0, 1.0, 6], fov: 54 },
@@ -86,8 +86,8 @@ M.film({
       // rays (as in k18-00): 0 garden, 1 two waters, 2 village wall, 3 barrier
       CAVE.set.props.vista.rays.forEach((r, j) => { const on = s.ray === j ? E.inOutSine(prog(t, s.t0, s.t0 + 0.8)) : 0; r.userData.update(t, 1.4 * on); });
       if (CAVE.scene.fog) CAVE.scene.fog.density = FOG0 * (s.ray !== undefined ? 0.3 : 1);
-      const inside = i >= 11, ex = i === 12 ? 2.0 : i === 11 ? lerp(1.0, 1.8, E.inOutSine(p)) : i === 7 ? 1.4 : 1.0;
-      CAVE.bloom = s.ray !== undefined ? 0 : CAVE.set.bloom;
+      const inside = i >= 11, ex = i === 12 ? 2.0 : i === 11 ? lerp(1.0, 1.8, E.inOutSine(p)) : i === 7 ? 0.7 : 1.0;
+      CAVE.bloom = s.ray !== undefined || i === 7 ? 0 : CAVE.set.bloom;
       G.renderSet(ctx, CAVE, t, u, { cam, exposure: ex, mist: i <= 1 ? 1 - 0.6 * prog(t, 0, 3.78) : inside ? 1 : 0.3, lamp: inside ? 0.5 : 1 });
     } else if (s.set === 'gard') G.renderSet(ctx, GARD, t, u, { cam });
     else if (s.set === 'shore') G.renderSet(ctx, SHORE, t, u, { cam, writing: 0.62, ink: 0.4 });

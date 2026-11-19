@@ -113,9 +113,9 @@ M.film({
       lane_low:  { pos: [7.35, HT(7.3, 12.6) + 0.3, 12.6], look: [7.7, HT(7.7, 17.5) + 0.2, 17.5], fov: 38 },
       door_a:    { pos: [7.45 - fd, doorW.y + 1.25, 14.2], look: [doorW.x, doorW.y + 0.9, doorW.z], fov: 40 },
       door_b:    { pos: [7.45 - fd, doorW.y + 1.2, 15.6], look: [doorW.x, doorW.y + 0.9, doorW.z], fov: 38 },
-      flame_out: { pos: [lampW.x + 0.42, lampW.y + 0.1, lampW.z - 0.32], look: [lampW.x, lampW.y + 0.04, lampW.z + 0.08], fov: 26 },
+      flame_out: { pos: [lampW.x + 0.75, lampW.y + 0.32, lampW.z - 0.55], look: [lampW.x, lampW.y + 0.05, lampW.z], fov: 22 },
       push_a:    { pos: [doorW.x + 0.05, doorW.y + 1.15, 16.6], look: [doorW.x, doorW.y + 1.0, doorW.z + 2], fov: 44 },
-      push_b:    { pos: [doorW.x + 0.02, doorW.y + 1.05, 18.75], look: [doorW.x, doorW.y + 0.95, doorW.z + 2], fov: 50 },
+      push_b:    { pos: [doorW.x + 0.02, doorW.y + 1.05, 17.9], look: [doorW.x, doorW.y + 0.95, doorW.z + 2], fov: 50 },
       window:    { pos: [RX + 1.3, HT(RX, RZ) + 1.35, RZ + 1.5], look: [RX + wx, HT(RX, RZ) + 1.15, RZ - 0.1], fov: 46 },
       lamp_a:    { pos: [lw.x + 1.25, lw.y + 0.45, lw.z + 1.0], look: [lw.x, lw.y - 0.35, lw.z - 0.1], fov: 40 },
       lamp_b:    { pos: [lw.x + 1.0, lw.y + 0.4, lw.z + 0.8], look: [lw.x, lw.y - 0.3, lw.z - 0.1], fov: 38 },
@@ -153,7 +153,7 @@ M.film({
     const inRoom = !!s.room;
     const op = E.inOutCubic(prog(t, 17.6, 18.7)), dawn = t < 17.17 ? 0 : op * (0.75 + 0.25 * prog(t, 18.7, D));
     if (S.fog) S.fog.density = inRoom ? 0.0006 : 0.003;
-    if (inRoom) { P.sun.intensity = 0.0; S.environmentIntensity = SUN0.env * 0.18; S.backgroundIntensity = 0.22 + 0.12 * dawn; }
+    if (inRoom) { P.sun.intensity = 0.0; S.environmentIntensity = SUN0.env * 0.18; S.backgroundIntensity = 0.15 + 0.05 * dawn; }
     else { P.sun.intensity = SUN0.I; S.environmentIntensity = SUN0.env; S.backgroundIntensity = 1; }
     // the shutters: closed until 17.6, swing open by 18.6; then the dawn grows
     SHUT.forEach(({ piv, sd }) => { piv.rotation.y = sd * -1.9 * op; });
@@ -200,7 +200,7 @@ M.film({
       cam = K.camLerp(s.a, s.b, (s.ease || E.linear)(p));
       cam = K.breathe(cam, t, s.b ? 0.0012 : 0.002, 11 + i);
     }
-    const expo = SET.exposure * (inRoom ? 1.25 - 0.35 * dawn : i === 6 ? 0.45 : 1);
+    const expo = SET.exposure * (inRoom ? 1.15 - 0.55 * dawn : i === 6 ? 0.45 : 1);
     ST.bloom = i === 6 || inRoom ? 0.06 : 0.14;
     G.renderSet(ctx, ST, t, u, { cam, exposure: expo, lights: i >= 5 ? 1 : 0, lamp: i >= 4 ? 0.7 : 0 });
     CAP.draw(ctx, t);
