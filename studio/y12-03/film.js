@@ -88,6 +88,7 @@ M.film({
     CAP = captions((await loadLines('lines.json')).map((l) => ({ ...l, text: fixT(l.text), keys: (l.keys || []).map(fixT) })), { display: 'Display', ui: 'UI', size: PORT ? 84 : 74 });
     const S = WELL.set, P = S.props, sc = WELL.scene, hy = P.terrain.heightAt, h0 = P.well.position.y;
     K.h0 = h0; K.hy = hy;
+    { const wm = P.water.material; wm.envMapIntensity = 0.35; wm.color.set(0x1c3236); wm.roughness = 0.08; }
     P.terrain.mesh.castShadow = false;                                       // the ground has no hole: let the sun into the shaft
     const R0 = 0.78, WY = h0 - 9 + 0.25, top = h0 + 0.91; K.WY = WY; K.top = top;
     // ---- the rope end hangs from the beam; pivot at the beam so it can swing (pendulum, pure in t)
@@ -141,9 +142,9 @@ M.film({
       leaveA: { pos: [0.5, h0 + 1.2, 4.2], look: [0, h0 + 1.3, -5], fov: fv(48) },
       leaveB: { pos: [0.15, top + 0.7, 0.5], look: [0, h0 - 1.0, -1.5], fov: fv(48) },
       sink: { pos: [0.0, h0 - 1.2, 0.15], look: [0, WY, -0.2], fov: fv(52) },
-      descA: { pos: [0.3, h0 - 1.6, 0.35], look: [-0.7, h0 - 3.2, -0.45], fov: fv(46) },
+      descA: { pos: [0.6, h0 - 1.6, -0.38], look: [-0.68, h0 - 3.2, -0.42], fov: fv(46) },
       descB: { pos: [0.3, h0 - 5.6, 0.35], look: [-0.7, h0 - 7.0, -0.45], fov: fv(46) },
-      waterA: { pos: [0.3, h0 - 5.6, 0.35], look: [-0.7, h0 - 7.0, -0.45], fov: fv(46) },
+      waterA: { pos: [0.6, h0 - 5.6, -0.38], look: [-0.68, h0 - 7.0, -0.42], fov: fv(46) },
       waterB: { pos: [0.3, WY + 1.8, 0.35], look: [-0.1, WY, -0.15], fov: fv(48) },
       settle: { pos: [0.35, WY + 1.4, 0.4], look: [-0.05, WY, -0.1], fov: fv(50) },
       coinA: { pos: up, look: [-0.3, WY + 2.5, -0.4], fov: fv(70) },
@@ -164,7 +165,7 @@ M.film({
     else if (t < 7.6) { inside = false; cam = C.leaveA; }
     else if (t < 8.46) { const p = E.inOutCubic(prog(t, 7.6, 8.46)); cam = camL(C.leaveB, C.sink, p); inside = p > 0.3; }
     else if (t < 12.43) { const el0 = lerp(62, 82.5, E.inOutSine(prog(t, 8.46, 15.0))) * Math.PI / 180, edge = K.top - 1.56 * Math.tan(el0);
-      const blend = sm(prog(t, 8.46, 9.2)), fol = { pos: [0.42, edge + 1.0, 0.3], look: [-0.7, edge - 0.15, -0.5], fov: fv(48) };
+      const blend = sm(prog(t, 8.46, 9.2)), fol = { pos: [0.6, edge + 1.0, -0.38], look: [-0.68, edge - 0.15, -0.42], fov: fv(48) };
       cam = camL(C.descA, fol, blend); }
     else if (t < 15.15) cam = camL(C.waterA, C.waterB, E.inOutSine(prog(t, 12.43, 14.6)));
     else if (t < 17.49) cam = C.settle;
