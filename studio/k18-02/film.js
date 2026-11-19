@@ -14,7 +14,7 @@ const { prog, E, clamp } = M;
 const V = (...a) => new THREE.Vector3(...a);
 const D = 30.54;
 
-let SET, ST, CAP, H, MAN, HAND, FUR, MIRR = [], DUST, LEAVES, VINE, VLEAF, VLEAF_BASE = [], DRIP;
+let COVER, SET, ST, CAP, H, MAN, HAND, FUR, MIRR = [], DUST, LEAVES, VINE, VLEAF, VLEAF_BASE = [], DRIP;
 const C = {};
 const MX = 0.6, MZ = -6.75;                 // the near sleeper (people.js, seen from behind) lies along x, head toward -x
 // turn state: 0 = as found, 1 = turned to the other side
@@ -62,7 +62,7 @@ M.film({
     SET = await mountain_cave({ time: 'day', day: 0.5, sleepers: 5, dog: true, lamp: false, vista: false });
     H = SET.props.terrain.heightAt;
     const S = SET.scene;
-    HAND = V(MX - 0.95, H(MX - 0.95, MZ + 0.32) + 0.035, MZ + 0.32);
+    HAND = V(MX - 0.75, H(MX - 0.75, MZ + 0.78) + 0.03, MZ + 0.78);
     // mirrored twins of each cloak (the turned side), dissolved with alpha-hash so the cloaks turn without a hand
     for (const sl of SET.props.sleepers) {
       const m0 = sl.material; m0.alphaHash = true; m0.transparent = false; m0.needsUpdate = true;
@@ -72,23 +72,26 @@ M.film({
     }
     // the dog: a short coat of shell fur over the sculpted body
     const dog = SET.props.dog; let body = null; dog.traverse((m) => { if (!body && m.isMesh && m.geometry.attributes.color && m.geometry.attributes.position.count > 5000) body = m; });
-    if (body) FUR = K.shellFur(body, { layers: 12, len: 0.011, dens: 1100, wind: 0.0015 });
+    if (body) { FUR = K.shellFur(body, { layers: 12, len: 0.011, dens: 1100, wind: 0.0015, tint: 0.55 }); FUR.shells.forEach((m) => { m.material.envMapIntensity = 0.35; }); }
     // the near sleeper (faceless, from behind): wool cloak over a plain tunic, head-cloth
     const PE = await K.people();
-    MAN = PE.make({ kind: 'man', outfit: 'traveller', palette: { robe: '#9a8a70', cloak: '#7a6a54', wrap: '#8a7a62', sash: '#5a4a3a', trousers: '#8a7a64' }, beard: 'none', headwear: 'wrap', seed: 151, detail: 1 });
+    MAN = PE.make({ kind: 'man', outfit: 'traveller', palette: { robe: '#6e5e4a', cloak: '#5a4a3a', wrap: '#6a5a48', sash: '#4a3a2c', trousers: '#6a5a46', skin: '#8a5c3c' }, beard: 'none', headwear: 'wrap', seed: 151, detail: 1 });
     S.add(MAN.object3d);
+    // his own cloak drawn over him (the same wool as the others): only the sleeve and hand come out from under its edge
+    { const src = SET.props.sleepers[0]; COVER = new THREE.Mesh(src.geometry, src.material); COVER.userData.U = src.userData.U; COVER.castShadow = COVER.receiveShadow = true;
+      COVER.position.set(MX - 0.05, H(MX, MZ) - 0.01, MZ - 0.05); COVER.rotation.y = -Math.PI / 2; COVER.scale.set(1.12, 1.25, 1.0); S.add(COVER); }
     // dust in the shaft
     DUST = K.dustMotes({ centre: [0.2, 0.9, -5.6], size: [3.4, 1.8, 3.2], count: 420, seed: 8, px: 0.006, op: 0.55, fall: 0.008 }); S.add(DUST);
     // a drip far back in the dark (a falling bead + a ring)
     DRIP = new THREE.Mesh(new THREE.SphereGeometry(0.012, 12, 8), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.05, metalness: 0.2 })); S.add(DRIP);
     // dry leaves blowing across the lip (time-lapse), and a vine creeping over the lip stone
-    { const N = 46, g = new THREE.CircleGeometry(0.03, 10); g.scale(0.55, 1, 1); const m = new THREE.MeshStandardMaterial({ color: 0x8a5a2a, roughness: 0.8, side: THREE.DoubleSide });
+    { const N = 46, g = new THREE.CircleGeometry(0.055, 10); g.scale(0.55, 1, 1); const m = new THREE.MeshStandardMaterial({ color: 0x8a5a2a, roughness: 0.8, side: THREE.DoubleSide });
       LEAVES = new THREE.InstancedMesh(g, m, N); LEAVES.castShadow = true; S.add(LEAVES); LEAVES.userData.r = Array.from({ length: N }, (_, k) => { const r = W.rng(300 + k); return [r(), r(), r(), r()]; }); }
     { const pts = [V(-2.9, 0.02, 1.35), V(-2.6, 0.05, 0.95), V(-2.25, 0.14, 0.7), V(-1.8, 0.16, 0.48), V(-1.25, 0.155, 0.62), V(-0.7, 0.16, 0.36), V(-0.2, 0.15, 0.55)];
-      const cur = new THREE.CatmullRomCurve3(pts), tg = new THREE.TubeGeometry(cur, 240, 0.006, 8);
-      VINE = new THREE.Mesh(tg, new THREE.MeshStandardMaterial({ color: 0x4a5a2a, roughness: 0.7 })); VINE.castShadow = true; S.add(VINE); VINE.userData.idx = tg.index.count;
-      const N = 34, lg = new THREE.CircleGeometry(0.028, 12); lg.scale(0.8, 1, 1); lg.translate(0, 0.024, 0);
-      VLEAF = new THREE.InstancedMesh(lg, new THREE.MeshStandardMaterial({ color: 0x5a7a30, roughness: 0.6, side: THREE.DoubleSide }), N); S.add(VLEAF);
+      const cur = new THREE.CatmullRomCurve3(pts), tg = new THREE.TubeGeometry(cur, 240, 0.011, 8);
+      VINE = new THREE.Mesh(tg, new THREE.MeshStandardMaterial({ color: 0x3a4a22, roughness: 0.7 })); VINE.castShadow = true; S.add(VINE); VINE.userData.idx = tg.index.count;
+      const N = 64, lg = new THREE.CircleGeometry(0.045, 12); lg.scale(0.8, 1, 1); lg.translate(0, 0.024, 0);
+      VLEAF = new THREE.InstancedMesh(lg, new THREE.MeshStandardMaterial({ color: 0x46602a, roughness: 0.6, side: THREE.DoubleSide }), N); S.add(VLEAF);
       for (let k = 0; k < N; k++) { const u = (k + 0.5) / N, p = cur.getPointAt(u); VLEAF_BASE.push([u, p, k]); } }
     // cameras (fov = vertical degrees in 9x16)
     C.hand_a = { pos: [HAND.x + 0.1, HAND.y + 0.17, HAND.z + 0.42], look: [HAND.x, HAND.y + 0.01, HAND.z], fov: 20 };
@@ -100,14 +103,15 @@ M.film({
     C.dog = { pos: [0.6, 0.55, -5.2], look: [-0.7, 0.4, 0.8], fov: 56 };
     C.roll_a = { pos: [2.6, 1.0, -5.0], look: [-0.6, 0.2, -9.3], fov: 42 };
     C.roll_b = { pos: [-2.2, 1.0, -5.0], look: [1.2, 0.2, -9.3], fov: 42 };
-    C.lapse = { pos: [-2.6, 1.55, -3.6], look: [0.6, 0.0, -7.0], fov: 52 };
+    C.lapse = { pos: [-2.2, 1.7, -2.4], look: [0.3, 0.0, -6.8], fov: 60 };
     C.lip = { pos: [-0.4, 0.55, 2.25], look: [-1.6, 0.12, 0.6], fov: 40 };
     C.side_a = { pos: [0.4, 0.75, -5.8], look: [-0.2, 0.2, -9.3], fov: 34 };
     C.side_b = { pos: [0.35, 0.68, -6.25], look: [-0.2, 0.2, -9.3], fov: 32 };
     C.paws = { pos: [-0.62, 0.22, 1.42], look: [-0.88, 0.16, 0.95], fov: 22 };
     C.push_a = { pos: [2.2, 0.75, -5.4], look: [HAND.x, HAND.y, HAND.z], fov: 34 };
     ST = W.stage(SET);
-    poseMan(0); SET.update(0, null, {}); G.R.compile(S, ST.camera);
+    poseMan(0); SET.update(0, null, {});
+    { const w = (n) => MAN.bones(n).getWorldPosition(V()).toArray().map((v) => v.toFixed(2)).join(','); console.error(`[k18-02] head ${w('Head')} hips ${w('Hips')} rarm ${w('RightArm')} rhand ${w('RightHand')} target ${HAND.toArray().map((v) => v.toFixed(2))}`); } G.R.compile(S, ST.camera);
     CAP = captions(await loadLines('lines.json'), { display: 'Display', ui: 'UI' });
     console.error(`[k18-02] init ${((performance.now() - T0) / 1000).toFixed(1)} s`);
   },
@@ -139,7 +143,7 @@ M.film({
       const M4 = new THREE.Matrix4(), Q = new THREE.Quaternion();
       VLEAF_BASE.forEach(([uu, pp, j]) => { const sc = clamp((gk - uu) * 8) * (0.7 + 0.3 * Math.sin(j * 2.3)); Q.setFromEuler(new THREE.Euler(-1.1 + 0.3 * Math.sin(j), j * 2.1, 0.2 * Math.sin(L * 3 + j)));
         M4.compose(pp, Q, V(sc + 1e-4, sc + 1e-4, sc + 1e-4)); VLEAF.setMatrixAt(j, M4); }); VLEAF.instanceMatrix.needsUpdate = true; }
-    const ex = i === 3 || i === 10 ? 1.25 : i === 7 ? 1.0 : 2.1;
+    const ex = i === 3 ? 0.75 : i === 10 ? 0.85 : i === 7 ? 0.9 : 1.45;
     G.renderSet(ctx, ST, t, u, { cam, exposure: ex, day, mist: 0, breath: 1 });
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.6);
