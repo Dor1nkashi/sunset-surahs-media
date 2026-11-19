@@ -51,7 +51,7 @@ M.film({
     SUN0 = { pos: P.sun.position.clone(), tgt: P.sun.target.position.clone(), I: P.sun.intensity, env: S.environmentIntensity };
     // the family door: its leaf opens inward for the push through the doorway
     DOOR = P.familyHouse.userData.door;
-    P.lamps[2].position.y = HT(7.5, 19.2) + 0.2;
+    P.lamps[P.lamps.length - 1].position.y = HT(7.5, 19.2) + 0.2;
     { const v = new THREE.Mesh(new THREE.PlaneGeometry(0.95, 1.9), new THREE.MeshBasicMaterial({ color: 0x050302 })); v.position.set(DOOR.group.position.x, 0.95, DOOR.group.position.z - 0.012); P.familyHouse.add(v); }
     // the hoop the child rolls
     HOOP = W.shadows(new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.012, 12, 96), new THREE.MeshStandardMaterial({ color: 0x7a5a3a, roughness: 0.75 }))); S.add(HOOP);
@@ -102,7 +102,7 @@ M.film({
     S.add(HAND.object3d);
     STAFF = W.shadows(new THREE.Mesh(new THREE.CylinderGeometry(0.017, 0.021, 1.75, 16).translate(0, 0.875, 0), new THREE.MeshStandardMaterial({ color: 0x5e4128, roughness: 0.62, map: planks.map }))); S.add(STAFF);
     // ---- world points and cameras
-    const fd = DOOR.group.position.x, doorW = V(7.5 - fd, HT(7.5, 19.5), 19.48), lampW = P.lamps[2].position.clone().add(V(0, 0.08, 0));
+    const fd = DOOR.group.position.x, doorW = V(7.5 - fd, HT(7.5, 19.5), 19.48), lampW = P.lamps[P.lamps.length - 1].position.clone().add(V(0, 0.08, 0));
     C.doorW = doorW; C.lampW = lampW;
     C.musaAt = V(7.15, HT(7.15, 1.2), 1.2);
     const lw = ROOMLAMP.position;
