@@ -46,7 +46,7 @@ async function buildLamps(hy) {
     const x = -LEN / 2 + 0.15 + i * (LEN - 0.3) / (N - 1);
     const w = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.011, 0.05, 10), wickMat); w.position.set(x, 0.85, 0.06); g.add(w); wicks.push(w);
     const tip = new THREE.Mesh(new THREE.SphereGeometry(0.009, 8, 6), charMat); tip.position.set(x, 0.876, 0.06); g.add(tip);
-    const f = W.flame({ h: 0.11, w: 0.045, seed: 20 + i, inten: 1.5, light: 0, planes: 2 }); f.position.set(x, 0.868, 0.06); g.add(f); flames.push(f);
+    const f = W.flame({ h: 0.085, w: 0.04, seed: 20 + i, inten: 0.85, light: 0, planes: 2 }); f.position.set(x, 0.868, 0.06); g.add(f); flames.push(f);
   }
   const run = W.flame({ h: 0.06, w: 0.06, seed: 9, inten: 3.2, light: 0, planes: 2 }); run.position.set(0, 0.83, 0.06); g.add(run);
   const runL = new THREE.PointLight(0xff9a4a, 3, 3.5, 1.6); g.add(runL);
@@ -89,7 +89,7 @@ M.film({
     WELL = W.stage(await the_well({ time: 'golden' }));
     PRISON = W.stage(await prison({ time: 'evening' }));
     PALACE = W.stage(await palace_hall({ time: 'day' }));
-    CAP = captions(await loadLines('lines.json'), { display: 'Display', ui: 'UI' });
+    CAP = captions(await loadLines('lines.json'), { display: 'Display', ui: 'UI', size: PORT ? 84 : 66 });
     const P = HILLS.set.props, hy = P.terrain.heightAt, hp = P.house.position;
     K.h0 = hp.y; K.hx = hp.x; K.hz = hp.z; K.hy = hy;
     K.LX = 12; K.LZ = 15; K.LRY = -0.55;   // ledge on the terrace, facing back toward the house, the eastern glow beyond it
@@ -118,8 +118,8 @@ M.film({
       craneB: { pos: G0(-24.5, 12.5, 2.7), look: [-3, h0 + 1.3, -1], fov: fv(46) },
       settleA: { pos: G0(-24.5, 12.5, 2.7), look: [-3, h0 + 1.3, -1], fov: fv(46) },
       settleB: { pos: G0(-23.9, 12.0, 2.6), look: [-3.2, h0 + 1.25, -1], fov: fv(45) },
-      lampA: { pos: K.LW(-1.5, 1.06, 1.25), look: K.LW(-1.0, PORT ? 0.86 : 0.6, -3), fov: PORT ? 30 : 24 },
-      lampB: { pos: K.LW(1.3, 1.06, 1.25), look: K.LW(0.95, PORT ? 0.88 : 0.62, -3), fov: PORT ? 30 : 24 },
+      lampA: { pos: K.LW(-1.2, 1.25, 2.5), look: K.LW(-0.7, PORT ? 1.2 : 0.95, -4), fov: PORT ? 38 : 26 },
+      lampB: { pos: K.LW(1.0, 1.25, 2.5), look: K.LW(0.7, PORT ? 1.2 : 0.95, -4), fov: PORT ? 38 : 26 },
     };
     { const sp = G0(4, 12, 1.6); K.cams.stars = aimAt(sp, far(ELEVEN[BRIGHTEST]).map((v, i) => v + sp[i]), fv(24)); }
     const wc = WELL.set.cameras, pc = PRISON.set.cameras, qc = PALACE.set.cameras;
@@ -135,7 +135,7 @@ M.film({
     if (t < 1.68) cam = camL(C.wideA, C.wideB, E.inOutSine(prog(t, -1.6, 4.0)));
     else if (t < 3.19) cam = camL(C.tiltA, C.tiltB, E.inOutSine(prog(t, 1.75, 2.95)));
     else if (t < 5.42) cam = C.skyHold;
-    else if (t < 7.35) cam = camL(C.craneA, C.craneB, E.inOutCubic(prog(t, 5.42, 7.6)));
+    else if (t < 7.35) cam = camL(C.craneA, C.craneB, E.inOutCubic(prog(t, 5.42, 7.1)));
     else if (t < 9.25) cam = camL(C.settleA, C.settleB, E.inOutSine(prog(t, 7.35, 9.25)));
     else if (t < 9.97) { cam = C.stars; hi = 1; glint = 1; }
     else if (t < 10.49) { st = WELL; cam = C.well; glint = 1; }
