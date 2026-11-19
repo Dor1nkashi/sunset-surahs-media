@@ -151,7 +151,7 @@ function posePeople(t, i) {
     for (const [side, sx] of [['Left', -1], ['Right', 1]]) {
       const tgt = TUN.localToWorld(TUN.userData.shoulder(sx === 1 ? -1 : 1).add(V(0, 0.01, -0.02)));
       K.reach(h, side, tgt, h.object3d.localToWorld(V(sx * 0.5, 0.6, -0.4)));
-      K.handAim(h, side, tgt.clone().add(V(0, 0.12, 0)), 0);
+      K.handAim(h, side, TUN.localToWorld(TUN.userData.shoulder(sx === 1 ? -1 : 1).add(V(0, -0.06, 0.09))), 0); K.flatHand(h, side, 1.5);
     }
   };
   if (i === 0 || i === 11) holder();
@@ -170,7 +170,7 @@ function posePeople(t, i) {
     // he hurries to the doorway; she follows and catches his back; they stop when they see the husband
     const x = manXat(t), walking = t < RUN1;
     const m = show('man', x, -3.2, Math.PI / 2, walking ? 'walk' : 'stand', walking ? t * 1.25 : t);
-    const wx = x - 0.75 - 0.25 * (1 - prog(t, RUN0, 7.6));
+    const wx = x - 0.48 - 0.3 * (1 - prog(t, RUN0, 7.0));
     const wo = show('woman', wx, i === 2 ? -2.85 : -3.05, Math.PI / 2, walking ? 'walk' : 'stand', walking ? t * 1.25 + 0.4 : t);
     if (i >= 3 || t > 6.6) {
       // her right hand grips the cloth at the top of the tear and pulls it down

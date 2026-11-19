@@ -79,8 +79,8 @@ export async function makeTunic({ seed = 5, linen = null } = {}) {
   const inner = new THREE.Mesh(ig, im); inner.receiveShadow = true; g.add(inner);
   // loose threads along both torn edges: thin curved tubes (instanced), shown once the tear passes them
   const NT = 90, r = W.rng(seed + 3), th = [];
-  const tg = new THREE.CylinderGeometry(0.00045, 0.0003, 1, 5, 6, true); tg.translate(0, 0.5, 0);
-  const tm = new THREE.MeshStandardMaterial({ color: 0xf6ecd8, roughness: 0.7, emissive: 0xffd9a0, emissiveIntensity: 0 });
+  const tg = new THREE.CylinderGeometry(0.00028, 0.00018, 1, 5, 6, true); tg.translate(0, 0.5, 0);
+  const tm = new THREE.MeshStandardMaterial({ color: 0xd8ccb4, roughness: 0.8, emissive: 0xffd9a0, emissiveIntensity: 0 });
   const threads = new THREE.InstancedMesh(tg, tm, NT); threads.frustumCulled = false; g.add(threads);
   for (let i = 0; i < NT; i++) th.push({ s: r() * 0.98, side: r() < 0.5 ? -1 : 1, len: 0.006 + r() ** 2 * 0.022, ang: (r() - 0.5) * 1.1, lift: (r() - 0.5) * 0.6 });
   const M4 = new THREE.Matrix4(), Q = new THREE.Quaternion(), E = new THREE.Euler(), Z = new THREE.Vector3();
@@ -104,7 +104,7 @@ export async function makeTunic({ seed = 5, linen = null } = {}) {
       threads.instanceMatrix.needsUpdate = true;
     },
     // backlight glow 0..1 (fake translucency of the linen and the threads)
-    glow(k) { panels.back.m.emissiveIntensity = 0.32 * k; panels.front.m.emissiveIntensity = 0.32 * k; tm.emissiveIntensity = 1.8 * k; },
+    glow(k) { panels.back.m.emissiveIntensity = 0.32 * k; panels.front.m.emissiveIntensity = 0.32 * k; tm.emissiveIntensity = 0.7 * k; },
     // world-space helpers in tunic-local metres
     shoulder: (s) => new THREE.Vector3(s * 0.24, -0.02, -0.03),
     tearTip: () => new THREE.Vector3(tearPath(state.L / TEAR_MAX), TEAR_Y0 - state.L, 0.015),
