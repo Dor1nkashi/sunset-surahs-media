@@ -25,8 +25,8 @@ const leadZ = (t) => t < 1.49 ? 20.6 - 1.25 * t : t < 2.98 ? 17.2 - 1.25 * (t - 
 const OFF = [[0, 0], [0.42, 1.05], [-0.38, 2.0], [0.2, 3.05]];          // follower offsets (x, behind in z)
 
 function walkerAt(i, t) {
-  const z = leadZ(t) + OFF[i][1], x = PX(z) + OFF[i][0] * (z > 7 ? 1 : 0.8);
-  const dz = 0.2, dx = PX(z - dz) - PX(z + dz), yaw = Math.atan2(dx, -2 * dz);   // facing uphill (-z)
+  const z = leadZ(t) + OFF[i][1], m = W.sstep(1.5, 10, z), x = PX(z) * m + OFF[i][0] * (z > 7 ? 1 : 0.8);
+  const dz = 0.2, dx = PX(z - dz) * W.sstep(1.5, 10, z - dz) - PX(z + dz) * W.sstep(1.5, 10, z + dz), yaw = Math.atan2(dx, -2 * dz);   // facing uphill (-z)
   return { x, z, y: z > 7 ? H(x, z) : 0, yaw };
 }
 const RISE = (i) => 11.95 + 0.42 * i;
@@ -107,6 +107,7 @@ M.film({
     FLOOR_SPOT = new THREE.SpotLight(0xffb060, 0, 18, 0.45, 0.85, 1.3); FLOOR_SPOT.position.set(0, 1.6, 2.4); FLOOR_SPOT.target.position.set(0, 0, -4.6);
     FLOOR_SPOT.castShadow = true; FLOOR_SPOT.shadow.mapSize.set(1024, 1024); FLOOR_SPOT.shadow.bias = -0.0005; S.add(FLOOR_SPOT, FLOOR_SPOT.target);
     BEAM = new THREE.PointLight(0xffa860, 4, 7, 1.6); BEAM.position.set(0, 1.4, -2.2); S.add(BEAM);
+    SET.props.dust.userData.U.size.value = 1.1;
     DUST = K.dustMotes({ centre: [0.2, 1.1, -3.6], size: [2.6, 1.4, 2.0], count: 380, seed: 4, px: 0.006, op: 0.5, fall: 0.01 }); S.add(DUST);
     // small yellow town lights far down the valley
     { const r = W.rng(31), g = new THREE.SphereGeometry(0.9, 8, 6), m = new THREE.MeshBasicMaterial({ color: 0xffd080, toneMapped: false }); const N = 46;
@@ -129,12 +130,12 @@ M.film({
     C.line = { pos: [-0.4, 0.34, -7.2], look: [0.1, 1.05, 0.5], fov: 46 };
     C.floor_a = { pos: [0.05, 0.13, -6.0], look: [0.0, 0.12, 0.5], fov: 36 };
     C.floor_b = { pos: [0.02, 0.12, -5.0], look: [0.0, 0.14, 0.5], fov: 34 };
-    C.palms2 = { pos: [0.18, 1.46, -4.38], look: [-0.46, 1.06, -3.78], fov: 24 };
+    C.palms2 = { pos: [0.2, 1.5, -4.4], look: [-0.46, 1.16, -3.78], fov: 26 };
     C.sandals = { pos: [-3.7, 0.14, -4.0], look: [0.6, 0.1, -4.5], fov: 26 };
     SET.group.updateMatrixWorld(true); const fp = LAMP.userData.flame.getWorldPosition(V()); const LF = [fp.x, fp.y + 0.035, fp.z];
-    C.lamp1 = { pos: [LF[0] - 0.22, LF[1] + 0.06, LF[2] - 0.5], look: LF, fov: 16 };
+    C.lamp1 = { pos: [LF[0] - 0.3, LF[1] + 0.1, LF[2] - 0.7], look: [LF[0], LF[1] - 0.01, LF[2]], fov: 22 };
     C.lamp2 = { pos: [LF[0] - 0.42, LF[1] + 0.12, LF[2] - 1.35], look: [-0.1, 0.62, -2.0], fov: 30 };
-    C.lamp3 = { pos: [LF[0] - 0.1, LF[1] + 0.03, LF[2] - 0.36], look: [LF[0], LF[1] + 0.01, LF[2]], fov: 11 };
+    C.lamp3 = { pos: [LF[0] - 0.16, LF[1] + 0.06, LF[2] - 0.5], look: [LF[0], LF[1] - 0.005, LF[2]], fov: 18 };
     ST = W.stage(SET);
     SET.update(0, null, {}); G.R.compile(S, ST.camera);
     CAP = captions(await loadLines('lines.json'), { display: 'Display', ui: 'UI' });
@@ -154,7 +155,7 @@ M.film({
     const f = LAMP.userData.flame, lean = (1 - E.inOutSine(prog(t, 23.3, 24.5))) * (0.32 + 0.12 * Math.sin(t * 9.0) + 0.06 * Math.sin(t * 23));
     f.rotation.z = t > 22.69 ? lean : 0.04 * Math.sin(t * 5); f.scale.setScalar(1 + 0.35 * E.inOutSine(prog(t, 24.0, 25.5)));
     const ex = t < 5.92 ? 0.95 : i === 11 || i === 13 ? 1.1 : 1.25;
-    G.renderSet(ctx, ST, t, u, { cam, exposure: ex, mist: 0, day: 0.88, lamp: t > 22.69 ? 1 : 0.7, shaft: 1 });
+    G.renderSet(ctx, ST, t, u, { cam, exposure: ex, mist: 0, day: 0.88, lamp: t > 22.69 ? (i === 12 ? 0.6 : 0.32) : 0.7, shaft: 1 });
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.6);
   },

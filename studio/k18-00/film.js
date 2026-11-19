@@ -24,8 +24,8 @@ const runX = (t) => WX0 - 0.25 + (WX1 - WX0 + 0.25) * E.inOutSine(prog(t, RUN0, 
 const C = {};
 function poses() {
   const h = Hc;
-  C.in_a = { pos: [0.3, 1.0, -8.2], look: [0, 0.9, 6], fov: 60 };
-  C.in_b = { pos: [0.3, 1.0, -7.75], look: [0, 0.9, 6], fov: 60 };
+  C.in_a = { pos: [0.3, 0.85, -8.2], look: [0, 1.0, 6], fov: 54 };
+  C.in_b = { pos: [0.3, 0.85, -7.75], look: [0, 1.0, 6], fov: 54 };
   C.lip_a = { pos: [0.15, 0.85, -1.6], look: [2.0, 0.2, 12], fov: 52 };
   C.lip_b = { pos: [0.5, 1.45, 2.6], look: [6.5, h(6.5, 22) + 0.4, 24], fov: 50 };
   // telephoto pan along the valley: barrier -> garden -> two waters -> village
@@ -84,7 +84,7 @@ M.film({
     for (let i = 0; i < NW; i++) {
       const g = new THREE.Group(); g.position.set(wickX(i), ledge.position.y + 0.085, LEDGE_Z);
       const w = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.008, 0.035, 10), wickM); w.position.y = 0.012; g.add(w);
-      const f = W.flame({ h: 0.12, w: 0.05, seed: 11 + i, inten: 3.2, light: 0, planes: 2 }); f.position.y = 0.026; g.add(f); g.userData.f = f;
+      const f = W.flame({ h: 0.17, w: 0.07, seed: 11 + i, inten: 3.2, light: 0, planes: 2 }); f.position.y = 0.026; g.add(f); g.userData.f = f;
       S.add(g); WICKS.push(g);
     }
     RUNNER = W.flame({ h: 0.09, w: 0.07, seed: 3, inten: 3.6, light: 1.0, dist: 4 }); S.add(RUNNER);
@@ -143,11 +143,11 @@ M.film({
       RUNNER.visible = running; RUNNER.position.set(rx, WICKS[0].position.y + 0.005, LEDGE_Z); RUNNER.userData.update(t, running ? 1 : 0);
       ROWLIGHT.intensity = 6 * lit / NW; ROWLIGHT.position.x = 0.5 * rx;
       // the sun comes up over shots 5-7; it never goes back (the loop shot is again blue: the light fades with the wicks)
-      const sunK = i <= 2 ? 0 : i === 3 ? 0.25 * prog(t, 5.56, 7.81) : i === 4 ? 0.25 + 0.75 * E.inOutSine(prog(t, 7.81, 9.9)) : i === 5 ? 1 : i === 9 ? 0.35 : 0;
+      const sunK = i <= 2 ? 0 : i === 3 ? 0.25 * prog(t, 5.56, 7.81) : i === 4 ? 0.25 + 0.75 * E.inOutSine(prog(t, 7.81, 9.9)) : i === 5 ? 1 : 0;
       WARM.intensity = 11 * sunK; WARM.position.set(60, 4 + 10 * sunK, 18);
       SPOTS.lip.intensity = i === 5 ? 40 : 0;
       CAVE.set.props.vista.rays.forEach((r, j) => { const c = [0.1, 0.36, 0.62, 0.86][[3, 0, 1, 2].indexOf(j)]; const kp = s.vista ? Math.exp(-(((prog(t, 3.26, 5.56) - c) / 0.16) ** 2)) : 0; r.userData.update(t, 1.3 * kp); });
-      const ex = i === 0 || i === 10 ? 2.3 : i === 2 ? 1.0 : i === 4 || i === 5 ? 1.3 : i === 9 ? 1.9 : 1.6;
+      const ex = i === 0 || i === 10 ? 2.3 : i === 2 ? 1.0 : i === 4 || i === 5 ? 1.3 : i === 9 ? 1.25 : 1.6;
       CAVE.scene.fog.density = FOG0 * (s.vista ? 0.3 : 1);
       CAVE.bloom = i === 0 || i === 10 || i === 4 || i === 5 ? CAVE.set.bloom : 0;
       G.renderSet(ctx, CAVE, t, u, { cam, exposure: ex, mist: i === 0 || i === 10 ? 1 : 0, lamp: i === 0 || i === 10 ? 0.4 : 1 });
