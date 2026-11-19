@@ -1281,7 +1281,7 @@ async function buildBoat({ scale = 1, sailColors = null, seed = 1, damaged = tru
     const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3)); g.setIndex(idx); g.computeVertexNormals();
     return W.shadows(new THREE.Mesh(g, plank));
   };
-  const GAP = [0.43, 0.57], GK = 2;
+  const GAP = [0.43, 0.57], GK = 4;                                   // the strake at the waterline (boat floats at draft 0.36)
   for (const side of [-1, 1]) for (let k = 0; k < N; k++) {
     if (damaged && side > 0 && k === GK) { grp.add(strake(side, k, 0, GAP[0], 24), strake(side, k, GAP[1], 1, 24)); }
     else grp.add(strake(side, k, 0, 1));
@@ -1316,7 +1316,7 @@ async function buildBoat({ scale = 1, sailColors = null, seed = 1, damaged = tru
   sail.position.set(0, 2.35, mastZ + 0.12); grp.add(sail);
   if (banner) { const bn = W.cloth(0.5, 1.6, new THREE.MeshStandardMaterial({ color: 0x9a1a12, roughness: 0.8, side: THREE.DoubleSide }), { segW: 12, segH: 32, folds: 0.03, sag: (u, v) => 0.1 * Math.sin(v * 6) }); bn.rotation.y = Math.PI / 2; bn.position.set(0, 4.6, mastZ - 0.3); grp.add(bn); }
   grp.scale.setScalar(scale);
-  return { group: grp, H, loose, floorY, thwarts, mastZ, sail };
+  return { group: grp, H, loose, floorY, thwarts, mastZ, sail, GAP, GK, N };
 }
 
 // ================================================================== SEA BOAT
@@ -1354,7 +1354,7 @@ export async function sea_boat({ time = 'day', seed = 70 } = {}) {
   const setFlood = (q) => { q = clamp(q); const h = B.floorY - 0.04 + 0.32 * q, p = flood.geometry.attributes.position;
     for (let i = 0; i < p.count; i++) { const iu = i % 41, iv = Math.floor(i / 41), u = lerp(0.1, 0.9, iu / 40), sgn = iv / 6 * 2 - 1; p.setXYZ(i, sgn * Math.max(0, H.halfAt(u, h) - 0.02), h, (u - 0.5) * H.L); }
     p.needsUpdate = true; flood.geometry.computeVertexNormals(); flood.visible = q > 0.001; };
-  const setDamage = (q) => { q = clamp(q); if (!B.loose) return; B.loose.quaternion.setFromAxisAngle(B.loose.userData.axis, -0.55 * sstep(0, 0.7, q)); B.loose.position.copy(H.pt(0.43, 3 / 8, 1)).add(V3(0.06 * sstep(0.5, 1, q), -0.02 * sstep(0.5, 1, q), 0)); };
+  const setDamage = (q) => { q = clamp(q); if (!B.loose) return; B.loose.quaternion.setFromAxisAngle(B.loose.userData.axis, -0.55 * sstep(0, 0.7, q)); B.loose.position.copy(H.pt(0.43, 5 / 8, 1)).add(V3(0.06 * sstep(0.5, 1, q), -0.02 * sstep(0.5, 1, q), 0)); };
   setFlood(0); setDamage(0);
   // far out: the royal ship and the seized boat
   const K = await buildBoat({ scale: 2.7, seed: seed + 5, damaged: false, banner: true, sailColors: ['#9a1a12', '#d8a838'] }); K.group.position.set(260, -draft * 2.7, -520); K.group.rotation.y = 0.9; add(S, K.group);
@@ -1364,7 +1364,7 @@ export async function sea_boat({ time = 'day', seed = 70 } = {}) {
   const yaw0 = boat.rotation.y;
   S.updaters.push((t, o) => { ocean.userData.update(t); ride(boat, 0, 0, t, -draft); boat.rotation.y = yaw0; ride(K.group, 260, -520, t, -draft * 2.7, 0.4); ride(Sm.group, 246, -505, t, -draft * 1.15, 0.7);
     if (o.damage !== undefined) setDamage(o.damage); if (o.flood !== undefined) setFlood(o.flood); });
-  const gp = H.pt(0.5, 2.5 / 8, 1);
+  const gp = H.pt(0.5, 4.5 / 8, 1);
   const cameras = {
     hero:      { pos: [8.5, 2.4, 12], look: [0, 0.7, 0], fov: 40 },                                   // the little boat on the sea
     waterline: { pos: [gp.x + 1.5, gp.y - draft + 0.45, gp.z + 1.1], look: [gp.x, gp.y - draft + 0.05, gp.z], fov: 34 },   // the plank at the waterline
@@ -1373,7 +1373,7 @@ export async function sea_boat({ time = 'day', seed = 70 } = {}) {
     horizon:   { pos: [-0.5, 1.35, -2.4], look: [253, 4, -512], fov: 30 },                             // past the stern to the king's ship
   };
   const slots = { passenger_tall: [0.25, B.floorY, -1.9, 0], passenger_young: [-0.3, B.floorY, -1.3, 0], boatman: [0.1, B.floorY, -2.75, 0] };
-  return finish(S, 'sea_boat', cameras, { boat, plank: B.loose, setDamage, setFlood, flood, sail: B.sail, sea, ocean, kingShip: K.group, seizedBoat: Sm.group, coast: coast.mesh, swellAt, sun: S.atmo.sun }, slots, { slotsParent: boat });
+  return finish(S, 'sea_boat', cameras, { boat, hull: B, bucket, net, oar, plank: B.loose, setDamage, setFlood, flood, sail: B.sail, sea, ocean, kingShip: K.group, seizedBoat: Sm.group, coast: coast.mesh, swellAt, sun: S.atmo.sun }, slots, { slotsParent: boat });
 }
 
 // ------------------------------------------------------------------ a rock overlay: an SDF skin over a heightfield's steep parts (no texture stretch)
