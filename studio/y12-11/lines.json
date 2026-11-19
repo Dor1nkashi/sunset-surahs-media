@@ -1,0 +1,125 @@
+{
+ "title": "A King Wanted Him. He Asked for the Grain Stores",
+ "meta": {
+  "name": "v5_y12_11_the-storehouses",
+  "title": "A King Wanted Him. He Asked for the Grain Stores",
+  "follow": ""
+ },
+ "duration": 28.85,
+ "lines": [
+  {
+   "id": "h1",
+   "kind": "hook",
+   "t0": 0.1,
+   "t1": 3.004,
+   "text": "A king wanted him. He asked for the grain stores.",
+   "keys": [
+    "king",
+    "grain",
+    "stores."
+   ],
+   "quran": null
+  },
+  {
+   "id": "s1",
+   "kind": "setup",
+   "t0": 3.454,
+   "t1": 5.315,
+   "text": "The king says he is trusted now.",
+   "keys": [
+    "trusted"
+   ],
+   "quran": null
+  },
+  {
+   "id": "s2",
+   "kind": "setup",
+   "t0": 5.565,
+   "t1": 6.865,
+   "text": "Yūsuf answers:",
+   "keys": [
+    "Yūsuf"
+   ],
+   "quran": null
+  },
+  {
+   "id": "d1",
+   "kind": "dlg",
+   "t0": 7.065,
+   "t1": 12.103,
+   "text": "Appoint me over the storehouses of the land. Indeed, I will be a knowing guardian.",
+   "keys": [
+    "storehouses",
+    "knowing",
+    "guardian."
+   ],
+   "quran": {
+    "ref": "12:55",
+    "surah": "Yusuf",
+    "ar": "ٱجۡعَلۡنِی عَلَىٰ خَزَاۤىِٕنِ ٱلۡأَرۡضِۖ إِنِّی حَفِیظٌ عَلِیمࣱ"
+   }
+  },
+  {
+   "id": "d2",
+   "kind": "dlg",
+   "t0": 12.703,
+   "t1": 18.331,
+   "text": "We touch with Our mercy whom We will, and We do not allow to be lost the reward of those who do good.",
+   "keys": [
+    "mercy",
+    "reward"
+   ],
+   "quran": {
+    "ref": "12:56",
+    "surah": "Yusuf",
+    "ar": "نُصِیبُ بِرَحۡمَتِنَا مَن نَّشَاۤءُۖ وَلَا نُضِیعُ أَجۡرَ ٱلۡمُحۡسِنِینَ"
+   }
+  },
+  {
+   "id": "l1",
+   "kind": "lesson",
+   "t0": 19.031,
+   "t1": 21.167,
+   "text": "He asked for a duty, not a crown.",
+   "keys": [
+    "duty,",
+    "crown."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l2",
+   "kind": "lesson",
+   "t0": 21.467,
+   "t1": 23.779,
+   "text": "He named his strengths: guard and know.",
+   "keys": [
+    "strengths:",
+    "guard"
+   ],
+   "quran": null
+  },
+  {
+   "id": "l3",
+   "kind": "lesson",
+   "t0": 24.079,
+   "t1": 25.347,
+   "text": "Power meant service.",
+   "keys": [
+    "service."
+   ],
+   "quran": null
+  },
+  {
+   "id": "e1",
+   "kind": "end",
+   "t0": 25.847,
+   "t1": 27.253,
+   "text": "Ask what you can carry.",
+   "keys": [
+    "carry."
+   ],
+   "quran": null
+  }
+ ]
+}

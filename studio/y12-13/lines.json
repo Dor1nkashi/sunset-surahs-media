@@ -1,0 +1,128 @@
+{
+ "title": "He Cried Until His Eyes Turned White, and He Never Gave Up",
+ "meta": {
+  "name": "v5_y12_13_grief-and-hope",
+  "title": "He Cried Until His Eyes Turned White, and He Never Gave Up",
+  "follow": ""
+ },
+ "duration": 34.17,
+ "lines": [
+  {
+   "id": "h1",
+   "kind": "hook",
+   "t0": 0.1,
+   "t1": 3.524,
+   "text": "He cried until his eyes went white, but he never gave up.",
+   "keys": [
+    "eyes",
+    "white,",
+    "gave",
+    "up."
+   ],
+   "quran": null
+  },
+  {
+   "id": "s1",
+   "kind": "setup",
+   "t0": 3.974,
+   "t1": 6.479,
+   "text": "Years pass, and Yaʿqūb still grieves.",
+   "keys": [
+    "Yaʿqūb"
+   ],
+   "quran": null
+  },
+  {
+   "id": "s2",
+   "kind": "setup",
+   "t0": 6.729,
+   "t1": 9.182,
+   "text": "His sons tell him to stop. He answers:",
+   "keys": [
+    "answers:"
+   ],
+   "quran": null
+  },
+  {
+   "id": "d1",
+   "kind": "dlg",
+   "t0": 9.482,
+   "t1": 15.771,
+   "text": "I only complain of my suffering and my grief to Allāh, and I know from Allāh that which you do not know.",
+   "keys": [
+    "complain",
+    "suffering",
+    "grief",
+    "Allāh,"
+   ],
+   "quran": {
+    "ref": "12:86",
+    "surah": "Yusuf",
+    "ar": "إِنَّمَاۤ أَشۡكُوا۟ بَثِّی وَحُزۡنِیۤ إِلَى ٱللَّهِ وَأَعۡلَمُ مِنَ ٱللَّهِ مَا لَا تَعۡلَمُونَ"
+   }
+  },
+  {
+   "id": "d2",
+   "kind": "dlg",
+   "t0": 16.371,
+   "t1": 23.95,
+   "text": "and despair not of relief from Allāh. Indeed, no one despairs of relief from Allāh except the disbelieving people.",
+   "keys": [
+    "despair",
+    "relief",
+    "Allāh."
+   ],
+   "quran": {
+    "ref": "12:87",
+    "surah": "Yusuf",
+    "ar": "وَلَا تَا۟یۡـَٔسُوا۟ مِن رَّوۡحِ ٱللَّهِۖ إِنَّهُۥ لَا یَا۟یۡـَٔسُ مِن رَّوۡحِ ٱللَّهِ إِلَّا ٱلۡقَوۡمُ ٱلۡكَـٰفِرُونَ"
+   }
+  },
+  {
+   "id": "l1",
+   "kind": "lesson",
+   "t0": 24.7,
+   "t1": 26.638,
+   "text": "He cried. He did not hide it.",
+   "keys": [
+    "cried."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l2",
+   "kind": "lesson",
+   "t0": 26.938,
+   "t1": 28.597,
+   "text": "He took his grief to Allāh.",
+   "keys": [
+    "grief",
+    "Allāh."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l3",
+   "kind": "lesson",
+   "t0": 28.897,
+   "t1": 30.079,
+   "text": "And he kept hoping.",
+   "keys": [
+    "hoping."
+   ],
+   "quran": null
+  },
+  {
+   "id": "e1",
+   "kind": "end",
+   "t0": 30.579,
+   "t1": 32.57,
+   "text": "Grief and hope can live together.",
+   "keys": [
+    "Grief",
+    "hope"
+   ],
+   "quran": null
+  }
+ ]
+}

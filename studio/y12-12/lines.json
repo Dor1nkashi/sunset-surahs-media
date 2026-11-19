@@ -1,0 +1,132 @@
+{
+ "title": "A Hidden Bowl in a Bag Changed Everything",
+ "meta": {
+  "name": "v5_y12_12_the-hidden-bowl",
+  "title": "A Hidden Bowl in a Bag Changed Everything",
+  "follow": ""
+ },
+ "duration": 34.04,
+ "lines": [
+  {
+   "id": "h1",
+   "kind": "hook",
+   "t0": 0.1,
+   "t1": 2.707,
+   "text": "A hidden bowl in a bag changed everything.",
+   "keys": [
+    "hidden",
+    "bowl",
+    "bag"
+   ],
+   "quran": null
+  },
+  {
+   "id": "s1",
+   "kind": "setup",
+   "t0": 3.157,
+   "t1": 8.832,
+   "text": "So when he had furnished them with their supplies, he put the [gold measuring] bowl into the bag of his brother.",
+   "keys": [
+    "bowl",
+    "bag"
+   ],
+   "quran": {
+    "ref": "12:70",
+    "surah": "Yusuf",
+    "ar": "فَلَمَّا جَهَّزَهُم بِجَهَازِهِمۡ جَعَلَ ٱلسِّقَایَةَ فِی رَحۡلِ أَخِیهِ"
+   }
+  },
+  {
+   "id": "s2",
+   "kind": "setup",
+   "t0": 9.332,
+   "t1": 12.351,
+   "text": "The brothers sneer: a brother of his stole before.",
+   "keys": [
+    "stole"
+   ],
+   "quran": null
+  },
+  {
+   "id": "d1",
+   "kind": "dlg",
+   "t0": 12.651,
+   "t1": 16.251,
+   "text": "But Joseph kept it within himself and did not reveal it to them.",
+   "keys": [
+    "kept",
+    "within",
+    "himself"
+   ],
+   "quran": {
+    "ref": "12:77",
+    "surah": "Yusuf",
+    "ar": "فَأَسَرَّهَا یُوسُفُ فِی نَفۡسِهِۦ وَلَمۡ یُبۡدِهَا لَهُمۡۚ"
+   }
+  },
+  {
+   "id": "d2",
+   "kind": "dlg",
+   "t0": 16.851,
+   "t1": 22.226,
+   "text": "We raise in degrees whom We will, but over every possessor of knowledge is one [more] knowing.",
+   "keys": [
+    "degrees",
+    "knowledge",
+    "knowing."
+   ],
+   "quran": {
+    "ref": "12:76",
+    "surah": "Yusuf",
+    "ar": "فَبَدَأَ بِأَوۡعِیَتِهِمۡ قَبۡلَ وِعَاۤءِ أَخِیهِ ثُمَّ ٱسۡتَخۡرَجَهَا مِن وِعَاۤءِ أَخِیهِۚ كَذَ ٰ⁠لِكَ كِدۡنَا لِیُوسُفَۖ مَا كَانَ لِیَأۡخُذَ أَخَاهُ فِی دِینِ ٱلۡمَلِكِ إِلَّاۤ أَن یَشَاۤءَ ٱللَّهُۚ نَرۡفَعُ دَرَجَـٰتࣲ مَّن نَّشَاۤءُۗ وَفَوۡقَ كُلِّ ذِی عِلۡمٍ عَلِیمࣱ"
+   }
+  },
+  {
+   "id": "l1",
+   "kind": "lesson",
+   "t0": 22.926,
+   "t1": 24.388,
+   "text": "He swallowed the insult.",
+   "keys": [
+    "swallowed",
+    "insult."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l2",
+   "kind": "lesson",
+   "t0": 24.688,
+   "t1": 27.269,
+   "text": "Every expert has someone who knows more.",
+   "keys": [
+    "expert",
+    "more."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l3",
+   "kind": "lesson",
+   "t0": 27.569,
+   "t1": 29.576,
+   "text": "Stay humble, wherever you stand.",
+   "keys": [
+    "humble,"
+   ],
+   "quran": null
+  },
+  {
+   "id": "e1",
+   "kind": "end",
+   "t0": 30.076,
+   "t1": 32.436,
+   "text": "Not every insult needs an answer.",
+   "keys": [
+    "insult",
+    "answer."
+   ],
+   "quran": null
+  }
+ ]
+}

@@ -1,0 +1,128 @@
+{
+ "title": "He Had Every Reason for Revenge. Listen to What He Said",
+ "meta": {
+  "name": "v5_y12_14_forgiveness",
+  "title": "He Had Every Reason for Revenge. Listen to What He Said",
+  "follow": ""
+ },
+ "duration": 29.25,
+ "lines": [
+  {
+   "id": "h1",
+   "kind": "hook",
+   "t0": 0.1,
+   "t1": 3.589,
+   "text": "He had every reason for revenge. Listen to what he said.",
+   "keys": [
+    "revenge.",
+    "said."
+   ],
+   "quran": null
+  },
+  {
+   "id": "s1",
+   "kind": "setup",
+   "t0": 4.039,
+   "t1": 6.194,
+   "text": "His brothers stand in front of him again.",
+   "keys": [
+    "brothers"
+   ],
+   "quran": null
+  },
+  {
+   "id": "s2",
+   "kind": "setup",
+   "t0": 6.444,
+   "t1": 8.075,
+   "text": "He tells them who he is:",
+   "keys": [
+    "who"
+   ],
+   "quran": null
+  },
+  {
+   "id": "d1",
+   "kind": "dlg",
+   "t0": 8.376,
+   "t1": 12.903,
+   "text": "I am Joseph, and this is my brother. Allāh has certainly favored us.",
+   "keys": [
+    "Joseph,",
+    "brother.",
+    "favored"
+   ],
+   "quran": {
+    "ref": "12:90",
+    "surah": "Yusuf",
+    "ar": "أَنَا۠ یُوسُفُ وَهَـٰذَاۤ أَخِیۖ قَدۡ مَنَّ ٱللَّهُ عَلَیۡنَاۤۖ"
+   }
+  },
+  {
+   "id": "d2",
+   "kind": "dlg",
+   "t0": 13.503,
+   "t1": 20.09,
+   "text": "No blame will there be upon you today. Allāh will forgive you; and He is the most merciful of the merciful.",
+   "keys": [
+    "No",
+    "blame",
+    "forgive",
+    "merciful."
+   ],
+   "quran": {
+    "ref": "12:92",
+    "surah": "Yusuf",
+    "ar": "لَا تَثۡرِیبَ عَلَیۡكُمُ ٱلۡیَوۡمَۖ یَغۡفِرُ ٱللَّهُ لَكُمۡۖ وَهُوَ أَرۡحَمُ ٱلرَّ ٰ⁠حِمِینَ"
+   }
+  },
+  {
+   "id": "l1",
+   "kind": "lesson",
+   "t0": 20.84,
+   "t1": 22.34,
+   "text": "He had the power to punish.",
+   "keys": [
+    "power",
+    "punish."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l2",
+   "kind": "lesson",
+   "t0": 22.64,
+   "t1": 24.18,
+   "text": "He chose to let it go.",
+   "keys": [
+    "let",
+    "go."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l3",
+   "kind": "lesson",
+   "t0": 24.48,
+   "t1": 25.917,
+   "text": "That is real strength.",
+   "keys": [
+    "strength."
+   ],
+   "quran": null
+  },
+  {
+   "id": "e1",
+   "kind": "end",
+   "t0": 26.417,
+   "t1": 27.652,
+   "text": "Let it go today.",
+   "keys": [
+    "Let",
+    "go",
+    "today."
+   ],
+   "quran": null
+  }
+ ]
+}

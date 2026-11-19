@@ -1,0 +1,129 @@
+{
+ "title": "Seven Fat Cows, Seven Thin Cows, and a Plan That Saved a Country",
+ "meta": {
+  "name": "v5_y12_10_the-kings-dream",
+  "title": "Seven Fat Cows, Seven Thin Cows, and a Plan That Saved a Country",
+  "follow": ""
+ },
+ "duration": 37.97,
+ "lines": [
+  {
+   "id": "h1",
+   "kind": "hook",
+   "t0": 0.1,
+   "t1": 4.554,
+   "text": "Seven fat cows. Seven thin cows. A whole country at stake.",
+   "keys": [
+    "fat",
+    "thin",
+    "country"
+   ],
+   "quran": null
+  },
+  {
+   "id": "s1",
+   "kind": "setup",
+   "t0": 5.004,
+   "t1": 8.097,
+   "text": "A king has a dream no adviser can explain.",
+   "keys": [
+    "adviser",
+    "explain."
+   ],
+   "quran": null
+  },
+  {
+   "id": "s2",
+   "kind": "setup",
+   "t0": 8.347,
+   "t1": 11.017,
+   "text": "Then a freed prisoner remembers Yūsuf.",
+   "keys": [
+    "Yūsuf."
+   ],
+   "quran": null
+  },
+  {
+   "id": "d1",
+   "kind": "dlg",
+   "t0": 11.317,
+   "t1": 20.176,
+   "text": "Indeed, I have seen [in a dream] seven fat cows being eaten by seven [that were] lean, and seven green spikes [of grain] and others [that were] dry.",
+   "keys": [
+    "seven",
+    "fat",
+    "cows",
+    "lean,"
+   ],
+   "quran": {
+    "ref": "12:43",
+    "surah": "Yusuf",
+    "ar": "إِنِّیۤ أَرَىٰ سَبۡعَ بَقَرَ ٰ⁠تࣲ سِمَانࣲ یَأۡكُلُهُنَّ سَبۡعٌ عِجَافࣱ وَسَبۡعَ سُنۢبُلَـٰتٍ خُضۡرࣲ وَأُخَرَ یَابِسَـٰتࣲۖ"
+   }
+  },
+  {
+   "id": "d2",
+   "kind": "dlg",
+   "t0": 20.726,
+   "t1": 27.816,
+   "text": "You will plant for seven years consecutively; and what you harvest leave in its spikes, except a little from which you will eat.",
+   "keys": [
+    "plant",
+    "seven",
+    "leave",
+    "spikes,"
+   ],
+   "quran": {
+    "ref": "12:47",
+    "surah": "Yusuf",
+    "ar": "تَزۡرَعُونَ سَبۡعَ سِنِینَ دَأَبࣰا فَمَا حَصَدتُّمۡ فَذَرُوهُ فِی سُنۢبُلِهِۦۤ إِلَّا قَلِیلࣰا مِّمَّا تَأۡكُلُونَ"
+   }
+  },
+  {
+   "id": "l1",
+   "kind": "lesson",
+   "t0": 28.516,
+   "t1": 29.704,
+   "text": "He gave the meaning.",
+   "keys": [
+    "meaning."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l2",
+   "kind": "lesson",
+   "t0": 30.004,
+   "t1": 31.216,
+   "text": "And he gave a plan.",
+   "keys": [
+    "plan."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l3",
+   "kind": "lesson",
+   "t0": 31.516,
+   "t1": 33.662,
+   "text": "Good answers include a next step.",
+   "keys": [
+    "next",
+    "step."
+   ],
+   "quran": null
+  },
+  {
+   "id": "e1",
+   "kind": "end",
+   "t0": 34.162,
+   "t1": 36.365,
+   "text": "Solve the problem, not just the puzzle.",
+   "keys": [
+    "problem,",
+    "puzzle."
+   ],
+   "quran": null
+  }
+ ]
+}

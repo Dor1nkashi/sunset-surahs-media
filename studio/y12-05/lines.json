@@ -1,0 +1,133 @@
+{
+ "title": "Sold for a Few Coins. Not His Real Worth",
+ "meta": {
+  "name": "v5_y12_05_the-price",
+  "title": "Sold for a Few Coins. Not His Real Worth",
+  "follow": ""
+ },
+ "duration": 27.64,
+ "lines": [
+  {
+   "id": "h1",
+   "kind": "hook",
+   "t0": 0.1,
+   "t1": 1.807,
+   "text": "He was sold for a few coins.",
+   "keys": [
+    "sold",
+    "few",
+    "coins."
+   ],
+   "quran": null
+  },
+  {
+   "id": "s1",
+   "kind": "setup",
+   "t0": 2.257,
+   "t1": 4.951,
+   "text": "A caravan stops at the well and finds a boy.",
+   "keys": [
+    "caravan",
+    "well"
+   ],
+   "quran": null
+  },
+  {
+   "id": "d1",
+   "kind": "dlg",
+   "t0": 5.251,
+   "t1": 6.957,
+   "text": "Good news! Here is a boy.",
+   "keys": [
+    "Good",
+    "news!",
+    "boy."
+   ],
+   "quran": {
+    "ref": "12:19",
+    "surah": "Yusuf",
+    "ar": "یَـٰبُشۡرَىٰ هَـٰذَا غُلَـٰمࣱۚ"
+   }
+  },
+  {
+   "id": "d2",
+   "kind": "dlg",
+   "t0": 7.407,
+   "t1": 13.911,
+   "text": "And they sold him for a reduced price - a few dirhams - and they were, concerning him, of those content with little.",
+   "keys": [
+    "sold",
+    "reduced",
+    "price",
+    "dirhams"
+   ],
+   "quran": {
+    "ref": "12:20",
+    "surah": "Yusuf",
+    "ar": "وَشَرَوۡهُ بِثَمَنِۭ بَخۡسࣲ دَرَ ٰ⁠هِمَ مَعۡدُودَةࣲ وَكَانُوا۟ فِیهِ مِنَ ٱلزَّ ٰ⁠هِدِینَ"
+   }
+  },
+  {
+   "id": "d3",
+   "kind": "dlg",
+   "t0": 14.611,
+   "t1": 17.014,
+   "text": "and Allāh was knowing of what they did.",
+   "keys": [
+    "Allāh",
+    "knowing"
+   ],
+   "quran": {
+    "ref": "12:19",
+    "surah": "Yusuf",
+    "ar": "وَٱللَّهُ عَلِیمُۢ بِمَا یَعۡمَلُونَ"
+   }
+  },
+  {
+   "id": "l1",
+   "kind": "lesson",
+   "t0": 17.664,
+   "t1": 19.15,
+   "text": "They put a price on him.",
+   "keys": [
+    "price"
+   ],
+   "quran": null
+  },
+  {
+   "id": "l2",
+   "kind": "lesson",
+   "t0": 19.45,
+   "t1": 21.445,
+   "text": "It had nothing to do with his worth.",
+   "keys": [
+    "worth."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l3",
+   "kind": "lesson",
+   "t0": 21.745,
+   "t1": 23.47,
+   "text": "Allāh was watching all of it.",
+   "keys": [
+    "Allāh",
+    "watching"
+   ],
+   "quran": null
+  },
+  {
+   "id": "e1",
+   "kind": "end",
+   "t0": 23.97,
+   "t1": 26.042,
+   "text": "Their price was never the truth.",
+   "keys": [
+    "price",
+    "truth."
+   ],
+   "quran": null
+  }
+ ]
+}

@@ -1,0 +1,141 @@
+{
+ "title": "He Chose Prison. On Purpose",
+ "meta": {
+  "name": "v5_y12_08_the-prison-choice",
+  "title": "He Chose Prison. On Purpose",
+  "follow": ""
+ },
+ "duration": 32.39,
+ "lines": [
+  {
+   "id": "h1",
+   "kind": "hook",
+   "t0": 0.1,
+   "t1": 2.162,
+   "text": "He chose prison. On purpose.",
+   "keys": [
+    "chose",
+    "prison."
+   ],
+   "quran": null
+  },
+  {
+   "id": "s1",
+   "kind": "setup",
+   "t0": 2.612,
+   "t1": 4.829,
+   "text": "Pressure keeps coming from every side.",
+   "keys": [
+    "Pressure"
+   ],
+   "quran": null
+  },
+  {
+   "id": "s2",
+   "kind": "setup",
+   "t0": 5.029,
+   "t1": 6.903,
+   "text": "He turns to Allāh and says:",
+   "keys": [
+    "Allāh"
+   ],
+   "quran": null
+  },
+  {
+   "id": "d1",
+   "kind": "dlg",
+   "t0": 7.203,
+   "t1": 11.296,
+   "text": "My Lord, prison is more to my liking than that to which they invite me.",
+   "keys": [
+    "prison",
+    "liking"
+   ],
+   "quran": {
+    "ref": "12:33",
+    "surah": "Yusuf",
+    "ar": "رَبِّ ٱلسِّجۡنُ أَحَبُّ إِلَیَّ مِمَّا یَدۡعُونَنِیۤ إِلَیۡهِۖ"
+   }
+  },
+  {
+   "id": "d2",
+   "kind": "dlg",
+   "t0": 11.745,
+   "t1": 17.512,
+   "text": "And if You do not avert from me their plan, I might incline toward them and [thus] be of the ignorant.",
+   "keys": [
+    "avert",
+    "incline"
+   ],
+   "quran": {
+    "ref": "12:33",
+    "surah": "Yusuf",
+    "ar": "وَإِلَّا تَصۡرِفۡ عَنِّی كَیۡدَهُنَّ أَصۡبُ إِلَیۡهِنَّ وَأَكُن مِّنَ ٱلۡجَـٰهِلِینَ"
+   }
+  },
+  {
+   "id": "d3",
+   "kind": "dlg",
+   "t0": 18.062,
+   "t1": 21.892,
+   "text": "So his Lord responded to him and averted from him their plan.",
+   "keys": [
+    "Lord",
+    "responded",
+    "averted"
+   ],
+   "quran": {
+    "ref": "12:34",
+    "surah": "Yusuf",
+    "ar": "فَٱسۡتَجَابَ لَهُۥ رَبُّهُۥ فَصَرَفَ عَنۡهُ كَیۡدَهُنَّۚ"
+   }
+  },
+  {
+   "id": "l1",
+   "kind": "lesson",
+   "t0": 22.542,
+   "t1": 24.24,
+   "text": "He admitted he could slip.",
+   "keys": [
+    "slip."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l2",
+   "kind": "lesson",
+   "t0": 24.54,
+   "t1": 25.826,
+   "text": "Then he asked for help.",
+   "keys": [
+    "asked",
+    "help."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l3",
+   "kind": "lesson",
+   "t0": 26.126,
+   "t1": 28.902,
+   "text": "Be honest with Allāh about your weak spots.",
+   "keys": [
+    "honest",
+    "Allāh"
+   ],
+   "quran": null
+  },
+  {
+   "id": "e1",
+   "kind": "end",
+   "t0": 29.402,
+   "t1": 30.791,
+   "text": "Ask before you slip.",
+   "keys": [
+    "Ask",
+    "slip."
+   ],
+   "quran": null
+  }
+ ]
+}

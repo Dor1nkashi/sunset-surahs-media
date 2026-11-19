@@ -1,0 +1,111 @@
+{
+ "title": "At the Bottom of a Well, He Got a Promise",
+ "meta": {
+  "name": "v5_y12_03_the-well",
+  "title": "At the Bottom of a Well, He Got a Promise",
+  "follow": ""
+ },
+ "duration": 25.69,
+ "lines": [
+  {
+   "id": "h1",
+   "kind": "hook",
+   "t0": 0.1,
+   "t1": 2.541,
+   "text": "At the bottom of a well, he got a promise.",
+   "keys": [
+    "bottom",
+    "well,",
+    "promise."
+   ],
+   "quran": null
+  },
+  {
+   "id": "s1",
+   "kind": "setup",
+   "t0": 2.991,
+   "t1": 6.239,
+   "text": "His own brothers agree to put him at the bottom of a well.",
+   "keys": [
+    "well."
+   ],
+   "quran": null
+  },
+  {
+   "id": "s2",
+   "kind": "setup",
+   "t0": 6.489,
+   "t1": 8.163,
+   "text": "Then Allāh speaks to him:",
+   "keys": [
+    "Allāh"
+   ],
+   "quran": null
+  },
+  {
+   "id": "d1",
+   "kind": "dlg",
+   "t0": 8.463,
+   "t1": 14.346,
+   "text": "You will surely inform them [someday] about this affair of theirs while they do not perceive [your identity].",
+   "keys": [
+    "surely",
+    "inform",
+    "them"
+   ],
+   "quran": {
+    "ref": "12:15",
+    "surah": "Yusuf",
+    "ar": "لَتُنَبِّئَنَّهُم بِأَمۡرِهِمۡ هَـٰذَا وَهُمۡ لَا یَشۡعُرُونَ"
+   }
+  },
+  {
+   "id": "l1",
+   "kind": "lesson",
+   "t0": 15.146,
+   "t1": 17.187,
+   "text": "The promise came before the rescue.",
+   "keys": [
+    "promise",
+    "rescue."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l2",
+   "kind": "lesson",
+   "t0": 17.487,
+   "t1": 19.696,
+   "text": "Darkness was not the end of the story.",
+   "keys": [
+    "Darkness",
+    "end"
+   ],
+   "quran": null
+  },
+  {
+   "id": "l3",
+   "kind": "lesson",
+   "t0": 19.996,
+   "t1": 21.631,
+   "text": "Allāh was already there.",
+   "keys": [
+    "Allāh",
+    "there."
+   ],
+   "quran": null
+  },
+  {
+   "id": "e1",
+   "kind": "end",
+   "t0": 22.131,
+   "t1": 24.087,
+   "text": "Even the bottom has a message.",
+   "keys": [
+    "bottom",
+    "message."
+   ],
+   "quran": null
+  }
+ ]
+}

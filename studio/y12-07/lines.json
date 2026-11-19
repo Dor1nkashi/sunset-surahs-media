@@ -1,0 +1,120 @@
+{
+ "title": "A Torn Shirt Proved the Truth",
+ "meta": {
+  "name": "v5_y12_07_the-torn-shirt",
+  "title": "A Torn Shirt Proved the Truth",
+  "follow": ""
+ },
+ "duration": 27.13,
+ "lines": [
+  {
+   "id": "h1",
+   "kind": "hook",
+   "t0": 0.1,
+   "t1": 2.07,
+   "text": "A torn shirt told the truth.",
+   "keys": [
+    "torn",
+    "shirt",
+    "truth."
+   ],
+   "quran": null
+  },
+  {
+   "id": "s1",
+   "kind": "setup",
+   "t0": 2.52,
+   "t1": 4.945,
+   "text": "A witness from her family points to the shirt.",
+   "keys": [
+    "witness",
+    "shirt."
+   ],
+   "quran": null
+  },
+  {
+   "id": "d1",
+   "kind": "dlg",
+   "t0": 5.245,
+   "t1": 11.044,
+   "text": "And they both raced to the door, and she tore his shirt from the back, and they found her husband at the door.",
+   "keys": [
+    "raced",
+    "tore",
+    "shirt",
+    "back,"
+   ],
+   "quran": {
+    "ref": "12:25",
+    "surah": "Yusuf",
+    "ar": "وَٱسۡتَبَقَا ٱلۡبَابَ وَقَدَّتۡ قَمِیصَهُۥ مِن دُبُرࣲ وَأَلۡفَیَا سَیِّدَهَا لَدَا ٱلۡبَابِۚ"
+   }
+  },
+  {
+   "id": "d2",
+   "kind": "dlg",
+   "t0": 11.644,
+   "t1": 16.483,
+   "text": "But if his shirt is torn from the back, then she has lied, and he is of the truthful.",
+   "keys": [
+    "shirt",
+    "torn",
+    "back,",
+    "truthful."
+   ],
+   "quran": {
+    "ref": "12:27",
+    "surah": "Yusuf",
+    "ar": "وَإِن كَانَ قَمِیصُهُۥ قُدَّ مِن دُبُرࣲ فَكَذَبَتۡ وَهُوَ مِنَ ٱلصَّـٰدِقِینَ"
+   }
+  },
+  {
+   "id": "l1",
+   "kind": "lesson",
+   "t0": 17.183,
+   "t1": 18.765,
+   "text": "Truth leaves evidence.",
+   "keys": [
+    "Truth",
+    "evidence."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l2",
+   "kind": "lesson",
+   "t0": 19.065,
+   "t1": 20.39,
+   "text": "The shirt spoke for him.",
+   "keys": [
+    "shirt",
+    "spoke"
+   ],
+   "quran": null
+  },
+  {
+   "id": "l3",
+   "kind": "lesson",
+   "t0": 20.69,
+   "t1": 23.229,
+   "text": "Stay honest, and the details will back you.",
+   "keys": [
+    "honest,",
+    "details"
+   ],
+   "quran": null
+  },
+  {
+   "id": "e1",
+   "kind": "end",
+   "t0": 23.729,
+   "t1": 25.532,
+   "text": "The truth is in the details.",
+   "keys": [
+    "truth",
+    "details."
+   ],
+   "quran": null
+  }
+ ]
+}

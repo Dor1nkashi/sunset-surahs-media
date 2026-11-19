@@ -1,0 +1,126 @@
+{
+ "title": "He Asked for One Favor. The Man Forgot",
+ "meta": {
+  "name": "v5_y12_09_the-forgotten-favor",
+  "title": "He Asked for One Favor. The Man Forgot",
+  "follow": ""
+ },
+ "duration": 28.31,
+ "lines": [
+  {
+   "id": "h1",
+   "kind": "hook",
+   "t0": 0.1,
+   "t1": 2.722,
+   "text": "He asked for one favor. The man forgot.",
+   "keys": [
+    "favor.",
+    "forgot."
+   ],
+   "quran": null
+  },
+  {
+   "id": "s1",
+   "kind": "setup",
+   "t0": 3.172,
+   "t1": 5.91,
+   "text": "In prison, he tells a man who will go free:",
+   "keys": [
+    "free:"
+   ],
+   "quran": null
+  },
+  {
+   "id": "s2",
+   "kind": "setup",
+   "t0": 6.16,
+   "t1": 8.864,
+   "text": "He had helped the man by explaining his dream.",
+   "keys": [
+    "dream."
+   ],
+   "quran": null
+  },
+  {
+   "id": "d1",
+   "kind": "dlg",
+   "t0": 9.164,
+   "t1": 11.083,
+   "text": "Mention me before your master.",
+   "keys": [
+    "Mention",
+    "master."
+   ],
+   "quran": {
+    "ref": "12:42",
+    "surah": "Yusuf",
+    "ar": "ٱذۡكُرۡنِی عِندَ رَبِّكَ"
+   }
+  },
+  {
+   "id": "d2",
+   "kind": "dlg",
+   "t0": 11.633,
+   "t1": 17.63,
+   "text": "But Satan made him forget the mention [to] his master, and Joseph remained in prison several years.",
+   "keys": [
+    "Satan",
+    "forget",
+    "several",
+    "years."
+   ],
+   "quran": {
+    "ref": "12:42",
+    "surah": "Yusuf",
+    "ar": "فَأَنسَىـٰهُ ٱلشَّیۡطَـٰنُ ذِكۡرَ رَبِّهِۦ فَلَبِثَ فِی ٱلسِّجۡنِ بِضۡعَ سِنِینَ"
+   }
+  },
+  {
+   "id": "l1",
+   "kind": "lesson",
+   "t0": 18.33,
+   "t1": 19.636,
+   "text": "People can forget you.",
+   "keys": [
+    "forget"
+   ],
+   "quran": null
+  },
+  {
+   "id": "l2",
+   "kind": "lesson",
+   "t0": 19.936,
+   "t1": 21.063,
+   "text": "Allāh does not.",
+   "keys": [
+    "Allāh",
+    "not."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l3",
+   "kind": "lesson",
+   "t0": 21.363,
+   "t1": 23.994,
+   "text": "Waiting is not the same as being forgotten.",
+   "keys": [
+    "Waiting",
+    "forgotten."
+   ],
+   "quran": null
+  },
+  {
+   "id": "e1",
+   "kind": "end",
+   "t0": 24.494,
+   "t1": 26.714,
+   "text": "Do your part, then wait on Allāh.",
+   "keys": [
+    "wait",
+    "Allāh."
+   ],
+   "quran": null
+  }
+ ]
+}

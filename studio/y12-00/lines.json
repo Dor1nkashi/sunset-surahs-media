@@ -1,0 +1,86 @@
+{
+ "title": "The Best of Stories in Fifteen Lessons",
+ "meta": {
+  "name": "v5_y12_00_intro",
+  "title": "The Best of Stories in Fifteen Lessons",
+  "follow": ""
+ },
+ "duration": 17.19,
+ "lines": [
+  {
+   "id": "h1",
+   "kind": "hook",
+   "t0": 0.1,
+   "t1": 2.737,
+   "text": "The best of stories, in fifteen lessons.",
+   "keys": [
+    "best",
+    "stories,",
+    "fifteen"
+   ],
+   "quran": null
+  },
+  {
+   "id": "s1",
+   "kind": "setup",
+   "t0": 3.187,
+   "t1": 5.167,
+   "text": "In Sūrah Yūsuf, Allāh says:",
+   "keys": [
+    "Yūsuf,"
+   ],
+   "quran": null
+  },
+  {
+   "id": "d1",
+   "kind": "dlg",
+   "t0": 5.417,
+   "t1": 8.551,
+   "text": "We relate to you, [O Muhammad], the best of stories",
+   "keys": [
+    "best",
+    "stories"
+   ],
+   "quran": {
+    "ref": "12:3",
+    "surah": "Yusuf",
+    "ar": "نَحۡنُ نَقُصُّ عَلَیۡكَ أَحۡسَنَ ٱلۡقَصَصِ بِمَاۤ أَوۡحَیۡنَاۤ إِلَیۡكَ هَـٰذَا ٱلۡقُرۡءَانَ وَإِن كُنتَ مِن قَبۡلِهِۦ لَمِنَ ٱلۡغَـٰفِلِینَ"
+   }
+  },
+  {
+   "id": "l1",
+   "kind": "lesson",
+   "t0": 9.251,
+   "t1": 11.602,
+   "text": "A dream, a well, a prison, a palace.",
+   "keys": [
+    "dream,",
+    "prison,"
+   ],
+   "quran": null
+  },
+  {
+   "id": "l2",
+   "kind": "lesson",
+   "t0": 11.902,
+   "t1": 13.777,
+   "text": "Fifteen lessons, in order.",
+   "keys": [
+    "Fifteen",
+    "order."
+   ],
+   "quran": null
+  },
+  {
+   "id": "e1",
+   "kind": "end",
+   "t0": 14.277,
+   "t1": 15.586,
+   "text": "Start with the dream.",
+   "keys": [
+    "dream."
+   ],
+   "quran": null
+  }
+ ]
+}

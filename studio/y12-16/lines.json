@@ -1,0 +1,75 @@
+{
+ "title": "Fifteen Lessons from the Best of Stories (Surah Yusuf)",
+ "meta": {
+  "name": "v5_y12_16_outro",
+  "title": "Fifteen Lessons from the Best of Stories (Surah Yusuf)",
+  "follow": ""
+ },
+ "duration": 14.22,
+ "lines": [
+  {
+   "id": "h1",
+   "kind": "hook",
+   "t0": 0.1,
+   "t1": 1.749,
+   "text": "That was the best of stories.",
+   "keys": [
+    "best",
+    "stories."
+   ],
+   "quran": null
+  },
+  {
+   "id": "s1",
+   "kind": "setup",
+   "t0": 2.199,
+   "t1": 3.358,
+   "text": "And Allāh says:",
+   "keys": [
+    "Allāh"
+   ],
+   "quran": null
+  },
+  {
+   "id": "d1",
+   "kind": "dlg",
+   "t0": 3.558,
+   "t1": 7.587,
+   "text": "There was certainly in their stories a lesson for those of understanding.",
+   "keys": [
+    "stories",
+    "lesson",
+    "understanding."
+   ],
+   "quran": {
+    "ref": "12:111",
+    "surah": "Yusuf",
+    "ar": "لَقَدۡ كَانَ فِی قَصَصِهِمۡ عِبۡرَةࣱ لِّأُو۟لِی ٱلۡأَلۡبَـٰبِۗ"
+   }
+  },
+  {
+   "id": "l1",
+   "kind": "lesson",
+   "t0": 8.287,
+   "t1": 10.371,
+   "text": "Patience. Honesty. Forgiveness.",
+   "keys": [
+    "Patience.",
+    "Honesty.",
+    "Forgiveness."
+   ],
+   "quran": null
+  },
+  {
+   "id": "e1",
+   "kind": "end",
+   "t0": 10.871,
+   "t1": 12.625,
+   "text": "Start again from the dream.",
+   "keys": [
+    "dream."
+   ],
+   "quran": null
+  }
+ ]
+}

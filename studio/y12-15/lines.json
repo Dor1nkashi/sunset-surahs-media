@@ -1,0 +1,126 @@
+{
+ "title": "Years Later, the Childhood Dream Came True",
+ "meta": {
+  "name": "v5_y12_15_the-dream-comes-true",
+  "title": "Years Later, the Childhood Dream Came True",
+  "follow": ""
+ },
+ "duration": 28.94,
+ "lines": [
+  {
+   "id": "h1",
+   "kind": "hook",
+   "t0": 0.1,
+   "t1": 3.201,
+   "text": "Years later, the dream from his childhood came true.",
+   "keys": [
+    "dream",
+    "true."
+   ],
+   "quran": null
+  },
+  {
+   "id": "s1",
+   "kind": "setup",
+   "t0": 3.651,
+   "t1": 6.458,
+   "text": "His family comes to Egypt, and bows to him.",
+   "keys": [
+    "bows"
+   ],
+   "quran": null
+  },
+  {
+   "id": "s2",
+   "kind": "setup",
+   "t0": 6.708,
+   "t1": 7.681,
+   "text": "Yūsuf says:",
+   "keys": [
+    "Yūsuf"
+   ],
+   "quran": null
+  },
+  {
+   "id": "d1",
+   "kind": "dlg",
+   "t0": 7.881,
+   "t1": 13.948,
+   "text": "O my father, this is the explanation of my vision of before. My Lord has made it reality.",
+   "keys": [
+    "explanation",
+    "vision",
+    "reality."
+   ],
+   "quran": {
+    "ref": "12:100",
+    "surah": "Yusuf",
+    "ar": "یَـٰۤأَبَتِ هَـٰذَا تَأۡوِیلُ رُءۡیَـٰیَ مِن قَبۡلُ قَدۡ جَعَلَهَا رَبِّی حَقࣰّ اۖ"
+   }
+  },
+  {
+   "id": "d2",
+   "kind": "dlg",
+   "t0": 14.548,
+   "t1": 17.686,
+   "text": "Cause me to die a Muslim and join me with the righteous.",
+   "keys": [
+    "die",
+    "Muslim",
+    "righteous."
+   ],
+   "quran": {
+    "ref": "12:101",
+    "surah": "Yusuf",
+    "ar": "رَبِّ قَدۡ ءَاتَیۡتَنِی مِنَ ٱلۡمُلۡكِ وَعَلَّمۡتَنِی مِن تَأۡوِیلِ ٱلۡأَحَادِیثِۚ فَاطِرَ ٱلسَّمَـٰوَ ٰ⁠تِ وَٱلۡأَرۡضِ أَنتَ وَلِیِّۦ فِی ٱلدُّنۡیَا وَٱلۡـَٔاخِرَةِۖ تَوَفَّنِی مُسۡلِمࣰا وَأَلۡحِقۡنِی بِٱلصَّـٰلِحِینَ"
+   }
+  },
+  {
+   "id": "l1",
+   "kind": "lesson",
+   "t0": 18.436,
+   "t1": 20.496,
+   "text": "Allāh's timing is not ours.",
+   "keys": [
+    "timing"
+   ],
+   "quran": null
+  },
+  {
+   "id": "l2",
+   "kind": "lesson",
+   "t0": 20.796,
+   "t1": 22.756,
+   "text": "He gave the credit to his Lord.",
+   "keys": [
+    "credit",
+    "Lord."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l3",
+   "kind": "lesson",
+   "t0": 23.056,
+   "t1": 25.473,
+   "text": "And at the top, he asked for a good ending.",
+   "keys": [
+    "good",
+    "ending."
+   ],
+   "quran": null
+  },
+  {
+   "id": "e1",
+   "kind": "end",
+   "t0": 25.973,
+   "t1": 27.335,
+   "text": "Ask for a good ending.",
+   "keys": [
+    "good",
+    "ending."
+   ],
+   "quran": null
+  }
+ ]
+}
