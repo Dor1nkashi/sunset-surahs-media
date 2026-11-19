@@ -66,7 +66,7 @@ async function build() {
 }
 
 function light(t) {
-  const sky = SET.props.sky.userData.u, d = sunDir(t), e = sunEl(t), k = sstep(-0.05, 0.12, e);
+  const sky = SET.props.sky.userData.u, d = sunDir(t), e = sunEl(t), k = sstep(0.0, 0.17, e);
   const dawn = 0.55 + 0.45 * k;
   sky.sunD.value.copy(d); sky.sunC.value.setRGB(1.0 * dawn, 0.62 * dawn, 0.25 * dawn); sky.glow.value = 1.0; sky.sunDisc.value = 0.99993;
   sky.zen.value.setRGB(lerp(0.016, 0.06, k * 0.6), lerp(0.04, 0.12, k * 0.6), lerp(0.12, 0.28, k * 0.6));
