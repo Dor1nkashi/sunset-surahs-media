@@ -118,7 +118,7 @@ M.film({
     P.freed = PP.make({ kind: 'man', outfit: 'worker', palette: { robe: '#8e8a80', wrap: '#cfc6b4', sash: '#5a4a3a', cloak: '#6b645a', trousers: '#a89c88' }, beard: 'short', headwear: 'wrap', seed: 27, detail: 0.8 });
     PAL.scene.add(P.freed.object3d);
     P.farmer = PP.make({ kind: 'man', outfit: 'worker', palette: 'white', beard: 'short', headwear: 'wrap', seed: 81, detail: 0.7 });
-    P.lab = PP.make({ kind: 'man', outfit: 'worker', palette: 'white', beard: 'short', headwear: 'keffiyeh', seed: 82, detail: 0.7 });
+    P.lab = PP.make({ kind: 'man', outfit: 'worker', palette: 'sand', beard: 'short', headwear: 'keffiyeh', seed: 82, detail: 0.7 });
     P.f2 = PP.make({ kind: 'man', outfit: 'worker', palette: 'sand', beard: 'full', headwear: 'wrap', seed: 83, detail: 0.5 });
     P.f3 = PP.make({ kind: 'man', outfit: 'worker', palette: 'cream', beard: 'short', headwear: 'wrap', seed: 84, detail: 0.5 });
     for (const k of ['farmer', 'lab', 'f2', 'f3']) NILE.scene.add(P[k].object3d);
@@ -224,7 +224,7 @@ const SHOTS = [
   { t0: 18.65, t1: 20.73, set: 'dream', a: C.spikeB_b, locked: true, spike: 1, ex: 0.8 },
   { t0: 20.73, t1: 23.27, set: 'nile', a: C.plots_a, b: C.plots_b, ease: E.inOutCubic },
   { t0: 23.27, t1: 25.60, set: 'nile', a: C.bundle_a, b: C.bundle_b },
-  { t0: 25.60, t1: 28.52, set: 'nile', a: C.fill_a, b: C.fill_b, ex: 1.0 },
+  { t0: 25.60, t1: 28.52, set: 'nile', a: C.fill_a, b: C.fill_b, ex: 0.8 },
   { t0: 28.52, t1: 30.00, set: 'nile', a: C.green, locked: true },
   { t0: 30.00, t1: 31.52, set: 'nile', a: C.full, locked: true },
   { t0: 31.52, t1: 34.16, set: 'nile', a: C.drought, locked: true },
