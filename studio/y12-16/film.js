@@ -58,7 +58,7 @@ async function build() {
   for (let i = 0; i < idx.length; i += 3) { const a = idx[i], b = idx[i + 1], c = idx[i + 2]; const cx = (dp.getX(a) + dp.getX(b) + dp.getX(c)) / 3, cy = (dp.getY(a) + dp.getY(b) + dp.getY(c)) / 3; if (inside(cx, cy)) ni.push(a, b, c); }
   dense.setIndex(ni); dense.computeVertexNormals(); sg.dispose();
   const linen = (await K.mats.dyed(0xf0e8d8)).clone(); linen.side = THREE.DoubleSide;
-  SHIRT = new THREE.Mesh(dense, linen); SHIRT.castShadow = SHIRT.receiveShadow = true; SHIRT.position.set(LX - 0.25, h0 + 1.79, LZ + 1.41); g.add(SHIRT);
+  SHIRT = new THREE.Mesh(dense, linen); SHIRT.castShadow = true; SHIRT.receiveShadow = false; SHIRT.position.set(LX - 0.25, h0 + 1.79, LZ + 1.41); g.add(SHIRT);
   for (const dx of [-0.16, 0.16]) { const pg = W.rbox(0.015, 0.06, 0.02, pl, { r: 0.004 }); pg.position.set(LX - 0.25 + dx, h0 + 1.76, LZ + 1.41); g.add(pg); }
   // a person for the open hand (only the hand and sleeve are seen)
   const PE = await K.people();
@@ -88,7 +88,7 @@ function shots() {
   const hand = () => { const h = K.handPos(P.m, 'Right'), side = V3(-SUN_AZ.z, 0, SUN_AZ.x); return C(h.clone().addScaledVector(side, -0.8).addScaledVector(SUN_AZ, -0.2).add(V3(0, 0.12, 0)).toArray(), h.toArray(), 30); };
   return [
     { t0: 0, t1: 2.2, a: zen, b: crB, ease: (x) => K.easeIO(clamp(x * 1.05)) },                                                                                       // 1 sunrise over the eastern ridge; the eleven fade above it
-    { t0: 2.2, t1: 3.56, a: C(G0(16, 24, 4.2), [H.x + 1, H.y + 2, H.z], 46), b: C(G0(11, 15, 3.0), [H.x + 0.5, H.y + 2, H.z], 44) },   // 2 gliding over the terraces toward the house
+    { t0: 2.2, t1: 3.56, a: C(G0(24, 10, 4.2), [H.x + 1, H.y + 2, H.z - 1], 46), b: C(G0(17, 7, 3.0), [H.x + 0.5, H.y + 2, H.z - 1], 44) },   // 2 gliding over the terraces toward the house
     { t0: 3.56, t1: 4.66, a: C([W0.x + 2.6, W0.y + 1.25, W0.z + 2.4], [W0.x, W0.y + 0.75, W0.z], 36), b: null },                     // 3 light reaches the well rim and rope
     { t0: 4.66, t1: 5.6, a: C([H.x + 5.5, H.y + 3.0, H.z + 7.5], [H.x, H.y + 3.2, H.z - 2], 38), b: C([H.x + 4.9, H.y + 3.1, H.z + 6.6], [H.x, H.y + 3.25, H.z - 2], 36) }, // 4 the house roof catches the light
     { t0: 5.6, t1: 6.32, a: C(G0(-6, 18, 1.8), [-20, hy(-20, -10) + 3, -10], 46), b: C(G0(-6, 18, 3.0), [-20, hy(-20, -10) + 4.5, -10], 46) }, // 5 the terraces light up, one by one
