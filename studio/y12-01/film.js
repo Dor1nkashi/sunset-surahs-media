@@ -7,6 +7,8 @@ import * as G from './lib/gl.js';
 import * as W from '../lib_shared/world.js';
 import { canaan_hills } from '../lib_shared/sets_yusuf.js';
 import { captions, loadLines } from '../lib_shared/captions.js';
+import { loadPeople } from '../lib_shared/people.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { elevenStars, ELEVEN_CENTRE as EC } from '../lib_shared/eleven.js';
 const { THREE } = W;
 const { W: FW, H: FH, prog, E, lerp, clamp, mulberry32 } = M;
@@ -64,6 +66,7 @@ function sleeper(mat, mat2, seed) {
   const body = new THREE.Mesh(geo, mat); body.position.y = 0.09; body.castShadow = body.receiveShadow = true; g.add(body);
   const head = new THREE.Mesh(new THREE.CapsuleGeometry(0.14, 0.12, 8, 24).rotateX(Math.PI / 2).scale(1.3, 0.8, 1), mat); head.position.set(0.04, 0.12, -0.92); head.castShadow = true; g.add(head);
   W.shadows(g);
+  head.visible = false;
   g.userData = { body, head, ph: r() * 6, rate: 0.24 + r() * 0.05 };
   return g;
 }
@@ -101,12 +104,21 @@ M.film({
       for (let i = 0; i < 40; i++) { const a = r() * 6.28, d = Math.sqrt(r()) * 0.32; Mx.compose(V3(ex + Math.cos(a) * d, ey + r() * 0.03, ez + Math.sin(a) * d), new THREE.Quaternion().setFromEuler(new THREE.Euler(r() * 3, r() * 3, 0)), V3(1 + r(), 0.6 + r() * 0.5, 1 + r())); coal.setMatrixAt(i, Mx); }
       sc.add(coal); const EL = new THREE.PointLight(0xff6a20, 4, 7, 1.6); EL.position.set(ex, ey + 0.35, ez); sc.add(EL); K.embers = { cm, EL }; }
     // ---- the brothers asleep around the embers of the fire (bedrolls radial to the pit)
+    const PP = await loadPeople(THREE, GLTFLoader);
+    const PALS = [{ robe: '#6a3a26', wrap: '#d8ccb4', cloak: '#3a2b22', shemagh: '#c9b89a' }, { robe: '#5a5a38', wrap: '#ddd2bb', cloak: '#3b3528' }, { robe: '#3a3634', wrap: '#e0d6c4', cloak: '#2a2624' },
+      { robe: '#8a6434', wrap: '#e6dccb', cloak: '#4a3626' }, { robe: '#4a3a2e', wrap: '#cfc2a8', cloak: '#2e2a28' }];
     const FP = [7.2, -4.5], cols = [0x7a3a22, 0x5a6030, 0x3a3634, 0x9a7034, 0x6a2a1c, 0x4a5a3a, 0x2e2c2a, 0x8a6a3a, 0x5a3424, 0x6a6a52];
     K.sleepers = [];
     for (let i = 0; i < 10; i++) {
       const a = (62 + i * 25.5) * Math.PI / 180, rr = 2.9 + (i % 2) * 0.25, x = FP[0] + Math.cos(a) * rr, z = FP[1] + Math.sin(a) * rr;
       const wm = wool.clone(); wm.color.set(cols[i]); const sl = sleeper(wm, reedMat, i + 1);
       sl.position.set(x, hy(x, z) + 0.01, z); sl.rotation.y = Math.atan2(Math.cos(a), Math.sin(a)) + (i % 3 - 1) * 0.12; sc.add(sl); K.sleepers.push(sl);
+      // the man under the blanket: head (head-cloth) on the pillow end, body hidden by the blanket
+      const pal = PALS[i % PALS.length], man = PP.make({ kind: 'man', outfit: 'traveller', palette: pal, beard: 'full', headwear: i % 3 === 2 ? 'wrap' : 'keffiyeh', seed: 31 + (i % 3), detail: 0.6, height: 0.98 + 0.05 * Math.sin(i * 2.1) });
+      man.setPose('stand', 0); const mo = man.object3d; mo.rotation.set(0, 0, 0);
+      // lying on his side: feet at +z of the bedroll, head at -z (figure up -> -z, then rolled onto a side about the bedroll axis)
+      mo.rotation.set(-Math.PI / 2, 0, 0); const holder = new THREE.Group(); holder.add(mo); holder.rotation.z = Math.PI / 2 * (i % 2 ? 1 : -1);
+      holder.position.set(0, 0.21, 0.86); sl.add(holder); sl.userData.man = holder;
     }
     // ---- the sheep-pen gate (a wattle hurdle between two posts) and its drop latch
     const pen = P.pen, gap = 0.7, ang = 0.9, PC = [12, -10], nrm = [Math.sin(ang), Math.cos(ang)], GC = [PC[0] + 4.6 * nrm[0], PC[1] + 4.6 * nrm[1]];
@@ -151,9 +163,9 @@ M.film({
       replay: { pos: [0.1, R + 1.1, -2.2], look: far([0.1, R + 1.1, -2.2], [EC[0], EC[1] - 0.08, EC[2]]), fov: fv(56) },
       bowCloseA: { pos: [0.1, R + 1.1, -2.2], look: far([0.1, R + 1.1, -2.2], EC), fov: fv(40) },
       bowCloseB: { pos: [0.1, R + 1.1, -2.2], look: far([0.1, R + 1.1, -2.2], EC), fov: fv(33) },
-      warnA: { pos: [1.6, R + 2.0, -2.6], look: [3.3, R + 0.7, -4.3], fov: fv(44) },
-      warnB: { pos: [1.75, R + 1.95, -2.7], look: [3.3, R + 0.75, -4.3], fov: fv(38) },
-      panA: { pos: [1.75, R + 1.95, -2.7], look: [3.3, R + 0.75, -4.3], fov: fv(38) },
+      warnA: { pos: [2.5, R + 1.05, -3.45], look: [7.2, hy(7.2, -4.5) + 0.4, -4.6], fov: fv(44) },
+      warnB: { pos: [2.7, R + 1.05, -3.55], look: [7.2, hy(7.2, -4.5) + 0.3, -4.6], fov: fv(38) },
+      panA: { pos: [2.7, R + 1.05, -3.55], look: [7.2, hy(7.2, -4.5) + 0.3, -4.6], fov: fv(38) },
       panB: { pos: [2.2, R + 2.0, -2.9], look: [7.2, hy(7.2, -4.5), -4.5], fov: fv(40) },
       bedA: { pos: G0(9.6, -1.0, 1.7), look: [6.6, hy(6.6, -4.9), -4.9], fov: fv(46) },
       bedB: { pos: G0(9.2, -1.6, 1.5), look: [6.8, hy(6.8, -4.9), -4.9], fov: fv(42) },
@@ -185,11 +197,13 @@ M.film({
     else if (t < 29.42) { cam = camL(C.latchA, C.latchB, E.inOutSine(prog(t, 27.67, 29.42))); night = 0.15; }
     else { cam = C.niche; night = 0.15; }
     // ------------------------------------------------------------ world state (pure in t)
-    const P = HILLS.set.props, sky = P.sky.userData.u;
+    const P = HILLS.set.props, sky = P.sky.userData.u, A = HILLS.set.atmo;
+    const ground = dreamOp === 0;                               // ground shots: moonlight only, lamps and embers carry the warmth
+    HILLS.scene.environmentIntensity = ground ? (t > 23.43 ? 0.55 : 0.28) : 1.8; A.sun.intensity = ground ? 0.5 : 0.4; if (A.hemi) A.hemi.intensity = ground ? 0.05 : 0.2;
     const dawn = lerp(0.35, 1.1, sm(prog(t, 4.0, 30)));                         // the band of first light in the east grows all film
     sky.sunD.value.set(0.52, -0.06, -0.85).normalize(); sky.sunC.value.setRGB(1.0 * dawn, 0.58 * dawn, 0.22 * dawn); sky.glow.value = 1.0; sky.sunDisc.value = 2.0;
     sky.moonD.value.set(-0.93, 0.2, -0.3).normalize(); sky.moonOn.value = 1;
-    expo = dreamOp > 0 ? 1.25 : t > 29.42 ? 0.62 : t > 23.43 ? 0.72 : 0.58;
+    expo = dreamOp > 0 ? 1.25 : t > 29.42 ? 0.62 : t > 23.43 ? 0.9 : 0.95;
     // the roof lamp burns all night and goes out when its oil runs dry (shot 12); smoke rises after
     const tOut = 26.35, kRoof = 1 - sm((t - tOut) / 0.75);
     K.roof.lamp.userData.set(t, kRoof * (0.92 + 0.08 * Math.sin(t * 7.3)), 0.05 * Math.sin(t * 2.3));
