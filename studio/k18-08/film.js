@@ -131,10 +131,10 @@ M.film({
     posePeople(t, i);
     let cam;
     if (s.cam === 'foot') { const z = walkZ(t), x = trX(z); cam = { pos: [x + 0.2, hy(x, z - 1.4) + 0.28, z - 1.5], look: [x - 0.2, hy(x, z) + 0.15, z], fov: K.lensFov(40) }; }
-    else if (s.cam === 'track') { const k = E.inOutSine(p), z = 92 - 4 * k; cam = { pos: [trX(z) + 0.6, hy(trX(z), z) + 2.2, z], look: [trX(z - 50), hy(trX(z - 50), z - 50) + 0.2, z - 50], fov: K.lensFov(44) }; }
+    else if (s.cam === 'track') { const k = E.inOutSine(p), a = SET.cameras.track; cam = { pos: a.pos.map((v, j) => v + (j === 2 ? -3 * k : 0)), look: a.look, fov: K.lensFov(a.fov) }; }
     else if (s.cam === 'backs') { const z = walkZ(4.86); cam = { pos: [trX(z + 90) + 1.5, hy(trX(z + 90), z + 90) + 1.7, z + 90], look: [trX(z), hy(trX(z), z) + 1.0, z], fov: K.lensFov(7) }; }
     else if (s.cam === 'rise') { const k = E.inOutSine(p), z = walkZ(7.4) + 5, x = trX(z); cam = { pos: [x + 0.6, hy(x, z) + 1.5 + 9 * k, z + 3 * k], look: [trX(z - 30) * (1 - k) + 2.8 * k, 1 * (1 - k), (z - 30) * (1 - k) - 300 * k], fov: K.lensFov(36) }; }
-    else if (s.cam === 'point') { const a = K.onBody(TALL, 0.32, 1.42, -0.75), g = K.onBody(TALL, -0.12, 1.35, 0.45); cam = { pos: a.toArray(), look: [2.8, 0.4, -60].map((v, j) => j === 1 ? g.y - 0.15 : v), fov: K.lensFov(34) }; }
+    else if (s.cam === 'point') { const a = K.onBody(TALL, 0.6, 1.5, -1.5), g = K.onBody(TALL, -0.12, 1.35, 0.45); cam = { pos: a.toArray(), look: [2.8, 0.4, -60].map((v, j) => j === 1 ? g.y - 0.15 : v), fov: K.lensFov(34) }; }
     else if (s.cam === 'shore') { const z = 7.4; cam = { pos: [trX(z) - 0.2, hy(trX(z), z + 2.6) + 0.32, z + 2.6], look: [trX(z) + 0.3, 0.02, z - 3.2], fov: K.lensFov(44) }; }
     else if (s.cam === 'push') { const k = E.inOutSine(p), a = V(PLANT[0] - 1.6, hy(...PLANT) + 1.25, PLANT[1] + 4.5), b = V(PLANT[0] - 0.6, hy(...PLANT) + 1.25, PLANT[1] + 3.2); const pos = a.lerp(b, k);
       cam = { pos: pos.toArray(), look: [SEAT_AT[0] - 0.6, SEAT_Y + 0.25, SEAT_AT[1] - 0.6], fov: K.lensFov(34 - 4 * k) }; }
@@ -146,7 +146,7 @@ M.film({
     if (SEAT.object3d.visible) K.tilt(SEAT, 'Spine', 0.6 * Math.sin(t * 1.3), 0, 0);
     // afternoon: the sun lowers toward the shore shots
     SET.props.sun.intensity = 3.4 - 0.9 * E.inOutSine(prog(t, 12.0, 15.0));
-    G.renderSet(ctx, ST, t, u, { cam, fish: 1, exposure: SET.exposure * (i === 11 ? 0.8 : i === 12 ? 0.85 : 1) });
+    G.renderSet(ctx, ST, t, u, { cam, fish: 1, exposure: SET.exposure * (i === 11 ? 0.5 : i === 12 ? 0.85 : 1) });
     // heat shimmer on the far band (shots 2-4, 6): a gentle horizontal wobble of thin strips near the horizon
     if (i === 1 || i === 2 || i === 3 || i === 5) {
       const y0 = M.H * (M.FORMAT.portrait ? 0.4 : 0.38), h = M.H * 0.08, src = ctx.canvas;
