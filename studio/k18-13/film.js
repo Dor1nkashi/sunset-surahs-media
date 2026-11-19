@@ -31,9 +31,11 @@ function routeLine(pts, heightAt, { r = 0.25, color = 0xffc860 } = {}) {
 function palmNormal(f, side) { const h = f.bones(side + 'Hand').getWorldPosition(V()), a = f.bones(side + 'HandIndex1').getWorldPosition(V()), b = f.bones(side + 'HandPinky1').getWorldPosition(V());
   return new THREE.Vector3().crossVectors(a.sub(h), b.sub(h)).normalize(); }
 function palmUp(f, side, tip) {
-  K.handAim(f, side, tip, Math.PI / 2); f.object3d.updateMatrixWorld(true); const n0 = palmNormal(f, side), sg = n0.y < 0 ? 1 : -1;
-  let best = 0, bv = -9; for (const r of [0, Math.PI / 2, Math.PI, Math.PI * 1.5]) { K.handAim(f, side, tip, r); f.object3d.updateMatrixWorld(true); const v = sg * palmNormal(f, side).y; if (v > bv) { bv = v; best = r; } }
-  K.handAim(f, side, tip, best); f.object3d.updateMatrixWorld(true); return palmNormal(f, side).multiplyScalar(sg);
+  // handAim's roll is applied on top of the bone's current rotation, so restore the bone before each trial
+  const H = f.bones(side + 'Hand'), q0 = H.quaternion.clone(), aim = (r) => { H.quaternion.copy(q0); f.object3d.updateMatrixWorld(true); K.handAim(f, side, tip, r); f.object3d.updateMatrixWorld(true); };
+  aim(Math.PI / 2); const n0 = palmNormal(f, side), sg = n0.y < 0 ? 1 : -1;
+  let best = 0, bv = -9; for (let k = 0; k < 12; k++) { const r = k * Math.PI / 6; aim(r); const v = sg * palmNormal(f, side).y; if (v > bv) { bv = v; best = r; } }
+  aim(best); return palmNormal(f, side).multiplyScalar(sg);
 }
 function curl(f, side, k) { for (const n of ['Thumb', 'Index', 'Middle', 'Ring', 'Pinky']) for (let j = 1; j <= 3; j++) { const b = f.bones(`${side}Hand${n}${j}`); if (!b) continue; const q = b.quaternion.clone(); b.quaternion.slerp(q.clone().multiply(q).multiply(q), k); } f.object3d.updateMatrixWorld(true); }
 
@@ -45,6 +47,7 @@ M.film({
     await G.initGL({ exposure: 1.0 }); W.init(G.R);
     WEST = await journeys({ side: 'west' }); EAST = await journeys({ side: 'east' });
     if (WEST.scene.fog) { WEST.scene.fog.density *= 0.3; WEST.scene.fog.color.multiplyScalar(0.55); }
+    { const lg = WEST.props.lagoon; lg.envMapIntensity = 0.05; lg.specularIntensity = 0.35; lg.roughness = 0.14; }
     HE = EAST.props.terrain.heightAt; const HW = WEST.props.terrain.heightAt;
     E0 = { I: EAST.props.sun.intensity, env: EAST.scene.environmentIntensity, col: EAST.props.sun.color.getHex(), pos: EAST.props.sun.position.clone() };
     // gold route lines: along the western shore, and across the eastern plain to the ridge
