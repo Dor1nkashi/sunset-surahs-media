@@ -220,9 +220,14 @@ M.film({
     let cam = s.cam ? s.cam(t) : K.camAt(s, t);
     if (DBG.bisect) { cam = SHOTS[2].a; const k = Math.floor(t), ch = SET.group.children, n0 = OBJ.n0, n1 = ch.length;
       ch.forEach((o, i) => { o.visible = true; });
-      const hideR = [[], [0, 0], [1, 1], [2, 2], [3, 8], [9, 9], [10, 16], [99, 99]][k] || [];
-      ch.forEach((o, i) => { if (hideR.length && i >= hideR[0] && i <= hideR[1]) o.visible = false; });
-
+      const T0 = ch[0]; OBJ.tm = OBJ.tm || T0.material; T0.material = OBJ.tm; T0.receiveShadow = true; SET.atmo.sun.castShadow = true; OBJ.mat.visible = true;
+      if (k === 1) T0.material = OBJ.grey || (OBJ.grey = new THREE.MeshStandardMaterial({ color: 0x888070 }));
+      if (k === 2) T0.receiveShadow = false;
+      if (k === 3) SET.atmo.sun.castShadow = false;
+      if (k === 4) OBJ.mat.visible = false;
+      if (k === 5) cam = C([-1.7, h0 + 3.5, 3.3], [2.4, h0 + 0.9, 0.4], 50);
+      if (k === 6) cam = C([-1.7, h0 + 0.6, 3.3], [2.4, h0 + 0.9, 0.4], 50);
+      if (k === 7) cam = C([-6, h0 + 1.75, 8], [2.4, h0 + 0.9, 0.4], 50);
     }
     G.renderSet(ctx, ST, t, u, { cam, exposure: 0.72 });
     K.vignette(ctx, 0.3);
