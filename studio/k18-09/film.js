@@ -252,6 +252,8 @@ M.film({
       cam = K.breathe(cam, t, s.b ? 0.0015 : 0.0025, 11 + i);
     }
     G.renderSet(ctx, ST, t, u, { cam, exposure: SET.exposure * ([1, 2, 5, 7, 10].includes(i) ? 0.8 : i === 3 ? 0.92 : 0.95) });
+    if (Math.abs(t - 12.5) < 0.002) { const L = SET.props.sun; let nc = 0; SET.scene.traverse((m) => { if (m.isMesh && m.castShadow && m.visible) nc++; });
+      console.error('[dbg]', t, 'cast', L.castShadow, 'map', !!L.shadow.map, 'enabled', G.R.shadowMap.enabled, 'auto', G.R.shadowMap.autoUpdate, 'I', L.intensity, 'env', SET.scene.environmentIntensity, 'casters', nc, 'pos', L.position.toArray().map((v) => v.toFixed(1)).join(','), 'tgt', L.target.position.toArray().join(','), 'cam', JSON.stringify(L.shadow.camera.left), L.shadow.camera.far); }
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.6);
   },
