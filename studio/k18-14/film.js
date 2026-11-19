@@ -54,7 +54,7 @@ M.film({
       pour:    SET.cameras.pour,
       seam_a:  { pos: [1.2, 1.5, 1.6], look: [0.5, 1.3, 0.5], fov: 30 },
       seam_b:  { pos: [0.9, 1.45, 1.25], look: [0.3, 1.3, 0.5], fov: 28 },
-      mouth:   { pos: [3.2, HT(3.2, 27) + 1.6, 27], look: [-0.5, HT(0, 20) + 1.6, 12], fov: 46 },
+      mouth:   { pos: [0.6, HT(0.6, 28.5) + 1.7, 28.5], look: [-0.2, HT(0, 20) + 2.5, 12], fov: 46 },
       bag_a:   { pos: [ST0[0] + 0.75, sg + 0.35, ST0[1] + 0.55], look: [ST0[0], sg + 0.06, ST0[1] + 0.05], fov: 34 },
       bag_b:   { pos: [ST0[0] + 0.6, sg + 0.3, ST0[1] + 0.42], look: [ST0[0], sg + 0.06, ST0[1] + 0.0], fov: 32 },
       gap_a:   { pos: [0, 2.2, 46], look: [0, 4, 0], fov: 44 },
