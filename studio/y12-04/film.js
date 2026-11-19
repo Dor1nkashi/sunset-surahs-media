@@ -88,7 +88,7 @@ M.film({
       W.pbr('rustic_stone_wall', { tile: 1.2, tint: 0xeee2cc, res: 1024 }), W.pbr('old_planks_02', { tile: 1.6, tint: 0x8a6a4e, res: 1024 })]);
     // ---- the lamp on a stone ledge beside the door (right of the door, on the front wall)
     const shelf = W.rbox(0.42, 0.07, 0.24, stoneM, { r: 0.015 }); shelf.position.set(1.05, h0 + 1.32, DZ + 0.3); sc.add(W.shadows(shelf));
-    const lamp = clayLamp(7, 2.4); lamp.position.set(1.05, h0 + 1.39, DZ + 0.36); lamp.rotation.y = -0.2; sc.add(lamp); K.lamp = lamp;
+    const lamp = clayLamp(7, 5.5); lamp.position.set(1.05, h0 + 1.39, DZ + 0.36); lamp.rotation.y = -0.2; sc.add(lamp); K.lamp = lamp;
     K.lampW = [1.05, h0 + 1.45, DZ + 0.42];
     // ---- the father's staff leaning by the door, his folded cloak on the threshold stone
     const staff = new THREE.Mesh(W.boxUV(new THREE.CylinderGeometry(0.022, 0.03, 1.8, 16)), darkPl); staff.position.set(-0.78, h0 + 0.88, DZ + 0.32); staff.rotation.z = 0.13; sc.add(W.shadows(staff));
@@ -120,7 +120,7 @@ M.film({
     const moonDir = V3(-0.35, 0.32, -0.88).normalize(); K.moonDir = moonDir;
     const sky = (p) => [p[0] + moonDir.x * 40, p[1] + moonDir.y * 40 - 4, p[2] + moonDir.z * 40];
     K.cams = {
-      door: { pos: [1.4, h0 + 1.5, DZ + 5.4], look: [0.2, h0 + 1.2, DZ], fov: fv(44) },
+      door: { pos: [1.9, h0 + 1.75, DZ + 3.6], look: [0.1, h0 + 1.15, DZ], fov: fv(46) },
       ledgeA: { pos: [1.8, h0 + 1.55, DZ + 2.6], look: L, fov: fv(40) },
       ledgeB: { pos: [1.45, h0 + 1.5, DZ + 1.45], look: L, fov: fv(36) },
       gateA: { pos: G0(2.2, DZ + 9.0, 1.7), look: [0, h0 + 1.3, DZ + 1.5], fov: fv(50) },
@@ -129,7 +129,7 @@ M.film({
       stainA: { pos: [0, 0, 0], look: [0, 0, 0], fov: fv(20) },
       pastA: { pos: [0.6, h0 + 1.55, DZ + 4.2], look: [-0.5, h0 + 1.0, DZ + 0.3], fov: fv(42) },
       pastB: { pos: [0.1, h0 + 1.35, DZ + 2.4], look: [-0.7, h0 + 0.9, DZ + 0.3], fov: fv(38) },
-      staff: { pos: [-0.2, h0 + 1.0, DZ + 1.5], look: [-0.75, h0 + 0.8, DZ + 0.3], fov: fv(36) },
+      staff: { pos: [0.35, h0 + 1.2, DZ + 1.9], look: [-0.6, h0 + 0.75, DZ + 0.3], fov: fv(40) },
       skyA: { pos: [-0.2, h0 + 1.25, DZ + 2.2], look: [-0.6, h0 + 1.8, DZ + 0.3], fov: fv(46) },
       skyB: { pos: [-0.2, h0 + 1.25, DZ + 2.2], look: sky([-0.2, h0 + 1.25, DZ + 2.2]), fov: fv(46) },
       court: { pos: [2.6, h0 + 1.45, DZ + 3.6], look: [0.4, h0 + 1.3, DZ + 0.2], fov: fv(42) },
@@ -174,9 +174,9 @@ M.film({
     else if (t < 3.41) cam = camL(C.ledgeA, C.ledgeB, E.inOutSine(prog(t, 1.17, 3.41)));
     else if (t < 6.41) { const p = E.inOutSine(prog(t, 3.41, 6.41)); cam = camL(C.gateA, C.gateB, p); const sh = 0.012 * Math.sin(t * 7.3) + 0.008 * Math.sin(t * 11.1); cam = { ...cam, pos: [cam.pos[0] + sh, cam.pos[1] + sh * 0.6, cam.pos[2]] }; }
     else if (t < 9.05) {
-      const c = K.tHeldC || V3(0, h0 + 1.0, DZ + 1.5), fw = K.tHeldFw || V3(0, 0, -1), back = c.clone().addScaledVector(fw, 1.3).add(V3(0.25, 0.12, 0));
-      if (t < 8.0) cam = { pos: back.toArray(), look: c.toArray(), fov: fv(36) };
-      else { const p = E.inOutSine(prog(t, 8.0, 9.05)), near = c.clone().addScaledVector(fw, lerp(0.75, 0.6, p)).add(V3(0.08, 0.02, 0)); cam = { pos: near.toArray(), look: c.clone().add(V3(0, -0.04, 0)).toArray(), fov: fv(22) }; }
+      const c = K.tHeldC || V3(0, h0 + 1.0, DZ + 1.5), fw = K.tHeldFw || V3(0, 0, -1), back = c.clone().addScaledVector(fw, 1.6).add(V3(0.35, 0.25, 0));
+      if (t < 8.0) cam = { pos: back.toArray(), look: c.clone().add(V3(0, -0.05, 0)).toArray(), fov: fv(44) };
+      else { const p = E.inOutSine(prog(t, 8.0, 9.05)), near = c.clone().addScaledVector(fw, lerp(0.95, 0.75, p)).add(V3(0.1, 0.05, 0)); cam = { pos: near.toArray(), look: c.clone().add(V3(0, -0.12, 0)).toArray(), fov: fv(26) }; }
     }
     else if (t < 11.34) cam = camL(C.pastA, C.pastB, E.inOutSine(prog(t, 9.05, 11.34)));
     else if (t < 13.68) cam = C.staff;
@@ -187,13 +187,13 @@ M.film({
     else cam = C.flame;
     // ---- world: thin moon, lamp, door sway, moth
     const sky = P.sky.userData.u; sky.moonD.value.copy(K.moonDir); sky.moonOn.value = 1; sky.moonPhase.value = -0.55;
-    HILLS.scene.environmentIntensity = 0.3; A.sun.intensity = 0.45; if (A.hemi) A.hemi.intensity = 0.05;
+    HILLS.scene.environmentIntensity = 0.42; A.sun.intensity = 0.7; if (A.hemi) A.hemi.intensity = 0.08;
     const gust = Math.exp(-((t - 25.7) ** 2) / 0.12);
     K.lamp.userData.set(t, 1 - 0.55 * gust, 1.1 * gust * Math.sin(clamp((t - 25.35) / 0.8) * Math.PI) + 0.04 * Math.sin(t * 2.1));
     K.door.leaf.rotation.y = -0.5 + 0.035 * Math.sin(t * 0.9) + 0.02 * Math.sin(t * 2.3);
     { const L = K.lampW, a = t * 3.1, rr = 0.16 + 0.04 * Math.sin(t * 1.3); K.moth.g.position.set(L[0] + Math.cos(a) * rr, L[1] + 0.12 + 0.05 * Math.sin(t * 2.2), L[2] + Math.sin(a) * rr);
       K.moth.g.rotation.y = -a; const fl = 0.9 * Math.sin(t * 60); K.moth.l.rotation.x = fl; K.moth.r.rotation.x = -fl; K.moth.g.visible = t < 24.4; }
-    G.renderSet(ctx, HILLS, t, u, { cam, exposure: 1.05, fire: 0 });
+    G.renderSet(ctx, HILLS, t, u, { cam, exposure: 1.25, fire: 0 });
     CAP.draw(ctx, t);
     const su = prog(t, 26.33, D - 0.05), a = Math.sin(Math.PI * su);
     if (a > 0 && IMG.seal) { const s = PORT ? 480 : 400; ctx.save(); ctx.globalAlpha = a * 0.95; ctx.drawImage(IMG.seal, FW / 2 - s / 2, FH * (PORT ? 0.36 : 0.42) - s / 2, s, s); ctx.restore(); }

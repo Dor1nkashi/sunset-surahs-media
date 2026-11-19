@@ -48,7 +48,7 @@ function frond(len, seed) {
     const s = i / N, p = rach(s), nx = rach(Math.min(1, s + 0.02)).sub(p).normalize(), pl = len * 0.22 * Math.sin(Math.PI * (0.15 + 0.85 * s)) * (1 - 0.5 * s);
     for (const sd of [-1, 1]) {
       const g = new THREE.PlaneGeometry(pl, pl * 0.22, 6, 1), q = g.attributes.position;
-      for (let k = 0; k < q.count; k++) { const x = q.getX(k) + pl / 2, w = 1 - (x / pl) ** 1.6; q.setXYZ(k, x * sd, q.getY(k) * w, -0.12 * x * x / pl); }
+      for (let k = 0; k < q.count; k++) { const x = q.getX(k) + pl / 2, w = 1 - Math.pow(Math.min(1, Math.max(0, x / pl)), 1.6); q.setXYZ(k, x * sd, q.getY(k) * w, -0.12 * x * x / pl); }
       g.rotateX(-Math.PI / 2 + 0.25); g.rotateY(Math.atan2(nx.x, nx.z) + sd * 0.35 * (r() - 0.5));
       g.translate(p.x, p.y, p.z); geos.push(g);
     }
