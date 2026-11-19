@@ -45,7 +45,7 @@ function clayLamp(seed, light = 1.4) {
   body.scale.set(1, 1, 1.3); g.add(body);
   const sp = new THREE.Mesh(new THREE.CylinderGeometry(0.011, 0.02, 0.06, 16).rotateX(Math.PI / 2), clay); sp.position.set(0, 0.032, 0.085); g.add(sp);
   const f = W.flame({ h: 0.075, w: 0.034, seed, inten: 1.0, light: 0, planes: 2 }); f.position.set(0, 0.05, 0.112); g.add(f);
-  const L = new THREE.PointLight(0xff9a50, light, 7, 1.6); L.position.set(0, 0.16, 0.13); L.castShadow = true; L.shadow.mapSize.set(1024, 1024); L.shadow.bias = -0.002; g.add(L);
+  const L = new THREE.PointLight(0xff9a50, light, 7, 1.6); L.position.set(0, 0.16, 0.13); g.add(L);
   W.shadows(g); f.traverse((m) => { if (m.isMesh) { m.castShadow = false; m.receiveShadow = false; } }); body.castShadow = false;
   g.userData = { flame: f, light: L, set(t, k = 1, lean = 0) { f.visible = k > 0.003; f.scale.set(0.6 + 0.4 * k, Math.max(0.03, k), 0.6 + 0.4 * k); f.rotation.z = lean; f.userData.update(t, k); L.intensity = light * k * (0.92 + 0.08 * Math.sin(t * 13.1 + seed)); } };
   return g;
