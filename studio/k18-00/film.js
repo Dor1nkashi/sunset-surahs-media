@@ -77,12 +77,12 @@ M.film({
     const S = CAVE.scene;
     // the wick ledge: a long carved stone with an oil channel and fifteen wicks
     const stoneM = await W.pbr('old_stone_wall', { tile: 0.9, tint: 0xa89a86, res: 1024 });
-    const ledge = W.rbox(WX1 - WX0 + 0.8, 0.16, 0.34, stoneM, { r: 0.05, seg: 3 }); ledge.position.set(0, Hc(0, LEDGE_Z) + 0.0, LEDGE_Z); S.add(W.shadows(ledge));
+    const ledge = new THREE.Mesh(W.boxUV(new THREE.BoxGeometry(WX1 - WX0 + 0.8, 0.16, 0.34)), stoneM); ledge.position.set(0, Hc(0, LEDGE_Z) + 0.08, LEDGE_Z); S.add(W.shadows(ledge));
     const oil = new THREE.Mesh(new THREE.BoxGeometry(WX1 - WX0 + 0.5, 0.004, 0.06), new THREE.MeshStandardMaterial({ color: 0x140e08, roughness: 0.45, envMapIntensity: 0.15 }));
-    oil.position.set(0, ledge.position.y + 0.161, LEDGE_Z); S.add(oil);
+    oil.position.set(0, ledge.position.y + 0.081, LEDGE_Z); S.add(oil);
     const wickM = new THREE.MeshStandardMaterial({ color: 0x2a2018, roughness: 0.95 });
     for (let i = 0; i < NW; i++) {
-      const g = new THREE.Group(); g.position.set(wickX(i), ledge.position.y + 0.165, LEDGE_Z);
+      const g = new THREE.Group(); g.position.set(wickX(i), ledge.position.y + 0.085, LEDGE_Z);
       const w = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.008, 0.035, 10), wickM); w.position.y = 0.012; g.add(w);
       const f = W.flame({ h: 0.12, w: 0.05, seed: 11 + i, inten: 3.2, light: 0, planes: 2 }); f.position.y = 0.026; g.add(f); g.userData.f = f;
       S.add(g); WICKS.push(g);
@@ -90,11 +90,11 @@ M.film({
     RUNNER = W.flame({ h: 0.09, w: 0.07, seed: 3, inten: 3.6, light: 1.0, dist: 4 }); S.add(RUNNER);
     ROWLIGHT = new THREE.PointLight(0xff9a4a, 0, 9, 1.6); ROWLIGHT.position.set(0, ledge.position.y + 0.5, LEDGE_Z + 0.5); S.add(ROWLIGHT);
     // the first sun: a low warm light from the east that turns the stones gold in shot 6
-    WARM = new THREE.DirectionalLight(0xffb070, 0); WARM.position.set(60, 9, 18); WARM.target.position.set(0, 0, 0.5);
+    WARM = new THREE.DirectionalLight(0xff9a3c, 0); WARM.position.set(60, 9, 18); WARM.target.position.set(0, 0, 0.5);
     WARM.castShadow = true; WARM.shadow.mapSize.set(1024, 1024); Object.assign(WARM.shadow.camera, { left: -4, right: 4, top: 4, bottom: -4, near: 1, far: 140 }); WARM.shadow.bias = -0.0005;
     S.add(WARM, WARM.target);
     // stronger rays in the valley so the four places read
-    CAVE.props.vista.rays.forEach((r) => { r.scale.set(1.8, 1, 1.8); });
+    
     CAVE = W.stage(CAVE);
 
     // glimpses: the same screen spot for each gold highlight (centre-right)
@@ -110,7 +110,7 @@ M.film({
     GARD = W.stage(gard);
 
     const seas = await confluence({ time: 'golden' });
-    C.g_seam = { pos: [1.6, 1.7, 1.2], look: [2.9, 0.0, -26], fov: 30 };
+    C.g_seam = { pos: [2.3, 5.5, 5.0], look: [2.85, 0.0, -24], fov: 30 };
     SEAS = W.stage(seas);
     const pass = await mountain_pass_barrier({ time: 'golden', build: 1, pour: 0.3 });
     C.g_iron = { pos: [1.45, 1.4, 2.0], look: [0.55, 1.25, 0.5], fov: 30 };
@@ -144,9 +144,9 @@ M.film({
       ROWLIGHT.intensity = 6 * lit / NW; ROWLIGHT.position.x = 0.5 * rx;
       // the sun comes up over shots 5-7; it never goes back (the loop shot is again blue: the light fades with the wicks)
       const sunK = i <= 2 ? 0 : i === 3 ? 0.25 * prog(t, 5.56, 7.81) : i === 4 ? 0.25 + 0.75 * E.inOutSine(prog(t, 7.81, 9.9)) : i === 5 ? 1 : i === 9 ? 0.35 : 0;
-      WARM.intensity = 6 * sunK; WARM.position.set(60, 4 + 10 * sunK, 18);
+      WARM.intensity = 11 * sunK; WARM.position.set(60, 4 + 10 * sunK, 18);
       SPOTS.lip.intensity = i === 5 ? 40 : 0;
-      CAVE.set.props.vista.rays.forEach((r, j) => { const c = [0.1, 0.36, 0.62, 0.86][[3, 0, 1, 2].indexOf(j)]; const kp = s.vista ? Math.exp(-(((prog(t, 3.26, 5.56) - c) / 0.16) ** 2)) : 0; r.userData.update(t, 1.6 * kp); });
+      CAVE.set.props.vista.rays.forEach((r, j) => { const c = [0.1, 0.36, 0.62, 0.86][[3, 0, 1, 2].indexOf(j)]; const kp = s.vista ? Math.exp(-(((prog(t, 3.26, 5.56) - c) / 0.16) ** 2)) : 0; r.userData.update(t, 1.3 * kp); });
       const ex = i === 0 || i === 10 ? 2.3 : i === 2 ? 1.45 : i === 4 || i === 5 ? 1.3 : i === 9 ? 1.9 : 1.6;
       CAVE.scene.fog.density = FOG0 * (s.vista ? 0.3 : 1);
       G.renderSet(ctx, CAVE, t, u, { cam, exposure: ex, mist: i === 0 || i === 10 ? 1 : 0, lamp: i === 0 || i === 10 ? 0.4 : 1 });
