@@ -52,8 +52,8 @@ function poseMan(t, s) {
     const k = scratchK(t), y = gy + TY + 0.06 - 0.12 * k, away = t > 1.55 && t < 26 ? E.inOutSine(prog(t, 1.9, 2.9)) : 0;
     const tip = V(WALLX + 0.035, y, markZ(6) + 0.015);
     K.place(p, x, gy, z, yaw); p.object3d.updateMatrixWorld(true);
-    const h0 = K.onBody(p, -0.22, 0.85, 0.05), tgt = tip.clone().lerp(h0, away);
-    K.reach(p, 'Right', tgt, K.onBody(p, -0.7, 0.8, -0.3)); K.handAim(p, 'Right', tgt.clone().add(V(-0.02, 0.12, -0.03)), 0.4); K.flatHand(p, 'Right', 1.2);
+    const h0 = K.onBody(p, -0.22, 0.85, 0.05), wrist = tip.clone().add(V(0.085, 0.07, 0.03)), tgt = wrist.clone().lerp(h0, away);
+    K.reach(p, 'Right', tgt, K.onBody(p, -0.7, 0.8, -0.3)); K.handAim(p, 'Right', tgt.clone().add(V(-0.09, -0.07, -0.03)), 1.2); K.flatHand(p, 'Right', 0.9);
   } else if (who === 'tools' || who === 'hips' || who === 'shadow' || who === 'leave') {
     const walk = who === 'leave' ? clamp((t - 8.11) / 1.1) : 0;
     const sx = who === 'shadow' || who === 'leave' ? 1.25 : 0.7, sz = who === 'shadow' || who === 'leave' ? 1.15 : 1.45;
@@ -127,7 +127,7 @@ M.film({
     C.hips_b = { pos: [FRONT.x + 1.8, gy + 1.22, FRONT.z + 3.85], look: [FRONT.x - 0.1, gy + 0.9, FRONT.z], fov: 39 };
     C.push_a = { pos: [FRONT.x + 0.2, gy + 1.15, FRONT.z + 2.5], look: [FRONT.x - 0.9, gy + 0.4, FRONT.z + 0.15], fov: 46 };
     C.push_b = { pos: [FRONT.x - 0.1, gy + 0.95, FRONT.z + 1.95], look: [FRONT.x - 0.9, gy + 0.35, FRONT.z + 0.15], fov: 44 };
-    C.lamp = { pos: [FRONT.x + 3.25, gy + 0.32, FRONT.z + 3.35], look: [FRONT.x + 2.4, gy + 0.12, FRONT.z + 2.4], fov: 34 };
+    C.lamp = { pos: [FRONT.x + 1.75, gy + 0.38, FRONT.z + 3.55], look: [FRONT.x + 2.55, gy + 0.1, FRONT.z + 2.7], fov: 36 };
     poseMan(13, SHOTS[7]); const hd = MAN.bones('LeftHand').getWorldPosition(V()); console.error(`[k18-03] hand ${hd.toArray().map((v) => v.toFixed(2))}`);
     C.cord_a = { pos: [hd.x + 0.12, hd.y + 0.3, hd.z + 0.34], look: [hd.x, hd.y, hd.z], fov: 26 };
     C.cord_b = { pos: [hd.x + 0.1, hd.y + 0.25, hd.z + 0.28], look: [hd.x, hd.y, hd.z], fov: 24 };
@@ -149,13 +149,20 @@ M.film({
     const ST = s.set === 'd' ? DUSK : MORN, key = s.set;
     if (MAN.object3d.parent !== ST.scene) ST.scene.add(MAN.object3d);
     if (CRUMBS.parent !== ST.scene) ST.scene.add(CRUMBS);
-    let cam = K.camLerp(C[s.a], s.b ? C[s.b] : null, (s.ease || E.linear)(p));
-    cam = K.breathe(cam, t, 0.0008, 3 + i);
     poseMan(t, s);
+    let cam = K.camLerp(C[s.a], s.b ? C[s.b] : null, (s.ease || E.linear)(p));
+    if (s.who === 'hand') {
+      // over his left shoulder, from behind: the hand, the sleeve, the cord (never the face)
+      const hp = K.handPos(MAN, 'Left'), k = (s.ease || E.linear)(p);
+      const near = { 7: [0.2, 1.62, -0.28, 32], 8: [0.17, 1.58, -0.18, 28], 11: [0.24, 1.66, -0.36, 34], 12: [0.14, 1.52, -0.08, 24] }[i] || [0.2, 1.62, -0.3, 32];
+      const pos = K.onBody(MAN, near[0] - 0.02 * k, near[1] - 0.03 * k, near[2] + 0.05 * k);
+      cam = { pos: pos.toArray(), look: hp.toArray(), fov: K.lensFov(near[3]) };
+    }
+    cam = K.breathe(cam, t, 0.0008, 3 + i);
     // tally texture (redrawn only when the fresh mark changes)
     { const T = TALLY[key], k = Math.round(scratchK(t) * 200) / 200; if (T.k !== k) { T.k = k; const x = T.c.getContext('2d'); x.clearRect(0, 0, 512, 256); x.lineCap = 'round';
         for (let j = 0; j < 7; j++) { const X = (20 + j * 30) * 2, len = j < 6 ? 1 : k; if (len <= 0) continue; const y0 = 50, y1 = 50 + 160 * len;
-          x.strokeStyle = 'rgba(48,30,18,0.8)'; x.lineWidth = 5; x.beginPath(); x.moveTo(X + (j % 2) * 3, y0); x.lineTo(X - 4 + (j % 3), y1); x.stroke();
+          x.strokeStyle = 'rgba(40,24,14,0.92)'; x.lineWidth = 8; x.beginPath(); x.moveTo(X + (j % 2) * 3, y0); x.lineTo(X - 4 + (j % 3), y1); x.stroke();
           x.strokeStyle = j < 6 ? 'rgba(150,110,80,0.35)' : 'rgba(210,170,130,0.75)'; x.lineWidth = 2; x.beginPath(); x.moveTo(X + 2, y0 + 4); x.lineTo(X, y1 - 4); x.stroke(); }
         T.tx.needsUpdate = true; } }
     // crumbs: fall from the scratch point while it is drawn (and settle out of frame)
