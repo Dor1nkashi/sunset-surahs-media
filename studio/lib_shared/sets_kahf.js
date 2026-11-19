@@ -17,6 +17,9 @@
 import * as W from './world.js';
 import * as GR from './growth.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
+let RECT_INIT = false;
+function rectLight(color, intensity, w, h) { if (!RECT_INIT) { RectAreaLightUniformsLib.init(); RECT_INIT = true; } return new THREE.RectAreaLight(color, intensity, w, h); }
 const { THREE } = W;
 const V3 = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
 const dirFrom = (elev, azim) => { const e = elev * Math.PI / 180, a = azim * Math.PI / 180; return V3(Math.cos(a) * Math.cos(e), Math.sin(e), Math.sin(a) * Math.cos(e)); };
@@ -210,7 +213,7 @@ export function occify(m, value = null) {
 
 // ------------------------------------------------------------------ triplanar PBR (steep rock, cave walls, masonry blocks)
 const TRI_DECL = `
-uniform float tileInv, nsc, strata, macro, aoTex; uniform vec3 strataTint; varying vec3 vTW; varying vec3 vTN;
+uniform float tileInv, nsc, strata, macro, aoTex, desat; uniform vec3 strataTint; varying vec3 vTW; varying vec3 vTN;
 float th3(vec3 p){ return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453); }
 float tvn3(vec3 p){ vec3 i = floor(p), f = fract(p); f = f*f*(3.-2.*f);
   return mix(mix(mix(th3(i), th3(i+vec3(1,0,0)), f.x), mix(th3(i+vec3(0,1,0)), th3(i+vec3(1,1,0)), f.x), f.y),
@@ -227,6 +230,7 @@ const TRI_MAP = `
   vec3 tcol = tC.rgb * (1. + macro * (mn - 0.5) * 2.);
   float band = sin(vTW.y * 2.2 + tvn3(vTW * vec3(0.12, 0.5, 0.12)) * 5.) * 0.6 + 0.4 * sin(vTW.y * 6.9 + 1.3);
   tcol = mix(tcol, tcol * strataTint, strata * (0.5 + 0.5 * band));
+  tcol = mix(tcol, vec3(dot(tcol, vec3(0.3, 0.55, 0.15))), desat);
   diffuseColor.rgb *= tcol;
 `;
 const TRI_NORM = `
@@ -236,10 +240,10 @@ const TRI_NORM = `
     vec3 wn = normalize(wX.zyx * triW.x + wY.xzy * triW.y + wZ.xyz * triW.z);
     normal = normalize((viewMatrix * vec4(wn, 0.)).xyz); }
 `;
-export async function triMat(name, { tile = 4, tint = 0xffffff, normal = 1, rough = 1, strata = 0, strataTint = 0xb8a890, macro = 0.25, res = 2048, occ = null, aoTex = 0.85 } = {}) {
+export async function triMat(name, { tile = 4, tint = 0xffffff, normal = 1, rough = 1, strata = 0, strataTint = 0xb8a890, macro = 0.25, res = 2048, occ = null, aoTex = 0.85, desat = 0 } = {}) {
   const T = await W.pbrMaps(name, res);
   const m = new THREE.MeshStandardMaterial({ map: T.map, normalMap: T.nor, roughnessMap: T.arm, roughness: rough, metalness: 0, color: tint });
-  const U = { tileInv: { value: 1 / tile }, nsc: { value: normal }, strata: { value: strata }, strataTint: { value: new THREE.Color(strataTint) }, macro: { value: macro }, aoTex: { value: aoTex } };
+  const U = { tileInv: { value: 1 / tile }, nsc: { value: normal }, strata: { value: strata }, strataTint: { value: new THREE.Color(strataTint) }, macro: { value: macro }, aoTex: { value: aoTex }, desat: { value: desat } };
   m.onBeforeCompile = (s) => {
     Object.assign(s.uniforms, U);
     s.vertexShader = s.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vTW; varying vec3 vTN;')
@@ -485,44 +489,46 @@ function sleeper(material, { seed = 1, len = 1.0, mirror = 1 } = {}) {
 // ------------------------------------------------------------------ the dog (SDF, lying with forelegs stretched out), +z = forward
 function dogSDF() {
   const caps = [
-    [[0.08, 0.1, 0.24], [0.09, 0.045, 0.52], 0.042], [[-0.08, 0.1, 0.24], [-0.085, 0.045, 0.53], 0.042],      // forelegs stretched out
-    [[0, 0.27, 0.22], [0, 0.39, 0.37], 0.085],                                                                  // neck
-    [[0.15, 0.045, -0.22], [0.16, 0.035, 0.02], 0.036], [[-0.15, 0.045, -0.22], [-0.16, 0.035, 0.02], 0.036],    // hind feet tucked forward
-    [[-0.05, 0.05, -0.4], [0.08, 0.035, -0.52], 0.027], [[0.08, 0.035, -0.52], [0.21, 0.03, -0.42], 0.022],      // tail curled on the ground
+    [[0.075, 0.1, 0.22], [0.085, 0.042, 0.5], 0.036, 0.03], [[-0.075, 0.1, 0.22], [-0.08, 0.042, 0.51], 0.036, 0.03],   // forelegs stretched out (taper)
+    [[0, 0.25, 0.2], [0, 0.4, 0.36], 0.075, 0.06],                                                                      // neck
+    [[0, 0.44, 0.45], [0, 0.418, 0.585], 0.044, 0.026],                                                                 // muzzle, tapering to the nose
+    [[0.14, 0.045, -0.2], [0.15, 0.032, 0.02], 0.033, 0.026], [[-0.14, 0.045, -0.2], [-0.15, 0.032, 0.02], 0.033, 0.026], // hind feet tucked forward
+    [[-0.05, 0.05, -0.4], [0.08, 0.032, -0.52], 0.026, 0.018], [[0.08, 0.032, -0.52], [0.22, 0.026, -0.42], 0.018, 0.011], // tail curled on the ground
   ];
   const ells = [
-    [0, 0.19, -0.02, 0.165, 0.15, 0.36], [0, 0.22, 0.2, 0.15, 0.17, 0.17], [0.12, 0.13, -0.25, 0.11, 0.125, 0.17], [-0.12, 0.13, -0.25, 0.11, 0.125, 0.17],
-    [0.09, 0.028, 0.58, 0.046, 0.03, 0.065], [-0.085, 0.028, 0.59, 0.046, 0.03, 0.065], [0, 0.44, 0.41, 0.085, 0.08, 0.1], [0, 0.415, 0.53, 0.046, 0.042, 0.085],
+    [0, 0.19, -0.03, 0.14, 0.145, 0.35], [0, 0.215, 0.19, 0.13, 0.17, 0.16], [0.11, 0.13, -0.25, 0.1, 0.12, 0.16], [-0.11, 0.13, -0.25, 0.1, 0.12, 0.16],
+    [0.085, 0.026, 0.55, 0.04, 0.026, 0.06], [-0.08, 0.026, 0.56, 0.04, 0.026, 0.06], [0, 0.455, 0.385, 0.072, 0.07, 0.088],
   ];
-  const f = (x, y, z) => {
+  const capT = (x, y, z, a, b, ra, rb) => { const pax = x - a[0], pay = y - a[1], paz = z - a[2], bax = b[0] - a[0], bay = b[1] - a[1], baz = b[2] - a[2];
+    const h = clamp((pax * bax + pay * bay + paz * baz) / (bax * bax + bay * bay + baz * baz)); return Math.hypot(pax - bax * h, pay - bay * h, paz - baz * h) - lerp(ra, rb, h); };
+  return (x, y, z) => {
     let d = 1e3;
-    for (const [cx, cy, cz, rx, ry, rz] of ells) d = smin(d, sdEll(x - cx, y - cy, z - cz, rx, ry, rz), 0.045);
-    for (const [a, b, r] of caps) d = smin(d, sdCap(x, y, z, a, b, r), 0.035);
-    d = smax(d, -y + 0.004, 0.01);                                                // flat on the ground
-    return d;
+    for (const [cx, cy, cz, rx, ry, rz] of ells) d = smin(d, sdEll(x - cx, y - cy, z - cz, rx, ry, rz), 0.04);
+    for (const [a, b, ra, rb] of caps) d = smin(d, capT(x, y, z, a, b, ra, rb), 0.03);
+    return smax(d, -y + 0.004, 0.01);                                           // flat on the ground
   };
-  return f;
 }
-function earSDF(side) { return (x, y, z) => { const lx = x, ly = y, lz = z; return smax(sdEll(lx, ly - 0.05, lz, 0.034, 0.06, 0.014), -sdEll(lx, ly - 0.045, lz + 0.016, 0.024, 0.05, 0.012), 0.004); }; }
+// upright pointed ear: a thin ellipsoid cut to a point by two slanted planes, cupped at the front
+function earSDF() { return (x, y, z) => { let d = sdEll(x, y - 0.05, z, 0.038, 0.07, 0.013); d = smax(d, Math.abs(x) * 0.93 + (y - 0.11) * 0.37, 0.006); return smax(d, -sdEll(x, y - 0.045, z + 0.014, 0.026, 0.055, 0.011), 0.004); }; }
 function dogMesh(occAt) {
   const grp = new THREE.Group(); grp.name = 'dog';
-  const coat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, vertexColors: true, roughness: 0.78, sheen: 0.7, sheenRoughness: 0.6, sheenColor: new THREE.Color(0xf0d0a0) });
-  const M = sdfMesh(dogSDF(), { min: [-0.3, -0.01, -0.66], max: [0.3, 0.58, 0.72], step: 0.0085, occ: false });
+  const coat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, vertexColors: true, roughness: 0.8, sheen: 0.35, sheenRoughness: 0.7, sheenColor: new THREE.Color(0x8a6a48) });
+  const M = sdfMesh(dogSDF(), { min: [-0.28, -0.01, -0.62], max: [0.28, 0.56, 0.68], step: 0.0075, occ: false });
   const p = M.geometry.attributes.position, col = new Float32Array(p.count * 3), n = noise3(9);
   for (let i = 0; i < p.count; i++) { const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
-    const saddle = sstep(0.18, 0.34, y) * sstep(0.35, -0.1, z) * (1 - sstep(0.3, 0.5, z)), muzzle = sstep(0.5, 0.6, z) * sstep(0.35, 0.45, y), belly = 1 - sstep(0.05, 0.15, y);
+    const saddle = sstep(0.2, 0.33, y) * sstep(0.3, -0.05, z), muzzle = sstep(0.52, 0.6, z) * sstep(0.36, 0.43, y), belly = 1 - sstep(0.06, 0.16, y);
     const k = 1 + 0.06 * n(x * 30, y * 30, z * 30);
-    const c = [0.62, 0.45, 0.28].map((v, q) => v * k * (1 - 0.35 * saddle - 0.3 * muzzle) + belly * [0.12, 0.1, 0.07][q]);
+    const c = [0.5, 0.33, 0.18].map((v, q) => v * k * (1 - 0.3 * saddle - 0.35 * muzzle) + belly * [0.14, 0.11, 0.07][q]);
     col.set(c, i * 3); }
   M.geometry.setAttribute('color', new THREE.BufferAttribute(col, 3));
   const body = W.shadows(new THREE.Mesh(M.geometry, coat)); grp.add(body);
   const ears = [];
-  for (const s of [-1, 1]) { const E = sdfMesh(earSDF(s), { min: [-0.05, -0.01, -0.03], max: [0.05, 0.13, 0.03], step: 0.004, occ: false });
-    const ec = new Float32Array(E.geometry.attributes.position.count * 3).fill(0.42); E.geometry.setAttribute('color', new THREE.BufferAttribute(ec, 3));
-    const ear = W.shadows(new THREE.Mesh(E.geometry, coat)); const piv = new THREE.Group(); piv.position.set(s * 0.055, 0.49, 0.38); piv.rotation.set(-0.25, 0, -s * 0.35); piv.add(ear); grp.add(piv); ears.push(piv); }
+  for (const s of [-1, 1]) { const E = sdfMesh(earSDF(), { min: [-0.05, -0.01, -0.03], max: [0.05, 0.13, 0.03], step: 0.0035, occ: false });
+    const ec = new Float32Array(E.geometry.attributes.position.count * 3); for (let q = 0; q < ec.length; q += 3) ec.set([0.4, 0.26, 0.15], q); E.geometry.setAttribute('color', new THREE.BufferAttribute(ec, 3));
+    const ear = W.shadows(new THREE.Mesh(E.geometry, coat)); const piv = new THREE.Group(); piv.position.set(s * 0.05, 0.5, 0.37); piv.rotation.set(-0.2, s * 0.35, -s * 0.28); piv.add(ear); grp.add(piv); ears.push(piv); }
   const dark = new THREE.MeshStandardMaterial({ color: 0x14100c, roughness: 0.25 });
-  const nose = new THREE.Mesh(new THREE.SphereGeometry(0.019, 24, 16), dark); nose.scale.set(1.2, 0.9, 0.8); nose.position.set(0, 0.425, 0.615); grp.add(nose);
-  for (const s of [-1, 1]) { const e = new THREE.Mesh(new THREE.SphereGeometry(0.011, 20, 14), dark); e.position.set(s * 0.042, 0.465, 0.49); grp.add(e); }
+  const nose = new THREE.Mesh(new THREE.SphereGeometry(0.019, 24, 16), dark); nose.scale.set(1.2, 0.9, 0.8); nose.position.set(0, 0.425, 0.607); grp.add(nose);
+  for (const s of [-1, 1]) { const e = new THREE.Mesh(new THREE.SphereGeometry(0.011, 20, 14), dark); e.position.set(s * 0.038, 0.47, 0.46); grp.add(e); }
   if (occAt) grp.userData.bake = () => { grp.updateMatrixWorld(true); grp.traverse((m) => { if (m.isMesh && m.geometry.attributes.normal) bakeOcc(m, occAt, { floor: 0.05 }); }); grp.traverse((m) => { if (m.isMesh) { m.material = m.material.clone(); occify(m.material); } }); };
   // breathing + ear twitches: a pure function of t
   grp.userData.update = (t) => {
@@ -591,7 +597,7 @@ export async function mountain_cave({ time = 'day', seed = 18, sleepers = 5, dog
   };
   rockSDF.column = (x, z) => ({ hm: Hm(x, z), hf: H(x, z) });
   const ROCK = sdfMesh(rockSDF, { min: [-30, -2.6, -22], max: [30, 24, 4.2], step: 0.2, ground: H, reach: 26 });
-  const rockMat = await triMat('rocky_terrain', { tile: 4.5, tint: 0xf3eadb, normal: 1.25, strata: 0.38, strataTint: 0xbfae94, macro: 0.3, occ: 'attr' });
+  const rockMat = await triMat('rocky_terrain', { tile: 4.5, tint: 0xf3eadb, normal: 1.25, strata: 0.38, strataTint: 0xbfae94, macro: 0.3, occ: 'attr', desat: 0.55 });
   const cliff = W.shadows(new THREE.Mesh(ROCK.geometry, rockMat)); cliff.name = 'cliff'; add(S, cliff);
   // occlusion on the terrain inside the box (cave floor, shelf under the overhang)
   { const g = T.mesh.geometry, p = g.attributes.position, nr = g.attributes.normal, o = new Float32Array(p.count).fill(1), P = V3(), N = V3();
@@ -643,25 +649,30 @@ export async function mountain_cave({ time = 'day', seed = 18, sleepers = 5, dog
   // --- light: the sun (setDay), a shaft through the mouth, a warm bounce from the sunlit floor patch, dust motes
   const sun = S.atmo.sun, target = V3(0, 1, -6);
   const shaft = W.lightShaft({ from: [0, 0, 0], to: [0, -1, 0], r0: 0.9, r1: 1.4, color: 0xfff0d0, op: 0.06 }); add(S, shaft);
-  const bounce = new THREE.PointLight(0xffc89a, 0, 9, 2); add(S, bounce);
+  const bounce = new THREE.PointLight(0xffc89a, 0, 10, 1.6); add(S, bounce);
+  // the bright mouth seen from inside acts as a big soft light (faces into the cave; nothing outside is lit by it)
+  const mouthGlow = rectLight(dayMode ? 0xf4e4cc : time === 'bluehour' || time === 'night' ? 0x6a78a8 : 0xffc890, 1, 5.6, 1.7);
+  mouthGlow.position.set(0, 0.95, 0.3); mouthGlow.lookAt(0, 0.6, -6); add(S, mouthGlow);
+  const glowI = { day: 2.6, sunrise: 1.6, dusk: 1.4, bluehour: 0.5, night: 0.25 }[time] ?? 1.5; mouthGlow.intensity = glowI;
   const dust = motes({ count: 1600, box: [-4, 0, -12, 4, 3.2, 1.5] }); add(S, dust);
   const mouth = V3(0, 1.0, 0.6);
   const setDay = (p) => {
     p = clamp(p);
-    const elev = 9 + 30 * Math.sin(Math.PI * p), azim = lerp(28, 152, p), d = dirFrom(elev, azim);
+    const elev = 5 + 14 * Math.sin(Math.PI * p), azim = lerp(24, 156, p), d = dirFrom(elev, azim);
     if (dayMode) {
       sun.position.copy(target).addScaledVector(d, 250); sun.target.position.copy(target); sun.target.updateMatrixWorld();
-      sun.color.set(0xffb878).lerp(new THREE.Color(0xfff2e0), Math.sin(Math.PI * p)); sun.intensity = 4.2 * (0.7 + 0.3 * Math.sin(Math.PI * p));
+      sun.color.set(0xffa860).lerp(new THREE.Color(0xfff0d8), Math.sin(Math.PI * p)); sun.intensity = 4.2 * (0.75 + 0.25 * Math.sin(Math.PI * p));
       if (S.atmo.sky) { S.atmo.sky.userData.u.sunD.value.copy(d); S.atmo.sky.userData.u.sunC.value.copy(sun.color); }
     }
     const sd = dayMode ? d : S.atmo.sunDir;
+    mouthGlow.intensity = glowI * (dayMode ? 0.75 + 0.25 * Math.sin(Math.PI * p) : 1);
     // where the sun's ray through the mouth lands on the floor
     const hit = sd.y > 0.02 ? mouth.clone().addScaledVector(sd, -mouth.y / sd.y) : mouth.clone().add(V3(0, -1, -3));
     const inside = sstep(-0.3, -1.6, hit.z) * (sd.y > 0.02 ? 1 : 0) * (dayMode || time === 'sunrise' || time === 'dusk' ? 1 : 0);
     const len = mouth.distanceTo(hit);
     shaft.position.copy(mouth); shaft.quaternion.setFromUnitVectors(V3(0, -1, 0), hit.clone().sub(mouth).normalize()); shaft.scale.set(1, Math.max(0.01, len), 1); shaft.visible = inside > 0.01;
     shaft.userData.k = inside;
-    bounce.position.copy(hit).add(V3(0, 0.4, 0)); bounce.intensity = 26 * inside * sun.intensity / 4.2;
+    bounce.position.copy(hit).add(V3(0, 1.5, -0.6)); bounce.intensity = 3.5 * inside * sun.intensity / 4.2;
     const U = dust.userData.U; U.ao.value.copy(mouth); U.ad.value.copy(hit.clone().sub(mouth).normalize()); U.k.value = inside;
   };
   setDay(day);
@@ -675,7 +686,7 @@ export async function mountain_cave({ time = 'day', seed = 18, sleepers = 5, dog
     mouth_out: { pos: [0.3, 1.0, -8.2], look: [0, 0.9, 6], fov: 56 },                           // from deep inside, looking out of the rough arch
     interior:  { pos: [-1.6, 1.55, -2.2], look: [0, 0.25, -9.4], fov: 50 },                     // the sleepers in a row
     sleepers:  { pos: [1.2, 0.75, -6.2], look: [-0.6, 0.3, -9.4], fov: 40 },
-    threshold: { pos: [1.5, 0.45, 2.4], look: [-0.8, 0.35, -0.1], fov: 36 },                    // the dog on the stone lip
+    threshold: { pos: [0.1, 0.36, 2.75], look: [-0.85, 0.32, 0.55], fov: 34 },                    // the dog on the stone lip
     path:      { pos: [pathX(34) + 2.5, H(pathX(34) + 2.5, 34) + 1.7, 34], look: [0, 3, -1], fov: 40 },
     ridge:     { pos: [-34, Hm(-34, -16) + 3, -16], look: [-90, -160, 420], fov: 44 },          // along the ridge, the valley below
     vista:     { pos: [12, 4, 14], look: [-20, -175, 430], fov: 34 },                           // down to the four places
@@ -686,4 +697,187 @@ export async function mountain_cave({ time = 'day', seed = 18, sleepers = 5, dog
   const props = { cliff, terrain: T, sleepers: sleeperList, dog: dogObj, lamp: lampObj, shaft, bounce, dust, mist, vista: V, setDay, pathX, sky: S.atmo.sky, stars: S.atmo.stars, sun, occAt: ROCK.occAt };
   return finish(S, 'mountain_cave', cameras, props, slots, { bloom: 0.2, bloomThreshold: 0.88 });
 }
-export const SETS = { mountain_cave };
+
+// ------------------------------------------------------------------ grapevines on trellises (lush or collapsed)
+function grapeLeafTexture() {
+  return cachedTex('grapeleaf', () => canvasTex(256, 256, (x) => {
+    x.translate(128, 140); const path = new Path2D();
+    for (let i = 0; i <= 200; i++) { const a = -Math.PI / 2 + (i / 200) * TAU, lob = 1 + 0.22 * Math.cos(5 * (a + Math.PI / 2)) - 0.18 * Math.pow(Math.max(0, Math.cos(a + Math.PI / 2)), 24);
+      const tooth = 1 + 0.025 * Math.sin(a * 46), r = 104 * lob * tooth * (0.9 + 0.1 * Math.sin(a)); const px = Math.cos(a) * r, py = Math.sin(a) * r * 0.95;
+      i ? path.lineTo(px, py) : path.moveTo(px, py); }
+    path.closePath();
+    const gr = x.createRadialGradient(0, 0, 10, 0, 0, 120); gr.addColorStop(0, '#9ab860'); gr.addColorStop(1, '#5e8a34'); x.fillStyle = gr; x.fill(path);
+    x.save(); x.clip(path); x.strokeStyle = 'rgba(220,235,170,0.55)'; x.lineWidth = 3;
+    for (let k = 0; k < 5; k++) { const a = -Math.PI / 2 + Math.PI + (k - 2) * 0.75; x.beginPath(); x.moveTo(0, 0); x.lineTo(Math.cos(a) * 110, -Math.sin(a) * 100); x.stroke();
+      x.lineWidth = 1.2; for (let s = 1; s < 5; s++) { const bx = Math.cos(a) * s * 22, by = -Math.sin(a) * s * 20; for (const side of [-1, 1]) { x.beginPath(); x.moveTo(bx, by); x.lineTo(bx + Math.cos(a + side * 0.9) * 22, by - Math.sin(a + side * 0.9) * 22); x.stroke(); } } x.lineWidth = 3; }
+    x.restore();
+  }));
+}
+// rows of pergola trellis with vines; ruined = posts fallen, beams on the ground, withered leaves, rotted grapes
+async function vineyard({ rows = [[0, 0]], len = 21, width = 2.4, h = 2.15, gap = 3, seed = 1, ruined = false, heightAt = () => 0 } = {}) {
+  const r = W.rng(seed), n = W.noise2(seed + 3), grp = new THREE.Group(); grp.name = ruined ? 'vineyard_ruined' : 'vineyard';
+  const pl = (await MATS.darkPlanks()).clone(); pl.color.set(ruined ? 0x8a7a6a : 0x9a7a5e);
+  const bark = new THREE.MeshStandardMaterial({ color: ruined ? 0x5a4a3c : 0x4a3626, roughness: 0.9, normalMap: fibreNormal(7), normalScale: new THREE.Vector2(0.6, 0.6) });
+  const postG = [], beamG = [], caneG = [], leafM = [], bunchP = [], hangs = [];
+  const M4 = new THREE.Matrix4(), Q = new THREE.Quaternion(), up = V3(0, 1, 0);
+  const pole = (a, b, rad) => { const d = b.clone().sub(a), L = d.length(), g = W.boxUV(new THREE.CylinderGeometry(rad * 0.9, rad, L, 14, Math.max(2, Math.ceil(L * 3))));
+    const p = g.attributes.position; for (let i = 0; i < p.count; i++) { const y = p.getY(i); p.setX(i, p.getX(i) + 0.012 * Math.sin(y * 5 + seed)); }
+    g.computeVertexNormals(); g.applyMatrix4(M4.compose(a.clone().add(b).multiplyScalar(0.5), Q.setFromUnitVectors(up, d.normalize()), V3(1, 1, 1))); return g; };
+  const tube = (pts, rad, tw = 1) => { const c = new THREE.CatmullRomCurve3(pts), g = new THREE.TubeGeometry(c, Math.max(8, pts.length * 6), rad, 8, false);
+    const p = g.attributes.position, nr = g.attributes.normal, uv = g.attributes.uv; for (let i = 0; i < p.count; i++) { const k = 1 - uv.getX(i) * 0.55 * tw; p.setXYZ(i, p.getX(i) - nr.getX(i) * rad * (1 - k), p.getY(i) - nr.getY(i) * rad * (1 - k), p.getZ(i) - nr.getZ(i) * rad * (1 - k)); }
+    g.computeVertexNormals(); return g; };
+  const leavesAlong = (pts, dens = 9, hang = 0.0) => { const c = new THREE.CatmullRomCurve3(pts), L = c.getLength(), N = Math.ceil(L * dens);
+    for (let i = 0; i < N; i++) { const p = c.getPoint((i + r()) / N); leafM.push({ p: p.add(V3((r() - 0.5) * 0.3, (r() - 0.35) * 0.22 - hang * r(), (r() - 0.5) * 0.3)), s: 0.11 + r() * 0.08, a: r() * TAU, tilt: 0.3 + r() * 0.9 }); } };
+  for (const [rx, rz] of rows) {
+    const np = Math.round(len / gap) + 1, z0 = rz - len / 2;
+    const tops = [[], []];
+    for (const side of [0, 1]) for (let i = 0; i < np; i++) {
+      const x = rx + (side ? width / 2 : -width / 2), z = z0 + i * gap, y0 = heightAt(x, z), base = V3(x, y0 - 0.3, z);
+      let dir = V3(0, 1, 0), hh = h + 0.3 + (r() - 0.5) * 0.08;
+      if (ruined) { const fallen = r() < 0.65, ang = fallen ? 1.15 + r() * 0.35 : 0.2 + r() * 0.5, az = (side ? 1 : -1) * (0.4 + r() * 1.2) + (r() < 0.3 ? Math.PI / 2 : 0);
+        dir = V3(Math.sin(ang) * Math.cos(az), Math.cos(ang), Math.sin(ang) * Math.sin(az)); }
+      let top = base.clone().addScaledVector(dir, hh);
+      if (top.y < heightAt(top.x, top.z) + 0.07) { top.y = heightAt(top.x, top.z) + 0.07; }
+      postG.push(pole(base, top, 0.065)); tops[side].push(top);
+    }
+    // beams along both sides, cross-beams at every post, rigid lengths
+    const beam = (a, b) => { let e = b; if (ruined) { const d = b.clone().sub(a); const L = gap * (0.9 + r() * 0.1); e = a.clone().addScaledVector(d.normalize(), L); e.y = Math.max(heightAt(e.x, e.z) + 0.06, e.y - r() * 1.2); } beamG.push(pole(a, e, 0.045)); return e; };
+    for (const side of [0, 1]) for (let i = 0; i + 1 < np; i++) beam(tops[side][i], tops[side][i + 1]);
+    for (let i = 0; i < np; i += ruined ? 2 : 1) beam(tops[0][i], tops[1][i]);
+    // vines: a gnarled trunk up every other post, canes along and across the top; leaves, bunches hang under
+    for (const side of [0, 1]) for (let i = 0; i < np; i += 1) {
+      const top = tops[side][i], x = rx + (side ? width / 2 : -width / 2), z = z0 + i * gap, gy = heightAt(x, z), inw = side ? -1 : 1;
+      const trunk = []; for (let k = 0; k <= 8; k++) { const f = k / 8; const p = V3(x + inw * 0.12, gy + f * (h - 0.1), z + 0.1).lerp(top.clone().add(V3(inw * 0.08, -0.08, 0.1)), ruined ? f * f : f > 0.85 ? (f - 0.85) / 0.15 : 0); p.x += 0.05 * Math.sin(f * 9 + i); p.z += 0.05 * Math.cos(f * 7 + i); if (ruined) p.y = Math.max(heightAt(p.x, p.z) + 0.04, p.y); trunk.push(p); }
+      caneG.push(tube(trunk, 0.04, 0.6));
+      const ends = [i + 1 < np ? tops[side][i + 1] : null, tops[1 - side][i]].filter(Boolean);
+      for (const e of ends) {
+        const pts = []; for (let k = 0; k <= 10; k++) { const f = k / 10, p = top.clone().lerp(e, f); p.y += 0.06 * Math.sin(f * Math.PI) + 0.03 * n(p.x * 3, p.z * 3) - (ruined ? 0.25 * Math.sin(f * Math.PI) : 0); p.x += 0.08 * n(p.z * 2, 3); if (ruined) p.y = Math.max(heightAt(p.x, p.z) + 0.03, p.y); pts.push(p); }
+        caneG.push(tube(pts, 0.016, 0.8));
+        leavesAlong(pts, ruined ? 4 : 16, ruined ? 0 : 0.25);
+        if (!ruined) for (let b = 0; b < 2; b++) { const p = new THREE.CatmullRomCurve3(pts).getPoint(0.2 + 0.6 * r()); bunchP.push(p.add(V3((r() - 0.5) * 0.25, -0.06, (r() - 0.5) * 0.25))); }
+        else for (let b = 0; b < 2; b++) { const x2 = lerp(top.x, e.x, r()) + (r() - 0.5) * 0.8, z2 = lerp(top.z, e.z, r()) + (r() - 0.5) * 0.8; bunchP.push(V3(x2, heightAt(x2, z2), z2)); }
+      }
+    }
+  }
+  const merge = (gs) => W.BGU.mergeGeometries(gs.map((g) => { for (const k of Object.keys(g.attributes)) if (!['position', 'normal', 'uv'].includes(k)) g.deleteAttribute(k); return g.index ? g.toNonIndexed() : g; }));
+  grp.add(W.shadows(new THREE.Mesh(merge([...postG, ...beamG]), pl)), W.shadows(new THREE.Mesh(merge(caneG), bark)));
+  // leaves (instanced, cupped quads with the lobed texture); colour by health
+  const lg = new THREE.PlaneGeometry(1, 1, 4, 4), lp = lg.attributes.position; for (let i = 0; i < lp.count; i++) { const x = lp.getX(i), y = lp.getY(i); lp.setZ(i, -0.12 * (x * x + y * y) - (ruined ? 0.25 * x * x : 0)); } lg.computeVertexNormals();
+  const lm = new THREE.MeshStandardMaterial({ map: grapeLeafTexture(), alphaTest: 0.45, side: THREE.DoubleSide, roughness: 0.62 });
+  const leaves = new THREE.InstancedMesh(lg, lm, leafM.length), E = new THREE.Euler(), C = new THREE.Color();
+  leafM.forEach((L, i) => { let p = L.p; if (ruined) p = V3(p.x + (r() - 0.5) * 0.6, heightAt(p.x, p.z) + 0.02 + r() * 0.08, p.z + (r() - 0.5) * 0.6);
+    E.set(-Math.PI / 2 + (ruined ? (r() - 0.5) * 0.6 : L.tilt * (r() < 0.5 ? 1 : -1) * 0.8), L.a, 0, 'YXZ'); M4.compose(p, Q.setFromEuler(E), V3(L.s, L.s * (ruined ? 0.75 : 1), L.s)); leaves.setMatrixAt(i, M4);
+    if (ruined) C.setHSL(0.07 + r() * 0.04, 0.35 + r() * 0.2, 0.18 + r() * 0.12); else C.setHSL(0.24 + r() * 0.05, 0.4 + r() * 0.2, 0.32 + r() * 0.16); leaves.setColorAt(i, C); });
+  leaves.castShadow = leaves.receiveShadow = true; grp.add(leaves);
+  // grape bunches: a tapering cone of berries (instanced spheres with a dusty bloom); ruined = shrivelled heaps on the ground
+  const berry = new THREE.SphereGeometry(1, 18, 14), bm = new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: ruined ? 0.85 : 0.42, sheen: ruined ? 0 : 0.6, sheenColor: new THREE.Color(0x9aa0c8), sheenRoughness: 0.5, clearcoat: ruined ? 0 : 0.25, clearcoatRoughness: 0.5 });
+  const per = ruined ? 30 : 64, berries = new THREE.InstancedMesh(berry, bm, bunchP.length * per);
+  let q = 0;
+  bunchP.forEach((b, bi) => { const L = 0.2 + r() * 0.08;
+    for (let k = 0; k < per; k++) { const f = Math.pow(k / per, 0.8), a = k * 2.39996 + bi, rad = (ruined ? 0.12 * (1 - f) + 0.05 : 0.07 * (1 - f * 0.85)) * Math.sqrt(r() * 0.6 + 0.4);
+      const p = ruined ? V3(b.x + Math.cos(a) * rad * 1.6, b.y + 0.006 + (1 - f) * 0.01, b.z + Math.sin(a) * rad * 1.6) : V3(b.x + Math.cos(a) * rad, b.y - f * L + 0.02 * Math.sin(k), b.z + Math.sin(a) * rad);
+      const s = ruined ? 0.006 + r() * 0.004 : 0.0095 + r() * 0.002; M4.compose(p, Q.identity(), V3(s, ruined ? s * 0.6 : s * 1.08, s)); berries.setMatrixAt(q, M4);
+      if (ruined) C.setHSL(0.05 + r() * 0.04, 0.4, 0.07 + r() * 0.06); else C.setHSL(0.76 + r() * 0.04, 0.45 + r() * 0.15, 0.1 + r() * 0.07); berries.setColorAt(q++, C); }
+    if (!ruined) hangs.push(b);
+  });
+  berries.castShadow = berries.receiveShadow = true; grp.add(berries);
+  grp.userData = { bunches: bunchP, leaves, berries };
+  return grp;
+}
+
+// ================================================================== TWO GARDENS
+// Two adjoining walled gardens in open farmland: mud-brick walls with an arched wooden gate (garden A, front wall),
+// a ring of date palms heavy with orange dates, rows of grapevines on wooden pergolas, and between the gardens a
+// strip of green barley with a stone-lined stream. state 'ruined' rebuilds the SAME layout ruined: trellises fallen
+// flat, vines withered, grapes rotted on the ground, palms brown and bare, the stream bed dry and cracked, flat
+// grey dusty light. Lessons 4, 5 (and the vista beat of 16).
+export async function two_gardens({ state = 'lush', time = null, seed = 32 } = {}) {
+  const ruined = state === 'ruined';
+  const S = await base('two_gardens', time ?? (ruined ? 'overcast' : 'day'), ruined ? { fog: 0.0065, fogColor: 0xb8b0a0, sun: { azim: 70 }, exposure: 1.0, envI: 1.1 } : { sun: { azim: 55 }, shadowBox: 46, focus: [0, 0, 4] });
+  const n = W.noise2(seed), n2 = W.noise2(seed + 1);
+  const A = [-21, 0], B = [21, 0], GW = 32, GD = 36;                                   // garden centres + size (x by z)
+  const chan = (x, z) => Math.abs(x - 0.6 * Math.sin(z / 9));                         // the stream between the gardens
+  const height = (x, z) => 0.12 * n(x / 9, z / 9) + 0.04 * n2(x, z) - 0.55 * (1 - sstep(0.55, 1.25, chan(x, z))) + 14 * sstep(160, 480, Math.hypot(x, z)) * W.fbm(n2, x / 120, z / 120, 4);
+  const inside = (x, z, c) => Math.abs(x - c[0]) < GW / 2 - 0.8 && Math.abs(z - c[1]) < GD / 2 - 0.8;
+  const mt = await W.terrainMaterial(ruined
+    ? [{ name: 'dry_ground_rocks', tile: 3, tint: 0xe0d4c0 }, { name: 'farm_soil', tile: 3.2, tint: 0xc8b8a0 }, { name: 'mud_cracked_dry_03', tile: 2.2 }]
+    : [{ name: 'grass_ground', tile: 3.2 }, { name: 'farm_soil', tile: 3.0 }, { name: 'brown_mud_dry', tile: 2.4 }], { macro: 0.2 });
+  const T = W.terrain({ size: 1200, seg: 480, warp: 0.14, centre: [0, 4], height, material: mt,
+    weights: (x, z) => { const bed = 1 - sstep(0.8, 1.6, chan(x, z)), strip = Math.abs(x) < 5.5 ? 1 : 0, gin = inside(x, z, A) || inside(x, z, B) ? 1 : 0;
+      return [(1 - strip) * (ruined ? 1 : 0.6 + 0.4 * gin) + 0.2, strip * (1 - bed) * 1.4 + (gin ? 0.5 * sstep(0.2, 0.6, n(x / 3, z / 3)) : 0), bed * 2 + (1 - gin) * (1 - strip) * 0.4 * sstep(0, 0.5, n2(x / 15, z / 15))]; } });
+  add(S, T.mesh);
+  const hy = (x, z) => height(x, z);
+  // walls (mud brick over a stone plinth, rounded coping) with the arched gate in garden A's front wall
+  const [mud, stone, pl, dpl] = await Promise.all([MATS.mudPlaster(), MATS.rustic(), MATS.planks(), MATS.darkPlanks()]);
+  const WH = 2.7, WT = 0.55, GATE = [A[0], A[1] + GD / 2], GATEW = 2.6;
+  const wallSeg = (x0, z0, x1, z1) => { const L = Math.hypot(x1 - x0, z1 - z0), cx = (x0 + x1) / 2, cz = (z0 + z1) / 2, ry = Math.atan2(-(z1 - z0), x1 - x0);
+    const g = new THREE.Group(), pl0 = W.rbox(L + 0.1, 0.6, WT + 0.12, stone, { r: 0.05 }), body = W.rbox(L, WH - 0.6, WT, mud, { r: 0.08, seg: 3 }); body.position.y = 0.6;
+    const cop = new THREE.Mesh(W.boxUV(new THREE.CylinderGeometry(WT / 2 + 0.04, WT / 2 + 0.04, L, 24, 1, false, 0, Math.PI).rotateZ(Math.PI / 2).rotateX(-Math.PI / 2)), mud); cop.position.y = WH;
+    g.add(pl0, body, W.shadows(cop)); g.position.set(cx, hy(cx, cz) - 0.08, cz); g.rotation.y = ry; add(S, g); return g; };
+  const walls = [];
+  for (const C of [A, B]) { const x0 = C[0] - GW / 2, x1 = C[0] + GW / 2, z0 = C[1] - GD / 2, z1 = C[1] + GD / 2;
+    walls.push(wallSeg(x0, z0, x1, z0), wallSeg(x0, z0, x0, z1), wallSeg(x1, z0, x1, z1));
+    if (C === A) { walls.push(wallSeg(x0, z1, GATE[0] - GATEW / 2 - 0.5, z1), wallSeg(GATE[0] + GATEW / 2 + 0.5, z1, x1, z1)); }
+    else walls.push(wallSeg(x0, z1, x1, z1)); }
+  // the arched gate: two piers, an arch (extruded), double plank doors, the threshold stone
+  const gate = new THREE.Group(), gy = hy(...GATE);
+  for (const s of [-1, 1]) { const p = W.rbox(1.0, 3.3, 0.9, mud, { r: 0.1, seg: 3 }); p.position.set(s * (GATEW / 2 + 0.5), 0, 0); gate.add(p); }
+  { const sh = new THREE.Shape(); sh.moveTo(-GATEW / 2 - 1, 2.2); sh.lineTo(GATEW / 2 + 1, 2.2); sh.lineTo(GATEW / 2 + 1, 3.9); sh.lineTo(-GATEW / 2 - 1, 3.9); sh.closePath();
+    const hole = new THREE.Path(); hole.moveTo(GATEW / 2, 2.15); hole.absarc(0, 2.25, GATEW / 2, 0, Math.PI, false); hole.lineTo(-GATEW / 2, 2.15); hole.closePath(); sh.holes.push(hole);
+    const ag = new THREE.ExtrudeGeometry(sh, { depth: 0.9, bevelEnabled: true, bevelSize: 0.05, bevelThickness: 0.05, bevelSegments: 3, curveSegments: 48 }); ag.translate(0, 0, -0.45); W.boxUV(ag);
+    gate.add(W.shadows(new THREE.Mesh(ag, mud))); }
+  const leaves = [];
+  for (const s of [-1, 1]) { const D = W.door(pl, W.ironMat(), { w: GATEW / 2 - 0.02, h: 2.2, t: 0.08, frame: 0.001, studs: true }); D.group.position.set(s * GATEW / 4, 0, 0.05); D.group.scale.x = -s; D.leaf.rotation.y = ruined ? 0.35 : 1.25; gate.add(D.group); leaves.push(D); }
+  const thr = W.rbox(GATEW + 0.3, 0.16, 1.0, await MATS.stone(), { r: 0.04, seg: 3 }); thr.position.set(0, -0.06, 0.1); gate.add(thr);
+  gate.position.set(GATE[0], gy - 0.05, GATE[1]); add(S, W.shadows(gate));
+  // date palms ringing each garden (growth.js palms; 5 shapes cloned)
+  const palmProto = [];
+  for (let k = 0; k < 5; k++) { const tr = GR.makeTree(THREE, { species: 'date_palm', seed: seed + k * 7 }); tr.set(1, ruined ? 1 : 0.8); const o = tr.object3d;
+    if (ruined) o.traverse((m) => { if (m.isMesh && m.material) { m.material = m.material.clone(); if (m.material.color) m.material.color.multiply(new THREE.Color(0xb08a60)); } });
+    palmProto.push(o); }
+  const palms = [];
+  for (const C of [A, B]) { const per = 2 * (GW + GD) - 8, N = 22;
+    for (let i = 0; i < N; i++) { let s = (i + 0.5) / N * per, x, z; const hw = GW / 2 - 2.2, hd = GD / 2 - 2.2;
+      if (s < 2 * hw) { x = -hw + s; z = -hd; } else if ((s -= 2 * hw) < 2 * hd) { x = hw; z = -hd + s; } else if ((s -= 2 * hd) < 2 * hw) { x = hw - s; z = hd; } else { s -= 2 * hw; x = -hw; z = hd - s; }
+      x += C[0]; z += C[1]; if (C === A && Math.abs(x - GATE[0]) < 3.5 && z > C[1] + hd - 1) continue;
+      const o = palmProto[(i + (C === A ? 0 : 2)) % 5].clone(true), sc = 1.65 + 0.35 * Math.sin(i * 2.7 + C[0]);
+      o.position.set(x, hy(x, z) - 0.05, z); o.rotation.y = i * 1.37; o.scale.setScalar(sc); add(S, o); palms.push(o); } }
+  // grapevines: three pergola rows per garden
+  const vines = [];
+  for (const C of [A, B]) { const v = await vineyard({ rows: [[C[0] - 7.5, C[1]], [C[0], C[1]], [C[0] + 7.5, C[1]]], len: 21, seed: seed + C[0], ruined, heightAt: hy }); add(S, v); vines.push(v); }
+  // the barley strip and the stone-lined stream
+  const crops = [];
+  for (const [x0, x1] of [[-5.2, -1.3], [1.3, 5.2]]) { const c = W.cropField({ rect: [x0, -GD / 2, x1, GD / 2 + 30], count: ruined ? 9000 : 26000, seed: seed + x0 * 10 | 0, heightAt: hy, h: ruined ? [0.12, 0.28] : [0.65, 0.95], ripe: ruined ? 1.1 : 0.08, rows: 0.28, wind: ruined ? 0.25 : 0.8 });
+    if (ruined) c.material.color = new THREE.Color(0x9a8a70); add(S, c); crops.push(c); }
+  S.updaters.push((t) => crops.forEach((c) => c.userData.update(t)));
+  const bankRocks = []; for (let z = -60; z < 60; z += 0.42) for (const s of [-1, 1]) { const x = 0.6 * Math.sin(z / 9) + s * (0.95 + 0.08 * n(z, s)); bankRocks.push({ x, y: hy(x, z) + 0.02, z: z + 0.1 * n(z * 3, 1), s: 2.2 + 1.2 * Math.abs(n(z * 2, s)), ry: z * 3, rx: 0.2, rz: 0.1 }); }
+  add(S, await W.scatter('rock_09', bankRocks, { tint: ruined ? 0xd8ccb8 : 0xc8bca8, matte: true }));
+  let stream = null;
+  if (!ruined) { const pts = []; for (let z = -70; z <= 70; z += 1) pts.push([0.6 * Math.sin(z / 9), z]);
+    const g = new THREE.BufferGeometry(), pos = [], uv = [], idx = [], dp = [];
+    pts.forEach(([x, z], i) => { for (const s of [-1, 1]) { pos.push(x + s * 0.95, -0.22, z); uv.push(s, z); dp.push(0.3); } if (i) { const a = (i - 1) * 2; idx.push(a, a + 2, a + 1, a + 1, a + 2, a + 3); } });
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); g.setAttribute('depth', new THREE.Float32BufferAttribute(dp, 1)); g.setIndex(idx); g.computeVertexNormals();
+    const wm = seaMat({ colA: 0x3a5a4a, colB: 0x3a5a4a, shallow: 0x5a7a62, foam: 0, tile: 1.6, flow: [0, -0.25], opacity: 0.9 }); stream = new THREE.Mesh(g, wm); stream.receiveShadow = true; add(S, stream); S.updaters.push((t) => wm.userData.update(t)); }
+  // dust in the air over the ruin
+  const haze = ruined ? mistLayer({ rect: [-60, -40, 60, 60], y: 0.6, layers: 3, gap: 1.2, color: 0xc8bca8, op: 0.18, speed: [0.6, 0.1], scale: 0.08 }) : null;
+  if (haze) { add(S, haze); S.updaters.push((t, o) => haze.userData.update(t, o.dust ?? 1)); }
+  // fields + farmland beyond, a few farm palms
+  for (let i = 0; i < 14; i++) { const a = i * 0.7 + 1, d = 70 + (i % 5) * 25, x = Math.cos(a) * d, z = -Math.abs(Math.sin(a)) * d - 30; const o = palmProto[i % 5].clone(true); o.position.set(x, hy(x, z), z); o.scale.setScalar(1.6); add(S, o); }
+  // the hero bunch for the macro (lush): the lowest bunch nearest the gate path in garden A
+  const bunches = vines[0].userData.bunches; let hb = bunches[0];
+  for (const b of bunches) if (Math.hypot(b.x - (A[0] - 7.5 + 1.2), b.z - (A[1] + 9)) < Math.hypot(hb.x - (A[0] - 7.5 + 1.2), hb.z - (A[1] + 9))) hb = b;
+  const cameras = {
+    hero:    { pos: [8, 46, 66], look: [0, 0, 2], fov: 46 },                                              // aerial: both gardens, the barley strip and the stream
+    gate:    { pos: [GATE[0] + 0.4, gy + 0.42, GATE[1] + 1.4], look: [GATE[0] - 0.3, gy + 1.5, GATE[1] - 8], fov: 50 },   // from the threshold stone into the garden
+    gate_out:{ pos: [GATE[0] + 3.2, gy + 1.6, GATE[1] + 9], look: [GATE[0], gy + 2.0, GATE[1]], fov: 42 },
+    stream:  { pos: [0.5, hy(0.5, 34) + 0.9, 34], look: [0, 0.4, 0], fov: 44 },                           // low glide along the stream
+    grapes:  { pos: [hb.x + 0.28, hb.y - 0.05, hb.z + 0.3], look: [hb.x, hb.y - 0.11, hb.z], fov: 32 },   // macro on one bunch
+    trellis: { pos: [A[0] + 0.2, hy(A[0], A[1] + 12) + 1.5, A[1] + 12], look: [A[0], 1.6, A[1] - 6], fov: 52 },
+    palms:   { pos: [A[0] + 9, 1.2, A[1] - 11], look: [A[0] + 13, 8, A[1] - 16], fov: 50 },
+  };
+  const slots = { owner_gate: [GATE[0] + 0.3, gy, GATE[1] + 0.9, Math.PI], friend_gate: [GATE[0] - 1.6, gy, GATE[1] + 1.8, 2.6], owner_ruin: [A[0], hy(A[0], A[1] + 2), A[1] + 2, Math.PI], friend_ruin: [A[0] + 2.4, hy(A[0] + 2.4, A[1] + 7), A[1] + 7, 2.8] };
+  return finish(S, 'two_gardens', cameras, { gate, gateLeaves: leaves, walls, palms, vines, crops, stream, terrain: T, heroBunch: hb, sun: S.atmo.sun }, slots);
+}
+
+// all builders by name (for the gallery and lesson films)
+export const SETS = { mountain_cave, two_gardens };

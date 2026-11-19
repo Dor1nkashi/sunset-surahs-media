@@ -13,6 +13,10 @@ export const SLOTS = [
   ['cave_day', 'mountain_cave', { time: 'day' }, 'mouth_out', 'Looking out of the cave', { day: 0.3 }],
   ['cave_day', 'mountain_cave', { time: 'day' }, 'interior', 'The sleepers', { day: 0.2 }],
   ['cave_day', 'mountain_cave', { time: 'day' }, 'threshold', 'The dog at the threshold', { day: 0.6 }],
+  ['gardens', 'two_gardens', {}, 'hero', 'Two gardens'],
+  ['gardens', 'two_gardens', {}, 'gate', 'The garden gate'],
+  ['gardens', 'two_gardens', {}, 'grapes', 'Grapes on the vine'],
+  ['ruin', 'two_gardens', { state: 'ruined' }, 'trellis', 'The ruined garden'],
 ];
 const SLOT = 2;
 const LINES = SLOTS.map(([, , , , label], i) => ({ t0: i * SLOT + 0.15, t1: i * SLOT + 1.9, text: label + '.', keys: [], quran: null }));
