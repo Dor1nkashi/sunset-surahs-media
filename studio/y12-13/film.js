@@ -222,7 +222,7 @@ M.film({
       ch.forEach((o, i) => { o.visible = true; });
       const hideR = [[], [0, 0], [1, 1], [2, 2], [3, 8], [9, 9], [10, 16], [99, 99]][k] || [];
       ch.forEach((o, i) => { if (hideR.length && i >= hideR[0] && i <= hideR[1]) o.visible = false; });
-      console.log('dbg', k, n0, n1, mid);
+
     }
     G.renderSet(ctx, ST, t, u, { cam, exposure: 0.72 });
     K.vignette(ctx, 0.3);
