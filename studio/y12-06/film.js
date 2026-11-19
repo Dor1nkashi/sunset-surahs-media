@@ -22,9 +22,9 @@ const C = {
   bolt_b:   { pos: [0.95, 1.31, DZ + 0.58], look: [0.54, 1.34, DZ], fov: 29 },
   push_a:   { pos: [0.15, 1.45, DZ + 3.6], look: [0.05, 1.35, DZ], fov: 46 },
   push_b:   { pos: [0.18, 1.42, DZ + 2.3], look: [0.10, 1.38, DZ], fov: 44 },
-  court_a:  { pos: [3.2, 1.55, -2.6], look: [9.0, 1.3, -3.4], fov: 46 },
-  court_b:  { pos: [0.2, 1.6, -0.6], look: [9.0, 1.5, -3.2], fov: 50 },
-  bolt2:    { pos: [0.95, 1.86, DZ + 0.62], look: [0.5, 1.93, DZ], fov: 28 },
+  court_a:  { pos: [7.2, 1.5, 0.4], look: [8.6, 1.5, -4.5], fov: 50 },
+  court_b:  { pos: [7.5, 1.75, 2.3], look: [8.6, 1.6, -4.5], fov: 50 },
+  bolt2:    { pos: [1.3, 1.8, DZ + 1.2], look: [0.45, 1.85, DZ], fov: 36 },
   back_a:   { pos: [-0.9, 1.55, DZ + 4.3], look: [0.25, 1.35, DZ], fov: 48 },
   back_b:   { pos: [-0.86, 1.55, DZ + 4.15], look: [0.25, 1.35, DZ], fov: 48 },
   hand_a:   { pos: [0.75, 1.45, DZ + 1.6], look: [0.05, 1.42, DZ], fov: 40 },
@@ -33,10 +33,10 @@ const C = {
   tilt_b:   { pos: [0.1, 1.6, DZ + 2.9], look: [0.0, 3.25, DZ], fov: 46 },
   emb_a:    { pos: [0.05, 2.9, DZ + 1.9], look: [0.0, 3.38, ZB], fov: 30 },
   emb_b:    { pos: [0.05, 3.05, DZ + 1.45], look: [0.0, 3.38, ZB], fov: 28 },
-  lamp:     { pos: [-3.55, 1.80, -0.55], look: [LAMP3[0], 1.74, LAMP3[2]], fov: 24 },
+  lamp:     { pos: [-3.25, 1.86, -0.35], look: [LAMP3[0], 1.74, LAMP3[2]], fov: 26 },
   boltc_a:  { pos: [0.82, 1.40, DZ + 0.42], look: [0.6, 1.36, DZ], fov: 24 },
   boltc_b:  { pos: [0.80, 1.40, DZ + 0.38], look: [0.6, 1.36, DZ], fov: 23 },
-  flame:    { pos: [1.05, 1.42, DZ + 0.62], look: [0.66, 1.38, DZ], fov: 22 },
+  flame:    { pos: [0.0, 1.42, DZ + 0.36], look: [0.55, 1.36, DZ], fov: 26 },
 };
 // the shot table (times from shotlists/y12_06.md)
 const SHOTS = [
@@ -90,11 +90,11 @@ function posePeople(t, i) {
   if (SERV.object3d.visible) {
     // a servant carries a water jar across the courtyard, away from us
     const w = t - 3.55;
-    SERV.object3d.position.set(5.9 + SERV.speed('walk') * w, 0, -0.5); SERV.object3d.rotation.y = Math.PI / 2;
+    SERV.object3d.position.set(6.25, 0, -0.2 - SERV.speed('walk') * w); SERV.object3d.rotation.y = Math.PI;
     SERV.setPose('walk', t, { carry: 'jar' });
   }
 }
-const HROLL = 0;
+const HROLL = Math.PI;
 M.film({
   fonts: ['800 76px Display', '600 64px UI', '600 30px Display'],
   images: { seal: 'assets/seal.png' },
@@ -105,7 +105,7 @@ M.film({
     const S = SET.scene, iron = W.ironMat();
     // polished door wood: the leaf boards get a satin finish so the lamp flame shows in them
     const door = SET.props.door;
-    door.leaf.traverse((m) => { if (m.isMesh && m.material && !m.material.metalness) { const mm = m.material.clone(); mm.roughness = 0.42; mm.envMapIntensity = 1.4; m.material = mm; } });
+    door.leaf.traverse((m) => { if (m.isMesh && m.material && !m.material.metalness) { const mm = m.material.clone(); mm.roughness = 0.3; mm.envMapIntensity = 1.4; m.material = mm; } });
     // two bolts on the room side of the door (the set's own bolt is on the far side)
     for (const p of [BOLT1, BOLT2]) { const b = K.doorBolt(iron); b.position.set(...p); S.add(b); BOLTS.push(b);
       const kp = W.rbox(0.06, 0.07, 0.05, iron, { r: 0.008 }); kp.position.set(0.81, p[1] - 0.035, DZ + 0.03); S.add(kp); }
@@ -127,6 +127,13 @@ M.film({
     for (const f of [MAN, WOMAN, SERV]) S.add(f.object3d);
     const bangle = new THREE.Mesh(new THREE.TorusGeometry(0.034, 0.006, 12, 40), W.goldMat()); bangle.rotation.x = Math.PI / 2; WOMAN.bones('RightHand').add(bangle);
     bangle.scale.setScalar(100); bangle.position.set(0, -2, 0);     // the rig is in centimetres
+    // carve the emblem: a lotus rosette in relief (bump map from a canvas, petals around the disc)
+    { const c = document.createElement('canvas'); c.width = 1024; c.height = 256; const x = c.getContext('2d');
+      x.fillStyle = '#000'; x.fillRect(0, 0, 1024, 256);
+      for (let i = 0; i < 16; i++) { const cx = (i + 0.5) * 64; const g = x.createRadialGradient(cx, 150, 4, cx, 150, 60); g.addColorStop(0, '#fff'); g.addColorStop(0.7, '#888'); g.addColorStop(1, '#000');
+        x.fillStyle = g; x.beginPath(); x.ellipse(cx, 150, 26, 80, 0, 0, 7); x.fill(); x.fillStyle = '#333'; x.fillRect(cx - 1.5, 80, 3, 140); }
+      x.fillStyle = '#fff'; x.fillRect(0, 20, 1024, 10); x.fillRect(0, 236, 1024, 8);
+      const tex = new THREE.CanvasTexture(c); const em = SET.props.emblem, mm = em.material.clone(); mm.bumpMap = tex; mm.bumpScale = 6; mm.roughness = 0.5; em.material = mm; }
     ST = W.stage(SET);
     SET.update(0, null, {}); G.R.compile(S, ST.camera);
     CAP = captions(await loadLines('lines.json'), { display: 'Display', ui: 'UI' });
@@ -150,7 +157,7 @@ M.film({
     DUST2.userData.update(t, i === 8 || i === 10 ? 1 : 0);
     FALLDUST.userData.update(t, i === 9 ? 1 : 0);
     posePeople(t, i);
-    G.renderSet(ctx, ST, t, u, { cam, exposure: SET.exposure * (i === 2 ? 0.85 : 1) });
+    G.renderSet(ctx, ST, t, u, { cam, exposure: SET.exposure * (i === 2 ? 0.85 : i === 8 || i === 10 ? 0.5 : 1) });
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.5);
   },
