@@ -7,6 +7,7 @@ import * as M from './lib/motion.js';
 import * as G from './lib/gl.js';
 import * as W from '../lib_shared/world.js';
 import { mountain_cave } from '../lib_shared/sets_kahf.js';
+import { PALETTES } from '../lib_shared/people.js';
 import { captions, loadLines } from '../lib_shared/captions.js';
 import * as K from './kit.js';
 const { THREE } = W;
@@ -20,7 +21,7 @@ const C = {};
 const SEAT = [[-1.45, -4.55, 0.18], [-0.48, -4.2, 0.06], [0.52, -4.3, -0.05], [1.5, -4.65, -0.16]];
 const LAMP_AT = [-1.05, -6.45];
 // on the path: the leader's z through the outdoor shots (cuts are small ellipses of the climb)
-const leadZ = (t) => t < 1.49 ? 20.6 - 1.25 * t : t < 2.98 ? 17.2 - 1.25 * (t - 1.49) : t < 4.45 ? 11.5 - 0.9 * (t - 2.98) : 4.6 - 1.55 * (t - 4.45);
+const leadZ = (t) => t < 1.49 ? 20.6 - 1.25 * t : t < 2.98 ? 17.2 - 1.25 * (t - 1.49) : t < 4.45 ? 11.5 - 0.9 * (t - 2.98) : 1.9 - 1.6 * (t - 4.45);
 const OFF = [[0, 0], [0.42, 1.05], [-0.38, 2.0], [0.2, 3.05]];          // follower offsets (x, behind in z)
 
 function walkerAt(i, t) {
@@ -115,10 +116,11 @@ M.film({
     // the young men: plain long tunics, head-wraps, different builds; no faces
     const PE = await K.people();
     const looks = [['sand', 'short', 'wrap', 1.0], ['earth', 'none', 'wrap', 0.7], ['cream', 'short', 'turban', 0.75], ['olive', 'none', 'wrap', 0.75]];
-    MEN = looks.map(([pal, beard, hw, det], k) => PE.make({ kind: 'man', outfit: 'traveller', palette: pal, beard, headwear: hw, seed: 140 + k * 11, detail: det }));
+    const SK = ['#8a5c3c', '#a06e48', '#7a5034', '#946446'];
+    MEN = looks.map(([pal, beard, hw, det], k) => PE.make({ kind: 'man', outfit: 'traveller', palette: { ...PALETTES[pal], skin: SK[k] }, beard, headwear: hw, seed: 140 + k * 11, detail: det }));
     for (const p of MEN) S.add(p.object3d);
     // cameras inside
-    C.mouth = { pos: [1.9, 0.32, 3.4], look: [-0.4, 0.95, -1.2], fov: 46 };
+    C.mouth = { pos: [2.7, 0.3, 4.6], look: [-0.3, 0.95, -1.2], fov: 50 };
     C.circle_a = { pos: [1.05, 1.22, -7.6], look: [-0.1, 0.85, 0.5], fov: 44 };
     C.circle_b = { pos: [0.78, 1.12, -6.3], look: [-0.1, 0.85, 0.5], fov: 42 };
     C.palms = { pos: [0.95, 1.12, -4.75], look: [0.42, 0.66, -3.85], fov: 24 };
@@ -127,9 +129,9 @@ M.film({
     C.line = { pos: [-0.4, 0.34, -7.2], look: [0.1, 1.05, 0.5], fov: 46 };
     C.floor_a = { pos: [0.05, 0.13, -6.0], look: [0.0, 0.12, 0.5], fov: 36 };
     C.floor_b = { pos: [0.02, 0.12, -5.0], look: [0.0, 0.14, 0.5], fov: 34 };
-    C.palms2 = { pos: [-0.12, 1.42, -4.85], look: [-0.5, 1.08, -3.85], fov: 22 };
-    C.sandals = { pos: [-2.75, 0.16, -4.05], look: [0.6, 0.08, -4.55], fov: 36 };
-    const LF = [LAMP_AT[0], LY + 0.13, LAMP_AT[1] + 0.12];
+    C.palms2 = { pos: [0.18, 1.46, -4.38], look: [-0.46, 1.06, -3.78], fov: 24 };
+    C.sandals = { pos: [-3.7, 0.14, -4.0], look: [0.6, 0.1, -4.5], fov: 26 };
+    SET.group.updateMatrixWorld(true); const fp = LAMP.userData.flame.getWorldPosition(V()); const LF = [fp.x, fp.y + 0.035, fp.z];
     C.lamp1 = { pos: [LF[0] - 0.22, LF[1] + 0.06, LF[2] - 0.5], look: LF, fov: 16 };
     C.lamp2 = { pos: [LF[0] - 0.42, LF[1] + 0.12, LF[2] - 1.35], look: [-0.1, 0.62, -2.0], fov: 30 };
     C.lamp3 = { pos: [LF[0] - 0.1, LF[1] + 0.03, LF[2] - 0.36], look: [LF[0], LF[1] + 0.01, LF[2]], fov: 11 };
@@ -146,7 +148,7 @@ M.film({
     posePeople(t, i);
     // floor light grows from the standing line onward (shot 8 on)
     const fl = E.inOutSine(prog(t, 13.9, 17.6));
-    FLOOR_SPOT.intensity = 10 + 70 * fl; BEAM.intensity = 1.2 + 1.5 * fl;
+    FLOOR_SPOT.intensity = 6 + 30 * fl; BEAM.intensity = 1.0 + 1.0 * fl;
     DUST.userData.update(t, t > 5.9 && t < 22.7 ? 1 : 0);
     // the lamp: leans in a draught, then steadies and grows (shots 12-14)
     const f = LAMP.userData.flame, lean = (1 - E.inOutSine(prog(t, 23.3, 24.5))) * (0.32 + 0.12 * Math.sin(t * 9.0) + 0.06 * Math.sin(t * 23));

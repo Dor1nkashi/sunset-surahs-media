@@ -29,10 +29,10 @@ function poses() {
   C.lip_a = { pos: [0.15, 0.85, -1.6], look: [2.0, 0.2, 12], fov: 52 };
   C.lip_b = { pos: [0.5, 1.45, 2.6], look: [6.5, h(6.5, 22) + 0.4, 24], fov: 50 };
   // telephoto pan along the valley: barrier -> garden -> two waters -> village
-  C.v0 = { pos: [10, 24, 12], look: [-330, -120, 640], fov: 16 };
-  C.v1 = { pos: [10, 24, 12], look: [-150, -178, 360], fov: 16 };
-  C.v2 = { pos: [10, 24, 12], look: [140, -178, 470], fov: 16 };
-  C.v3 = { pos: [10, 24, 12], look: [250, -176, 320], fov: 16 };
+  C.v0 = { pos: [10, 24, 12], look: [-330, -120, 640], fov: 13 };
+  C.v1 = { pos: [10, 24, 12], look: [-150, -178, 360], fov: 13 };
+  C.v2 = { pos: [10, 24, 12], look: [140, -178, 470], fov: 13 };
+  C.v3 = { pos: [10, 24, 12], look: [250, -176, 320], fov: 13 };
   C.mouth_a = { pos: [2.6, 0.45, 8.6], look: [0, 1.0, -1], fov: 44 };
   C.mouth_b = { pos: [2.1, 0.42, 6.6], look: [0, 0.95, -1.5], fov: 42 };
   C.stones = { pos: [1.15, 0.42, 1.55], look: [0.35, 0.12, 0.25], fov: 30 };
@@ -147,8 +147,9 @@ M.film({
       WARM.intensity = 11 * sunK; WARM.position.set(60, 4 + 10 * sunK, 18);
       SPOTS.lip.intensity = i === 5 ? 40 : 0;
       CAVE.set.props.vista.rays.forEach((r, j) => { const c = [0.1, 0.36, 0.62, 0.86][[3, 0, 1, 2].indexOf(j)]; const kp = s.vista ? Math.exp(-(((prog(t, 3.26, 5.56) - c) / 0.16) ** 2)) : 0; r.userData.update(t, 1.3 * kp); });
-      const ex = i === 0 || i === 10 ? 2.3 : i === 2 ? 1.45 : i === 4 || i === 5 ? 1.3 : i === 9 ? 1.9 : 1.6;
+      const ex = i === 0 || i === 10 ? 2.3 : i === 2 ? 1.0 : i === 4 || i === 5 ? 1.3 : i === 9 ? 1.9 : 1.6;
       CAVE.scene.fog.density = FOG0 * (s.vista ? 0.3 : 1);
+      CAVE.bloom = i === 0 || i === 10 || i === 4 || i === 5 ? CAVE.set.bloom : 0;
       G.renderSet(ctx, CAVE, t, u, { cam, exposure: ex, mist: i === 0 || i === 10 ? 1 : 0, lamp: i === 0 || i === 10 ? 0.4 : 1 });
     } else if (s.set === 'gard') G.renderSet(ctx, GARD, t, u, { cam });
     else if (s.set === 'seas') G.renderSet(ctx, SEAS, t, u, { cam, fish: 0 });
