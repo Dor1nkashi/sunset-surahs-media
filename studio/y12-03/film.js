@@ -88,7 +88,8 @@ M.film({
     CAP = captions((await loadLines('lines.json')).map((l) => ({ ...l, text: fixT(l.text), keys: (l.keys || []).map(fixT) })), { display: 'Display', ui: 'UI', size: PORT ? 84 : 74 });
     const S = WELL.set, P = S.props, sc = WELL.scene, hy = P.terrain.heightAt, h0 = P.well.position.y;
     K.h0 = h0; K.hy = hy;
-    P.terrain.mesh.castShadow = false;                                       // the ground has no hole: let the sun into the shaft const R0 = 0.78, WY = h0 - 9 + 0.25, top = h0 + 0.91; K.WY = WY; K.top = top;
+    P.terrain.mesh.castShadow = false;                                       // the ground has no hole: let the sun into the shaft
+    const R0 = 0.78, WY = h0 - 9 + 0.25, top = h0 + 0.91; K.WY = WY; K.top = top;
     // ---- the rope end hangs from the beam; pivot at the beam so it can swing (pendulum, pure in t)
     const rope = P.rope, piv = new THREE.Group(); piv.position.set(0, h0 + 1.86, 0); sc.add(piv);
     rope.parent.remove(rope); rope.position.set(0, -1.86, 0); piv.add(rope); K.ropePiv = piv;
