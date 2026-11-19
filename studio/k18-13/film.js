@@ -26,6 +26,15 @@ function routeLine(pts, heightAt, { r = 0.25, color = 0xffc860 } = {}) {
   mesh.userData.curve = curve;
   return mesh;
 }
+// open hand palm-up: tries four rolls about the finger axis and keeps the one whose palm faces most upward.
+// The palm side is calibrated from a render: roll +90 deg put this rig's left palm face down.
+function palmNormal(f, side) { const h = f.bones(side + 'Hand').getWorldPosition(V()), a = f.bones(side + 'HandIndex1').getWorldPosition(V()), b = f.bones(side + 'HandPinky1').getWorldPosition(V());
+  return new THREE.Vector3().crossVectors(a.sub(h), b.sub(h)).normalize(); }
+function palmUp(f, side, tip) {
+  K.handAim(f, side, tip, Math.PI / 2); f.object3d.updateMatrixWorld(true); const n0 = palmNormal(f, side), sg = n0.y < 0 ? 1 : -1;
+  let best = 0, bv = -9; for (const r of [0, Math.PI / 2, Math.PI, Math.PI * 1.5]) { K.handAim(f, side, tip, r); f.object3d.updateMatrixWorld(true); const v = sg * palmNormal(f, side).y; if (v > bv) { bv = v; best = r; } }
+  K.handAim(f, side, tip, best); f.object3d.updateMatrixWorld(true); return palmNormal(f, side).multiplyScalar(sg);
+}
 function curl(f, side, k) { for (const n of ['Thumb', 'Index', 'Middle', 'Ring', 'Pinky']) for (let j = 1; j <= 3; j++) { const b = f.bones(`${side}Hand${n}${j}`); if (!b) continue; const q = b.quaternion.clone(); b.quaternion.slerp(q.clone().multiply(q).multiply(q), k); } f.object3d.updateMatrixWorld(true); }
 
 M.film({
@@ -35,6 +44,7 @@ M.film({
   async init() {
     await G.initGL({ exposure: 1.0 }); W.init(G.R);
     WEST = await journeys({ side: 'west' }); EAST = await journeys({ side: 'east' });
+    if (WEST.scene.fog) { WEST.scene.fog.density *= 0.3; WEST.scene.fog.color.multiplyScalar(0.55); }
     HE = EAST.props.terrain.heightAt; const HW = WEST.props.terrain.heightAt;
     E0 = { I: EAST.props.sun.intensity, env: EAST.scene.environmentIntensity, col: EAST.props.sun.color.getHex(), pos: EAST.props.sun.position.clone() };
     // gold route lines: along the western shore, and across the eastern plain to the ridge
@@ -62,9 +72,9 @@ M.film({
     Object.assign(C, {
       sun_a:   { pos: [1.5, 0.9, 7.5], look: [0, 0.6, -200], fov: 30 },
       sun_b:   { pos: [1.5, 0.88, 7.0], look: [0, 0.6, -200], fov: 29 },
-      sink:    { pos: [-3.5, 0.6, 9.0], look: [0, 0.4, -200], fov: 16 },
-      shore_a: { pos: [-8, 3.4, 17], look: [-3, 0.0, -60], fov: 44 },
-      shore_b: { pos: [0, 3.4, 17], look: [5, 0.0, -60], fov: 44 },
+      sink:    { pos: [1.6, 0.7, 6.4], look: [0, 0.5, -200], fov: 16 },
+      shore_a: { pos: [0.5, 2.6, 17], look: [-1, 0.0, -60], fov: 44 },
+      shore_b: { pos: [3.0, 2.6, 17], look: [1.5, 0.0, -60], fov: 44 },
       ridge:   { pos: [-10, 2, 20], look: [-30, HE(-30, -110) + 1.0, -110], fov: 9 },
       plain:   { pos: [-2, 1.2, 12], look: [3, 2.5, -120], fov: 44 },
       airW_a:  { pos: [-50, 45, 70], look: [0, 0, -10], fov: 44 },
@@ -74,8 +84,8 @@ M.film({
       meet:    { pos: [mgx + 0.8, my + 1.1, mgz - 3.2], look: [mgx, my + 1.3, mgz + 6], fov: 46 },
       hand_a:  { pos: [mgx + 0.55, my + 1.25, mgz - 1.2], look: [mgx + 0.2, my + 1.25, mgz + 3], fov: 34 },
       hand_b:  { pos: [mgx + 0.5, my + 1.22, mgz - 0.95], look: [mgx + 0.2, my + 1.22, mgz + 3], fov: 33 },
-      crowd_a: { pos: [mgx - 5.5, my + 1.1, mgz + 2.2], look: [mgx - 1, my + 1.0, mgz + 7], fov: 40 },
-      crowd_b: { pos: [mgx - 3.5, my + 1.1, mgz + 2.6], look: [mgx + 1, my + 1.0, mgz + 7], fov: 40 },
+      crowd_a: { pos: [mgx - 8.5, my + 1.5, mgz + 0.5], look: [mgx - 1, my + 1.0, mgz + 6.5], fov: 40 },
+      crowd_b: { pos: [mgx - 7.5, my + 1.5, mgz + 0.2], look: [mgx + 0.5, my + 1.0, mgz + 6.5], fov: 40 },
       circle_a:{ pos: [mgx, my + 2.4, mgz + 3.3], look: [mgx, my + 0.9, mgz + 3.35], fov: 44 },
       circle_b:{ pos: [mgx, my + 2.05, mgz + 3.32], look: [mgx, my + 0.9, mgz + 3.35], fov: 42 },
       tall:    { pos: [mgx + 0.4, my + 0.35, mgz - 1.6], look: [mgx, my + 2.2, mgz + 2], fov: 48 },
@@ -152,16 +162,16 @@ M.film({
       const shR = RULER.bones('RightArm').getWorldPosition(V()), shL = RULER.bones('LeftArm').getWorldPosition(V());
       const tR = shR.clone().add(V(0.08, -0.3, 0.42)), tL = shL.clone().add(V(-0.08, -0.3, 0.42));
       K.reach(RULER, 'Right', tR, shR.clone().add(V(-0.5, -0.5, -0.2))); K.handAim(RULER, 'Right', tR.clone().add(V(0, 0, 0.3)), 0); curl(RULER, 'Right', 1);
-      K.reach(RULER, 'Left', tL, shL.clone().add(V(0.5, -0.5, -0.2))); K.handAim(RULER, 'Left', tL.clone().add(V(0, 0, 0.3)), Math.PI / 2); K.flatHand(RULER, 'Left', 0.15);
+      K.reach(RULER, 'Left', tL, shL.clone().add(V(0.5, -0.5, -0.2))); K.flatHand(RULER, 'Left', 0.15); C.palmN = palmUp(RULER, 'Left', tL.clone().add(V(0, 0, 0.3)));
       RULER.object3d.updateMatrixWorld(true);
-      C.fistW = RULER.bones('RightHand').getWorldPosition(V()); C.palmW = RULER.bones('LeftHandMiddle1').getWorldPosition(V());
-      BREAD[0].visible = i >= 13; BREAD[0].position.copy(C.palmW).add(V(0, 0.035, 0)); BREAD[0].rotation.set(0, 0, 0);
+      C.fistW = RULER.bones('RightHand').getWorldPosition(V()); C.palmW = RULER.bones('LeftHandMiddle1').getWorldPosition(V()).lerp(RULER.bones('LeftHand').getWorldPosition(V()), 0.45);
+      BREAD[0].visible = i >= 13; BREAD[0].position.copy(C.palmW).addScaledVector(C.palmN, 0.03); BREAD[0].quaternion.setFromUnitVectors(V(0, 1, 0), C.palmN);
     }
     // camera
     let cam;
     if (s.a === 'fist' || s.a === 'palm' || s.a === 'both') {
       const tg = s.a === 'fist' ? C.fistW : s.a === 'palm' ? C.palmW : C.fistW.clone().lerp(C.palmW, 0.5);
-      const off = s.a === 'both' ? V(0.0, -0.05, 0.85) : V(s.a === 'fist' ? 0.12 : -0.12, -0.02, 0.48);
+      const off = s.a === 'both' ? V(0.0, 0.05, 1.15) : V(s.a === 'fist' ? 0.15 : -0.15, 0.06, 0.72);
       cam = { pos: tg.clone().add(off).toArray(), look: tg.toArray(), fov: K.lensFov(s.a === 'both' ? 30 : 28) };
     } else { cam = K.camLerp(s.a, s.b, (s.ease || E.linear)(p)); cam = K.breathe(cam, t, s.b ? 0.0015 : 0.0025, 11 + i); }
     st.bloom = s.m ? 0.06 : s.w && i < 3 ? 0.12 : 0.2;
