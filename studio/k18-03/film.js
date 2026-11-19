@@ -57,7 +57,7 @@ function poseMan(t, s) {
   } else if (who === 'tools' || who === 'hips' || who === 'shadow' || who === 'leave') {
     const walk = who === 'leave' ? clamp((t - 8.11) / 1.1) : 0;
     const sx = who === 'shadow' || who === 'leave' ? 1.25 : 0.7, sz = who === 'shadow' || who === 'leave' ? 1.15 : 1.45;
-    K.place(p, FRONT.x + sx + 1.4 * walk, gy, FRONT.z + sz + 0.6 * walk, Math.PI - 0.5 + 1.7 * walk); p.setPose(walk > 0 ? 'walk' : 'stand', t);
+    K.place(p, FRONT.x + sx + 1.4 * walk, gy, FRONT.z + sz + 0.6 * walk, (who === 'shadow' || who === 'leave' ? Math.PI - 0.5 : Math.PI) + 1.7 * walk); p.setPose(walk > 0 ? 'walk' : 'stand', t);
     if (who === 'tools') { K.tilt(p, 'Spine', 14 * (1 - E.inOutSine(prog(t, 3.6, 4.4))), 0, 0); K.tilt(p, 'Neck', 12, 0, 0); }
     if (who === 'hips' || who === 'shadow') {
       const k = who === 'hips' ? E.inOutSine(prog(t, 4.6, 5.2)) : 1;
@@ -110,10 +110,15 @@ M.film({
       CORD = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: 0x7a2618, roughness: 0.8 })); CORD.userData.n = g.index.count; CORD.castShadow = true;
       const b = MAN.bones('LeftHandIndex1'); b.add(CORD); CORD.scale.setScalar(100); CORD.rotation.set(0, 0, 0); }
     DUST_SET = { d, m };
+    SUN = new THREE.Mesh(new THREE.CircleGeometry(2.2, 64), new THREE.MeshBasicMaterial({ color: 0xfff0c8, toneMapped: false, fog: false, transparent: true, depthWrite: false }));
+    { const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d'), g = x.createRadialGradient(128, 128, 0, 128, 128, 128);
+      g.addColorStop(0, 'rgba(255,250,235,1)'); g.addColorStop(0.42, 'rgba(255,236,190,1)'); g.addColorStop(0.5, 'rgba(255,200,120,0.5)'); g.addColorStop(1, 'rgba(255,160,80,0)'); x.fillStyle = g; x.fillRect(0, 0, 256, 256);
+      SUN.material.map = new THREE.CanvasTexture(c); SUN.material.color.set(0xffffff); SUN.scale.setScalar(2.4); }
+    m.scene.add(SUN);
     // cameras
-    C.tally_a = { pos: [WALLX + 0.42, gy + TY + 0.03, markZ(6) + 0.2], look: [WALLX, gy + TY, markZ(6) + 0.02], fov: 24 };
-    C.tally_b = { pos: [WALLX + 0.4, gy + TY + 0.02, markZ(6) + 0.19], look: [WALLX, gy + TY - 0.01, markZ(6) + 0.02], fov: 23 };
-    C.tally_c = { pos: [WALLX + 0.41, gy + TY + 0.03, markZ(6) + 0.2], look: [WALLX, gy + TY, markZ(6) + 0.02], fov: 24 };
+    C.tally_a = { pos: [WALLX + 0.62, gy + TY + 0.02, markZ(6) + 0.05], look: [WALLX, gy + TY - 0.01, markZ(3)], fov: 30 };
+    C.tally_b = { pos: [WALLX + 0.6, gy + TY + 0.01, markZ(6) + 0.04], look: [WALLX, gy + TY - 0.02, markZ(3)], fov: 29 };
+    C.tally_c = { pos: [WALLX + 0.61, gy + TY + 0.02, markZ(6) + 0.045], look: [WALLX, gy + TY - 0.01, markZ(3)], fov: 29.5 };
     C.rack_a = { pos: [WALLX + 0.45, gy + TY + 0.04, markZ(6) + 0.25], look: [WALLX, gy + TY, markZ(6)], fov: 26 };
     C.rack_b = { pos: [WALLX + 0.5, gy + TY + 0.05, markZ(1) + 0.3], look: [WALLX, gy + TY, markZ(1)], fov: 26 };
     C.back_a = { pos: [FRONT.x + 1.5, gy + 1.55, FRONT.z + 3.9], look: [FRONT.x - 0.4, gy + 0.7, FRONT.z], fov: 44 };
@@ -122,12 +127,12 @@ M.film({
     C.hips_b = { pos: [FRONT.x + 1.8, gy + 1.22, FRONT.z + 3.85], look: [FRONT.x - 0.1, gy + 0.9, FRONT.z], fov: 39 };
     C.push_a = { pos: [FRONT.x - 0.7, gy + 1.25, FRONT.z + 2.7], look: [FRONT.x - 0.7, gy + 0.35, FRONT.z + 0.2], fov: 44 };
     C.push_b = { pos: [FRONT.x - 0.7, gy + 1.05, FRONT.z + 2.1], look: [FRONT.x - 0.7, gy + 0.32, FRONT.z + 0.2], fov: 42 };
-    C.lamp = { pos: [FRONT.x + 2.75, gy + 0.32, FRONT.z + 2.6], look: [FRONT.x + 1.6, gy + 0.12, FRONT.z + 0.8], fov: 34 };
+    C.lamp = { pos: [FRONT.x + 3.2, gy + 0.45, FRONT.z + 3.1], look: [FRONT.x + 1.4, gy + 0.15, FRONT.z + 0.6], fov: 38 };
     poseMan(13, SHOTS[7]); const hd = MAN.bones('LeftHand').getWorldPosition(V()); console.error(`[k18-03] hand ${hd.toArray().map((v) => v.toFixed(2))}`);
-    C.cord_a = { pos: [hd.x + 0.12, hd.y + 0.34, hd.z + 0.36], look: [hd.x, hd.y - 0.01, hd.z], fov: 22 };
-    C.cord_b = { pos: [hd.x + 0.1, hd.y + 0.29, hd.z + 0.3], look: [hd.x, hd.y - 0.01, hd.z], fov: 20 };
-    C.open = { pos: [hd.x + 0.14, hd.y + 0.4, hd.z + 0.42], look: [hd.x, hd.y - 0.01, hd.z], fov: 26 };
-    C.knot = { pos: [hd.x + 0.08, hd.y + 0.2, hd.z + 0.2], look: [hd.x, hd.y, hd.z], fov: 15 };
+    C.cord_a = { pos: [hd.x + 0.5, hd.y + 0.08, hd.z + 0.12], look: [hd.x, hd.y + 0.01, hd.z], fov: 30 };
+    C.cord_b = { pos: [hd.x + 0.42, hd.y + 0.07, hd.z + 0.1], look: [hd.x, hd.y + 0.01, hd.z], fov: 28 };
+    C.open = { pos: [hd.x + 0.55, hd.y + 0.12, hd.z + 0.18], look: [hd.x, hd.y, hd.z], fov: 32 };
+    C.knot = { pos: [hd.x + 0.3, hd.y + 0.06, hd.z + 0.08], look: [hd.x, hd.y + 0.01, hd.z], fov: 20 };
     C.wide_a = { pos: [2.8, gy + 1.7, 3.0], look: [-1.0, gy + 1.0, -2.8], fov: 54 };
     C.wide_b = { pos: [1.6, gy + 1.7, 3.2], look: [-1.6, gy + 1.0, -2.8], fov: 54 };
     C.sun_a = { pos: [0.8, gy + 0.75, -2.2], look: [-4.2, gy + 2.6, -0.6], fov: 30 };
@@ -165,11 +170,14 @@ M.film({
     const fl = DUSK.set.props.lamps[0].userData.flame; fl.scale.setScalar(1 - 0.35 * E.inOutSine(prog(t, 8.2, 10.1)));
     MORN.set.props.sun.intensity = 0.4 + 2.4 * (t < 20.32 ? 0 : sunUp);
     MLIGHT.intensity = t < 20.32 ? 0.6 : 0.6 - 0.4 * sunUp;
-    const ex = s.set === 'd' ? (i === 5 ? 0.85 : 1.0) : i === 10 ? 0.55 : (t < 20.32 ? 0.9 : 1.0);
+    DUSK.bloom = i === 5 ? 0.05 : DUSK.set.bloom;
+    { const k = E.inOutSine(prog(t, 20.4, 22.5)), cpos = V(...C.sun_a.pos), dir = V(...C.sun_a.look).sub(cpos).normalize();
+      const at = cpos.clone().addScaledVector(dir, 70); at.y = gy + 2.6 + (cpos.y > 0 ? 0 : 0) - 6.5 + 9.0 * k; SUN.position.copy(at); SUN.lookAt(cpos); SUN.visible = i === 10; }
+    const ex = s.set === 'd' ? (i === 5 ? 0.75 : 1.0) : i === 10 ? 0.55 : (t < 20.32 ? 0.9 : 1.0);
     G.renderSet(ctx, ST, t, u, { cam, exposure: ex, lamp: s.set === 'd' ? 1 - 0.3 * E.inOutSine(prog(t, 8.2, 10.1)) : 0 });
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.6);
   },
   post(ctx, u, t) { K.grain(ctx, t); },
 });
-let DUST_SET = null;
+let DUST_SET = null, SUN = null;
