@@ -402,10 +402,10 @@ export async function prop(name, { pos = [0, 0, 0], height = null, scale = 1, ry
 }
 // instanced copies of a library model. items: [{ x, y, z, s, ry, rx, rz }]. near/far LOD: items farther
 // than lod.far from lod.focus use a cheap proxy geometry (a displaced icosphere with the model's material).
-export async function scatter(name, items, { lod = null, cast = true, base = true, tint = null } = {}) {
+export async function scatter(name, items, { lod = null, cast = true, base = true, tint = null, matte = false } = {}) {
   const g = await gltf(name), grp = new THREE.Group(); grp.name = `scatter:${name}`;
   const meshes = []; g.scene.traverse((m) => { if (m.isMesh) meshes.push(tint === null ? m : Object.assign(Object.create(m), { material: m.material.clone() })); });
-  if (tint !== null) meshes.forEach((m) => m.material.color.multiply(new THREE.Color(tint)));
+  if (tint !== null) meshes.forEach((m) => { m.material.color.multiply(new THREE.Color(tint)); if (matte) { m.material.roughnessMap = null; m.material.roughness = 0.95; m.material.envMapIntensity = 0.6; } });
   const yoff = base ? -g.bbox.min.y : 0;
   const near = lod ? items.filter((it) => Math.hypot(it.x - lod.focus[0], it.z - lod.focus[1]) < lod.far) : items;
   const far = lod ? items.filter((it) => !near.includes(it)) : [];
@@ -677,21 +677,41 @@ export function datePalm({ seed = 1, height = 9, fronds = 26, lean = 0.08 } = {}
 }
 
 // ------------------------------------------------------------------ crop field (instanced stalks with heads)
-export function cropField({ rect = [-10, -10, 10, 10], count = 30000, seed = 5, heightAt = () => 0, h = [0.7, 1.0], color = 0x8a9a46, headColor = 0xc8b060, rows = 0.3, ripe = 0 } = {}) {
-  const blade = new THREE.PlaneGeometry(0.02, 1, 1, 6).translate(0, 0.5, 0), p = blade.attributes.position;
-  for (let i = 0; i < p.count; i++) { const y = p.getY(i); p.setX(i, p.getX(i) * (1 - y * 0.6)); p.setZ(i, y * y * 0.12); }
-  const head = new THREE.CylinderGeometry(0.012, 0.018, 0.09, 6, 1).translate(0, 1.02, 0.12);
-  const geo = BGU.mergeGeometries([blade.toNonIndexed(), head.toNonIndexed()]); geo.computeVertexNormals();
-  const mat = new THREE.MeshStandardMaterial({ color: new THREE.Color(color).lerp(new THREE.Color(headColor), ripe), roughness: 0.8, side: THREE.DoubleSide });
+export function cropField({ rect = [-10, -10, 10, 10], count = 30000, seed = 5, heightAt = () => 0, h = [0.7, 1.0], ripe = 0.3, rows = 0.3, wind = 1 } = {}) {
+  // one wheat/barley plant: stem + two leaves + an awned ear (spikelets) on top; ripe 0 = green .. 1 = gold
+  const parts = [];
+  const stem = new THREE.CylinderGeometry(0.0035, 0.005, 1, 5, 8, true).translate(0, 0.5, 0), sp = stem.attributes.position;
+  for (let i = 0; i < sp.count; i++) { const y = sp.getY(i); sp.setZ(i, sp.getZ(i) + y * y * 0.08); }
+  parts.push(stem);
+  for (const [y0, a] of [[0.28, 0.4], [0.5, 3.5]]) { const lf = new THREE.PlaneGeometry(0.018, 0.34, 1, 6).translate(0, 0.17, 0), lp = lf.attributes.position;
+    for (let i = 0; i < lp.count; i++) { const y = lp.getY(i) / 0.34; lp.setX(i, lp.getX(i) * (1 - y * 0.85)); lp.setZ(i, y * y * 0.16); }
+    lf.rotateX(-0.5); lf.rotateY(a); lf.translate(0, y0, 0); parts.push(lf); }
+  for (let k = 0; k < 14; k++) { const g = new THREE.SphereGeometry(0.009, 6, 4).scale(1, 1.8, 0.8), side = k % 2 ? 1 : -1;
+    g.rotateZ(side * 0.35); g.translate(side * 0.007, 1.0 + k * 0.007, 0.08); parts.push(g);
+    const awn = new THREE.CylinderGeometry(0.0006, 0.0006, 0.07, 3, 1).translate(0, 0.035, 0); awn.rotateZ(side * 0.25); awn.translate(side * 0.01, 1.01 + k * 0.007, 0.08); parts.push(awn); }
+  const geo = BGU.mergeGeometries(parts.map((g) => { const n = g.index ? g.toNonIndexed() : g; for (const k of Object.keys(n.attributes)) if (!['position', 'normal', 'uv'].includes(k)) n.deleteAttribute(k); return n; }));
+  geo.computeVertexNormals();
+  const mat = new THREE.MeshStandardMaterial({ roughness: 0.75, side: THREE.DoubleSide });
+  const U = { time: { value: 0 }, wind: { value: wind } };
+  mat.onBeforeCompile = (s) => { s.uniforms.time = U.time; s.uniforms.wind = U.wind;
+    s.vertexShader = s.vertexShader.replace('#include <common>', '#include <common>\nuniform float time, wind;')
+      .replace('#include <begin_vertex>', `#include <begin_vertex>
+        vec3 ip = vec3(instanceMatrix[3][0], instanceMatrix[3][1], instanceMatrix[3][2]);
+        float ph = ip.x * 0.35 + ip.z * 0.22, gust = 0.5 + 0.5 * sin(time * 0.7 + ip.x * 0.05);
+        float sway = (sin(time * 1.9 + ph) * 0.6 + sin(time * 3.7 + ph * 1.7) * 0.25) * wind * (0.4 + 0.6 * gust);
+        float k = position.y * position.y; transformed.x += sway * 0.09 * k; transformed.z += sway * 0.05 * k; transformed.y -= abs(sway) * 0.02 * k;`); };
+  mat.customProgramCacheKey = () => 'wheat1';
   const im = new THREE.InstancedMesh(geo, mat, count), r = rng(seed), M = new THREE.Matrix4(), Q = new THREE.Quaternion(), E = new THREE.Euler();
+  const green = new THREE.Color(0x5f7a32), gold = new THREE.Color(0xc8a858), C = new THREE.Color();
   for (let i = 0; i < count; i++) {
-    let x = lerp(rect[0], rect[2], r()), z = lerp(rect[1], rect[3], r());
+    const x = lerp(rect[0], rect[2], r()); let z = lerp(rect[1], rect[3], r());
     if (rows) z = Math.round(z / rows) * rows + (r() - 0.5) * rows * 0.35;
-    const s = lerp(h[0], h[1], r());
-    E.set((r() - 0.5) * 0.3, r() * Math.PI * 2, (r() - 0.5) * 0.3); Q.setFromEuler(E); M.compose(V3(x, heightAt(x, z) - 0.02, z), Q, V3(1, s, 1)); im.setMatrixAt(i, M);
-    im.setColorAt(i, new THREE.Color().setHSL(0.18 + (r() - 0.5) * 0.04, 0.5, 0.35 + r() * 0.15));
+    const s = lerp(h[0], h[1], r()) * (0.85 + 0.15 * Math.sin(x * 0.7) * Math.cos(z * 0.5));
+    E.set((r() - 0.5) * 0.25, r() * Math.PI * 2, (r() - 0.5) * 0.25); Q.setFromEuler(E); M.compose(V3(x, heightAt(x, z) - 0.02, z), Q, V3(1, s, 1)); im.setMatrixAt(i, M);
+    C.copy(green).lerp(gold, clamp(ripe + (r() - 0.5) * 0.35 + 0.15 * Math.sin(x * 0.21 + z * 0.13))).multiplyScalar(0.8 + r() * 0.35); im.setColorAt(i, C);
   }
-  im.castShadow = true; im.receiveShadow = true;
+  im.castShadow = true; im.receiveShadow = true; im.name = 'crop';
+  im.userData.update = (t) => { U.time.value = t; };
   return im;
 }
 
@@ -753,12 +773,12 @@ export function tufts(items, { color = 0xb8a868, h = 0.35, blades = 14, seed = 2
   return im;
 }
 // pebbles + tufts + medium rocks over terrain near a focus (the scale cues the eye needs)
-export async function groundCover({ heightAt, focus = [0, 0], radius = 30, area = () => 1, seed = 5, pebbles = 900, rocks = 60, tuftN = 160, tuftColor = 0xb8a868, boulders = 0 }) {
+export async function groundCover({ heightAt, focus = [0, 0], radius = 30, area = () => 1, seed = 5, pebbles = 900, rocks = 60, tuftN = 160, tuftColor = 0xb8a868, boulders = 0, rockTint = 0xd8c4a4 }) {
   const g = new THREE.Group(); g.name = 'ground_cover';
   const rect = [focus[0] - radius, focus[1] - radius, focus[0] + radius, focus[1] + radius];
   const near = (x, z) => area(x, z) * (1 - sstep(radius * 0.4, radius, Math.hypot(x - focus[0], z - focus[1])) * 0.7);
-  if (pebbles) g.add(await scatter('rock_09', scatterPoints({ seed, count: pebbles, rect, heightAt, s: [0.25, 1.6], sink: 0.004, area: near })));
-  if (rocks) g.add(await scatter('rock_07', scatterPoints({ seed: seed + 1, count: rocks, rect, heightAt, s: [1.5, 7], sink: 0.04, area: near })));
+  if (pebbles) g.add(await scatter('rock_09', scatterPoints({ seed, count: pebbles, rect, heightAt, s: [0.25, 1.6], sink: 0.006, area: near }), { tint: rockTint, matte: true }));
+  if (rocks) g.add(await scatter('rock_07', scatterPoints({ seed: seed + 1, count: rocks, rect, heightAt, s: [1.5, 7], sink: 0.12, area: near }).map((p) => ({ ...p, y: p.y - 0.03 * p.s })), { tint: rockTint, matte: true }));
   if (boulders) g.add(await scatter('namaqualand_boulder_03', scatterPoints({ seed: seed + 3, count: boulders, rect: [rect[0] * 3, rect[1] * 3, rect[2] * 3, rect[3] * 3], heightAt, s: [0.4, 1.2], sink: 0.25, area: (x, z) => area(x, z) * (Math.hypot(x - focus[0], z - focus[1]) > radius * 0.5 ? 1 : 0) }), { lod: { focus, far: 80 } }));
   if (tuftN) g.add(tufts(scatterPoints({ seed: seed + 2, count: tuftN, rect, heightAt, s: [0.6, 1.4], sink: 0.01, area: near }), { color: tuftColor }));
   return g;
