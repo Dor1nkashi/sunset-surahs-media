@@ -23,10 +23,10 @@ const C = {};
 function cams() {
   Object.assign(C, {
     door_side: { pos: [1.35, 1.35, GATE_Z + 2.0], look: [0.15, 1.0, DOORF], fov: 34 },
-    bolt_a:    { leaf: true, pos: [0.25, 0.08, 0.5], look: [-0.02, 0.0, 0.02], fov: 24 },
-    bolt_b:    { leaf: true, pos: [0.22, 0.07, 0.38], look: [-0.02, 0.0, 0.02], fov: 22 },
-    lat_a:     { pos: [1.2, 2.05, 3.2], look: [-1.8, 2.9, 1.6], fov: 42 },
-    lat_b:     { pos: [1.2, 2.05, -0.6], look: [-1.8, 2.9, -2.2], fov: 42 },
+    bolt_a:    { leaf: true, pos: [0.05, 0.1, 0.55], look: [-0.2, 0.0, 0.02], fov: 26 },
+    bolt_b:    { leaf: true, pos: [0.02, 0.09, 0.45], look: [-0.2, 0.0, 0.02], fov: 24 },
+    lat_a:     { pos: [1.1, 1.85, 4.2], look: [-1.8, 2.9, -2.5], fov: 44 },
+    lat_b:     { pos: [1.1, 1.85, 0.8], look: [-1.8, 2.9, -5.9], fov: 44 },
     stop_a:    { pos: [0.35, 1.6, Z0 + 4.2], look: [0.0, 1.3, Z0 - 3], fov: 40 },
     stop_b:    { pos: [0.3, 1.58, Z0 + 3.1], look: [0.0, 1.3, Z0 - 3], fov: 40 },
     follow_a:  { pos: [1.1, 1.55, Z0 + 1.2], look: [-0.2, 1.4, Z0 - 0.5], fov: 44 },
@@ -40,10 +40,10 @@ function cams() {
     net_b:     { pos: [0.4, 1.55, ZS + 1.55], look: [-0.05, 1.5, ZS], fov: 38 },
     tst_a:     { pos: [0.1, 1.95, GATE_Z + 3.4], look: [TORCH[0] - 0.4, TORCH[1] - 0.3, TORCH[2]], fov: 30 },
     tst_b:     { pos: [0.45, 2.15, GATE_Z + 1.9], look: [TORCH[0] - 0.2, TORCH[1] - 0.1, TORCH[2]], fov: 28 },
-    hand_back: { pos: [0.5, 1.6, ZS + 0.9], look: [0.2, 1.25, ZS - 0.3], fov: 34 },
+    hand_back: { pos: [0.65, 1.7, ZS + 1.6], look: [0.05, 1.2, ZS - 0.2], fov: 34 },
     close_a:   { pos: [0.85, 1.45, GATE_Z + 3.2], look: [0.0, 1.05, DOORF], fov: 38 },
     close_b:   { pos: [0.8, 1.45, GATE_Z + 2.8], look: [0.0, 1.05, DOORF], fov: 37 },
-    palm:      { pos: [0.55, 1.55, GATE_Z - 3.05], look: [0.12, 1.35, GATE_Z - 1.65], fov: 30 },
+    palm:      { pos: [-0.85, 1.62, GATE_Z - 2.35], look: [-0.2, 1.28, GATE_Z - 0.95], fov: 32 },
   });
 }
 const SHOTS = [
@@ -87,7 +87,7 @@ M.film({
     S.add(SWING, SWING.target);
     if (wl) wl.lamp.userData.on = false;
     // a torch inside the passage, for the last shot
-    const tf = W.flame({ h: 0.36, w: 0.2, seed: 9, inten: 5, light: 2.6, dist: 7 }); tf.position.set(-0.85, 2.0, GATE_Z - 2.2); S.add(tf); LANE.inTorch = tf;
+    const tf = W.flame({ h: 0.36, w: 0.2, seed: 9, inten: 5, light: 1.1, dist: 7 }); tf.position.set(-0.85, 2.0, GATE_Z - 2.2); S.add(tf); LANE.inTorch = tf;
     const br = W.rbox(0.05, 0.25, 0.05, W.ironMat(), { r: 0.01 }); br.position.set(-0.88, 1.75, GATE_Z - 2.2); S.add(br);
     // hide the market square props that sit beyond the prison wall
     for (const k of ['block', 'scale', 'coins']) if (SET.props[k]) SET.props[k].visible = false;
@@ -96,7 +96,7 @@ M.film({
     SUN0 = SET.atmo.sun.intensity; ENV0 = S.environmentIntensity;
     // Yusuf as a young man
     const PP = await K.people();
-    MAN = PP.make({ kind: 'man', outfit: 'thobe', palette: { robe: '#e4d9c2', wrap: '#ece4d2', sash: '#27345a', cloak: '#3f3026', trousers: '#c2ae8c' }, beard: 'none', headwear: 'none', seed: 12 });
+    MAN = PP.make({ kind: 'man', outfit: 'thobe', palette: { robe: '#c9b996', wrap: '#ece4d2', sash: '#27345a', cloak: '#3f3026', trousers: '#c2ae8c' }, beard: 'none', headwear: 'none', seed: 12 });
     S.add(MAN.object3d);
     WALK1 = WALK0 + Math.abs(ZS - Z0) / Math.max(0.6, MAN.speed('walk'));
     cams();
@@ -116,7 +116,7 @@ M.film({
     cam = K.breathe(cam, t, 0.0025, 31 + i);
     // light fades from late afternoon to torchlit dusk over the film
     const dusk = prog(t, 2.0, 30.0);
-    const ex = SET.exposure * (1.0 - 0.25 * dusk) * (i === 14 ? 0.9 : 1);
+    const ex = SET.exposure * (1.0 - 0.25 * dusk) * ([1, 1, 1, 0.85, 0.85, 0.9, 0.85, 0.85, 0.6, 0.85, 0.62, 1, 0.85, 1, 0.7][i]);
     G.renderSet(ctx, ST, t, u, { cam, exposure: ex });
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.5);
@@ -172,7 +172,7 @@ function poseMan(t, i) {
     for (const [side, sx] of [['Left', 1], ['Right', -1]]) {
       // facing -z: his left hand is at world -x... figure faces +z with left at +x, rotated by PI
       const h0 = MAN.bones(side + 'Hand').getWorldPosition(V());
-      const tgt = MAN.object3d.localToWorld(V(sx * 0.36, 1.02, 0.28));
+      const tgt = MAN.object3d.localToWorld(V(sx * 0.3, 0.98, 0.2));
       K.reach(MAN, side, h0.clone().lerp(tgt, lift), MAN.object3d.localToWorld(V(sx * 0.6, 1.0, -0.4)));
       K.flatHand(MAN, side, 1 - 0.7 * lift);
       K.handAim(MAN, side, h0.clone().lerp(tgt, lift).add(MAN.object3d.localToWorld(V(sx * 0.06, 0, 0.12)).sub(MAN.object3d.localToWorld(V(0, 0, 0)))), PALM_ROLL * sx);
