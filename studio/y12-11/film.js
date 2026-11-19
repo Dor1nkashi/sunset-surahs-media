@@ -155,7 +155,7 @@ M.film({
     const { i, s, p } = K.shotAt(SHOTS, t);
     if (s.set === 'pal') palace(t, i); else yard(t, i);
     let cam = K.camLerp(s.a, s.b, (s.ease || E.inOutSine)(p));
-    if (i === 6) { X.keys.updateMatrixWorld(true); const k = X.keys.getWorldPosition(V()); cam = { ...cam, pos: [k.x - 0.75, k.y + 0.2, k.z - 1.35], look: [k.x + 0.25, k.y - 0.02, k.z + 0.3], fov: K.lensFov(34) }; }
+    if (i === 6) { X.keys.updateMatrixWorld(true); const k = X.keys.getWorldPosition(V()); cam = { ...cam, pos: [GX + 0.3, k.y + 0.35, GZ + 8.3], look: [k.x + 0.3, k.y - 0.05, k.z - 0.4], fov: K.lensFov(30) }; }
     cam = K.breathe(cam, t, 0.002, 61 + i);
     // the sun comes out over the yard in shot 7 (clouds clear): the exposure and the sun rise together
     const sunK = i === 7 ? 0.45 + 0.55 * E.inOutSine(prog(t, 12.9, 14.4)) : 1;
