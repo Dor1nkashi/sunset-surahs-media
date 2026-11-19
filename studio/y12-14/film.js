@@ -23,7 +23,7 @@ const YSTOP = -18.0;
 // the sun comes from the gate side (+z), low, and sinks a little through the film: shadows lengthen toward the dais
 function sunDir(t) { const e = (17 - 6 * sm(t, 13.5, 21)) * Math.PI / 180, a = 0.0; return V3(Math.sin(a) * Math.cos(e), Math.sin(e), Math.cos(a) * Math.cos(e)); }
 function aimSun(t) {
-  const L = SET.atmo.sun, f = V3(0, 0, -16), d = sunDir(t);
+  const L = SET.atmo.sun, f = V3(0, 0, -16), d = sunDir(t < 4.04 ? D : t);
   L.position.copy(f).addScaledVector(d, 150); L.target.position.copy(f); L.target.updateMatrixWorld();
   Object.assign(L.shadow.camera, { left: -16, right: 16, top: 16, bottom: -16, near: 1, far: 320 }); L.shadow.camera.updateProjectionMatrix();
 }
@@ -52,6 +52,7 @@ async function build() {
 // Yusuf: seated on the throne until 8.6, then stands and walks down the dais to YSTOP, then stands (hand raised 22.64-24.48)
 function yusuf(t) {
   const p = P.y; p.object3d.visible = true;
+  if (t < 4.04) t = D + t;                                       // shots 1-2 are a flash-forward to the end
   if (t < 8.45) {
     K.place(p, 0, 0.98, DZ - 0.85, 0); p.setPose('stand', t); K.sit(p, 0.55, { lean: 2, footFwd: 0.45 });
     // right hand on the throne arm; it lifts slowly from 7.2
@@ -68,9 +69,10 @@ function yusuf(t) {
   }
 }
 function brothers(t) {
+  const tt = t < 4.04 ? D + t : t;
   P.bro.forEach((b, i) => { b.object3d.visible = true; const [x, z] = BRO[i];
-    const kneel = (i === 1 && t >= 8.6) || (i === 3 && t >= 13.6) || (i === 0 && t >= 17.6);
-    K.place(b, x, FLOOR, z, Math.PI + (x * 0.04)); b.setPose(kneel ? 'kneel' : 'stand', t, { offset: i * 0.8 }); if (!kneel) K.tilt(b, 'Neck', 14, 0, 0); });
+    const kneel = (i === 1 && tt >= 8.6) || (i === 3 && tt >= 13.6) || (i === 0 && tt >= 17.6);
+    K.place(b, x, FLOOR, z, Math.PI + (x * 0.04)); b.setPose(kneel ? 'kneel' : 'stand', tt, { offset: i * 0.8 }); if (!kneel) K.tilt(b, 'Neck', 14, 0, 0); });
 }
 function dust(t) {
   const M4 = new THREE.Matrix4(), n = W.noise2(9);
