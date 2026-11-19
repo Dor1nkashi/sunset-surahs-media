@@ -247,3 +247,18 @@ export function fingers(p, side, k = 1) {
   const sg = side === 'Left' ? -1 : 1;
   for (const f of ['Index', 'Middle', 'Ring', 'Pinky']) for (const [i, a] of [[1, 22], [2, 26], [3, 16]]) tilt(p, side + 'Hand' + f + i, 0, 0, sg * (k * a - (1 - k) * a * 0.55));
 }
+// reach that bends the spine forward first when the target is beyond the arm (bowing to pick up / set down)
+export function bendReach(p, side, target, pole, k = 1) {
+  if (k <= 0) return;
+  const B = p.bones; p.object3d.updateMatrixWorld(true);
+  const sh = () => B(side + 'Arm').getWorldPosition(V3()), arm = B(side + 'Arm').getWorldPosition(V3()).distanceTo(B(side + 'ForeArm').getWorldPosition(V3())) + B(side + 'ForeArm').getWorldPosition(V3()).distanceTo(B(side + 'Hand').getWorldPosition(V3()));
+  const need = sh().distanceTo(target) - arm * 0.92;
+  if (need > 0) {
+    // which sign of the spine's local x rotation brings the shoulder toward the target? (deterministic probe)
+    const save = ['Spine', 'Spine1', 'Spine2'].map((n) => B(n).quaternion.clone());
+    tilt(p, 'Spine', 10, 0, 0); const dPos = sh().distanceTo(target); ['Spine', 'Spine1', 'Spine2'].forEach((n, i) => B(n).quaternion.copy(save[i])); p.object3d.updateMatrixWorld(true);
+    const sg = dPos < sh().distanceTo(target) ? 1 : -1, ang = Math.min(55, (need / 0.55) * 57.3) * k;
+    tilt(p, 'Spine', sg * ang * 0.4, 0, 0); tilt(p, 'Spine1', sg * ang * 0.35, 0, 0); tilt(p, 'Spine2', sg * ang * 0.25, 0, 0);
+  }
+  reach(p, side, target, pole, k);
+}
