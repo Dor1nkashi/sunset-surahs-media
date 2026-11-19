@@ -43,7 +43,7 @@ function poseMan(t, s) {
   const who = s.who; MAN.object3d.visible = !!who; if (!who) return;
   const at = (x, z, yaw, clip = 'kneel') => { K.place(MAN, x, gy, z, yaw); MAN.setPose(clip, 1.5); MAN.object3d.updateMatrixWorld(true); };
   if (who === 'bracelet' || who === 'bowl') {
-    at(DISH.x - 0.78, DISH.z + 0.12, Math.PI / 2);
+    at(DISH.x - 0.58, DISH.z + 0.1, Math.PI / 2);
     const target = who === 'bracelet' ? V(BR0.x, BR0.y + 0.01, BR0.z) : V(P.bowl.position.x - 0.05, gy + 0.1, P.bowl.position.z - 0.02);
     const k = who === 'bracelet' ? E.inOutSine(prog(t, -0.6, 1.6)) * (1 - E.inOutSine(prog(t, 2.9, 3.9))) : E.inOutSine(prog(t, 10.4, 11.6)) * (1 - E.inOutSine(prog(t, 12.2, 13.1)));
     const h0 = K.handPos(MAN, 'Right'); K.reach(MAN, 'Right', h0.clone().lerp(target.clone().add(V(0.02, 0.05, 0)), k), K.onBody(MAN, -0.8, 0.7, -0.3));
@@ -82,7 +82,7 @@ M.film({
       const nb = new THREE.Mesh(blade(0.24, 0.03), lm); nb.rotation.set(0.05, 0.6, 0); SAP.add(nb); SAP.userData.nb = nb; }
     { const bb = new THREE.Box3().setFromObject(P.palm); PALMTOP = bb.max.y; }
     // wet soil disc in the pot (darkens as the water sinks in)
-    WETSPOT = new THREE.Mesh(new THREE.CircleGeometry(0.1, 40).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0x1e140c, roughness: 0.35, transparent: true, opacity: 0, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 }));
+    WETSPOT = new THREE.Mesh(new THREE.CircleGeometry(0.1, 40).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0x1e140c, roughness: 0.9, envMapIntensity: 0.1, transparent: true, opacity: 0, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 }));
     { const bb = new THREE.Box3().setFromObject(P.sapling.pot), rr = Math.min(bb.max.x - bb.min.x, bb.max.z - bb.min.z) * 0.44, top = bb.max.y - 0.025;
       const soil = new THREE.Mesh(new THREE.CircleGeometry(rr, 48).rotateX(-Math.PI / 2), await W.pbr('brown_mud_dry', { tile: 0.4, res: 1024, tint: 0x6a4a32 })); soil.position.set((bb.min.x + bb.max.x) / 2, top, (bb.min.z + bb.max.z) / 2); soil.receiveShadow = true; soil.material = soil.material.clone(); soil.material.roughness = 1; soil.material.metalness = 0; soil.material.envMapIntensity = 0.12; S.add(soil);
       SAP.position.set(soil.position.x, top - 0.005, soil.position.z); WETSPOT.position.set(soil.position.x, top + 0.002, soil.position.z); WETSPOT.geometry.scale(rr / 0.1, 1, rr / 0.1); }
