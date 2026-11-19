@@ -33,7 +33,7 @@ async function dreamSet() {
     Q.setFromEuler(new THREE.Euler((r() - 0.5) * 0.3, r() * 6, (r() - 0.5) * 0.3)); Mx.compose(V(x, height(x, z) - 0.05, z), Q, V(1, 0.8 + r() * 1.4, 1)); reeds.setMatrixAt(i, Mx); }
   reeds.castShadow = true; group.add(reeds);
   // palms on the far side, in the haze
-  for (let i = 0; i < 8; i++) group.add(Object.assign(W.datePalm({ seed: 30 + i, height: 9 + r() * 4 }), { position: V(-30 + i * 11 + r() * 4, height(0, 14), 12 + r() * 8) }));
+  for (let i = 0; i < 8; i++) { const pm = W.datePalm({ seed: 30 + i, height: 9 + r() * 4 }); pm.position.set(-30 + i * 11 + r() * 4, height(0, 14), 12 + r() * 8); group.add(pm); }
   // the cattle: seven fat (sleek, reddish) and seven lean (grey, ribs showing)
   const fat = [], lean = [];
   for (let i = 0; i < 7; i++) { const c = makeCow({ fat: 1, seed: i }); group.add(c); fat.push(c); }
