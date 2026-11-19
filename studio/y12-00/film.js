@@ -93,27 +93,29 @@ M.film({
     const P = HILLS.set.props, hy = P.terrain.heightAt, hp = P.house.position;
     K.h0 = hp.y; K.hx = hp.x; K.hz = hp.z; K.hy = hy;
     K.LX = 3.4; K.LZ = 7.4;
-    E11 = elevenStars(THREE); HILLS.scene.add(E11);
+    E11 = elevenStars(THREE, { size: 10 }); HILLS.scene.add(E11);
     windowGlow();
     await buildLamps(hy);
     const h0 = K.h0, wp = P.well.position;
     K.well = [wp.x, wp.y, wp.z];
     const far = (d, s = 1300) => d.map((v) => v * s);
     // camera poses (shot list names)
-    const wideA = { pos: [10.5, h0 + 1.25, 21.5], look: [-1.5, h0 + 6.2, -10], fov: fv(60) };
+    const G0 = (x, z, dy) => [x, hy(x, z) + dy, z];                       // a camera dy metres above the ground at (x, z)
+    const wideA = { pos: G0(10.5, 21.5, 1.5), look: [-1.5, h0 + 5.0, -10], fov: fv(60) };
+    const ly = K.lamps.y0;
     K.cams = {
-      wideA, wideB: camL(wideA, { ...wideA, pos: [10.0, h0 + 1.3, 20.5] }, 1),
-      tiltA: { pos: [9.6, h0 + 1.35, 19.6], look: [-1.5, h0 + 6.4, -10], fov: fv(46) },
-      tiltB: { pos: [9.6, h0 + 1.35, 19.6], look: [-6, h0 + 19, -16], fov: fv(46) },
-      skyHold: { pos: [6, h0 + 1.5, 14], look: [-4, h0 + 15.5, -22], fov: fv(50) },
-      craneA: { pos: [5.5, h0 + 9, 15], look: [-5, h0 + 17, -22], fov: fv(44) },
-      craneB: { pos: [5.0, h0 + 4.2, 14.5], look: [-6.5, h0 + 1.6, -1], fov: fv(44) },
-      settleA: { pos: [4.6, h0 + 3.6, 14.2], look: [-7.2, h0 + 1.2, 1.0], fov: fv(44) },
-      settleB: { pos: [4.0, h0 + 3.45, 13.4], look: [-7.6, h0 + 1.15, 1.3], fov: fv(43) },
-      stars: aimAt([4, h0 + 1.6, 12], far(ELEVEN[BRIGHTEST]).map((v, i) => v + [4, h0 + 1.6, 12][i]), fv(24)),
-      lampA: { pos: [K.LX - 1.9, K.lamps.y0 + 1.15, K.LZ + 2.3], look: [K.LX - 1.5, K.lamps.y0 + 0.75, K.LZ - 1.5], fov: fv(36) },
-      lampB: { pos: [K.LX + 1.7, K.lamps.y0 + 1.15, K.LZ + 2.3], look: [K.LX + 1.4, K.lamps.y0 + 0.82, K.LZ - 1.5], fov: fv(36) },
+      wideA, wideB: { ...wideA, pos: G0(10.1, 20.6, 1.5) },
+      tiltA: { pos: G0(9.8, 19.8, 1.5), look: [-1.5, h0 + 5.2, -10], fov: fv(46) },
+      tiltB: { pos: G0(9.8, 19.8, 1.5), look: [-7, h0 + 17, -14], fov: fv(46) },
+      skyHold: { pos: G0(6, 14, 1.6), look: [-4, h0 + 14.5, -22], fov: fv(52) },
+      craneA: { pos: G0(-24.5, 12.5, 10), look: [-2, h0 + 15, -12], fov: fv(46) },
+      craneB: { pos: G0(-24.5, 12.5, 2.7), look: [-3, h0 + 1.3, -1], fov: fv(46) },
+      settleA: { pos: G0(-24.5, 12.5, 2.7), look: [-3, h0 + 1.3, -1], fov: fv(46) },
+      settleB: { pos: G0(-23.9, 12.0, 2.6), look: [-3.2, h0 + 1.25, -1], fov: fv(45) },
+      lampA: { pos: [K.LX - 1.55, ly + 1.0, K.LZ + 1.25], look: [K.LX - 1.05, ly + 0.8, K.LZ - 2], fov: fv(30) },
+      lampB: { pos: [K.LX + 1.35, ly + 1.0, K.LZ + 1.25], look: [K.LX + 1.0, ly + 0.82, K.LZ - 2], fov: fv(30) },
     };
+    { const sp = G0(4, 12, 1.6); K.cams.stars = aimAt(sp, far(ELEVEN[BRIGHTEST]).map((v, i) => v + sp[i]), fv(24)); }
     const wc = WELL.set.cameras, pc = PRISON.set.cameras, qc = PALACE.set.cameras;
     K.cams.well = { pos: [1.3, wc.hero.pos[1] + 0.25, 1.75], look: [0, wc.hero.pos[1] - 0.35, 0], fov: fv(36) };
     K.cams.prison = pc.window; K.cams.palace = { pos: [-1.2, 0.75, 1.2], look: [-3.6, 0.5, -3.6], fov: fv(38) };
@@ -147,7 +149,7 @@ M.film({
       E11.position.set(...cam.pos);
       E11.userData.update(t, null, { op: 1, zoom: t >= 9.25 && t < 9.97 ? 1.6 : 1, hi });
     }
-    G.renderSet(ctx, st, t, u, { cam });
+    G.renderSet(ctx, st, t, u, { cam, exposure: st === HILLS ? 1.3 : undefined });
     // gold highlight: the same screen spot on every glimpse (match cuts)
     if (glint) {
       const x = gl[0] * FW, y = gl[1] * FH, k = 0.85, r = FW * 0.16;
