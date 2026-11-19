@@ -21,19 +21,19 @@ const C = {
   gate_a:  { pos: [-1.2, 1.45, 1.55], look: [DX, 1.1, DZ], fov: 46 },
   gate_b:  { pos: [-0.2, 1.4, 1.5], look: [DX, 1.05, DZ], fov: 44 },
   gate_c:  { pos: [0.6, 1.35, 1.45], look: [DX + 1, 1.0, DZ], fov: 40 },
-  two:     { pos: [-0.3, 1.5, 2.35], look: [0.2, 0.9, -0.6], fov: 52 },
+  two:     { pos: [0.35, 1.6, 2.4], look: [-0.25, 0.85, -0.2], fov: 62 },
   step_a:  { pos: [-0.6, 1.4, 0.1], look: [DX, 1.05, DZ], fov: 40 },
   step_b:  { pos: [-0.25, 1.4, 0.35], look: [DX, 1.05, DZ], fov: 38 },
   cup:     { pos: [0.75, 0.42, -0.45], look: [CUP[0], 0.08, CUP[2]], fov: 26 },
-  hands_a: { pos: [-0.75, 0.55, 0.35], look: [SEAT[0] + 0.25, 0.7, SEAT[1]], fov: 36 },
-  hands_b: { pos: [-0.9, 0.55, 0.2], look: [SEAT[0] + 0.25, 0.7, SEAT[1]], fov: 34 },
+  hands_a: { pos: [-0.15, 0.75, 0.75], look: [-1.15, 0.85, -0.25], fov: 36 },
+  hands_b: { pos: [-0.3, 0.75, 0.6], look: [-1.15, 0.85, -0.25], fov: 34 },
   rise:    { pos: [-1.2, 1.3, 1.9], look: [1.4, 0.85, 0.4], fov: 48 },
   close:   { pos: [0.4, 1.4, 0.55], look: [DX, 1.0, DZ], fov: 42 },
-  lapse:   { pos: [1.55, 1.55, 2.2], look: [-0.6, 1.2, -1.6], fov: 50 },
+  lapse:   { pos: [1.5, 1.45, 2.35], look: [-0.2, 1.35, -1.9], fov: 58 },
   shaft:   { pos: [-0.1, 1.2, 1.5], look: [-2.0, 0.75, -0.1], fov: 38 },
   dust_a:  { pos: [1.0, 1.4, 1.2], look: [-0.5, 1.6, -1.3], fov: 40 },
   dust_b:  { pos: [0.75, 1.42, 0.85], look: [-0.5, 1.6, -1.3], fov: 36 },
-  hand:    { pos: [-0.75, 1.35, 0.35], look: [-1.75, 1.25, -0.55], fov: 30 },
+  hand:    { pos: [-0.55, 1.3, -1.45], look: [-1.42, 1.15, -0.62], fov: 30 },
 };
 const SHOTS = [
   { t0: 0.00, t1: 1.71, a: C.gate_a, b: C.gate_b },
@@ -61,6 +61,14 @@ M.film({
     await G.initGL({ exposure: 1.0 }); W.init(G.R);
     SET = await prison({ time: 'morning' });
     const S = SET.scene; SUN = SET.props.sun; SHAFT = SET.props.shaft;
+    // cut the doorway: the set's right wall is one solid panel; rebuild it in three pieces around the door
+    const rw = SET.group.children.find((o) => o.isMesh && Math.abs(o.position.x - DX) < 0.01 && Math.abs(o.rotation.y + Math.PI / 2) < 0.01 && Math.abs(o.position.z) < 0.01);
+    if (rw) { rw.visible = false; const sd = rw.material, dw = 1.0, dh = 1.95, CD = 5.2, CH = 3.8;
+      const piece = (w, h, z, y) => { const pn = W.panel(w, h, sd, { dens: 22 }); pn.position.set(DX, y, z); pn.rotation.y = -Math.PI / 2; pn.receiveShadow = true; S.add(pn); };
+      const z0 = -CD / 2, z1 = DZ - dw / 2, z2 = DZ + dw / 2, z3 = CD / 2;
+      piece(z1 - z0, CH, (z0 + z1) / 2, CH / 2); piece(z3 - z2, CH, (z2 + z3) / 2, CH / 2); piece(dw, CH - dh, DZ, dh + (CH - dh) / 2);
+      // the wall's thickness around the opening (reveal), so the doorway reads as cut through stone
+      for (const [w, h, y, z] of [[0.5, dh, dh / 2, z1 - 0.02], [0.5, dh, dh / 2, z2 + 0.02], [0.5, 0.04, dh, DZ]]) { const b = W.rbox(w, h, z === DZ ? dw : 0.04, sd, { r: 0.01, centre: true }); b.position.set(DX + 0.25, y, z); S.add(b); } }
     // daylight beyond the door: a sunlit yard floor and a bright wall
     const mud = await W.pbr('brown_mud_dry', { tile: 2.0, res: 1024 }), plaster = await W.pbr('clay_plaster', { tile: 2.2, tint: 0xf0dcc0, res: 1024 });
     OUT = new THREE.Group();
@@ -143,8 +151,8 @@ function people(t, i) {
     const sp = FM.speed('walk');
     let x, z, ry = Math.PI / 2, walk = true, tt = t;
     if (i <= 1) { x = 0.9 + sp * t; z = DZ; }                              // walking out into the light
-    else if (i === 2) { x = 1.15; z = 0.4; ry = -2.2; walk = false; }       // by the door, turned to the young man
-    else if (i === 3) { const w = Math.min(t - 4.83, 1.0); x = 1.15 + 0.5 * w; z = 0.4 + 0.5 * w; ry = Math.PI / 2 - 0.6; walk = t < 5.83; }
+    else if (i === 2) { x = 0.75; z = 0.55; ry = -2.0; walk = false; }       // by the door, turned to the young man
+    else if (i === 3) { const w = Math.min(t - 4.83, 1.0); x = 0.75 + 0.6 * w; z = 0.55 + 0.4 * w; ry = Math.PI / 2 - 0.6; walk = t < 5.83; }
     else { const w = t - 9.16; x = 0.0 + sp * w; z = 0.4 + 0.35 * w; ry = Math.PI / 2 - 0.4; }
     FM.object3d.position.set(x, 0, z); FM.object3d.rotation.y = ry;
     FM.setPose(walk ? 'walk' : 'stand', tt);
