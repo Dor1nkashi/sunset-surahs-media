@@ -78,7 +78,7 @@ M.film({
     MAN = PE.make({ kind: 'man', outfit: 'traveller', palette: { robe: '#6e5e4a', cloak: '#5a4a3a', wrap: '#6a5a48', sash: '#4a3a2c', trousers: '#6a5a46', skin: '#8a5c3c' }, beard: 'none', headwear: 'wrap', seed: 151, detail: 1 });
     S.add(MAN.object3d);
     // his own cloak drawn over him (the same wool as the others): only the sleeve and hand come out from under its edge
-    { const src = SET.props.sleepers[0]; COVER = new THREE.Mesh(src.geometry, src.material); COVER.userData.U = src.userData.U; COVER.castShadow = COVER.receiveShadow = true;
+    { const src = SET.props.sleepers[0]; const cm = src.material.clone(); cm.onBeforeCompile = src.material.onBeforeCompile; cm.customProgramCacheKey = src.material.customProgramCacheKey; cm.alphaHash = false; cm.opacity = 1; COVER = new THREE.Mesh(src.geometry, cm); COVER.userData.U = src.userData.U; COVER.castShadow = COVER.receiveShadow = true;
       COVER.position.set(MX - 0.05, H(MX, MZ) - 0.01, MZ - 0.05); COVER.rotation.y = -Math.PI / 2; COVER.scale.set(1.12, 1.25, 1.0); S.add(COVER); }
     // dust in the shaft
     DUST = K.dustMotes({ centre: [0.2, 0.9, -5.6], size: [3.4, 1.8, 3.2], count: 420, seed: 8, px: 0.006, op: 0.55, fall: 0.008 }); S.add(DUST);
