@@ -15,6 +15,7 @@ const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
 const D = 33.43;
 const JAR = [1.1, 0.55];
 
+const COVER = [];
 let ST, SET, CAP, HT, GY, KHIDR, SHADE = [], KIDS = [], MEN = [], STAFF, TROWEL, SOIL, SOILFLOOR, PIT, MOUND, JLIGHT, DUST, C = {}, SHOTS, SUN0 = {}, JAR0;
 const crackX = (y) => -0.6 + 0.9 * (y / 2.75) + 0.25 * Math.sin(y * 7);
 
@@ -49,6 +50,7 @@ M.film({
       PIT.position.set(JAR[0], HT(...JAR) + 0.004, JAR[1]); S.add(PIT);
       MOUND = new THREE.Mesh(new THREE.SphereGeometry(0.5, 40, 16, 0, Math.PI * 2, 0, Math.PI / 2), soilM); MOUND.scale.set(0.9, 0.28, 0.6); MOUND.position.set(JAR[0] + 0.85, HT(...JAR) - 0.02, JAR[1] + 0.45); W.shadows(MOUND); S.add(MOUND); }
     JLIGHT = new THREE.PointLight(0xffc890, 0, 3.5, 1.6); S.add(JLIGHT);
+    SET.scene.traverse((o) => { if (o.name === 'ground_cover' || o.name === 'tufts') COVER.push(o); });
     DUST = K.dustMotes({ centre: [crackX(1.4), GY + 1.2, 0.7], size: [0.25, 1.0, 0.12], count: 120, seed: 5, px: 0.005, op: 0.8, fall: 0.25, color: 0xd8c0a0 }); S.add(DUST);
     // people: Khidr's hands (a full figure, framed only to the hands); the two travellers as shadows only;
     // two small boys on the step (backs); two grown men kneeling at the wall (backs, hands)
@@ -69,13 +71,13 @@ M.film({
     // cameras
     const cg = GY, cx = crackX(1.45), fz = 0.6;
     Object.assign(C, {
-      crack_a: { pos: [cx - 0.45, cg + 1.5, 2.3], look: [cx + 0.12, cg + 1.38, 0.5], fov: 34 },
-      crack_b: { pos: [cx - 0.38, cg + 1.47, 2.0], look: [cx + 0.12, cg + 1.36, 0.5], fov: 32 },
-      dust_a:  { pos: [cx - 0.3, cg + 1.0, 1.75], look: [cx + 0.05, cg + 1.1, 0.5], fov: 30 },
-      dust_b:  { pos: [cx - 0.26, cg + 1.0, 1.5], look: [cx + 0.05, cg + 1.1, 0.5], fov: 28 },
+      crack_a: { pos: [cx - 1.1, cg + 1.55, 3.7], look: [cx + 0.15, cg + 1.3, 0.5], fov: 34 },
+      crack_b: { pos: [cx - 1.0, cg + 1.5, 3.4], look: [cx + 0.15, cg + 1.3, 0.5], fov: 32 },
+      dust_a:  { pos: [cx - 0.7, cg + 1.05, 2.6], look: [cx + 0.1, cg + 1.1, 0.5], fov: 30 },
+      dust_b:  { pos: [cx - 0.6, cg + 1.05, 2.3], look: [cx + 0.1, cg + 1.1, 0.5], fov: 28 },
       doors_a: { pos: [6.5, cg + 1.5, 4.4], look: [-4, cg + 1.5, 9.4], fov: 42 },
       doors_b: { pos: [2.0, cg + 1.5, 4.4], look: [-8.5, cg + 1.5, 9.4], fov: 42 },
-      tree:    { pos: [-4.9, cg + 0.55, 7.4], look: [-6.6, cg + 0.35, 4.6], fov: 46 },
+      tree:    { pos: [-5.5, cg + 0.42, 6.6], look: [-6.5, cg + 0.0, 4.9], fov: 36 },
       tr_a:    { pos: [0.95, cg + 1.3, 1.75], look: [0.35, cg + 1.2, 0.5], fov: 36 },
       tr_b:    { pos: [1.0, cg + 1.28, 1.6], look: [0.3, cg + 1.18, 0.5], fov: 34 },
       tr_c:    { pos: [6.5, cg + 1.6, 3.6], look: [-4.0, cg + 1.3, 0.2], fov: 44 },
@@ -84,7 +86,7 @@ M.film({
       down_b:  { pos: [JAR[0] + 0.25, cg - 0.5, JAR[1] + 2.3], look: [JAR[0], cg - 0.7, JAR[1]], fov: 40 },
       jar_a:   { pos: [JAR[0] + 0.25, cg - 0.5, JAR[1] + 2.0], look: [JAR[0], cg - 0.72, JAR[1]], fov: 38 },
       jar_b:   { pos: [JAR[0] + 0.2, cg - 0.52, JAR[1] + 1.75], look: [JAR[0], cg - 0.74, JAR[1]], fov: 36 },
-      kids:    { pos: [-1.6, HT(-1.6, 8.6) + 1.15, 8.6], look: [-4.3, cg + 0.55, 5.8], fov: 40 },
+      kids:    { pos: [-3.0, cg + 1.0, 2.4], look: [-4.5, cg + 0.7, 7.3], fov: 40 },
       lapse:   { pos: [5.5, cg + 1.6, 6.0], look: [-1.5, cg + 1.3, 0], fov: 46 },
       men:     { pos: [JAR[0] + 0.3, cg + 0.7, JAR[1] + 3.3], look: [JAR[0], cg + 0.65, 0], fov: 38 },
       lift_a:  { pos: [JAR[0] + 1.7, cg + 1.0, JAR[1] + 2.4], look: [JAR[0], cg + 0.3, JAR[1]], fov: 38 },
@@ -92,7 +94,7 @@ M.film({
       jar_c:   { pos: [JAR[0] + 0.15, cg - 0.55, JAR[1] + 1.55], look: [JAR[0], cg - 0.75, JAR[1]], fov: 34 },
       straight:{ pos: [4.8, cg + 1.4, 6.5], look: [-1.0, cg + 1.35, 0], fov: 40 },
       plaster: { pos: [0.9, cg + 1.3, 1.6], look: [0.5, cg + 1.2, 0.3], fov: 30 },
-      sunset:  { pos: [7.0, cg + 1.8, 8.6], look: [-2.0, cg + 1.3, 0.0], fov: 48 },
+      sunset:  { pos: [8.5, cg + 1.8, 5.8], look: [-2.0, cg + 1.2, 0.0], fov: 48 },
     });
     SHOTS = [
       { t0: 0.00, t1: 2.15, a: C.crack_a, b: C.crack_b, l: 'noon' },
@@ -132,8 +134,9 @@ M.film({
     const lift = E.inOutCubic(prog(t, 22.8, 24.4)), jarOut = t > 22.57 && t < 24.88;
     P.jar.position.copy(JAR0); if (jarOut) P.jar.position.y = JAR0.y + lift * 0.62 + 0.25;
     PIT.visible = MOUND.visible = jarOut; P.jar.visible = true;
-    JLIGHT.intensity = under || i === 6 ? 0.9 : 0; JLIGHT.position.set(JAR[0] - 0.4, GY - 0.3, JAR[1] + 0.9);
+    JLIGHT.intensity = under || i === 6 ? 3.0 : 0; JLIGHT.position.set(JAR[0] - 0.4, GY - 0.3, JAR[1] + 0.9);
     SOIL.visible = SOILFLOOR.visible = under;
+    COVER.forEach((o) => (o.visible = !under));
     DUST.userData.update(t, i <= 1 ? 1 : 0);
     // people
     for (const f of [KHIDR, ...SHADE, ...KIDS, ...MEN]) f.object3d.visible = false; TROWEL.visible = false; STAFF.visible = i === 3;
@@ -160,7 +163,7 @@ M.film({
       f.object3d.updateMatrixWorld(true);
       const hp = f.bones('RightHand').getWorldPosition(V()); TROWEL.position.copy(hp).add(V(-0.03, -0.02, -0.05)); TROWEL.rotation.set(-1.3, 0.75, 0);
     }
-    if (i === 8) KIDS.forEach((f, k) => { f.object3d.visible = true; f.object3d.position.set(-5.0 + 0.95 * k, HT(-4.5, 7.1) + 0.27, 7.15); f.object3d.rotation.y = Math.PI; f.setPose('kneel', t + 2 * k); });
+    if (i === 8) KIDS.forEach((f, k) => { f.object3d.visible = true; f.object3d.position.set(-5.0 + 0.95 * k, HT(-4.5, 7.1) + 0.27, 7.0); f.object3d.rotation.y = 0; f.setPose('kneel', t + 2 * k); });
     if (i === 10 || i === 11) MEN.forEach((f, k) => {
       f.object3d.visible = true; f.object3d.position.set(JAR[0] - 0.45 + 0.9 * k, HT(...JAR), JAR[1] + 0.55); f.object3d.rotation.y = Math.PI + (k ? 0.35 : -0.35); f.setPose('kneel', t + 1.5 * k);
       if (i === 11) { f.object3d.updateMatrixWorld(true); const sd = k ? 'Left' : 'Right', side = k ? 1 : -1, jp = P.jar.position;
@@ -173,8 +176,8 @@ M.film({
     const ro = { exposure: expo * (under ? 1.3 : 1), repair: rep, crack: t < 6.63 ? crackAt(t) : 1 };
     if (s.dissolve) {
       const k = E.inOutSine(prog(t, ...s.dissolve));
-      SOIL.visible = SOILFLOOR.visible = false; G.renderSet(ctx, ST, t, u, { ...ro, cam: K.breathe(K.camLerp(s.a, null, 0), t, 0.002, 3) });
-      if (k > 0) { SOIL.visible = SOILFLOOR.visible = true; G.renderSet(ctx, ST, t, u, { ...ro, exposure: expo * 1.3, cam: K.camLerp(s.b, null, 0), alpha: k }); }
+      SOIL.visible = SOILFLOOR.visible = false; COVER.forEach((o) => (o.visible = true)); G.renderSet(ctx, ST, t, u, { ...ro, cam: K.breathe(K.camLerp(s.a, null, 0), t, 0.002, 3) });
+      if (k > 0) { SOIL.visible = SOILFLOOR.visible = true; COVER.forEach((o) => (o.visible = false)); G.renderSet(ctx, ST, t, u, { ...ro, exposure: expo * 1.3, cam: K.camLerp(s.b, null, 0), alpha: k }); }
     } else G.renderSet(ctx, ST, t, u, { ...ro, cam });
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.6);
