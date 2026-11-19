@@ -15,16 +15,16 @@ const V = (...a) => new THREE.Vector3(...a);
 const D = 27.13;
 
 // places (world): the courtyard doorway is at x = 4.75, z -4.2..-1.8
-const T_HELD = { pos: [3.7, 1.95, -3.2], ry: -Math.PI / 2 };          // held up against the bright doorway
+const T_HELD = { pos: [3.7, 1.95, -3.45], ry: -Math.PI / 2 - 0.22 };          // held up against the bright doorway
 const T_HANG = { pos: [-0.9, 2.1, -6.2] };                             // hung from a beam in the window light
 const HANG_FACE = Math.atan2(1.5, 3.3);                                  // back panel toward the camera side
 const BENCH = [-3.2, 0.45, -1.0];
 
 // camera poses: { pos, look, fov } in world, or { local: true, ... } in the tunic's frame
 const C = {
-  held_a:  { local: true, pos: [-0.5, -0.45, 2.3], look: [0, -0.5, 0], fov: 40 },
-  held_b:  { local: true, pos: [-0.18, -0.45, 2.32], look: [0, -0.5, 0], fov: 39 },
-  witness: { pos: [0.9, 1.6, -0.55], look: [3.9, 1.4, -3.1], fov: 46 },
+  held_a:  { local: true, pos: [-0.3, -0.42, 2.25], look: [0, -0.5, 0], fov: 40 },
+  held_b:  { local: true, pos: [0.0, -0.42, 2.27], look: [0, -0.5, 0], fov: 39 },
+  witness: { pos: [0.55, 1.62, -0.35], look: [3.6, 1.4, -3.1], fov: 48 },
   race:    { pos: [-2.6, 1.75, -1.7], look: [4.75, 1.2, -3.1], fov: 44 },
   pull:    { pos: [2.45, 1.42, -3.78], look: [2.76, 1.25, -3.2], fov: 26 },
   husband: { pos: [-1.6, 1.5, -2.1], look: [4.8, 1.45, -3.0], fov: 46 },
@@ -33,11 +33,11 @@ const C = {
   back_b:  { local: true, pos: [0.0, -0.37, 0.95], look: [0, -0.4, 0], fov: 31 },
   graze_a: { local: true, pos: [0.25, -0.3, 0.6], look: [0.01, -0.36, 0], fov: 24 },
   graze_b: { local: true, pos: [0.18, -0.34, 0.42], look: [0.0, -0.4, 0], fov: 22 },
-  thread:  { local: true, pos: [0.08, -0.3, 0.22], look: [0.02, -0.33, 0], fov: 18 },
+  thread:  { local: true, pos: [0.13, -0.31, 0.17], look: [0.057, -0.33, 0], fov: 18 },
   fold_a:  { pos: [-2.55, 1.2, -0.25], look: [BENCH[0], 0.5, BENCH[2]], fov: 34 },
   fold_b:  { pos: [-2.7, 1.05, -0.45], look: [BENCH[0], 0.5, BENCH[2]], fov: 32 },
-  door:    { pos: [2.0, 1.55, -3.7], look: [8.0, 1.3, -3.2], fov: 46 },
-  macro:   { local: true, pos: [0.09, -0.21, 0.2], look: [0.025, -0.24, 0], fov: 16 },
+  door:    { pos: [-0.2, 1.6, -3.3], look: [6.0, 1.4, -3.1], fov: 42 },
+  macro:   { local: true, pos: [0.1, -0.27, 0.16], look: [0.05, -0.24, 0], fov: 18 },
 };
 // tunic: where it is (held | worn | hang), tear state; who is visible; camera
 const SHOTS = [

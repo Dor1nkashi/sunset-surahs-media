@@ -52,7 +52,7 @@ export async function makeTunic({ seed = 5, linen = null } = {}) {
       uv1[i * 2] = uv.getX(i); uv1[i * 2 + 1] = uv.getY(i);
       uv.setXY(i, x + TW / 2, y + TH);              // metres for the linen texture
       // hanging folds from the shoulders, sleeves droop, panels bow apart a little
-      const fold = 0.011 * Math.sin(x * 21 + 1.7 * n(x * 2, y * 2)) * Math.min(1, -y * 2.2) + 0.004 * n(x * 9, y * 9);
+      const fold = 0.026 * Math.sin(x * 12 + 2.2 * n(x * 1.5, y * 1.5)) * Math.min(1, -y * 1.6) + 0.008 * Math.sin(x * 31 + 3 * n(x * 4, y * 3)) * Math.min(1, -y * 2) + 0.005 * n(x * 7, y * 7);
       const bow = 0.016 * Math.cos(Math.min(1, Math.abs(x) / 0.3) * Math.PI / 2) * Math.min(1, -y * 3);
       const sl = Math.abs(x) > 0.3 ? -0.05 * ((Math.abs(x) - 0.3) / 0.32) ** 1.5 : 0;
       p.setXYZ(i, x, y + sl, (back ? 1 : -1) * (0.006 + bow) + fold);
