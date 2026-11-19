@@ -44,8 +44,8 @@ M.film({
     Object.assign(C, {
       sun_a:   { pos: [2.6, 0.5, 8.6], look: [-1.5, 1.2, -1], fov: 46 },
       sun_b:   { pos: [2.5, 0.5, 8.3], look: [-1.5, 1.2, -1], fov: 45 },
-      glide_a: { pos: [8.0, Hc(8, 16) + 1.8, 16], look: [-4, 0.5, 40], fov: 44 },
-      glide_b: { pos: [4.0, Hc(4, 11) + 1.2, 11], look: [0, 1.2, -1], fov: 44 },
+      glide_a: { pos: [7.5, 1.9, 15.5], look: [0, 1.2, -1], fov: 46 },
+      glide_b: { pos: [4.6, 1.2, 11.5], look: [0, 1.1, -1], fov: 44 },
       v_gard:  { pos: [10, 24, 12], look: [-150, -178, 360], fov: 24 },
       v_seas:  { pos: [10, 24, 12], look: [140, -178, 470], fov: 24 },
       v_wall:  { pos: [10, 24, 12], look: [250, -176, 320], fov: 24 },
@@ -87,7 +87,7 @@ M.film({
       CAVE.set.props.vista.rays.forEach((r, j) => { const on = s.ray === j ? E.inOutSine(prog(t, s.t0, s.t0 + 0.8)) : 0; r.userData.update(t, 1.4 * on); });
       if (CAVE.scene.fog) CAVE.scene.fog.density = FOG0 * (s.ray !== undefined ? 0.3 : 1);
       const inside = i >= 11, ex = i === 12 ? 2.0 : i === 11 ? lerp(1.0, 1.8, E.inOutSine(p)) : i === 7 ? 0.7 : 1.0;
-      CAVE.bloom = s.ray !== undefined || i === 7 ? 0 : CAVE.set.bloom;
+      CAVE.bloom = i === 0 || i === 11 || i === 12 ? CAVE.set.bloom : 0;               // grazing outdoor shots: bloom off (NaN spread)
       G.renderSet(ctx, CAVE, t, u, { cam, exposure: ex, mist: i <= 1 ? 1 - 0.6 * prog(t, 0, 3.78) : inside ? 1 : 0.3, lamp: inside ? 0.5 : 1 });
     } else if (s.set === 'gard') G.renderSet(ctx, GARD, t, u, { cam });
     else if (s.set === 'shore') G.renderSet(ctx, SHORE, t, u, { cam, writing: 0.62, ink: 0.4 });
