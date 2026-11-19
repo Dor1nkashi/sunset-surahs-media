@@ -151,7 +151,7 @@ M.film({
     // each print: a damp sandal-shaped hollow (always there) and the water that seeps into it (grows with fill)
     const pt = printTex();
     const dryM = new THREE.MeshStandardMaterial({ color: 0x3a2c20, roughness: 0.6, alphaMap: pt, transparent: true, opacity: 0.55, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 });
-    const wetM = new THREE.MeshBasicMaterial({ color: 0x8fa4ac, alphaMap: pt, transparent: true, opacity: 0.9, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4 });
+    const wetM = new THREE.MeshPhysicalMaterial({ color: 0x4a3c2e, roughness: 0.12, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.04, envMapIntensity: 1.6, alphaMap: pt, transparent: true, opacity: 0.9, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4 });
     for (const [x, z, a] of near) { const h = HT(x, z);
       const dry = new THREE.Mesh(new THREE.PlaneGeometry(0.13, 0.29).rotateX(-Math.PI / 2), dryM); dry.position.set(x, h + 0.003, z); dry.rotation.y = a; dry.receiveShadow = true; S.add(dry);
       const m = new THREE.Mesh(new THREE.PlaneGeometry(0.13, 0.29).rotateX(-Math.PI / 2), wetM.clone()); m.userData.base = [x, z, a, h]; m.receiveShadow = true; S.add(m); PUDDLES.push(m); }
@@ -246,8 +246,8 @@ M.film({
       const sh = TALL.bones('RightArm').getWorldPosition(V()), dd = C.pointAt.clone().sub(sh).normalize(), h = sh.clone().addScaledVector(dd, 0.56), d = C.pointAt.clone().sub(h).normalize();
       const side = V(-d.z, 0, d.x).normalize();                                          // to the right of the pointing line
       const k = i === 7 ? E.inOutSine(p) : 1;
-      const pos = h.clone().addScaledVector(side, lerp(1.05, 0.9, k)).addScaledVector(d, -0.35).add(V(0, 0.04, 0));
-      cam = { pos: pos.toArray(), look: h.clone().addScaledVector(d, 0.42).toArray(), fov: K.lensFov(i === 7 ? 30 : 28) };
+      const pos = h.clone().addScaledVector(side, lerp(0.68, 0.58, k)).addScaledVector(d, -lerp(0.68, 0.58, k)).add(V(0, 0.02, 0));
+      cam = { pos: pos.toArray(), look: h.clone().addScaledVector(d, 0.15).toArray(), fov: K.lensFov(i === 7 ? 32 : 30) };
     } else {
       cam = K.camLerp(s.a, s.b, (s.ease || E.linear)(p));
       cam = K.breathe(cam, t, s.b ? 0.0015 : 0.0025, 11 + i);

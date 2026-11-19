@@ -50,7 +50,7 @@ M.film({
     S.environmentIntensity = 0.5; P.sun.intensity = 5.0;            // the HDRI's own sun is unshadowed: let the real sun carry the light
     HULL = P.hull;
     P.kingShip.rotation.y = SHIP_RY; P.seizedBoat.rotation.y = SHIP_RY - 0.1;            // three-quarter on to us, so the sails read
-    boat.traverse((m) => { if (m.isMesh && m.material?.vertexColors && m.material.map) { m.material.color.multiplyScalar(1.7); } });   // weathered hull reads lighter
+    { const ms = new Set(); boat.traverse((m) => { if (m.isMesh && m.material?.vertexColors && m.material.map) ms.add(m.material); }); ms.forEach((m) => m.color.multiplyScalar(1.7)); }   // weathered hull reads lighter
     // a livelier sea: lower roughness for sun glints, stronger ripples, sky in the water
     { const o = P.ocean; o.roughness = 0.045; o.normalScale.set(0.9, 0.9); o.envMapIntensity = 1.05; const U = o.userData.U; U.colA.value.set(0x0b4250); U.colB.value.set(0x0b4250); U.shal.value.set(0x0b4250); }
     const F = hullFrame(HULL.H); GC = F.c; GN = F.n; GU = F.du; GV = F.dv;
