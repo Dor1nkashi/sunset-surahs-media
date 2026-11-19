@@ -65,7 +65,7 @@ function tunic(wool, { w = 0.62, h = 0.72, seed = 3, folded = false } = {}) {
   const alpha = new THREE.CanvasTexture(a);
   const m = new THREE.MeshStandardMaterial({ map, alphaMap: alpha, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.95, normalMap: wool.normalMap, normalScale: new THREE.Vector2(0.8, 0.8) });
   const geo = new THREE.PlaneGeometry(w, h, 40, 48), p = geo.attributes.position, n = W.noise2(seed + 11);
-  for (let i = 0; i < p.count; i++) { const X = p.getX(i), Y = p.getY(i); p.setZ(i, (folded ? 0.004 : 0.03) * n(X * 6, Y * 6) + (folded ? 0 : 0.04 * Math.sin(X * 9) * (0.5 - Y / h))); }
+  for (let i = 0; i < p.count; i++) { const X = p.getX(i), Y = p.getY(i); p.setZ(i, (folded ? 0.018 : 0.03) * n(X * 6, Y * 6) + (folded ? 0.012 * Math.abs(Math.sin(X * 22)) : 0) + (folded ? 0 : 0.04 * Math.sin(X * 9) * (0.5 - Y / h))); }
   geo.computeVertexNormals();
   const mesh = new THREE.Mesh(geo, m); mesh.castShadow = mesh.receiveShadow = true;
   return mesh;
@@ -92,7 +92,7 @@ M.film({
     K.lampW = [1.05, h0 + 1.45, DZ + 0.42];
     // ---- the father's staff leaning by the door, his folded cloak on the threshold stone
     const staff = new THREE.Mesh(W.boxUV(new THREE.CylinderGeometry(0.022, 0.03, 1.8, 16)), darkPl); staff.position.set(-0.78, h0 + 0.88, DZ + 0.32); staff.rotation.z = 0.13; sc.add(W.shadows(staff));
-    const cloak = W.cloth(0.7, 0.5, wool.clone(), { segW: 40, segH: 30, folds: 0.02, seed: 8, sag: (u, v) => 0.04 * Math.sin(u * 7) }); cloak.material.color.set(0xb8a888);
+    const cloak = W.cloth(0.7, 0.5, wool.clone(), { segW: 60, segH: 44, folds: 0.03, seed: 8, sag: (u, v) => 0.05 * Math.abs(Math.sin(u * 9 + v * 2)) + 0.03 * Math.sin(v * 11) }); cloak.material.color.set(0x6a5440);
     cloak.rotation.x = -Math.PI / 2; cloak.position.set(-0.3, h0 + 0.03, DZ + 0.75); sc.add(W.shadows(cloak));
     // ---- the tunic: one held by a brother (shots 4-5), the same tunic later laid folded on the step (shot 11)
     K.tHeld = tunic(wool, { seed: 3 }); sc.add(K.tHeld);
@@ -117,8 +117,8 @@ M.film({
     K.holder = K.bros[2];
     // ---- cameras
     const G0 = (x, z, dy) => [x, hy(x, z) + dy, z], L = K.lampW;
-    const moonDir = V3(-0.35, 0.32, -0.88).normalize(); K.moonDir = moonDir;
-    const sky = (p) => [p[0] + moonDir.x * 40, p[1] + moonDir.y * 40 - 4, p[2] + moonDir.z * 40];
+    const moonDir = V3(0.35, 0.36, 0.86).normalize(); K.moonDir = moonDir;       // the thin moon hangs over the hills beyond the yard gate
+    const sky = (p) => [p[0] + moonDir.x * 40, p[1] + moonDir.y * 40 - 3, p[2] + moonDir.z * 40];
     K.cams = {
       door: { pos: [1.9, h0 + 1.75, DZ + 3.6], look: [0.1, h0 + 1.15, DZ], fov: fv(46) },
       ledgeA: { pos: [1.8, h0 + 1.55, DZ + 2.6], look: L, fov: fv(40) },
@@ -130,8 +130,8 @@ M.film({
       pastA: { pos: [0.9, h0 + 2.3, DZ + 6.0], look: [-0.4, h0 + 1.0, DZ + 0.3], fov: fv(44) },
       pastB: { pos: [0.2, h0 + 1.6, DZ + 2.6], look: [-0.6, h0 + 0.85, DZ + 0.3], fov: fv(40) },
       staff: { pos: [0.45, h0 + 1.35, DZ + 2.1], look: [-0.55, h0 + 0.85, DZ + 0.3], fov: fv(42) },
-      skyA: { pos: [-0.2, h0 + 1.25, DZ + 2.2], look: [-0.6, h0 + 1.8, DZ + 0.3], fov: fv(46) },
-      skyB: { pos: [-0.2, h0 + 1.25, DZ + 2.2], look: sky([-0.2, h0 + 1.25, DZ + 2.2]), fov: fv(46) },
+      skyA: { pos: [-0.5, h0 + 1.1, DZ + 0.75], look: [1.5, h0 + 0.9, DZ + 8], fov: fv(48) },
+      skyB: { pos: [-0.5, h0 + 1.1, DZ + 0.75], look: sky([-0.5, h0 + 1.1, DZ + 0.75]), fov: fv(48) },
       court: { pos: [2.3, h0 + 1.5, DZ + 3.0], look: [0.6, h0 + 1.3, DZ + 0.3], fov: fv(46) },
       step: { pos: [1.3, h0 + 1.25, DZ + 2.2], look: [0.2, h0 + 0.3, DZ + 0.3], fov: fv(40) },
       stepB: { pos: [1.1, h0 + 1.05, DZ + 1.8], look: [0.2, h0 + 0.2, DZ + 0.35], fov: fv(38) },
@@ -139,7 +139,7 @@ M.film({
     };
     K.door = P.door; P.door.leaf.rotation.y = -0.5;
     // cool moonlight rim from behind-left so the figures read against the dark hills, and a faint sky fill
-    const rim = new THREE.DirectionalLight(0x9ab4ff, 0.9); rim.position.set(-6, h0 + 9, DZ - 10); rim.target.position.set(0, h0, DZ + 2); sc.add(rim, rim.target);
+    const rim = new THREE.DirectionalLight(0x9ab4ff, 0.9); rim.position.set(6, h0 + 9, DZ + 18); rim.target.position.set(0, h0, DZ + 2); sc.add(rim, rim.target);
     P.fire.visible = false;
     HILLS.bloom = 0;                                                            // no bloom: a NaN pixel in the terrain shader at grazing angles spreads into black blocks through the bloom mips                                                    // no fire tonight: lamp and moon only
     HILLS.update(0, 0, {}); G.R.compile(HILLS.scene, HILLS.camera);
@@ -196,7 +196,7 @@ M.film({
     K.door.leaf.rotation.y = -0.5 + 0.035 * Math.sin(t * 0.9) + 0.02 * Math.sin(t * 2.3);
     { const L = K.lampW, a = t * 3.1, rr = 0.16 + 0.04 * Math.sin(t * 1.3); K.moth.g.position.set(L[0] + Math.cos(a) * rr, L[1] + 0.12 + 0.05 * Math.sin(t * 2.2), L[2] + Math.sin(a) * rr);
       K.moth.g.rotation.y = -a; const fl = 0.9 * Math.sin(t * 60); K.moth.l.rotation.x = fl; K.moth.r.rotation.x = -fl; K.moth.g.visible = t < 24.4; }
-    G.renderSet(ctx, HILLS, t, u, { cam, exposure: t > 24.48 ? 0.85 : t < 3.41 && t > 1.17 ? 0.9 : 1.25, fire: 0 });
+    G.renderSet(ctx, HILLS, t, u, { cam, exposure: t > 24.48 ? 0.62 : t < 3.41 && t > 1.17 ? 0.68 : 1.25, fire: 0 });
     CAP.draw(ctx, t);
     const su = prog(t, 26.33, D - 0.05), a = Math.sin(Math.PI * su);
     if (a > 0 && IMG.seal) { const s = PORT ? 480 : 400; ctx.save(); ctx.globalAlpha = a * 0.95; ctx.drawImage(IMG.seal, FW / 2 - s / 2, FH * (PORT ? 0.36 : 0.42) - s / 2, s, s); ctx.restore(); }
