@@ -67,7 +67,13 @@ export async function buildLane(S, { seed = 8 } = {}) {
   const lint = W.rbox(DOOR.w + 0.7, 0.3, GT + 0.12, stone, { r: 0.03 }); lint.position.set(0, DOOR.h, GATE_Z - GT / 2); G.add(lint);
   const thr = W.rbox(DOOR.w + 0.3, 0.1, GT + 0.3, stone, { r: 0.02 }); thr.position.set(0, -0.06, GATE_Z - GT / 2); G.add(thr);
   // inside the prison: a lit passage seen through the open door
-  const pas = new THREE.Mesh(new THREE.BoxGeometry(2.0, 2.6, 4), new THREE.MeshStandardMaterial({ color: 0x4a3a2a, roughness: 1, side: THREE.BackSide })); pas.position.set(0, 1.3, GATE_Z - GT - 2); pas.receiveShadow = true; G.add(pas);
+  // (floor, two walls, ceiling and the far end; open toward the door so it can be seen from inside)
+  const pm = stone.clone(); pm.color = new THREE.Color(0x9a8a74);
+  const pz = GATE_Z - GT - 2, pas = new THREE.Group();
+  const pl_ = (w, h, x, y, z, rx, ry) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), pm); W.boxUV(m.geometry); m.position.set(x, y, z); m.rotation.set(rx, ry, 0); m.receiveShadow = true; pas.add(m); };
+  pl_(2.2, 4.2, 0, 0.002, pz, -Math.PI / 2, 0); pl_(2.2, 4.2, 0, 2.6, pz, Math.PI / 2, 0);
+  pl_(4.2, 2.6, -1.0, 1.3, pz, 0, Math.PI / 2); pl_(4.2, 2.6, 1.0, 1.3, pz, 0, -Math.PI / 2); pl_(2.2, 2.6, 0, 1.3, pz - 2.0, 0, 0);
+  G.add(pas);
   const inLight = new THREE.PointLight(0xffa860, 6, 6, 1.6); inLight.position.set(0, 1.9, GATE_Z - GT - 1.6); G.add(inLight);
   const D = W.door(pl, iron, { w: DOOR.w - 0.02, h: DOOR.h - 0.01, t: 0.09, frame: 0.0001, studs: true });
   D.group.position.set(0, 0, GATE_Z - 0.12); G.add(D.group);
