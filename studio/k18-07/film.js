@@ -94,11 +94,11 @@ M.film({
       const N = 24, geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(N * 3), 3));
       GLINT = new THREE.Points(geo, new THREE.PointsMaterial({ map: new THREE.CanvasTexture(c), size: 0.02, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0 })); GLINT.frustumCulled = false; S.add(GLINT); }
     const PE = await K.people();
-    MAN = PE.make({ kind: 'man', outfit: 'traveller', palette: { ...PALETTES.cream, robe: '#d8c8a8', cloak: '#6a5640', skin: '#8e5e3e' }, beard: 'short', headwear: 'wrap', seed: 71, detail: 0.9 });
+    MAN = PE.make({ kind: 'man', outfit: 'traveller', palette: { ...PALETTES.cream, robe: '#8a7458', wrap: '#9a8468', cloak: '#5a4632', skin: '#8e5e3e' }, beard: 'short', headwear: 'wrap', seed: 71, detail: 0.9 });
     S.add(MAN.object3d);
     // cameras
     const sd = P.sandals[0].position, hp = P.hoop.position;
-    C.mat = { pos: [DISH.x + 0.62, gy + 0.5, DISH.z + 0.62], look: [DISH.x + 0.18, gy + 0.03, DISH.z + 0.14], fov: 30 };
+    C.mat = { pos: [DISH.x + 0.75, gy + 0.62, DISH.z + 0.95], look: [DISH.x + 0.3, gy + 0.03, DISH.z + 0.14], fov: 34 };
     C.br_a = { pos: [BR0.x + 0.26, gy + 0.22, BR0.z + 0.28], look: [BR0.x, gy + 0.04, BR0.z], fov: 24 };
     C.br_b = { pos: [BR0.x + 0.2, gy + 0.18, BR0.z + 0.22], look: [BR0.x, gy + 0.04, BR0.z], fov: 22 };
     C.pan_a = { pos: [0.4, gy + 0.85, 1.9], look: [DISH.x, gy + 0.05, DISH.z], fov: 40 };
@@ -106,18 +106,18 @@ M.film({
     C.coins = { pos: [DISH.x + 0.18, gy + 0.2, DISH.z + 0.2], look: [DISH.x, gy + 0.03, DISH.z], fov: 26 };
     C.brace = { pos: [BR0.x + 0.12, gy + 0.14, BR0.z + 0.16], look: [BR0.x, gy + 0.05, BR0.z], fov: 24 };
     C.sandals = { pos: [sd.x + 0.3, gy + 0.22, sd.z + 0.32], look: [sd.x + 0.05, gy + 0.01, sd.z + 0.02], fov: 26 };
-    C.hoop = { pos: [hp.x + 0.45, gy + 0.32, hp.z + 0.55], look: [hp.x, gy + 0.2, hp.z], fov: 30 };
+    C.hoop = { pos: [hp.x + 0.7, gy + 0.45, hp.z + 0.85], look: [hp.x, gy + 0.2, hp.z], fov: 34 };
     C.niche_a = { pos: [NICHE.x + 1.25, gy + 1.5, NICHE.z + 1.6], look: [NICHE.x - 0.1, NICHE.y + 0.05, NICHE.z], fov: 36 };
     C.niche_b = { pos: [NICHE.x + 0.95, gy + 1.45, NICHE.z + 1.25], look: [NICHE.x - 0.05, NICHE.y + 0.05, NICHE.z], fov: 34 };
     C.pot_a = { pos: [POT[0] + 0.95, gy + 0.85, POT[1] + 0.55], look: [POT[0] - 0.05, gy + 0.4, POT[1] + 0.05], fov: 38 };
     C.pot_b = { pos: [POT[0] + 0.8, gy + 0.78, POT[1] + 0.45], look: [POT[0] - 0.05, gy + 0.38, POT[1] + 0.05], fov: 36 };
-    C.soil = { pos: [POT[0] + 0.3, gy + 0.6, POT[1] + 0.12], look: [POT[0] + 0.02, gy + 0.27, POT[1] + 0.02], fov: 30 };
+    C.soil = { pos: [POT[0] + 0.45, gy + 0.75, POT[1] + 0.2], look: [POT[0] + 0.02, gy + 0.27, POT[1] + 0.02], fov: 32 };
     C.tilt_a = { pos: [POT[0] + 2.6, gy + 0.6, POT[1] + 2.4], look: [POT[0], gy + 0.4, POT[1]], fov: 40 };
     C.tilt_b = { pos: [POT[0] + 2.6, gy + 0.6, POT[1] + 2.4], look: [P.palm.position.x, PALMTOP - 1.5, P.palm.position.z], fov: 46 };
-    C.flame = { pos: [NICHE.x - 0.1, NICHE.y + 0.16, NICHE.z + 0.5], look: [NICHE.x, NICHE.y + 0.09, NICHE.z + 0.1], fov: 22 };
-    C.leaf = { pos: [POT[0] + 0.45, gy + 0.5, POT[1] + 0.25], look: [POT[0], gy + 0.4, POT[1]], fov: 30 };
-    C.glow_a = { pos: [NICHE.x - 0.25, NICHE.y + 0.16, NICHE.z + 0.9], look: [NICHE.x, NICHE.y + 0.09, NICHE.z + 0.1], fov: 28 };
-    C.glow_b = { pos: [NICHE.x - 0.12, NICHE.y + 0.14, NICHE.z + 0.55], look: [NICHE.x, NICHE.y + 0.09, NICHE.z + 0.1], fov: 22 };
+    C.flame = { pos: [NICHE.x - 0.3, NICHE.y + 0.2, NICHE.z + 1.2], look: [NICHE.x, NICHE.y + 0.1, NICHE.z], fov: 16 };
+    C.leaf = { pos: [POT[0] + 0.85, gy + 0.62, POT[1] + 0.5], look: [POT[0], gy + 0.38, POT[1]], fov: 30 };
+    C.glow_a = { pos: [NICHE.x - 0.4, NICHE.y + 0.22, NICHE.z + 1.5], look: [NICHE.x, NICHE.y + 0.1, NICHE.z], fov: 20 };
+    C.glow_b = { pos: [NICHE.x - 0.3, NICHE.y + 0.2, NICHE.z + 1.15], look: [NICHE.x, NICHE.y + 0.1, NICHE.z], fov: 15 };
     ST = W.stage(SET);
     SET.update(0, null, {}); G.R.compile(S, ST.camera);
     CAP = captions(await loadLines('lines.json'), { display: 'Display', ui: 'UI' });
@@ -154,9 +154,9 @@ M.film({
     P.sun.intensity = s.shade ? 0.25 : s.warm ? 1.6 : 2.6;
     SET.props.setLights(s.warm ? 0.6 : 0.2);
     const flameShot = i === 13 || i === 15 || i === 16, gold = i <= 6 || s.shade;
-    ST.bloom = flameShot ? 0.06 : SET.bloom;
+    ST.bloom = flameShot ? 0.03 : SET.bloom;
     const nearLamp = i >= 8 && (s.a.startsWith('niche') || flameShot);
-    G.renderSet(ctx, ST, t, u, { cam, exposure: SET.exposure * (s.shade ? 0.4 : flameShot ? 0.7 : gold ? 0.5 : 1), lamp: nearLamp ? 0.18 : 1 });
+    G.renderSet(ctx, ST, t, u, { cam, exposure: SET.exposure * (s.shade ? 0.4 : flameShot ? 0.55 : gold && i !== 2 && i !== 5 && i !== 6 ? 0.5 : 1), lamp: nearLamp ? 0.18 : 1 });
     if (i === SHOTS.length - 1) { const k = E.inOutSine(p); ctx.save(); ctx.globalCompositeOperation = 'soft-light'; ctx.globalAlpha = 0.6 * k; ctx.fillStyle = '#e8a83a'; ctx.fillRect(0, 0, M.W, M.H); ctx.restore(); }
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.6);
