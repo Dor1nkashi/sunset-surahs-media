@@ -72,10 +72,10 @@ M.film({
     }
     // the dog: a short coat of shell fur over the sculpted body
     const dog = SET.props.dog; let body = null; dog.traverse((m) => { if (!body && m.isMesh && m.geometry.attributes.color && m.geometry.attributes.position.count > 5000) body = m; });
-    if (body) { FUR = K.shellFur(body, { layers: 12, len: 0.011, dens: 1100, wind: 0.0015, tint: 0.55 }); FUR.shells.forEach((m) => { m.material.envMapIntensity = 0.35; }); }
+    if (body) { FUR = K.shellFur(body, { layers: 12, len: 0.011, dens: 1100, wind: 0.0015, tint: 0.55 }); FUR.shells.forEach((m) => { m.material.envMapIntensity = 0.3; m.material.color.multiply(new THREE.Color(0.75, 0.5, 0.32)); }); }
     // the near sleeper (faceless, from behind): wool cloak over a plain tunic, head-cloth
     const PE = await K.people();
-    MAN = PE.make({ kind: 'man', outfit: 'traveller', palette: { robe: '#6e5e4a', cloak: '#5a4a3a', wrap: '#6a5a48', sash: '#4a3a2c', trousers: '#6a5a46', skin: '#8a5c3c' }, beard: 'none', headwear: 'wrap', seed: 151, detail: 1 });
+    MAN = PE.make({ kind: 'man', outfit: 'traveller', palette: { robe: '#4a3c30', cloak: '#4a3c30', wrap: '#4a3c30', sash: '#4a3a2c', trousers: '#6a5a46', skin: '#8a5c3c' }, beard: 'none', headwear: 'wrap', seed: 151, detail: 1 });
     S.add(MAN.object3d);
     // his own cloak drawn over him (the same wool as the others): only the sleeve and hand come out from under its edge
     { const src = SET.props.sleepers[0]; const cm = src.material.clone(); cm.onBeforeCompile = src.material.onBeforeCompile; cm.customProgramCacheKey = src.material.customProgramCacheKey; cm.alphaHash = false; cm.opacity = 1; COVER = new THREE.Mesh(src.geometry, cm); COVER.userData.U = src.userData.U; COVER.castShadow = COVER.receiveShadow = true;
@@ -107,7 +107,7 @@ M.film({
     C.lip = { pos: [-0.4, 0.55, 2.25], look: [-1.6, 0.12, 0.6], fov: 40 };
     C.side_a = { pos: [0.4, 0.75, -5.8], look: [-0.2, 0.2, -9.3], fov: 34 };
     C.side_b = { pos: [0.35, 0.68, -6.25], look: [-0.2, 0.2, -9.3], fov: 32 };
-    C.paws = { pos: [-0.62, 0.22, 1.42], look: [-0.88, 0.16, 0.95], fov: 22 };
+    C.paws = { pos: [-0.5, 0.34, 1.85], look: [-0.86, 0.12, 0.95], fov: 28 };
     C.push_a = { pos: [2.2, 0.75, -5.4], look: [HAND.x, HAND.y, HAND.z], fov: 34 };
     ST = W.stage(SET);
     poseMan(0); SET.update(0, null, {});
