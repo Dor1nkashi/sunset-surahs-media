@@ -137,14 +137,15 @@ M.film({
     SET = await confluence({ time: 'day' });
     const S = SET.scene, P = SET.props;
     // less sky glare on the water and a clearer horizon (the seam reads to the far distance)
-    P.sea.envMapIntensity = 0.3; if (S.fog) S.fog.density = 0.0005;
+    P.sea.envMapIntensity = 0.16; if (S.fog) S.fog.density = 0.0005;
+    { const U = P.sea.userData.U; U.foamK.value = 0.3; U.colA.value.set(0x066272); U.colB.value.set(0x2c3c18); U.shal.value.set(0x2a8a86); }
     HT = P.terrain.heightAt;
     TOP = P.rock.position.y + 0.95; BK0 = P.basket.position.clone();
     FISH = P.fish;
     STREAK = streakMesh(); S.add(STREAK);
     for (let i = 0; i < 4; i++) { const r = ringMesh(); S.add(r); RIPPLES.push(r); }
     // footprints that fill with seawater: the nearest prints to the sea of each walker's line (props.prints)
-    const near = P.prints.filter(([, z]) => z < 5.4).sort((a, b) => a[1] - b[1]);
+    const near = P.prints.filter(([, z]) => z < 12).sort((a, b) => a[1] - b[1]);
     // each print: a damp sandal-shaped hollow (always there) and the water that seeps into it (grows with fill)
     const pt = printTex();
     const dryM = new THREE.MeshStandardMaterial({ color: 0x5a4632, roughness: 0.9, alphaMap: pt, transparent: true, opacity: 0.5, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 });
@@ -158,6 +159,7 @@ M.film({
     TALL = PP.make({ kind: 'man', outfit: 'traveller', palette: { robe: '#8a7458', wrap: '#9a8468', cloak: '#5a4632', sash: '#3c3024', trousers: '#9a8a70' }, beard: 'full', headwear: 'wrap', seed: 31 });
     YOUNG = PP.make({ kind: 'man', outfit: 'traveller', palette: { robe: '#c8b89a', wrap: '#b49a74', cloak: '#7a6a52', sash: '#5a3a2a', trousers: '#b0a080' }, beard: 'none', headwear: 'wrap', seed: 44, detail: 0.8 });
     S.add(TALL.object3d, YOUNG.object3d);
+    for (const f of [TALL, YOUNG]) f.object3d.traverse((m) => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; m.frustumCulled = false; } });
     const wood = new THREE.MeshStandardMaterial({ color: 0x6a4a2e, roughness: 0.7 });
     STAFF = W.shadows(new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.02, 1.7, 14).translate(0, 0.85, 0), wood)); S.add(STAFF);
     // world points
@@ -171,24 +173,24 @@ M.film({
     const top = TOP, bx = BK0.x, bz = BK0.z;
     // camera poses (vertical fov for 9x16; 16x9 is tightened in K.lensFov)
     Object.assign(C, {
-      flip_a:  { pos: [bx + 0.95, top + 0.55, bz + 0.3], look: [bx - 0.15, top + 0.08, bz - 0.4], fov: 34 },
-      flip_b:  { pos: [bx + 0.9, top + 0.48, bz - 0.05], look: [bx - 0.3, top - 0.18, -0.15], fov: 36 },
+      flip_a:  { pos: [bx + 0.8, top + 0.62, bz + 0.5], look: [bx - 0.12, top + 0.05, bz - 0.3], fov: 42 },
+      flip_b:  { pos: [bx + 0.85, top + 0.55, bz + 0.1], look: [bx - 0.3, top - 0.2, -0.15], fov: 44 },
       water_a: { pos: [0.2, 0.9, 0.3], look: [1.4, -0.05, -4.5], fov: 32 },
       water_b: { pos: [0.25, 0.86, 0.15], look: [1.6, -0.05, -5.2], fov: 31 },
       pull_a:  { pos: [0.45, top + 0.45, 0.95], look: [-0.25, 0.0, -0.7], fov: 36 },
       pull_b:  { pos: C.shadowCam.pos, look: C.shadowCam.look, fov: 44 },
       far:     { pos: [-6, 3.4, 62], look: [0.6, 1.3, 1.5], fov: 9 },
-      basket_a:{ pos: [bx + 1.15, top + 0.75, bz + 0.75], look: [bx, top + 0.08, bz], fov: 30 },
-      basket_b:{ pos: [bx + 0.9, top + 0.6, bz + 0.55], look: [bx, top + 0.08, bz], fov: 29 },
+      basket_a:{ pos: [bx + 1.25, top + 0.8, bz + 0.85], look: [bx - 0.05, top + 0.08, bz], fov: 46 },
+      basket_b:{ pos: [bx + 1.0, top + 0.66, bz + 0.68], look: [bx - 0.05, top + 0.08, bz], fov: 44 },
       seam:    { pos: [1.6, 0.42, -2.0], look: [2.9, 0.0, -9], fov: 36 },
       shadow:  C.shadowCam,
       feet_a:  { pos: [-2.05, 1.5, 1.9], look: [-2.05, 0.0, 4.0], fov: 46 },
       feet_b:  { pos: [-2.05, 0.2, 2.3], look: [-2.05, -0.2, 8.0], fov: 44 },
-      empty:   { pos: [bx + 1.2, top + 0.8, bz + 1.0], look: [bx, top + 0.06, bz], fov: 30 },
-      prints:  { pos: [-2.6, 0.62, 2.45], look: [-2.05, 0.1, 4.1], fov: 36 },
+      empty:   { pos: [bx + 1.5, top + 0.95, bz + 1.25], look: [bx - 0.1, top + 0.05, bz - 0.1], fov: 46 },
+      prints:  { pos: [-2.25, 0.3, 2.55], look: [-2.05, 0.04, 4.8], fov: 38 },
     });
     const pr = PUDDLES[0].userData.base;
-    C.one = { pos: [pr[0] + 0.12, pr[3] + 0.32, pr[1] - 0.3], look: [pr[0], pr[3], pr[1]], fov: 26 };
+    C.one = { pos: [pr[0] - 0.3, pr[3] + 0.2, pr[1] - 0.12], look: [pr[0], pr[3], pr[1] - 0.02], fov: 34 };
     SHOTS = [
       { t0: 0.00, t1: 1.87, a: C.flip_a, b: C.flip_b, ease: E.inOutSine },
       { t0: 1.87, t1: 3.74, a: C.water_a, b: C.water_b },
@@ -247,7 +249,7 @@ M.film({
       cam = K.camLerp(s.a, s.b, (s.ease || E.linear)(p));
       cam = K.breathe(cam, t, s.b ? 0.0015 : 0.0025, 11 + i);
     }
-    G.renderSet(ctx, ST, t, u, { cam, exposure: SET.exposure * (i === 3 ? 0.92 : 1) });
+    G.renderSet(ctx, ST, t, u, { cam, exposure: SET.exposure * ([1, 2, 5, 7, 10].includes(i) ? 0.8 : i === 3 ? 0.92 : 0.95) });
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.6);
   },
