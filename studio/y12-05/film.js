@@ -107,8 +107,8 @@ M.film({
       coinsB: { pos: [-1.84, 0.99, -20.33], look: [-2.07, 0.806, -20.63], fov: fv(23) },
       wellA: { pos: [WP.x + 5.5, rhy(WP.x + 5.5, WP.z + 6.5) + 1.6, WP.z + 6.5], look: [WP.x, WP.y + 1.0, WP.z], fov: fv(48) },
       wellB: { pos: [WP.x + 4.6, rhy(WP.x + 4.6, WP.z + 5.4) + 1.5, WP.z + 5.4], look: [WP.x, WP.y + 1.0, WP.z], fov: fv(46) },
-      haulA: { pos: [WP.x + 1.95, K.rimY + 0.8, WP.z + 1.65], look: [WP.x + 0.1, K.rimY + 0.15, WP.z + 0.1], fov: fv(42) },
-      haulB: { pos: [WP.x + 1.85, K.rimY + 0.75, WP.z + 1.55], look: [WP.x + 0.1, K.rimY + 0.35, WP.z + 0.1], fov: fv(40) },
+      haulA: { pos: [WP.x + 2.2, K.rimY + 0.55, WP.z - 0.6], look: [WP.x + 0.3, K.rimY + 0.25, WP.z + 0.4], fov: fv(44) },
+      haulB: { pos: [WP.x + 2.1, K.rimY + 0.55, WP.z - 0.5], look: [WP.x + 0.3, K.rimY + 0.45, WP.z + 0.4], fov: fv(42) },
       call: { pos: [WP.x + 3.8, K.rimY + 0.9, WP.z + 3.2], look: [WP.x + 0.4, K.rimY + 0.6, WP.z + 0.2], fov: fv(46) },
       laneA: { pos: [1.4, 1.6, 2.0], look: [-0.6, 1.2, -12], fov: fv(46) },
       laneB: { pos: [-0.2, 1.6, 1.0], look: [-1.4, 1.2, -12], fov: fv(46) },
@@ -121,7 +121,7 @@ M.film({
       craneB: { pos: [4, 13, -14], look: [0.3, 0, -24], fov: fv(48) },
       patch: { pos: [3.0, 2.6, -21.5], look: [0.4, 0.75, -25.9], fov: fv(34) },
       swing: { pos: [-2.25, 1.42, -19.95], look: [-2.4, 1.12, -21], fov: fv(40) },
-      drop: { pos: [-1.85, 1.0, -20.28], look: [-2.0, 0.81, -20.6], fov: fv(28) },
+      drop: { pos: [-1.72, 1.2, -20.2], look: [-2.05, 0.92, -20.8], fov: fv(38) },
       widenA: { pos: [1.8, 1.0, -23.4], look: [0.3, 0.7, -26], fov: fv(36) },
       widenB: { pos: [3.2, 1.7, -20.5], look: [0.3, 0.7, -26], fov: fv(46) },
       empty: { pos: [-2.55, 1.36, -20.55], look: [PL[0], PL[1] + 0.02, PL[2]], fov: fv(30) },
@@ -170,7 +170,7 @@ M.film({
         if (t < tl - 0.25) { c.position.copy(cloth); c.rotation.set(0, o.ry, 0); }
         else if (t < tl) { const k = (t - (tl - 0.25)) / 0.25; c.position.copy(pan).add(V3(0, 0.06 * (1 - k * k), 0)); c.rotation.set(o.tilt * (1 - k), o.ry, 0); }
         else { inPan++; c.position.copy(pan); c.rotation.set(0, o.ry, 0); }
-        if (i === 3 && t > 19.9) { const k = t - 19.9, f = Math.min(1, k / 0.18), land = V3(-2.0, 0.807, -20.6);           // slides off the pan rim, falls to the cloth, wobbles flat
+        if (i === 3 && t > 19.75) { const k = t - 19.75, f = Math.min(1, k / 0.18), land = V3(-2.0, 0.807, -20.6);           // slides off the pan rim, falls to the cloth, wobbles flat
           c.position.copy(pan.clone().lerp(land, f)); c.position.y = f < 1 ? lerp(pan.y, land.y, f * f) : land.y + 0.002 * Math.exp(-6 * (k - 0.18)) * Math.abs(Math.sin((k - 0.18) * 30));
           c.rotation.set(f < 1 ? 1.2 * f : 0.25 * Math.exp(-5 * (k - 0.18)) * Math.cos((k - 0.18) * 28), o.ry, 0); inPan--; }
       });
@@ -178,7 +178,7 @@ M.film({
       const dip = 0.004 * inPan, sw = t > 17.66 ? 0.07 * Math.exp(-1.6 * (t - 17.66)) * Math.sin((t - 17.66) * 5.2) : 0, th = dip + sw;
       K.scaleKids.forEach((ch, j) => { const rest = K.scaleRest[j]; if (j === 1) { ch.rotation.z = -th; return; } if (j < 2) return;
         const s = rest.x < -0.1 ? -1 : 1; ch.position.y = rest.y - s * 0.29 * Math.sin(th); ch.position.x = rest.x + 0.01 * Math.sin(sw * 20); });
-      const coinDy = -0.29 * Math.sin(th); K.coins.forEach((o, i) => { if (i < n && t >= onPan(i) && !(i === 3 && t > 19.9)) o.c.position.y += coinDy; });
+      const coinDy = -0.29 * Math.sin(th); K.coins.forEach((o, i) => { if (i < n && t >= onPan(i) && !(i === 3 && t > 19.75)) o.c.position.y += coinDy; });
       // crowd walks the lane
       K.crowd.forEach((c, i) => { const p = c.p, o = p.object3d, sp = 0.85, z = c.z0 + c.dir * sp * t;
         p.setPose('walk', t * 0.75 + i); o.position.set(c.x, 0, z); o.rotation.y = c.dir > 0 ? 0 : Math.PI; });
