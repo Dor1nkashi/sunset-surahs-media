@@ -1,0 +1,109 @@
+{
+ "title": "If the Sea Were Ink, It Would Still Run Out",
+ "meta": {
+  "name": "v5_k18_15_the-ink",
+  "title": "If the Sea Were Ink, It Would Still Run Out",
+  "follow": ""
+ },
+ "duration": 25.43,
+ "lines": [
+  {
+   "id": "h1",
+   "kind": "hook",
+   "t0": 0.1,
+   "t1": 2.764,
+   "text": "If the sea were ink, it would still run out.",
+   "keys": [
+    "sea",
+    "ink,",
+    "out."
+   ],
+   "quran": null
+  },
+  {
+   "id": "s1",
+   "kind": "setup",
+   "t0": 3.214,
+   "t1": 5.03,
+   "text": "Think of every ocean as ink.",
+   "keys": [
+    "ocean",
+    "ink."
+   ],
+   "quran": null
+  },
+  {
+   "id": "s2",
+   "kind": "setup",
+   "t0": 5.28,
+   "t1": 6.158,
+   "text": "Allāh says:",
+   "keys": [
+    "Allāh"
+   ],
+   "quran": null
+  },
+  {
+   "id": "d1",
+   "kind": "dlg",
+   "t0": 6.358,
+   "t1": 16.223,
+   "text": "If the sea were ink for [writing] the words of my Lord, the sea would be exhausted before the words of my Lord were exhausted, even if We brought the like of it as a supplement.",
+   "keys": [
+    "ink",
+    "exhausted",
+    "supplement."
+   ],
+   "quran": {
+    "ref": "18:109",
+    "surah": "Al-Kahf",
+    "ar": "لَّوۡ كَانَ ٱلۡبَحۡرُ مِدَادࣰا لِّكَلِمَـٰتِ رَبِّی لَنَفِدَ ٱلۡبَحۡرُ قَبۡلَ أَن تَنفَدَ كَلِمَـٰتُ رَبِّی وَلَوۡ جِئۡنَا بِمِثۡلِهِۦ مَدَدࣰا"
+   }
+  },
+  {
+   "id": "l1",
+   "kind": "lesson",
+   "t0": 16.923,
+   "t1": 18.329,
+   "text": "The sea would run dry.",
+   "keys": [
+    "run",
+    "dry."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l2",
+   "kind": "lesson",
+   "t0": 18.629,
+   "t1": 19.917,
+   "text": "His words would not.",
+   "keys": [
+    "words"
+   ],
+   "quran": null
+  },
+  {
+   "id": "l3",
+   "kind": "lesson",
+   "t0": 20.217,
+   "t1": 22.413,
+   "text": "So stay humble about what you know.",
+   "keys": [
+    "humble"
+   ],
+   "quran": null
+  },
+  {
+   "id": "e1",
+   "kind": "end",
+   "t0": 22.913,
+   "t1": 23.832,
+   "text": "Stay humble.",
+   "keys": [
+    "humble."
+   ],
+   "quran": null
+  }
+ ]
+}

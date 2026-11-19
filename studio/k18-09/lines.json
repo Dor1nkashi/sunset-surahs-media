@@ -1,0 +1,117 @@
+{
+ "title": "Losing the Fish Was What He Was Looking For",
+ "meta": {
+  "name": "v5_k18_09_the-fish",
+  "title": "Losing the Fish Was What He Was Looking For",
+  "follow": ""
+ },
+ "duration": 28.37,
+ "lines": [
+  {
+   "id": "h1",
+   "kind": "hook",
+   "t0": 0.1,
+   "t1": 3.291,
+   "text": "Losing the fish was exactly what he was looking for.",
+   "keys": [
+    "fish",
+    "looking",
+    "for."
+   ],
+   "quran": null
+  },
+  {
+   "id": "s1",
+   "kind": "setup",
+   "t0": 3.741,
+   "t1": 6.55,
+   "text": "Mūsā and his servant travel on with a fish.",
+   "keys": [
+    "fish."
+   ],
+   "quran": null
+  },
+  {
+   "id": "d1",
+   "kind": "dlg",
+   "t0": 6.85,
+   "t1": 13.396,
+   "text": "But when they reached the junction between them, they forgot their fish, and it took its course into the sea, slipping away.",
+   "keys": [
+    "forgot",
+    "fish,",
+    "slipping"
+   ],
+   "quran": {
+    "ref": "18:61",
+    "surah": "Al-Kahf",
+    "ar": "فَلَمَّا بَلَغَا مَجۡمَعَ بَیۡنِهِمَا نَسِیَا حُوتَهُمَا فَٱتَّخَذَ سَبِیلَهُۥ فِی ٱلۡبَحۡرِ سَرَبࣰا"
+   }
+  },
+  {
+   "id": "d2",
+   "kind": "dlg",
+   "t0": 13.946,
+   "t1": 18.032,
+   "text": "That is what we were seeking. So they returned, following their footprints.",
+   "keys": [
+    "seeking.",
+    "returned,",
+    "footprints."
+   ],
+   "quran": {
+    "ref": "18:64",
+    "surah": "Al-Kahf",
+    "ar": "ذَ ٰ⁠لِكَ مَا كُنَّا نَبۡغِۚ فَٱرۡتَدَّا عَلَىٰۤ ءَاثَارِهِمَا قَصَصࣰا"
+   }
+  },
+  {
+   "id": "l1",
+   "kind": "lesson",
+   "t0": 18.732,
+   "t1": 20.743,
+   "text": "The thing they lost was the clue.",
+   "keys": [
+    "lost",
+    "clue."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l2",
+   "kind": "lesson",
+   "t0": 21.043,
+   "t1": 22.338,
+   "text": "So they turned around.",
+   "keys": [
+    "turned",
+    "around."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l3",
+   "kind": "lesson",
+   "t0": 22.638,
+   "t1": 24.819,
+   "text": "Sometimes you retrace your steps.",
+   "keys": [
+    "retrace",
+    "steps."
+   ],
+   "quran": null
+  },
+  {
+   "id": "e1",
+   "kind": "end",
+   "t0": 25.319,
+   "t1": 26.772,
+   "text": "Retrace your steps.",
+   "keys": [
+    "Retrace",
+    "steps."
+   ],
+   "quran": null
+  }
+ ]
+}

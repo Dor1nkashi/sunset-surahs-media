@@ -1,0 +1,117 @@
+{
+ "title": "Musa Was Shocked. Then He Heard the Other Side",
+ "meta": {
+  "name": "v5_k18_11_the-boy",
+  "title": "Musa Was Shocked. Then He Heard the Other Side",
+  "follow": ""
+ },
+ "duration": 31.0,
+ "lines": [
+  {
+   "id": "h1",
+   "kind": "hook",
+   "t0": 0.1,
+   "t1": 2.937,
+   "text": "Mūsā was shocked. Then he heard the other side.",
+   "keys": [
+    "shocked.",
+    "other",
+    "side."
+   ],
+   "quran": null
+  },
+  {
+   "id": "s1",
+   "kind": "setup",
+   "t0": 3.387,
+   "t1": 6.877,
+   "text": "On the road, the servant kills a boy. Mūsā protests.",
+   "keys": [
+    "kills",
+    "protests."
+   ],
+   "quran": null
+  },
+  {
+   "id": "d1",
+   "kind": "dlg",
+   "t0": 7.177,
+   "t1": 14.168,
+   "text": "And as for the boy, his parents were believers, and we feared that he would overburden them by transgression and disbelief.",
+   "keys": [
+    "believers,",
+    "feared",
+    "disbelief."
+   ],
+   "quran": {
+    "ref": "18:80",
+    "surah": "Al-Kahf",
+    "ar": "وَأَمَّا ٱلۡغُلَـٰمُ فَكَانَ أَبَوَاهُ مُؤۡمِنَیۡنِ فَخَشِینَاۤ أَن یُرۡهِقَهُمَا طُغۡیَـٰنࣰا وَكُفۡرࣰا"
+   }
+  },
+  {
+   "id": "d2",
+   "kind": "dlg",
+   "t0": 14.718,
+   "t1": 21.375,
+   "text": "So we intended that their Lord should substitute for them one better than him in purity and nearer to mercy.",
+   "keys": [
+    "better",
+    "purity",
+    "mercy."
+   ],
+   "quran": {
+    "ref": "18:81",
+    "surah": "Al-Kahf",
+    "ar": "فَأَرَدۡنَاۤ أَن یُبۡدِلَهُمَا رَبُّهُمَا خَیۡرࣰا مِّنۡهُ زَكَوٰةࣰ وَأَقۡرَبَ رُحۡمࣰا"
+   }
+  },
+  {
+   "id": "l1",
+   "kind": "lesson",
+   "t0": 22.075,
+   "t1": 23.924,
+   "text": "Mūsā saw only the moment.",
+   "keys": [
+    "moment."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l2",
+   "kind": "lesson",
+   "t0": 24.224,
+   "t1": 25.592,
+   "text": "The servant knew more.",
+   "keys": [
+    "knew",
+    "more."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l3",
+   "kind": "lesson",
+   "t0": 25.892,
+   "t1": 27.394,
+   "text": "Allāh knows all of it.",
+   "keys": [
+    "Allāh",
+    "all"
+   ],
+   "quran": null
+  },
+  {
+   "id": "e1",
+   "kind": "end",
+   "t0": 27.894,
+   "t1": 29.402,
+   "text": "Trust the bigger picture.",
+   "keys": [
+    "bigger",
+    "picture."
+   ],
+   "quran": null
+  }
+ ]
+}

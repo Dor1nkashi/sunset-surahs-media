@@ -1,0 +1,116 @@
+{
+ "title": "He Had Two Gardens, and It Went to His Head",
+ "meta": {
+  "name": "v5_k18_04_two-gardens",
+  "title": "He Had Two Gardens, and It Went to His Head",
+  "follow": ""
+ },
+ "duration": 30.52,
+ "lines": [
+  {
+   "id": "h1",
+   "kind": "hook",
+   "t0": 0.1,
+   "t1": 2.604,
+   "text": "He had two gardens, and it went to his head.",
+   "keys": [
+    "two",
+    "gardens,",
+    "head."
+   ],
+   "quran": null
+  },
+  {
+   "id": "s1",
+   "kind": "setup",
+   "t0": 3.054,
+   "t1": 4.892,
+   "text": "Allāh describes a rich man.",
+   "keys": [
+    "rich",
+    "man."
+   ],
+   "quran": null
+  },
+  {
+   "id": "d1",
+   "kind": "dlg",
+   "t0": 5.192,
+   "t1": 15.679,
+   "text": "And present to them an example of two men: We granted to one of them two gardens of grapevines, and We bordered them with palm trees and placed between them [fields of] crops.",
+   "keys": [
+    "two",
+    "gardens",
+    "palm"
+   ],
+   "quran": {
+    "ref": "18:32",
+    "surah": "Al-Kahf",
+    "ar": "۞ وَٱضۡرِبۡ لَهُم مَّثَلࣰا رَّجُلَیۡنِ جَعَلۡنَا لِأَحَدِهِمَا جَنَّتَیۡنِ مِنۡ أَعۡنَـٰبࣲ وَحَفَفۡنَـٰهُمَا بِنَخۡلࣲ وَجَعَلۡنَا بَیۡنَهُمَا زَرۡعࣰا"
+   }
+  },
+  {
+   "id": "d2",
+   "kind": "dlg",
+   "t0": 16.279,
+   "t1": 19.855,
+   "text": "I am greater than you in wealth and mightier in [numbers of] men.",
+   "keys": [
+    "greater",
+    "wealth",
+    "mightier"
+   ],
+   "quran": {
+    "ref": "18:34",
+    "surah": "Al-Kahf",
+    "ar": "أَنَا۠ أَكۡثَرُ مِنكَ مَالࣰا وَأَعَزُّ نَفَرࣰا"
+   }
+  },
+  {
+   "id": "l1",
+   "kind": "lesson",
+   "t0": 20.555,
+   "t1": 22.248,
+   "text": "Every tree was a gift.",
+   "keys": [
+    "gift."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l2",
+   "kind": "lesson",
+   "t0": 22.548,
+   "t1": 24.5,
+   "text": "He still said: I am greater.",
+   "keys": [
+    "greater."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l3",
+   "kind": "lesson",
+   "t0": 24.8,
+   "t1": 26.789,
+   "text": "Wealth can make a person look down.",
+   "keys": [
+    "look",
+    "down."
+   ],
+   "quran": null
+  },
+  {
+   "id": "e1",
+   "kind": "end",
+   "t0": 27.289,
+   "t1": 28.915,
+   "text": "A gift is not a rank.",
+   "keys": [
+    "gift",
+    "rank."
+   ],
+   "quran": null
+  }
+ ]
+}

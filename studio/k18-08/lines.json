@@ -1,0 +1,114 @@
+{
+ "title": "He Would Not Stop Traveling Until He Found a Teacher",
+ "meta": {
+  "name": "v5_k18_08_the-teacher",
+  "title": "He Would Not Stop Traveling Until He Found a Teacher",
+  "follow": ""
+ },
+ "duration": 29.52,
+ "lines": [
+  {
+   "id": "h1",
+   "kind": "hook",
+   "t0": 0.1,
+   "t1": 3.003,
+   "text": "He wouldn't stop traveling until he found a teacher.",
+   "keys": [
+    "traveling",
+    "teacher."
+   ],
+   "quran": null
+  },
+  {
+   "id": "s1",
+   "kind": "setup",
+   "t0": 3.453,
+   "t1": 5.966,
+   "text": "Mūsā sets out and tells his servant:",
+   "keys": [
+    "Mūsā",
+    "servant:"
+   ],
+   "quran": null
+  },
+  {
+   "id": "d1",
+   "kind": "dlg",
+   "t0": 6.266,
+   "t1": 12.442,
+   "text": "I will not cease [traveling] until I reach the junction of the two seas or continue for a long period.",
+   "keys": [
+    "cease",
+    "junction",
+    "seas"
+   ],
+   "quran": {
+    "ref": "18:60",
+    "surah": "Al-Kahf",
+    "ar": "لَاۤ أَبۡرَحُ حَتَّىٰۤ أَبۡلُغَ مَجۡمَعَ ٱلۡبَحۡرَیۡنِ أَوۡ أَمۡضِیَ حُقُبࣰا"
+   }
+  },
+  {
+   "id": "d2",
+   "kind": "dlg",
+   "t0": 12.992,
+   "t1": 20.218,
+   "text": "And they found a servant from among Our servants to whom we had given mercy from us and had taught him from Us a [certain] knowledge.",
+   "keys": [
+    "servant",
+    "knowledge."
+   ],
+   "quran": {
+    "ref": "18:65",
+    "surah": "Al-Kahf",
+    "ar": "فَوَجَدَا عَبۡدࣰا مِّنۡ عِبَادِنَاۤ ءَاتَیۡنَـٰهُ رَحۡمَةࣰ مِّنۡ عِندِنَا وَعَلَّمۡنَـٰهُ مِن لَّدُنَّا عِلۡمࣰا"
+   }
+  },
+  {
+   "id": "l1",
+   "kind": "lesson",
+   "t0": 20.918,
+   "t1": 22.721,
+   "text": "Knowledge is worth the journey.",
+   "keys": [
+    "Knowledge",
+    "journey."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l2",
+   "kind": "lesson",
+   "t0": 23.021,
+   "t1": 24.33,
+   "text": "He asked to be taught.",
+   "keys": [
+    "taught."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l3",
+   "kind": "lesson",
+   "t0": 24.63,
+   "t1": 26.537,
+   "text": "Never think you have learned enough.",
+   "keys": [
+    "learned",
+    "enough."
+   ],
+   "quran": null
+  },
+  {
+   "id": "e1",
+   "kind": "end",
+   "t0": 27.037,
+   "t1": 27.918,
+   "text": "Keep learning.",
+   "keys": [
+    "learning."
+   ],
+   "quran": null
+  }
+ ]
+}

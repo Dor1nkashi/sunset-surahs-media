@@ -1,0 +1,117 @@
+{
+ "title": "He Was Given a Way to Everything. See What He Chose",
+ "meta": {
+  "name": "v5_k18_13_the-journeys",
+  "title": "He Was Given a Way to Everything. See What He Chose",
+  "follow": ""
+ },
+ "duration": 31.34,
+ "lines": [
+  {
+   "id": "h1",
+   "kind": "hook",
+   "t0": 0.1,
+   "t1": 3.027,
+   "text": "He was given a way to everything. See what he chose.",
+   "keys": [
+    "way",
+    "everything.",
+    "chose."
+   ],
+   "quran": null
+  },
+  {
+   "id": "s1",
+   "kind": "setup",
+   "t0": 3.477,
+   "t1": 7.879,
+   "text": "Dhul-Qarnayn travels to where the sun sets, then to where it rises.",
+   "keys": [
+    "Dhul-Qarnayn",
+    "sets,",
+    "rises."
+   ],
+   "quran": null
+  },
+  {
+   "id": "d1",
+   "kind": "dlg",
+   "t0": 8.179,
+   "t1": 12.806,
+   "text": "Indeed We established him upon the earth, and We gave him to everything a way.",
+   "keys": [
+    "established",
+    "way."
+   ],
+   "quran": {
+    "ref": "18:84",
+    "surah": "Al-Kahf",
+    "ar": "إِنَّا مَكَّنَّا لَهُۥ فِی ٱلۡأَرۡضِ وَءَاتَیۡنَـٰهُ مِن كُلِّ شَیۡءࣲ سَبَبࣰا"
+   }
+  },
+  {
+   "id": "d2",
+   "kind": "dlg",
+   "t0": 13.356,
+   "t1": 21.019,
+   "text": "But as for one who believes and does righteousness, he will have a reward of Paradise, and we will speak to him from our command with ease.",
+   "keys": [
+    "believes",
+    "righteousness,",
+    "ease."
+   ],
+   "quran": {
+    "ref": "18:88",
+    "surah": "Al-Kahf",
+    "ar": "وَأَمَّا مَنۡ ءَامَنَ وَعَمِلَ صَـٰلِحࣰا فَلَهُۥ جَزَاۤءً ٱلۡحُسۡنَىٰۖ وَسَنَقُولُ لَهُۥ مِنۡ أَمۡرِنَا یُسۡرࣰا"
+   }
+  },
+  {
+   "id": "l1",
+   "kind": "lesson",
+   "t0": 21.719,
+   "t1": 23.35,
+   "text": "He had power over people.",
+   "keys": [
+    "power"
+   ],
+   "quran": null
+  },
+  {
+   "id": "l2",
+   "kind": "lesson",
+   "t0": 23.65,
+   "t1": 25.768,
+   "text": "He promised justice for wrongdoing.",
+   "keys": [
+    "justice",
+    "wrongdoing."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l3",
+   "kind": "lesson",
+   "t0": 26.068,
+   "t1": 28.071,
+   "text": "And ease for those who do good.",
+   "keys": [
+    "ease",
+    "good."
+   ],
+   "quran": null
+  },
+  {
+   "id": "e1",
+   "kind": "end",
+   "t0": 28.571,
+   "t1": 29.738,
+   "text": "Power is a choice.",
+   "keys": [
+    "Power",
+    "choice."
+   ],
+   "quran": null
+  }
+ ]
+}

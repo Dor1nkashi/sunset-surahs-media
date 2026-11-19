@@ -1,0 +1,116 @@
+{
+ "title": "Everything He Bragged About Was Gone",
+ "meta": {
+  "name": "v5_k18_05_the-ruin",
+  "title": "Everything He Bragged About Was Gone",
+  "follow": ""
+ },
+ "duration": 33.21,
+ "lines": [
+  {
+   "id": "h1",
+   "kind": "hook",
+   "t0": 0.1,
+   "t1": 2.15,
+   "text": "Everything he bragged about was gone.",
+   "keys": [
+    "bragged",
+    "gone."
+   ],
+   "quran": null
+  },
+  {
+   "id": "s1",
+   "kind": "setup",
+   "t0": 2.6,
+   "t1": 5.833,
+   "text": "His friend told him what to say on entering his garden:",
+   "keys": [
+    "garden:"
+   ],
+   "quran": null
+  },
+  {
+   "id": "d1",
+   "kind": "dlg",
+   "t0": 6.133,
+   "t1": 10.194,
+   "text": "What Allāh willed [has occurred]; there is no power except in Allāh",
+   "keys": [
+    "Allāh",
+    "willed",
+    "power"
+   ],
+   "quran": {
+    "ref": "18:39",
+    "surah": "Al-Kahf",
+    "ar": "مَا شَاۤءَ ٱللَّهُ لَا قُوَّةَ إِلَّا بِٱللَّهِۚ"
+   }
+  },
+  {
+   "id": "d2",
+   "kind": "dlg",
+   "t0": 10.694,
+   "t1": 23.82,
+   "text": "And his fruits were encompassed [by ruin], so he began to turn his hands about [in dismay] over what he had spent on it, while it had collapsed upon its trellises, and said, Oh, I wish I had not associated with my Lord anyone.",
+   "keys": [
+    "ruin],",
+    "collapsed",
+    "anyone."
+   ],
+   "quran": {
+    "ref": "18:42",
+    "surah": "Al-Kahf",
+    "ar": "وَأُحِیطَ بِثَمَرِهِۦ فَأَصۡبَحَ یُقَلِّبُ كَفَّیۡهِ عَلَىٰ مَاۤ أَنفَقَ فِیهَا وَهِیَ خَاوِیَةٌ عَلَىٰ عُرُوشِهَا وَیَقُولُ یَـٰلَیۡتَنِی لَمۡ أُشۡرِكۡ بِرَبِّیۤ أَحَدࣰا"
+   }
+  },
+  {
+   "id": "l1",
+   "kind": "lesson",
+   "t0": 24.52,
+   "t1": 25.824,
+   "text": "Say it when you walk in.",
+   "keys": [
+    "walk",
+    "in."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l2",
+   "kind": "lesson",
+   "t0": 26.124,
+   "t1": 27.424,
+   "text": "Not when it is gone.",
+   "keys": [
+    "gone."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l3",
+   "kind": "lesson",
+   "t0": 27.724,
+   "t1": 29.716,
+   "text": "Nothing you own can defend you.",
+   "keys": [
+    "defend",
+    "you."
+   ],
+   "quran": null
+  },
+  {
+   "id": "e1",
+   "kind": "end",
+   "t0": 30.216,
+   "t1": 31.611,
+   "text": "Say it while you have it.",
+   "keys": [
+    "while",
+    "have",
+    "it."
+   ],
+   "quran": null
+  }
+ ]
+}

@@ -1,0 +1,87 @@
+{
+ "title": "Fifteen Lessons from the Surah of the Cave",
+ "meta": {
+  "name": "v5_k18_00_intro",
+  "title": "Fifteen Lessons from the Surah of the Cave",
+  "follow": ""
+ },
+ "duration": 18.17,
+ "lines": [
+  {
+   "id": "h1",
+   "kind": "hook",
+   "t0": 0.1,
+   "t1": 2.808,
+   "text": "Fifteen lessons from the Sūrah of the Cave.",
+   "keys": [
+    "Fifteen",
+    "Cave."
+   ],
+   "quran": null
+  },
+  {
+   "id": "s1",
+   "kind": "setup",
+   "t0": 3.258,
+   "t1": 5.306,
+   "text": "Allāh says of the cave youths:",
+   "keys": [
+    "Allāh",
+    "youths:"
+   ],
+   "quran": null
+  },
+  {
+   "id": "d1",
+   "kind": "dlg",
+   "t0": 5.556,
+   "t1": 9.366,
+   "text": "It is We who relate to you, [O Muhammad], their story in truth.",
+   "keys": [
+    "story",
+    "truth."
+   ],
+   "quran": {
+    "ref": "18:13",
+    "surah": "Al-Kahf",
+    "ar": "نَّحۡنُ نَقُصُّ عَلَیۡكَ نَبَأَهُم بِٱلۡحَقِّۚ إِنَّهُمۡ فِتۡیَةٌ ءَامَنُوا۟ بِرَبِّهِمۡ وَزِدۡنَـٰهُمۡ هُدࣰى"
+   }
+  },
+  {
+   "id": "l1",
+   "kind": "lesson",
+   "t0": 10.066,
+   "t1": 12.73,
+   "text": "A cave, two gardens, a journey, a wall.",
+   "keys": [
+    "cave,",
+    "gardens,",
+    "wall."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l2",
+   "kind": "lesson",
+   "t0": 13.03,
+   "t1": 14.905,
+   "text": "Fifteen lessons, in order.",
+   "keys": [
+    "Fifteen",
+    "order."
+   ],
+   "quran": null
+  },
+  {
+   "id": "e1",
+   "kind": "end",
+   "t0": 15.405,
+   "t1": 16.565,
+   "text": "Start with the cave.",
+   "keys": [
+    "cave."
+   ],
+   "quran": null
+  }
+ ]
+}

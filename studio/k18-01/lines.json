@@ -1,0 +1,115 @@
+{
+ "title": "Young Men, One Cave, and One Prayer",
+ "meta": {
+  "name": "v5_k18_01_the-cave",
+  "title": "Young Men, One Cave, and One Prayer",
+  "follow": ""
+ },
+ "duration": 28.37,
+ "lines": [
+  {
+   "id": "h1",
+   "kind": "hook",
+   "t0": 0.1,
+   "t1": 2.525,
+   "text": "Young men, one cave, and one prayer.",
+   "keys": [
+    "Young",
+    "cave,",
+    "prayer."
+   ],
+   "quran": null
+  },
+  {
+   "id": "s1",
+   "kind": "setup",
+   "t0": 2.975,
+   "t1": 5.616,
+   "text": "A few young men retreat to a cave and pray:",
+   "keys": [
+    "cave",
+    "pray:"
+   ],
+   "quran": null
+  },
+  {
+   "id": "d1",
+   "kind": "dlg",
+   "t0": 5.916,
+   "t1": 11.126,
+   "text": "Our Lord, grant us from Yourself mercy and prepare for us from our affair right guidance.",
+   "keys": [
+    "grant",
+    "guidance."
+   ],
+   "quran": {
+    "ref": "18:10",
+    "surah": "Al-Kahf",
+    "ar": "رَبَّنَاۤ ءَاتِنَا مِن لَّدُنكَ رَحۡمَةࣰ وَهَیِّئۡ لَنَا مِنۡ أَمۡرِنَا رَشَدࣰا"
+   }
+  },
+  {
+   "id": "d2",
+   "kind": "dlg",
+   "t0": 11.676,
+   "t1": 17.299,
+   "text": "And We made firm their hearts when they stood up and said, Our Lord is the Lord of the heavens and the earth.",
+   "keys": [
+    "firm",
+    "stood",
+    "up"
+   ],
+   "quran": {
+    "ref": "18:14",
+    "surah": "Al-Kahf",
+    "ar": "وَرَبَطۡنَا عَلَىٰ قُلُوبِهِمۡ إِذۡ قَامُوا۟ فَقَالُوا۟ رَبُّنَا رَبُّ ٱلسَّمَـٰوَ ٰ⁠تِ وَٱلۡأَرۡضِ"
+   }
+  },
+  {
+   "id": "l1",
+   "kind": "lesson",
+   "t0": 17.999,
+   "t1": 19.701,
+   "text": "They asked for guidance first.",
+   "keys": [
+    "guidance"
+   ],
+   "quran": null
+  },
+  {
+   "id": "l2",
+   "kind": "lesson",
+   "t0": 20.001,
+   "t1": 22.389,
+   "text": "Then they stood up and said it out loud.",
+   "keys": [
+    "stood",
+    "up"
+   ],
+   "quran": null
+  },
+  {
+   "id": "l3",
+   "kind": "lesson",
+   "t0": 22.689,
+   "t1": 24.632,
+   "text": "And Allāh made their hearts firm.",
+   "keys": [
+    "firm."
+   ],
+   "quran": null
+  },
+  {
+   "id": "e1",
+   "kind": "end",
+   "t0": 25.132,
+   "t1": 26.77,
+   "text": "Ask. Then stand firm.",
+   "keys": [
+    "Ask.",
+    "firm."
+   ],
+   "quran": null
+  }
+ ]
+}

@@ -1,0 +1,128 @@
+{
+ "title": "Wealth and Children Are an Adornment. What Lasts?",
+ "meta": {
+  "name": "v5_k18_07_what-lasts",
+  "title": "Wealth and Children Are an Adornment. What Lasts?",
+  "follow": ""
+ },
+ "duration": 33.63,
+ "lines": [
+  {
+   "id": "h1",
+   "kind": "hook",
+   "t0": 0.1,
+   "t1": 3.645,
+   "text": "Wealth and children are called an adornment. What lasts?",
+   "keys": [
+    "adornment.",
+    "lasts?"
+   ],
+   "quran": null
+  },
+  {
+   "id": "s1",
+   "kind": "setup",
+   "t0": 4.095,
+   "t1": 5.83,
+   "text": "Allāh separates two things:",
+   "keys": [
+    "things:"
+   ],
+   "quran": null
+  },
+  {
+   "id": "d1",
+   "kind": "dlg",
+   "t0": 6.13,
+   "t1": 9.717,
+   "text": "Wealth and children are [but] adornment of the worldly life.",
+   "keys": [
+    "Wealth",
+    "children",
+    "adornment"
+   ],
+   "quran": {
+    "ref": "18:46",
+    "surah": "Al-Kahf",
+    "ar": "ٱلۡمَالُ وَٱلۡبَنُونَ زِینَةُ ٱلۡحَیَوٰةِ ٱلدُّنۡیَاۖ وَٱلۡبَـٰقِیَـٰتُ ٱلصَّـٰلِحَـٰتُ خَیۡرٌ عِندَ رَبِّكَ ثَوَابࣰا وَخَیۡرٌ أَمَلࣰا"
+   }
+  },
+  {
+   "id": "d2",
+   "kind": "dlg",
+   "t0": 10.217,
+   "t1": 15.445,
+   "text": "But the enduring good deeds are better to your Lord for reward and better for [one's] hope.",
+   "keys": [
+    "enduring",
+    "good",
+    "better"
+   ],
+   "quran": {
+    "ref": "18:46",
+    "surah": "Al-Kahf",
+    "ar": "ٱلۡمَالُ وَٱلۡبَنُونَ زِینَةُ ٱلۡحَیَوٰةِ ٱلدُّنۡیَاۖ وَٱلۡبَـٰقِیَـٰتُ ٱلصَّـٰلِحَـٰتُ خَیۡرٌ عِندَ رَبِّكَ ثَوَابࣰا وَخَیۡرٌ أَمَلࣰا"
+   }
+  },
+  {
+   "id": "d3",
+   "kind": "dlg",
+   "t0": 16.145,
+   "t1": 23.725,
+   "text": "Indeed, those who have believed and done righteous deeds - indeed, We will not allow to be lost the reward of any who did well in deeds.",
+   "keys": [
+    "righteous",
+    "lost"
+   ],
+   "quran": {
+    "ref": "18:30",
+    "surah": "Al-Kahf",
+    "ar": "إِنَّ ٱلَّذِینَ ءَامَنُوا۟ وَعَمِلُوا۟ ٱلصَّـٰلِحَـٰتِ إِنَّا لَا نُضِیعُ أَجۡرَ مَنۡ أَحۡسَنَ عَمَلًا"
+   }
+  },
+  {
+   "id": "l1",
+   "kind": "lesson",
+   "t0": 24.425,
+   "t1": 25.994,
+   "text": "Money decorates a life.",
+   "keys": [
+    "decorates"
+   ],
+   "quran": null
+  },
+  {
+   "id": "l2",
+   "kind": "lesson",
+   "t0": 26.294,
+   "t1": 27.789,
+   "text": "Good deeds are what stay.",
+   "keys": [
+    "stay."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l3",
+   "kind": "lesson",
+   "t0": 28.089,
+   "t1": 29.972,
+   "text": "No reward for good is lost.",
+   "keys": [
+    "lost."
+   ],
+   "quran": null
+  },
+  {
+   "id": "e1",
+   "kind": "end",
+   "t0": 30.472,
+   "t1": 32.032,
+   "text": "Invest in what stays.",
+   "keys": [
+    "stays."
+   ],
+   "quran": null
+  }
+ ]
+}

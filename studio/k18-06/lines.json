@@ -1,0 +1,112 @@
+{
+ "title": "Allah Compares This World to a Rainstorm",
+ "meta": {
+  "name": "v5_k18_06_the-rain",
+  "title": "Allah Compares This World to a Rainstorm",
+  "follow": ""
+ },
+ "duration": 31.85,
+ "lines": [
+  {
+   "id": "h1",
+   "kind": "hook",
+   "t0": 0.1,
+   "t1": 2.648,
+   "text": "Allāh compares this world to a rainstorm.",
+   "keys": [
+    "Allāh",
+    "rainstorm."
+   ],
+   "quran": null
+  },
+  {
+   "id": "s1",
+   "kind": "setup",
+   "t0": 3.098,
+   "t1": 5.134,
+   "text": "Allāh gives a picture of this life:",
+   "keys": [
+    "life:"
+   ],
+   "quran": null
+  },
+  {
+   "id": "d1",
+   "kind": "dlg",
+   "t0": 5.434,
+   "t1": 18.53,
+   "text": "And present to them the example of the life of this world, [its being] like rain which We send down from the sky, and the vegetation of the earth mingles with it and [then] it becomes dry remnants, scattered by the winds.",
+   "keys": [
+    "rain",
+    "dry",
+    "scattered"
+   ],
+   "quran": {
+    "ref": "18:45",
+    "surah": "Al-Kahf",
+    "ar": "وَٱضۡرِبۡ لَهُم مَّثَلَ ٱلۡحَیَوٰةِ ٱلدُّنۡیَا كَمَاۤءٍ أَنزَلۡنَـٰهُ مِنَ ٱلسَّمَاۤءِ فَٱخۡتَلَطَ بِهِۦ نَبَاتُ ٱلۡأَرۡضِ فَأَصۡبَحَ هَشِیمࣰا تَذۡرُوهُ ٱلرِّیَـٰحُۗ وَكَانَ ٱللَّهُ عَلَىٰ كُلِّ شَیۡءࣲ مُّقۡتَدِرًا"
+   }
+  },
+  {
+   "id": "d2",
+   "kind": "dlg",
+   "t0": 19.13,
+   "t1": 22.857,
+   "text": "And Allāh is ever, over all things, Perfect in Ability.",
+   "keys": [
+    "Allāh",
+    "Perfect"
+   ],
+   "quran": {
+    "ref": "18:45",
+    "surah": "Al-Kahf",
+    "ar": "وَٱضۡرِبۡ لَهُم مَّثَلَ ٱلۡحَیَوٰةِ ٱلدُّنۡیَا كَمَاۤءٍ أَنزَلۡنَـٰهُ مِنَ ٱلسَّمَاۤءِ فَٱخۡتَلَطَ بِهِۦ نَبَاتُ ٱلۡأَرۡضِ فَأَصۡبَحَ هَشِیمࣰا تَذۡرُوهُ ٱلرِّیَـٰحُۗ وَكَانَ ٱللَّهُ عَلَىٰ كُلِّ شَیۡءࣲ مُّقۡتَدِرًا"
+   }
+  },
+  {
+   "id": "l1",
+   "kind": "lesson",
+   "t0": 23.557,
+   "t1": 24.739,
+   "text": "It grows green.",
+   "keys": [
+    "green."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l2",
+   "kind": "lesson",
+   "t0": 25.039,
+   "t1": 26.824,
+   "text": "Then it dries and scatters.",
+   "keys": [
+    "dries",
+    "scatters."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l3",
+   "kind": "lesson",
+   "t0": 27.124,
+   "t1": 28.684,
+   "text": "Hold this world lightly.",
+   "keys": [
+    "lightly."
+   ],
+   "quran": null
+  },
+  {
+   "id": "e1",
+   "kind": "end",
+   "t0": 29.184,
+   "t1": 30.253,
+   "text": "Hold it lightly.",
+   "keys": [
+    "lightly."
+   ],
+   "quran": null
+  }
+ ]
+}

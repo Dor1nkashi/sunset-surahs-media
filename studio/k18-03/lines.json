@@ -1,0 +1,116 @@
+{
+ "title": "Never Say 'I'll Do It Tomorrow' Without This",
+ "meta": {
+  "name": "v5_k18_03_in-sha-allah",
+  "title": "Never Say 'I'll Do It Tomorrow' Without This",
+  "follow": ""
+ },
+ "duration": 29.91,
+ "lines": [
+  {
+   "id": "h1",
+   "kind": "hook",
+   "t0": 0.1,
+   "t1": 2.656,
+   "text": "Never say 'I'll do it tomorrow' without this.",
+   "keys": [
+    "tomorrow'",
+    "this."
+   ],
+   "quran": null
+  },
+  {
+   "id": "s1",
+   "kind": "setup",
+   "t0": 3.106,
+   "t1": 5.763,
+   "text": "Allāh teaches how to talk about tomorrow:",
+   "keys": [
+    "tomorrow:"
+   ],
+   "quran": null
+  },
+  {
+   "id": "d1",
+   "kind": "dlg",
+   "t0": 6.063,
+   "t1": 9.647,
+   "text": "And never say of anything, Indeed, I will do that tomorrow.",
+   "keys": [
+    "never",
+    "say",
+    "tomorrow."
+   ],
+   "quran": {
+    "ref": "18:23",
+    "surah": "Al-Kahf",
+    "ar": "وَلَا تَقُولَنَّ لِشَا۟یۡءٍ إِنِّی فَاعِلࣱ ذَ ٰ⁠لِكَ غَدًا"
+   }
+  },
+  {
+   "id": "d2",
+   "kind": "dlg",
+   "t0": 10.147,
+   "t1": 19.624,
+   "text": "Except [when adding], If Allāh wills. And remember your Lord when you forget [it] and say, Perhaps my Lord will guide me to what is nearer than this to right conduct.",
+   "keys": [
+    "Allāh",
+    "wills.",
+    "remember"
+   ],
+   "quran": {
+    "ref": "18:24",
+    "surah": "Al-Kahf",
+    "ar": "إِلَّاۤ أَن یَشَاۤءَ ٱللَّهُۚ وَٱذۡكُر رَّبَّكَ إِذَا نَسِیتَ وَقُلۡ عَسَىٰۤ أَن یَهۡدِیَنِ رَبِّی لِأَقۡرَبَ مِنۡ هَـٰذَا رَشَدࣰا"
+   }
+  },
+  {
+   "id": "l1",
+   "kind": "lesson",
+   "t0": 20.324,
+   "t1": 22.225,
+   "text": "Tomorrow is not in your hands.",
+   "keys": [
+    "Tomorrow",
+    "hands."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l2",
+   "kind": "lesson",
+   "t0": 22.525,
+   "t1": 24.222,
+   "text": "Add the words, and mean them.",
+   "keys": [
+    "Add",
+    "mean"
+   ],
+   "quran": null
+  },
+  {
+   "id": "l3",
+   "kind": "lesson",
+   "t0": 24.522,
+   "t1": 26.459,
+   "text": "And if you forget, remember Him.",
+   "keys": [
+    "forget,",
+    "remember"
+   ],
+   "quran": null
+  },
+  {
+   "id": "e1",
+   "kind": "end",
+   "t0": 26.959,
+   "t1": 28.312,
+   "text": "Say: in shā' Allāh.",
+   "keys": [
+    "shā'",
+    "Allāh."
+   ],
+   "quran": null
+  }
+ ]
+}

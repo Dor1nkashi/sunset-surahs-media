@@ -1,0 +1,116 @@
+{
+ "title": "He Built a Wall of Iron, Then Gave the Credit Away",
+ "meta": {
+  "name": "v5_k18_14_the-barrier",
+  "title": "He Built a Wall of Iron, Then Gave the Credit Away",
+  "follow": ""
+ },
+ "duration": 33.39,
+ "lines": [
+  {
+   "id": "h1",
+   "kind": "hook",
+   "t0": 0.1,
+   "t1": 3.275,
+   "text": "He built an iron wall, then gave the credit away.",
+   "keys": [
+    "iron",
+    "credit",
+    "away."
+   ],
+   "quran": null
+  },
+  {
+   "id": "s1",
+   "kind": "setup",
+   "t0": 3.725,
+   "t1": 7.906,
+   "text": "A people ask Dhul-Qarnayn for a barrier against Gog and Magog.",
+   "keys": [
+    "barrier",
+    "Gog",
+    "Magog."
+   ],
+   "quran": null
+  },
+  {
+   "id": "d1",
+   "kind": "dlg",
+   "t0": 8.206,
+   "t1": 16.071,
+   "text": "That in which my Lord has established me is better [than what you offer], but assist me with strength; I will make between you and them a dam.",
+   "keys": [
+    "better",
+    "assist",
+    "strength;"
+   ],
+   "quran": {
+    "ref": "18:95",
+    "surah": "Al-Kahf",
+    "ar": "مَا مَكَّنِّی فِیهِ رَبِّی خَیۡرࣱ فَأَعِینُونِی بِقُوَّةٍ أَجۡعَلۡ بَیۡنَكُمۡ وَبَیۡنَهُمۡ رَدۡمًا"
+   }
+  },
+  {
+   "id": "d2",
+   "kind": "dlg",
+   "t0": 16.621,
+   "t1": 24.66,
+   "text": "This is a mercy from my Lord; but when the promise of my Lord comes, He will make it level, and ever is the promise of my Lord true.",
+   "keys": [
+    "mercy",
+    "promise",
+    "true."
+   ],
+   "quran": {
+    "ref": "18:98",
+    "surah": "Al-Kahf",
+    "ar": "هَـٰذَا رَحۡمَةࣱ مِّن رَّبِّیۖ فَإِذَا جَاۤءَ وَعۡدُ رَبِّی جَعَلَهُۥ دَكَّاۤءَۖ وَكَانَ وَعۡدُ رَبِّی حَقࣰّا"
+   }
+  },
+  {
+   "id": "l1",
+   "kind": "lesson",
+   "t0": 25.36,
+   "t1": 26.862,
+   "text": "He turned down payment.",
+   "keys": [
+    "payment."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l2",
+   "kind": "lesson",
+   "t0": 27.162,
+   "t1": 28.327,
+   "text": "He asked for effort.",
+   "keys": [
+    "effort."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l3",
+   "kind": "lesson",
+   "t0": 28.627,
+   "t1": 30.05,
+   "text": "He called it a mercy.",
+   "keys": [
+    "mercy."
+   ],
+   "quran": null
+  },
+  {
+   "id": "e1",
+   "kind": "end",
+   "t0": 30.55,
+   "t1": 31.786,
+   "text": "Give the credit away.",
+   "keys": [
+    "credit",
+    "away."
+   ],
+   "quran": null
+  }
+ ]
+}

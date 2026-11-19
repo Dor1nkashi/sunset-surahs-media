@@ -1,0 +1,114 @@
+{
+ "title": "They Looked Awake. They Were Asleep for Three Hundred Years",
+ "meta": {
+  "name": "v5_k18_02_the-sleep",
+  "title": "They Looked Awake. They Were Asleep for Three Hundred Years",
+  "follow": ""
+ },
+ "duration": 30.54,
+ "lines": [
+  {
+   "id": "h1",
+   "kind": "hook",
+   "t0": 0.1,
+   "t1": 3.324,
+   "text": "They looked awake. They were asleep for three hundred years.",
+   "keys": [
+    "awake.",
+    "asleep",
+    "three"
+   ],
+   "quran": null
+  },
+  {
+   "id": "s1",
+   "kind": "setup",
+   "t0": 3.774,
+   "t1": 6.296,
+   "text": "Inside the cave, the young men sleep.",
+   "keys": [
+    "sleep."
+   ],
+   "quran": null
+  },
+  {
+   "id": "d1",
+   "kind": "dlg",
+   "t0": 6.596,
+   "t1": 14.747,
+   "text": "And you would think them awake, while they were asleep. And We turned them to the right and to the left, while their dog stretched his forelegs at the entrance.",
+   "keys": [
+    "asleep.",
+    "dog",
+    "entrance."
+   ],
+   "quran": {
+    "ref": "18:18",
+    "surah": "Al-Kahf",
+    "ar": "وَتَحۡسَبُهُمۡ أَیۡقَاظࣰا وَهُمۡ رُقُودࣱۚ وَنُقَلِّبُهُمۡ ذَاتَ ٱلۡیَمِینِ وَذَاتَ ٱلشِّمَالِۖ وَكَلۡبُهُم بَـٰسِطࣱ ذِرَاعَیۡهِ بِٱلۡوَصِیدِۚ"
+   }
+  },
+  {
+   "id": "d2",
+   "kind": "dlg",
+   "t0": 15.347,
+   "t1": 19.483,
+   "text": "And they remained in their cave for three hundred years and exceeded by nine.",
+   "keys": [
+    "three",
+    "hundred",
+    "nine."
+   ],
+   "quran": {
+    "ref": "18:25",
+    "surah": "Al-Kahf",
+    "ar": "وَلَبِثُوا۟ فِی كَهۡفِهِمۡ ثَلَـٰثَ مِا۟ئَةࣲ سِنِینَ وَٱزۡدَادُوا۟ تِسۡعࣰا"
+   }
+  },
+  {
+   "id": "l1",
+   "kind": "lesson",
+   "t0": 20.183,
+   "t1": 21.916,
+   "text": "They could not guard themselves.",
+   "keys": [
+    "guard"
+   ],
+   "quran": null
+  },
+  {
+   "id": "l2",
+   "kind": "lesson",
+   "t0": 22.216,
+   "t1": 24.868,
+   "text": "Still, Allāh turned them to the right and left.",
+   "keys": [
+    "turned",
+    "left."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l3",
+   "kind": "lesson",
+   "t0": 25.168,
+   "t1": 27.37,
+   "text": "Even asleep, they were not forgotten.",
+   "keys": [
+    "forgotten."
+   ],
+   "quran": null
+  },
+  {
+   "id": "e1",
+   "kind": "end",
+   "t0": 27.87,
+   "t1": 28.941,
+   "text": "Not forgotten.",
+   "keys": [
+    "forgotten."
+   ],
+   "quran": null
+  }
+ ]
+}

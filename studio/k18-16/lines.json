@@ -1,0 +1,75 @@
+{
+ "title": "Fifteen Lessons from the Surah of the Cave (Surah Al-Kahf)",
+ "meta": {
+  "name": "v5_k18_16_outro",
+  "title": "Fifteen Lessons from the Surah of the Cave (Surah Al-Kahf)",
+  "follow": ""
+ },
+ "duration": 17.79,
+ "lines": [
+  {
+   "id": "h1",
+   "kind": "hook",
+   "t0": 0.1,
+   "t1": 1.975,
+   "text": "That was the Sūrah of the Cave.",
+   "keys": [
+    "Sūrah",
+    "Cave."
+   ],
+   "quran": null
+  },
+  {
+   "id": "s1",
+   "kind": "setup",
+   "t0": 2.425,
+   "t1": 3.584,
+   "text": "And Allāh says:",
+   "keys": [
+    "Allāh"
+   ],
+   "quran": null
+  },
+  {
+   "id": "d1",
+   "kind": "dlg",
+   "t0": 3.784,
+   "t1": 11.286,
+   "text": "So whoever would hope for the meeting with his Lord - let him do righteous work and not associate in the worship of his Lord anyone.",
+   "keys": [
+    "meeting",
+    "righteous",
+    "anyone."
+   ],
+   "quran": {
+    "ref": "18:110",
+    "surah": "Al-Kahf",
+    "ar": "فَمَن كَانَ یَرۡجُوا۟ لِقَاۤءَ رَبِّهِۦ فَلۡیَعۡمَلۡ عَمَلࣰا صَـٰلِحࣰا وَلَا یُشۡرِكۡ بِعِبَادَةِ رَبِّهِۦۤ أَحَدَۢا"
+   }
+  },
+  {
+   "id": "l1",
+   "kind": "lesson",
+   "t0": 11.986,
+   "t1": 14.127,
+   "text": "Faith. Wealth. Knowledge. Power.",
+   "keys": [
+    "Faith.",
+    "Knowledge.",
+    "Power."
+   ],
+   "quran": null
+  },
+  {
+   "id": "e1",
+   "kind": "end",
+   "t0": 14.627,
+   "t1": 16.191,
+   "text": "Start again from the cave.",
+   "keys": [
+    "cave."
+   ],
+   "quran": null
+  }
+ ]
+}

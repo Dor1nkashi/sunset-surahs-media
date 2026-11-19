@@ -1,0 +1,117 @@
+{
+ "title": "A Town Refused Them Food. He Repaired Its Wall Anyway",
+ "meta": {
+  "name": "v5_k18_12_the-wall",
+  "title": "A Town Refused Them Food. He Repaired Its Wall Anyway",
+  "follow": ""
+ },
+ "duration": 33.43,
+ "lines": [
+  {
+   "id": "h1",
+   "kind": "hook",
+   "t0": 0.1,
+   "t1": 3.857,
+   "text": "A town refused them food. He repaired its wall anyway.",
+   "keys": [
+    "refused",
+    "wall"
+   ],
+   "quran": null
+  },
+  {
+   "id": "s1",
+   "kind": "setup",
+   "t0": 4.307,
+   "t1": 8.662,
+   "text": "A wall is about to collapse. Mūsā says he could have asked for payment.",
+   "keys": [
+    "collapse.",
+    "payment."
+   ],
+   "quran": null
+  },
+  {
+   "id": "d1",
+   "kind": "dlg",
+   "t0": 8.962,
+   "t1": 17.349,
+   "text": "And as for the wall, it belonged to two orphan boys in the city, and there was beneath it a treasure for them, and their father had been righteous.",
+   "keys": [
+    "orphan",
+    "treasure",
+    "righteous."
+   ],
+   "quran": {
+    "ref": "18:82",
+    "surah": "Al-Kahf",
+    "ar": "وَأَمَّا ٱلۡجِدَارُ فَكَانَ لِغُلَـٰمَیۡنِ یَتِیمَیۡنِ فِی ٱلۡمَدِینَةِ وَكَانَ تَحۡتَهُۥ كَنزࣱ لَّهُمَا وَكَانَ أَبُوهُمَا صَـٰلِحࣰا فَأَرَادَ رَبُّكَ أَن یَبۡلُغَاۤ أَشُدَّهُمَا وَیَسۡتَخۡرِجَا كَنزَهُمَا رَحۡمَةࣰ مِّن رَّبِّكَۚ وَمَا فَعَلۡتُهُۥ عَنۡ أَمۡرِیۚ ذَ ٰ⁠لِكَ تَأۡوِیلُ مَا لَمۡ تَسۡطِع عَّلَیۡهِ صَبۡرࣰا"
+   }
+  },
+  {
+   "id": "d2",
+   "kind": "dlg",
+   "t0": 17.949,
+   "t1": 24.183,
+   "text": "So your Lord intended that they reach maturity and extract their treasure, as a mercy from your Lord.",
+   "keys": [
+    "maturity",
+    "treasure,",
+    "mercy"
+   ],
+   "quran": {
+    "ref": "18:82",
+    "surah": "Al-Kahf",
+    "ar": "وَأَمَّا ٱلۡجِدَارُ فَكَانَ لِغُلَـٰمَیۡنِ یَتِیمَیۡنِ فِی ٱلۡمَدِینَةِ وَكَانَ تَحۡتَهُۥ كَنزࣱ لَّهُمَا وَكَانَ أَبُوهُمَا صَـٰلِحࣰا فَأَرَادَ رَبُّكَ أَن یَبۡلُغَاۤ أَشُدَّهُمَا وَیَسۡتَخۡرِجَا كَنزَهُمَا رَحۡمَةࣰ مِّن رَّبِّكَۚ وَمَا فَعَلۡتُهُۥ عَنۡ أَمۡرِیۚ ذَ ٰ⁠لِكَ تَأۡوِیلُ مَا لَمۡ تَسۡطِع عَّلَیۡهِ صَبۡرࣰا"
+   }
+  },
+  {
+   "id": "l1",
+   "kind": "lesson",
+   "t0": 24.883,
+   "t1": 26.628,
+   "text": "A wall guarded a treasure.",
+   "keys": [
+    "wall",
+    "treasure."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l2",
+   "kind": "lesson",
+   "t0": 26.928,
+   "t1": 28.63,
+   "text": "Their father had been righteous.",
+   "keys": [
+    "father",
+    "righteous."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l3",
+   "kind": "lesson",
+   "t0": 28.93,
+   "t1": 30.301,
+   "text": "Good can outlive you.",
+   "keys": [
+    "outlive",
+    "you."
+   ],
+   "quran": null
+  },
+  {
+   "id": "e1",
+   "kind": "end",
+   "t0": 30.801,
+   "t1": 31.829,
+   "text": "Do good anyway.",
+   "keys": [
+    "good",
+    "anyway."
+   ],
+   "quran": null
+  }
+ ]
+}

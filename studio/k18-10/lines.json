@@ -1,0 +1,117 @@
+{
+ "title": "He Damaged a Poor People's Boat. Wait for the Reason",
+ "meta": {
+  "name": "v5_k18_10_the-boat",
+  "title": "He Damaged a Poor People's Boat. Wait for the Reason",
+  "follow": ""
+ },
+ "duration": 32.59,
+ "lines": [
+  {
+   "id": "h1",
+   "kind": "hook",
+   "t0": 0.1,
+   "t1": 3.404,
+   "text": "He damaged a poor people's boat. Wait for the reason.",
+   "keys": [
+    "damaged",
+    "boat.",
+    "reason."
+   ],
+   "quran": null
+  },
+  {
+   "id": "s1",
+   "kind": "setup",
+   "t0": 3.854,
+   "t1": 7.551,
+   "text": "At sea, the servant tears the boat open. Mūsā objects:",
+   "keys": [
+    "tears",
+    "boat",
+    "objects:"
+   ],
+   "quran": null
+  },
+  {
+   "id": "d1",
+   "kind": "dlg",
+   "t0": 7.851,
+   "t1": 12.253,
+   "text": "Have you torn it open to drown its people? You have certainly done a grave thing.",
+   "keys": [
+    "torn",
+    "drown",
+    "grave"
+   ],
+   "quran": {
+    "ref": "18:71",
+    "surah": "Al-Kahf",
+    "ar": "أَخَرَقۡتَهَا لِتُغۡرِقَ أَهۡلَهَا لَقَدۡ جِئۡتَ شَیۡـًٔا إِمۡرࣰا"
+   }
+  },
+  {
+   "id": "d2",
+   "kind": "dlg",
+   "t0": 12.803,
+   "t1": 23.072,
+   "text": "As for the ship, it belonged to poor people working at sea. So I intended to cause defect in it as there was after them a king who seized every [good] ship by force.",
+   "keys": [
+    "poor",
+    "king",
+    "force."
+   ],
+   "quran": {
+    "ref": "18:79",
+    "surah": "Al-Kahf",
+    "ar": "أَمَّا ٱلسَّفِینَةُ فَكَانَتۡ لِمَسَـٰكِینَ یَعۡمَلُونَ فِی ٱلۡبَحۡرِ فَأَرَدتُّ أَنۡ أَعِیبَهَا وَكَانَ وَرَاۤءَهُم مَّلِكࣱ یَأۡخُذُ كُلَّ سَفِینَةٍ غَصۡبࣰا"
+   }
+  },
+  {
+   "id": "l1",
+   "kind": "lesson",
+   "t0": 23.772,
+   "t1": 24.967,
+   "text": "It looked like harm.",
+   "keys": [
+    "harm."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l2",
+   "kind": "lesson",
+   "t0": 25.267,
+   "t1": 27.032,
+   "text": "It was protection from a king.",
+   "keys": [
+    "protection",
+    "king."
+   ],
+   "quran": null
+  },
+  {
+   "id": "l3",
+   "kind": "lesson",
+   "t0": 27.332,
+   "t1": 29.321,
+   "text": "Not every damage is a loss.",
+   "keys": [
+    "damage",
+    "loss."
+   ],
+   "quran": null
+  },
+  {
+   "id": "e1",
+   "kind": "end",
+   "t0": 29.821,
+   "t1": 30.994,
+   "text": "Wait for the reason.",
+   "keys": [
+    "reason."
+   ],
+   "quran": null
+  }
+ ]
+}
