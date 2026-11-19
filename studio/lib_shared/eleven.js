@@ -36,7 +36,7 @@ export function elevenStars(THREE, { size = 7, radius = 1300, color = [1.0, 0.94
         float tw = 0.86 + 0.14 * sin(time * (1.1 + fract(ph) * 1.6) + ph);
         vH = sid == ${BRIGHTEST}. ? hi : 0.; vA = mag * tw; gl_PointSize = size * zoom * (0.7 + mag * 0.9) * (1. + vH * 1.6); }`,
     fragmentShader: `uniform float op; uniform vec3 col; varying float vA, vH; void main(){ vec2 q = gl_PointCoord - .5; float d = length(q);
-      float core = exp(-d * d * 60.), halo = exp(-d * d * 9.) * (0.22 + vH * 0.5);
+      float core = exp(-d * d * 34.), halo = exp(-d * d * 7.) * (0.3 + vH * 0.5);
       float a = (core + halo) * vA * op; vec3 c = mix(col, vec3(1.0, 0.82, 0.42), vH * 0.7);
       gl_FragColor = vec4(c * a * 2.4, a);
       #include <tonemapping_fragment>

@@ -46,12 +46,12 @@ async function buildLamps(hy) {
     const x = -LEN / 2 + 0.15 + i * (LEN - 0.3) / (N - 1);
     const w = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.011, 0.05, 10), wickMat); w.position.set(x, 0.85, 0.06); g.add(w); wicks.push(w);
     const tip = new THREE.Mesh(new THREE.SphereGeometry(0.009, 8, 6), charMat); tip.position.set(x, 0.876, 0.06); g.add(tip);
-    const f = W.flame({ h: 0.11, w: 0.045, seed: 20 + i, inten: 3.6, light: 0, planes: 2 }); f.position.set(x, 0.868, 0.06); g.add(f); flames.push(f);
+    const f = W.flame({ h: 0.11, w: 0.045, seed: 20 + i, inten: 2.3, light: 0, planes: 2 }); f.position.set(x, 0.868, 0.06); g.add(f); flames.push(f);
   }
   const run = W.flame({ h: 0.06, w: 0.06, seed: 9, inten: 3.2, light: 0, planes: 2 }); run.position.set(0, 0.83, 0.06); g.add(run);
-  const runL = new THREE.PointLight(0xff9a4a, 6, 4.5, 1.6); g.add(runL);
+  const runL = new THREE.PointLight(0xff9a4a, 3, 3.5, 1.6); g.add(runL);
   const rowL = new THREE.PointLight(0xffa860, 0, 9, 1.4); rowL.position.set(0, 1.25, 0.6); g.add(rowL);
-  g.position.set(LX, y0 - 0.06, LZ); W.shadows(g);
+  g.position.set(LX, y0 - 0.06, LZ); g.rotation.y = K.LRY; W.shadows(g);
   g.traverse((m) => { if (m.isMesh && m.material.type === 'ShaderMaterial') { m.castShadow = false; m.receiveShadow = false; } });
   HILLS.scene.add(g);
   const xs = flames.map((f) => f.position.x);
@@ -66,8 +66,8 @@ async function buildLamps(hy) {
     const fp = prog(t, T0 - 0.15, T1), on = t > T0 - 0.15 && t < T1 + 0.12;
     const x = lerp(xs[0] - 0.12, xs[N - 1], fp);
     run.visible = on; run.position.x = x; run.userData.update(t, on ? 1 : 0);
-    runL.position.set(x, 0.95, 0.25); runL.intensity = on ? 7 : 0;
-    rowL.intensity = sum * 0.9;
+    runL.position.set(x, 0.95, 0.25); runL.intensity = on ? 3 : 0;
+    rowL.intensity = sum * 0.3;
   };
   return K.lamps;
 }
@@ -92,8 +92,8 @@ M.film({
     CAP = captions(await loadLines('lines.json'), { display: 'Display', ui: 'UI' });
     const P = HILLS.set.props, hy = P.terrain.heightAt, hp = P.house.position;
     K.h0 = hp.y; K.hx = hp.x; K.hz = hp.z; K.hy = hy;
-    K.LX = 3.4; K.LZ = 7.4;
-    E11 = elevenStars(THREE, { size: 10 }); HILLS.scene.add(E11);
+    K.LX = 8.5; K.LZ = 12.5; K.LRY = -0.55;   // ledge on the terrace, facing back toward the house, the eastern glow beyond it
+    E11 = elevenStars(THREE, { size: 17 }); HILLS.scene.add(E11);
     windowGlow();
     await buildLamps(hy);
     const h0 = K.h0, wp = P.well.position;
@@ -102,7 +102,8 @@ M.film({
     // camera poses (shot list names)
     const G0 = (x, z, dy) => [x, hy(x, z) + dy, z];                       // a camera dy metres above the ground at (x, z)
     const wideA = { pos: G0(10.5, 21.5, 1.5), look: [-1.5, h0 + 5.0, -10], fov: fv(60) };
-    const ly = K.lamps.y0;
+    const ly = K.lamps.y0, cr = Math.cos(K.LRY), sr = Math.sin(K.LRY);
+    K.LW = (x, y, z) => [K.LX + x * cr + z * sr, ly + y, K.LZ - x * sr + z * cr];   // ledge-local -> world
     K.cams = {
       wideA, wideB: { ...wideA, pos: G0(10.1, 20.6, 1.5) },
       tiltA: { pos: G0(9.8, 19.8, 1.5), look: [-1.5, h0 + 5.2, -10], fov: fv(46) },
@@ -112,8 +113,8 @@ M.film({
       craneB: { pos: G0(-24.5, 12.5, 2.7), look: [-3, h0 + 1.3, -1], fov: fv(46) },
       settleA: { pos: G0(-24.5, 12.5, 2.7), look: [-3, h0 + 1.3, -1], fov: fv(46) },
       settleB: { pos: G0(-23.9, 12.0, 2.6), look: [-3.2, h0 + 1.25, -1], fov: fv(45) },
-      lampA: { pos: [K.LX - 1.55, ly + 1.0, K.LZ + 1.25], look: [K.LX - 1.05, ly + 0.8, K.LZ - 2], fov: fv(30) },
-      lampB: { pos: [K.LX + 1.35, ly + 1.0, K.LZ + 1.25], look: [K.LX + 1.0, ly + 0.82, K.LZ - 2], fov: fv(30) },
+      lampA: { pos: K.LW(-1.5, 1.02, 1.2), look: K.LW(-1.0, 0.72, -3), fov: fv(30) },
+      lampB: { pos: K.LW(1.3, 1.02, 1.2), look: K.LW(0.95, 0.76, -3), fov: fv(30) },
     };
     { const sp = G0(4, 12, 1.6); K.cams.stars = aimAt(sp, far(ELEVEN[BRIGHTEST]).map((v, i) => v + sp[i]), fv(24)); }
     const wc = WELL.set.cameras, pc = PRISON.set.cameras, qc = PALACE.set.cameras;
@@ -147,7 +148,7 @@ M.film({
       sky.moonD.value.set(-0.62, 0.26, -0.74).normalize(); sky.moonOn.value = 1;
       K.lamps.update(t);
       E11.position.set(...cam.pos);
-      E11.userData.update(t, null, { op: 1, zoom: t >= 9.25 && t < 9.97 ? 1.6 : 1, hi });
+      E11.userData.update(t, null, { op: 1, zoom: t >= 9.25 && t < 9.97 ? 1.3 : 1, hi });
     }
     G.renderSet(ctx, st, t, u, { cam, exposure: st === HILLS ? 1.3 : undefined });
     // gold highlight: the same screen spot on every glimpse (match cuts)
