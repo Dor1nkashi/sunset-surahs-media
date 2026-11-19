@@ -85,7 +85,7 @@ M.film({
       g.computeVertexNormals(); return g; };
     const coals = [], r = mulberry32(23);
     for (let i = 0; i < 130; i++) {
-      const a = r() * 6.28, d = Math.sqrt(r()) * 0.36, m = new THREE.MeshStandardMaterial({ color: 0x3a342e, emissive: 0xff4a10, emissiveIntensity: 1.4, roughness: 1 });
+      const a = r() * 6.28, d = Math.sqrt(r()) * 0.36, m = new THREE.MeshStandardMaterial({ color: 0x2e2a26, emissive: new THREE.Color().setHSL(0.02 + 0.05 * r(), 1, 0.45), emissiveIntensity: 1.4, roughness: 1 });
       const c = new THREE.Mesh(coalGeo(0.02 + r() * 0.022, i % 12), m); c.scale.set(1 + r() * 0.6, 0.6 + r() * 0.4, 1 + r() * 0.5);
       c.position.set(FX + Math.cos(a) * d, FY + 0.1 + r() * 0.03, FZ + Math.sin(a) * d); c.rotation.set(r() * 3, r() * 3, 0); sc.add(c);
       coals.push({ m, c, d, out: 0 });
@@ -98,7 +98,7 @@ M.film({
     const EL = new THREE.PointLight(0xff7a30, 2.5, 9, 1.6); EL.position.set(FX, FY + 0.5, FZ); sc.add(EL); K.EL = EL;
     // ---- the father's lit window on the slope (the house front faces +z)
     const H = P.house;
-    const pane = new THREE.Mesh(new THREE.PlaneGeometry(0.56, 0.46), new THREE.MeshBasicMaterial({ color: new THREE.Color(1.0, 0.6, 0.26).multiplyScalar(2.2) }));
+    const pane = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.34), new THREE.MeshBasicMaterial({ color: new THREE.Color(1.0, 0.55, 0.22).multiplyScalar(0.9) }));
     pane.position.set(3.83, 1.95, -0.85); pane.rotation.y = Math.PI / 2; H.add(pane);                      // a small window in the side wall that faces the pen
     const dpl = await W.pbr('old_planks_02', { tile: 1.6, tint: 0x8a6a4e, res: 1024 });
     for (const [y, h] of [[1.68, 0.07], [2.18, 0.07]]) { const fr = W.rbox(0.09, h, 0.7, dpl, { r: 0.015 }); fr.position.set(3.86, y, -0.85); H.add(fr); }
@@ -136,10 +136,10 @@ M.film({
       leanA: { pos: G0(10.0, -0.9, 1.7), look: [FX - 0.2, F[1] + 0.7, FZ - 0.5], fov: fv(44) },
       leanB: { pos: G0(9.7, -1.3, 1.65), look: [FX - 0.3, F[1] + 0.65, FZ - 0.5], fov: fv(41) },
       well: { pos: G0(3.0, 7.5, 1.6), look: [wellP.x, wellP.y + 0.5, wellP.z], fov: fv(16) },
-      shrink: { pos: G0(FX + 1.4, FZ + 2.2, 1.0), look: [FX, F[1] + 0.3, FZ], fov: fv(34) },
-      embA: { pos: G0(FX + 1.2, FZ + 1.4, 1.25), look: [FX, F[1] + 0.1, FZ], fov: fv(22) },
-      embB: { pos: G0(FX + 1.05, FZ + 1.25, 1.12), look: [FX, F[1] + 0.1, FZ], fov: fv(20) },
-      spark: { pos: G0(FX + 0.95, FZ + 1.15, 1.0), look: [FX, F[1] + 0.12, FZ], fov: fv(14) },
+      shrink: { pos: G0(FX + 1.7, FZ + 2.6, 1.3), look: [FX, F[1] + 0.3, FZ], fov: fv(34) },
+      embA: { pos: G0(FX + 1.3, FZ + 1.6, 1.35), look: [FX, F[1] + 0.12, FZ], fov: fv(34) },
+      embB: { pos: G0(FX + 1.15, FZ + 1.4, 1.25), look: [FX, F[1] + 0.12, FZ], fov: fv(31) },
+      spark: { pos: G0(FX + 1.0, FZ + 1.2, 1.1), look: [FX, F[1] + 0.12, FZ], fov: fv(25) },
     };
     K.wellP = [wellP.x, wellP.y, wellP.z];
     { const a = K.cams.well.pos, b = K.wellP; for (const o of P.olives) { const ox = o.position.x - a[0], oz = o.position.z - a[2], dx = b[0] - a[0], dz = b[2] - a[2], L = dx * dx + dz * dz;
@@ -188,7 +188,7 @@ M.film({
     const sky = P.sky.userData.u, dusk = lerp(1.2, 0.45, prog(t, 0, 22));
     sky.sunD.value.set(-0.6, -0.04, -0.8).normalize(); sky.sunC.value.setRGB(1.0 * dusk, 0.5 * dusk, 0.2 * dusk); sky.glow.value = 1.0; sky.sunDisc.value = 2.0; sky.moonOn.value = 0;
     A.sun.intensity = 0.4; HILLS.scene.environmentIntensity = lerp(0.6, 0.3, prog(t, 0, 20)); if (A.hemi) A.hemi.intensity = 0.06;
-    G.renderSet(ctx, HILLS, t, u, { cam, exposure: expo, fire: 0.4 * flameK });
+    G.renderSet(ctx, HILLS, t, u, { cam, exposure: expo, fire: 0.26 * flameK });
     CAP.draw(ctx, t);
     const su = prog(t, 25.05, D - 0.05), a = Math.sin(Math.PI * su);
     if (a > 0 && IMG.seal) { const s = PORT ? 480 : 400; ctx.save(); ctx.globalAlpha = a * 0.95; ctx.drawImage(IMG.seal, FW / 2 - s / 2, FH * (PORT ? 0.36 : 0.42) - s / 2, s, s); ctx.restore(); }
