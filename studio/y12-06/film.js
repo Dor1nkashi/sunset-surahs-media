@@ -27,15 +27,15 @@ const C = {
   bolt2:    { pos: [1.3, 1.8, DZ + 1.2], look: [0.45, 1.85, DZ], fov: 36 },
   back_a:   { pos: [-0.9, 1.55, DZ + 4.3], look: [0.25, 1.35, DZ], fov: 48 },
   back_b:   { pos: [-0.86, 1.55, DZ + 4.15], look: [0.25, 1.35, DZ], fov: 48 },
-  hand_a:   { pos: [1.0, 1.55, DZ + 2.1], look: [0.1, 1.3, DZ], fov: 40 },
-  hand_b:   { pos: [0.85, 1.5, DZ + 1.6], look: [0.1, 1.3, DZ], fov: 38 },
+  hand_a:   { pos: [0.8, 1.62, DZ + 2.7], look: [0.1, 1.3, DZ], fov: 34 },
+  hand_b:   { pos: [0.66, 1.55, DZ + 2.05], look: [0.1, 1.3, DZ], fov: 33 },
   tilt_a:   { pos: [0.1, 1.55, DZ + 2.9], look: [0.0, 1.9, DZ], fov: 48 },
   tilt_b:   { pos: [0.1, 1.6, DZ + 2.9], look: [0.0, 3.25, DZ], fov: 46 },
   emb_a:    { pos: [0.05, 2.9, DZ + 1.9], look: [0.0, 3.38, ZB], fov: 30 },
   emb_b:    { pos: [0.05, 3.05, DZ + 1.45], look: [0.0, 3.38, ZB], fov: 28 },
   lamp:     { pos: [-3.25, 1.86, -0.35], look: [LAMP3[0], 1.5, LAMP3[2]], fov: 28 },
-  boltc_a:  { pos: [0.98, 1.47, DZ + 0.8], look: [0.6, 1.36, DZ], fov: 26 },
-  boltc_b:  { pos: [0.95, 1.46, DZ + 0.72], look: [0.6, 1.36, DZ], fov: 25 },
+  boltc_a:  { pos: [1.02, 1.52, DZ + 0.55], look: [0.6, 1.36, DZ], fov: 22 },
+  boltc_b:  { pos: [1.0, 1.51, DZ + 0.5], look: [0.6, 1.36, DZ], fov: 21 },
   flame:    { pos: [0.0, 1.42, DZ + 0.36], look: [0.55, 1.36, DZ], fov: 26 },
 };
 // the shot table (times from shotlists/y12_06.md)
@@ -74,7 +74,7 @@ function posePeople(t, i) {
       const pt = h0.clone().lerp(tgt, k), pole = V(0.8, 0.2, DZ + 0.9);
       K.reach(MAN, 'Right', pt, pole);
       K.flatHand(MAN, 'Right', 0.03 + 0.97 * (1 - k));
-      K.handAim(MAN, 'Right', pt.clone().add(V(0.02, 0.2 * k - 0.2 * (1 - k), 0.0)), HROLL);
+      K.handAim(MAN, 'Right', pt.clone().add(V(0.02, 0.2 * k - 0.2 * (1 - k), 0.0)), i === 11 ? Math.PI : HROLL);
     }
   }
   if (WOMAN.object3d.visible) {
@@ -94,7 +94,7 @@ function posePeople(t, i) {
     SERV.setPose('walk', t, { carry: 'jar' });
   }
 }
-const HROLL = 0;
+let HROLL = 0;
 M.film({
   fonts: ['800 76px Display', '600 64px UI', '600 30px Display'],
   images: { seal: 'assets/seal.png' },
@@ -159,7 +159,7 @@ M.film({
     DUST2.userData.update(t, i === 8 || i === 10 ? 1 : 0);
     FALLDUST.userData.update(t, i === 9 ? 1 : 0);
     posePeople(t, i);
-    G.renderSet(ctx, ST, t, u, { cam, exposure: SET.exposure * (i === 2 ? 0.62 : i === 8 || i === 10 ? 0.3 : 1) });
+    G.renderSet(ctx, ST, t, u, { cam, exposure: SET.exposure * (i === 2 ? 0.62 : i === 8 || i === 10 ? 0.3 : i === 9 ? 1.5 : 1) });
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.5);
   },
