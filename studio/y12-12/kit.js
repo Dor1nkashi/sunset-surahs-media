@@ -3,6 +3,7 @@
 import * as W from '../lib_shared/world.js';
 const { THREE, lerp, clamp, sstep } = W;
 const V3 = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
+const K_ease = (x) => 0.5 - 0.5 * Math.cos(Math.PI * Math.min(1, Math.max(0, x)));
 
 // ------------------------------------------------------------------ materials
 const MC = new Map();
@@ -77,11 +78,19 @@ export async function saddlebag({ seed = 1, open = false, h = 0.62, r = 0.27, co
   fg.computeVertexNormals();
   const flapMesh = new THREE.Mesh(fg, cm); flapMesh.castShadow = flapMesh.receiveShadow = true;
   const flap = new THREE.Group(); flap.position.set(0, h + 0.035, -r * 1.02); flap.add(flapMesh); g.add(flap);
-  flap.rotation.x = open ? 2.0 : 0;
+  // setOpen(f): 0 = cover lying over the mouth, 1 = folded back over the rim and draped down the back of the bag (wrapped to its curve)
+  const base = Float32Array.from(fp.array), R = r * 1.15;
+  const setOpen = (f) => {
+    f = clamp(f); const w = sstep(0.55, 1, f);
+    flap.rotation.x = -4.5 * K_ease(f); flap.position.z = -r * 1.02 - 0.045 * w; flap.position.y = h + 0.035 + 0.01 * w;
+    for (let i = 0; i < fp.count; i++) { const x = base[i * 3], z = base[i * 3 + 2]; fp.setXYZ(i, x, base[i * 3 + 1] + w * (x * x / (2 * R)) - w * 0.02 * sstep(0.1, 0.5, z / (fr * 1.84)), z); }
+    fp.needsUpdate = true; fg.computeVertexNormals(); flap.updateMatrixWorld(true);
+  };
+  setOpen(open ? 1 : 0);
   // a lashing rope round the belly
   const pts = []; for (let i = 0; i <= 64; i++) { const a = i / 64 * Math.PI * 2; pts.push(V3(Math.cos(a) * r * 1.11, h * 0.55 + 0.01 * Math.sin(a * 3), Math.sin(a) * r * 1.11)); }
   g.add(W.rope(pts, 0.009, { segs: 160 }));
-  return { group: g, flap, mouthY: h, grain, r };
+  return { group: g, flap, setOpen, flapEdge: () => flap.localToWorld(V3(0, 0.02, fr * 1.75)), mouthY: h, grain, r };
 }
 
 // ------------------------------------------------------------------ low table with a draped cloth (the cloth top sits at y = top)
@@ -190,10 +199,30 @@ export function reach(p, side, target, pole, k = 1) {
 export const onBody = (p, x, y, z) => p.object3d.localToWorld(V3(x, y, z));
 export const handPos = (p, side) => p.bones(side + 'Hand').getWorldPosition(V3());
 // hands folded at the waist / chest (a still, composed posture)
-export function foldHands(p, y = 0.98, fwd = 0.2) {
+export function foldHands(p, y = 0.98, fwd = 0.2, k = 1) {
   const h = p.height / 1.8;
-  reach(p, 'Left', onBody(p, 0.03, y * h, fwd * h), onBody(p, 0.6, 1.0 * h, -0.5));
-  reach(p, 'Right', onBody(p, -0.03, (y + 0.02) * h, (fwd + 0.02) * h), onBody(p, -0.6, 1.0 * h, -0.5));
+  if (k <= 0) return;
+  reach(p, 'Left', onBody(p, 0.03, y * h, fwd * h), onBody(p, 0.6, 1.0 * h, -0.5), k);
+  reach(p, 'Right', onBody(p, -0.03, (y + 0.02) * h, (fwd + 0.02) * h), onBody(p, -0.6, 1.0 * h, -0.5), k);
 }
 // a person standing/placed with yaw at [x,y,z]
 export function place(p, x, y, z, yaw = 0) { p.object3d.position.set(x, y, z); p.object3d.rotation.set(0, yaw, 0); p.object3d.updateMatrixWorld(true); }
+
+// a night starfield of point stars (sizes, colour temperatures, twinkle), no fog, follows the camera
+export function starfield({ count = 2600, seed = 7, minY = -0.02, bright = 1 } = {}) {
+  const r = W.rng(seed), pos = new Float32Array(count * 3), size = new Float32Array(count), col = new Float32Array(count * 3), ph = new Float32Array(count);
+  for (let i = 0; i < count; i++) {
+    let x, y, z; do { x = r() * 2 - 1; y = r() * 2 - 1; z = r() * 2 - 1; } while (x * x + y * y + z * z > 1 || y < minY);
+    const l = Math.hypot(x, y, z); pos.set([x / l * 1000, y / l * 1000, z / l * 1000], i * 3);
+    const m = Math.pow(r(), 6); size[i] = 1.4 + 5.5 * m; ph[i] = r() * 6.28;
+    const c = new THREE.Color().setHSL(0.08 + r() * 0.55 * (r() < 0.5 ? 1 : 0), 0.35 * r(), 0.82 + 0.18 * m); col.set([c.r, c.g, c.b], i * 3);
+  }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.setAttribute('size', new THREE.BufferAttribute(size, 1));
+  g.setAttribute('color', new THREE.BufferAttribute(col, 3)); g.setAttribute('ph', new THREE.BufferAttribute(ph, 1));
+  const m = new THREE.ShaderMaterial({ uniforms: { time: { value: 0 }, k: { value: bright } }, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    vertexShader: 'attribute float size, ph; attribute vec3 color; uniform float time, k; varying vec3 vC; varying float vA; void main(){ vC = color; vA = k * (0.75 + 0.25 * sin(time * 2.1 + ph * 3.0)); vec4 mv = modelViewMatrix * vec4(position, 1.); gl_Position = projectionMatrix * mv; gl_PointSize = size; }',
+    fragmentShader: 'varying vec3 vC; varying float vA; void main(){ vec2 d = gl_PointCoord - 0.5; float r = length(d); float a = smoothstep(0.5, 0.0, r); a = a * a; gl_FragColor = vec4(vC * a * vA * 1.6, a * vA); }' });
+  const pts = new THREE.Points(g, m); pts.frustumCulled = false; pts.renderOrder = -1;
+  pts.userData.update = (cam, t, k = 1) => { pts.position.copy(cam.position); m.uniforms.time.value = t; m.uniforms.k.value = bright * k; };
+  return pts;
+}
