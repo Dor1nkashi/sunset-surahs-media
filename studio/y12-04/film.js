@@ -93,7 +93,7 @@ M.film({
     // ---- the father's staff leaning by the door, his folded cloak on the threshold stone
     const staff = new THREE.Mesh(W.boxUV(new THREE.CylinderGeometry(0.022, 0.03, 1.8, 16)), darkPl); staff.position.set(-0.78, h0 + 0.88, DZ + 0.32); staff.rotation.z = 0.13; sc.add(W.shadows(staff));
     const cloak = W.cloth(0.7, 0.5, wool.clone(), { segW: 60, segH: 44, folds: 0.03, seed: 8, sag: (u, v) => 0.05 * Math.abs(Math.sin(u * 9 + v * 2)) + 0.03 * Math.sin(v * 11) }); cloak.material.color.set(0x6a5440);
-    cloak.rotation.x = -Math.PI / 2; cloak.position.set(-0.3, h0 + 0.03, DZ + 0.75); sc.add(W.shadows(cloak));
+    // (the cloak on the threshold read as lumps; left out)
     // ---- the tunic: one held by a brother (shots 4-5), the same tunic later laid folded on the step (shot 11)
     K.tHeld = tunic(wool, { seed: 3 }); sc.add(K.tHeld);
     K.tStep = tunic(wool, { seed: 3, w: 0.42, h: 0.36, folded: true }); K.tStep.rotation.x = -Math.PI / 2; K.tStep.rotation.z = 0.2; K.tStep.position.set(0.25, h0 + 0.025, DZ + 0.42); sc.add(K.tStep);
