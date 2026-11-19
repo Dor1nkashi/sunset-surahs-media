@@ -52,7 +52,7 @@ const SHOTS = [
   { t0: 24.49, t1: 28.31, a: C.hand },
 ];
 
-let SET, ST, CAP, YM, FM, CUPM, OUT, DUST, SUNDIR = [], SUN, SHAFT, FILL;
+let GOLD, SET, ST, CAP, YM, FM, CUPM, OUT, DUST, SUNDIR = [], SUN, SHAFT, FILL;
 M.film({
   fonts: ['800 76px Display', '600 64px UI', '600 30px Display'],
   images: { seal: 'assets/seal.png' },
@@ -81,6 +81,8 @@ M.film({
     CUPM = W.lathe([[0.001, 0], [0.034, 0], [0.036, 0.008], [0.012, 0.016], [0.009, 0.05], [0.014, 0.06], [0.04, 0.075], [0.05, 0.11], [0.046, 0.112], [0.036, 0.08], [0.001, 0.07]], W.brassMat(), { seg: 64 }); CUPM.position.set(...CUP); S.add(W.shadows(CUPM));
     DUST = K.dustMotes({ centre: [0.1, 1.5, -1.3], size: [1.6, 2.6, 2.0], count: 500, seed: 19, px: 0.007, op: 0.6, fall: 0.01 }); S.add(DUST);
     FILL = new THREE.PointLight(0xffd8b0, 0, 6, 2); FILL.position.set(-0.8, 1.0, 0.6); S.add(FILL);
+    // the golden patch of window sun, a narrow beam along the sun's path (the shaft the hand is placed in)
+    GOLD = new THREE.SpotLight(0xffb850, 0, 12, 0.11, 0.5, 1.0); S.add(GOLD, GOLD.target);
     const PP = await K.people();
     YM = PP.make({ kind: 'man', outfit: 'thobe', palette: { robe: '#c9b996', wrap: '#ece4d2', sash: '#27345a', cloak: '#3f3026', trousers: '#c2ae8c' }, beard: 'none', headwear: 'none', seed: 12 });
     FM = PP.make({ kind: 'man', outfit: 'worker', palette: { robe: '#8e8a80', wrap: '#cfc6b4', sash: '#5a4a3a', cloak: '#6b645a', trousers: '#a89c88' }, beard: 'short', headwear: 'wrap', seed: 27 });
@@ -139,7 +141,9 @@ function world(t, i) {
     const k = prog(t, 19.4, L2), gaz = GAZ, gel = GEL;
     setSun(az + (gaz - az) * k, el + (gel - el) * k, k > 0 ? col.lerp(new THREE.Color(0xffc070), k).getHex() : col.getHex(), 7 * (0.25 + 0.75 * night) * (1 - k) + 7 * k);
   } else setSun(GAZ, GEL, 0xffc070, 7);
-  SHAFT.userData.update(t, t > L0 ? 1.6 : 1);
+  SHAFT.userData.update(t, t > L0 ? (i >= 11 ? 3.2 : 1.6) : 1);
+  const g = i >= 11 ? 1 : 0, win = V(...WIN), sd = SUN.position.clone().sub(win).normalize();
+  GOLD.intensity = 40 * g; GOLD.position.copy(win.clone().add(sd.clone().multiplyScalar(0.3))); GOLD.target.position.copy(win.clone().sub(sd.multiplyScalar(4)));
   DUST.userData.update(t, i >= 11 ? 1 : 0.4);
 }
 
