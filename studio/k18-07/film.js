@@ -43,13 +43,13 @@ function poseMan(t, s) {
   const who = s.who; MAN.object3d.visible = !!who; if (!who) return;
   const at = (x, z, yaw, clip = 'kneel') => { K.place(MAN, x, gy, z, yaw); MAN.setPose(clip, 1.5); MAN.object3d.updateMatrixWorld(true); };
   if (who === 'bracelet' || who === 'bowl') {
-    at(DISH.x + 0.55, DISH.z - 0.55, -Math.PI / 2 - 0.6);
-    const target = who === 'bracelet' ? V(BR0.x, BR0.y + 0.01, BR0.z) : V(P.bowl.position.x, gy + 0.11, P.bowl.position.z);
-    const k = who === 'bracelet' ? E.inOutSine(prog(t, 0.2, 1.6)) * (1 - E.inOutSine(prog(t, 2.9, 3.9))) : E.inOutSine(prog(t, 10.4, 11.6)) * (1 - E.inOutSine(prog(t, 12.2, 13.1)));
+    at(DISH.x - 0.5, DISH.z - 0.45, Math.atan2(0.5, 0.45));
+    const target = who === 'bracelet' ? V(BR0.x, BR0.y + 0.01, BR0.z) : V(P.bowl.position.x - 0.05, gy + 0.1, P.bowl.position.z - 0.02);
+    const k = who === 'bracelet' ? E.inOutSine(prog(t, -0.6, 1.6)) * (1 - E.inOutSine(prog(t, 2.9, 3.9))) : E.inOutSine(prog(t, 10.4, 11.6)) * (1 - E.inOutSine(prog(t, 12.2, 13.1)));
     const h0 = K.handPos(MAN, 'Right'); K.reach(MAN, 'Right', h0.clone().lerp(target.clone().add(V(0.02, 0.05, 0)), k), K.onBody(MAN, -0.8, 0.7, -0.3));
     K.handAim(MAN, 'Right', target.clone().add(V(-0.12, 0.0, 0.04)), 0.6); K.flatHand(MAN, 'Right', 0.7);
   } else if (who === 'lamp') {
-    at(NICHE.x - 0.25, NICHE.z + 0.75, Math.PI + 0.25, 'stand');
+    at(NICHE.x - 0.45, NICHE.z + 0.6, Math.PI + 0.45, 'stand');
     const k = E.inOutSine(prog(t, 13.3, 14.6)) * (1 - E.inOutSine(prog(t, 15.0, 16.0)));
     const h0 = K.handPos(MAN, 'Right'), tgt = NICHE.clone().add(V(0.0, 0.03, 0.08));
     K.reach(MAN, 'Right', h0.lerp(tgt, k), K.onBody(MAN, -0.8, 0.6, -0.3)); K.handAim(MAN, 'Right', tgt.clone().add(V(0, 0.02, -0.15)), 1.2); K.flatHand(MAN, 'Right', 0.8);
@@ -102,17 +102,17 @@ M.film({
     C.brace = { pos: [BR0.x + 0.12, gy + 0.14, BR0.z + 0.16], look: [BR0.x, gy + 0.05, BR0.z], fov: 24 };
     C.sandals = { pos: [sd.x + 0.3, gy + 0.22, sd.z + 0.32], look: [sd.x + 0.05, gy + 0.01, sd.z + 0.02], fov: 26 };
     C.hoop = { pos: [hp.x + 0.45, gy + 0.32, hp.z + 0.55], look: [hp.x, gy + 0.2, hp.z], fov: 30 };
-    C.niche_a = { pos: [NICHE.x - 0.6, gy + 1.45, NICHE.z + 1.9], look: [NICHE.x, NICHE.y + 0.05, NICHE.z], fov: 34 };
-    C.niche_b = { pos: [NICHE.x - 0.45, gy + 1.42, NICHE.z + 1.35], look: [NICHE.x, NICHE.y + 0.05, NICHE.z], fov: 32 };
-    C.pot_a = { pos: [POT[0] + 0.8, gy + 0.75, POT[1] + 0.85], look: [POT[0], gy + 0.4, POT[1]], fov: 34 };
-    C.pot_b = { pos: [POT[0] + 0.62, gy + 0.68, POT[1] + 0.66], look: [POT[0], gy + 0.36, POT[1]], fov: 32 };
-    C.soil = { pos: [POT[0] + 0.14, gy + 0.48, POT[1] + 0.2], look: [POT[0], gy + 0.27, POT[1]], fov: 26 };
+    C.niche_a = { pos: [NICHE.x + 1.25, gy + 1.5, NICHE.z + 1.6], look: [NICHE.x - 0.1, NICHE.y + 0.05, NICHE.z], fov: 36 };
+    C.niche_b = { pos: [NICHE.x + 0.95, gy + 1.45, NICHE.z + 1.25], look: [NICHE.x - 0.05, NICHE.y + 0.05, NICHE.z], fov: 34 };
+    C.pot_a = { pos: [POT[0] + 1.3, gy + 1.0, POT[1] + 1.25], look: [POT[0], gy + 0.4, POT[1]], fov: 36 };
+    C.pot_b = { pos: [POT[0] + 1.1, gy + 0.92, POT[1] + 1.05], look: [POT[0], gy + 0.38, POT[1]], fov: 34 };
+    C.soil = { pos: [POT[0] + 0.32, gy + 0.62, POT[1] + 0.36], look: [POT[0] + 0.03, gy + 0.27, POT[1] + 0.03], fov: 28 };
     C.tilt_a = { pos: [POT[0] + 2.6, gy + 0.6, POT[1] + 2.4], look: [POT[0], gy + 0.4, POT[1]], fov: 40 };
     C.tilt_b = { pos: [POT[0] + 2.6, gy + 0.6, POT[1] + 2.4], look: [P.palm.position.x, PALMTOP - 1.5, P.palm.position.z], fov: 46 };
-    C.flame = { pos: [NICHE.x - 0.08, NICHE.y + 0.13, NICHE.z + 0.32], look: [NICHE.x, NICHE.y + 0.1, NICHE.z + 0.1], fov: 20 };
-    C.leaf = { pos: [POT[0] + 0.12, gy + 0.62, POT[1] + 0.2], look: [POT[0], gy + 0.48, POT[1]], fov: 26 };
-    C.glow_a = { pos: [NICHE.x - 0.3, NICHE.y + 0.12, NICHE.z + 0.9], look: [NICHE.x, NICHE.y + 0.1, NICHE.z + 0.1], fov: 26 };
-    C.glow_b = { pos: [NICHE.x - 0.06, NICHE.y + 0.11, NICHE.z + 0.34], look: [NICHE.x, NICHE.y + 0.1, NICHE.z + 0.1], fov: 18 };
+    C.flame = { pos: [NICHE.x - 0.1, NICHE.y + 0.16, NICHE.z + 0.5], look: [NICHE.x, NICHE.y + 0.09, NICHE.z + 0.1], fov: 22 };
+    C.leaf = { pos: [POT[0] + 0.5, gy + 0.62, POT[1] + 0.55], look: [POT[0], gy + 0.42, POT[1]], fov: 28 };
+    C.glow_a = { pos: [NICHE.x - 0.25, NICHE.y + 0.16, NICHE.z + 0.9], look: [NICHE.x, NICHE.y + 0.09, NICHE.z + 0.1], fov: 28 };
+    C.glow_b = { pos: [NICHE.x - 0.12, NICHE.y + 0.14, NICHE.z + 0.55], look: [NICHE.x, NICHE.y + 0.09, NICHE.z + 0.1], fov: 22 };
     ST = W.stage(SET);
     SET.update(0, null, {}); G.R.compile(S, ST.camera);
     CAP = captions(await loadLines('lines.json'), { display: 'Display', ui: 'UI' });
@@ -139,7 +139,7 @@ M.film({
         d.position.set(lip.x - 0.02 * k % 0.05, y, lip.z + 0.01 * Math.sin(k * 2)); d.scale.set(1, 1 + 0.5 * Math.min(1, dt * 3), 1); });
       WETSPOT.material.opacity = 0.75 * E.inOutSine(prog(t, 17.6, 21.0)); WETSPOT.scale.setScalar(0.5 + 0.5 * E.inOutSine(prog(t, 17.6, 21.0))); }
     // the sapling grows a new leaf in shot 13 (and is a shade fuller after the watering)
-    SAP.set(0.12 + 0.025 * E.inOutSine(prog(t, 28.2, 30.3)), 0);
+    SAP.set(0.06 + 0.014 * E.inOutSine(prog(t, 28.2, 30.3)), 0);
     // glints
     { const pos = GLINT.geometry.attributes.position, tgt = s.glint === 'coins' ? DISH : s.glint === 'brace' ? BR0 : s.glint === 'sandals' ? P.sandals[0].position : s.glint === 'hoop' ? P.hoop.position : null;
       const r = W.rng(11 + i);
@@ -148,7 +148,9 @@ M.film({
     // light: sparkle (shots 1-5) -> steady warm; shadow over the coins in shot 11; gold at the end
     P.sun.intensity = s.shade ? 0.25 : s.warm ? 1.6 : 2.6;
     SET.props.setLights(s.warm ? 0.6 : 0.2);
-    G.renderSet(ctx, ST, t, u, { cam, exposure: SET.exposure * (s.shade ? 0.8 : 1), lamp: 1 });
+    const flameShot = i === 13 || i === 15 || i === 16, gold = i <= 6 || s.shade;
+    ST.bloom = flameShot ? 0.06 : SET.bloom;
+    G.renderSet(ctx, ST, t, u, { cam, exposure: SET.exposure * (s.shade ? 0.4 : flameShot ? 0.32 : gold ? 0.62 : 1), lamp: 1 });
     if (i === SHOTS.length - 1) { const k = E.inOutSine(p); ctx.save(); ctx.globalCompositeOperation = 'soft-light'; ctx.globalAlpha = 0.6 * k; ctx.fillStyle = '#e8a83a'; ctx.fillRect(0, 0, M.W, M.H); ctx.restore(); }
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.6);
