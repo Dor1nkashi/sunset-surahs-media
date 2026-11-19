@@ -72,7 +72,7 @@ M.film({
   async init() {
     const T0 = performance.now();
     await G.initGL({ exposure: 1.0 }); W.init(G.R);
-    HILLS = W.stage(await canaan_hills({ time: 'dusk' }));
+    HILLS = W.stage(await canaan_hills({ time: 'predawn' }));
     const fixT = (x) => x.replace(/ʿ/g, '‘').replace(/ʾ/g, '’').replace(/ṣ/g, 's').replace(/ḥ/g, 'h');
     CAP = captions((await loadLines('lines.json')).map((l) => ({ ...l, text: fixT(l.text), keys: (l.keys || []).map(fixT) })), { display: 'Display', ui: 'UI', size: PORT ? 84 : 66 });
     const S = HILLS.set, P = S.props, hy = P.terrain.heightAt, h0 = P.house.position.y, sc = HILLS.scene;
@@ -91,7 +91,7 @@ M.film({
     coals[coals.length - 1].last = true;
     K.coals = coals;
     K.sparks = sparks(70, 5); K.sparks.position.set(FX, FY, FZ); sc.add(K.sparks);
-    const EL = new THREE.PointLight(0xff7a30, 6, 10, 1.6); EL.position.set(FX, FY + 0.5, FZ); sc.add(EL); K.EL = EL;
+    const EL = new THREE.PointLight(0xff7a30, 2.5, 9, 1.6); EL.position.set(FX, FY + 0.5, FZ); sc.add(EL); K.EL = EL;
     // ---- the father's lit window on the slope (the house front faces +z)
     const H = P.house;
     const pane = new THREE.Mesh(new THREE.PlaneGeometry(0.56, 0.46), new THREE.MeshBasicMaterial({ color: new THREE.Color(1.0, 0.6, 0.26).multiplyScalar(2.2) }));
@@ -118,8 +118,8 @@ M.film({
     const G0 = (x, z, dy) => [x, hy(x, z) + dy, z], F = K.F;
     const wellP = P.well.position;
     K.cams = {
-      fireA: { pos: G0(FX + 0.4, FZ + 2.6, 0.55), look: [FX - 0.4, F[1] + 0.75, FZ - 1], fov: fv(46) },
-      fireB: { pos: G0(FX + 0.38, FZ + 2.45, 0.55), look: [FX - 0.4, F[1] + 0.75, FZ - 1], fov: fv(45) },
+      fireA: { pos: G0(FX + 0.5, FZ + 3.6, 0.5), look: [FX - 0.3, F[1] + 0.8, FZ - 1], fov: fv(44) },
+      fireB: { pos: G0(FX + 0.47, FZ + 3.45, 0.5), look: [FX - 0.3, F[1] + 0.8, FZ - 1], fov: fv(43) },
       rackA: { pos: G0(FX + 1.4, FZ - 2.2, 0.75), look: [FX, F[1] + 0.35, FZ], fov: fv(34) },
       rackB: { pos: G0(FX + 1.4, FZ - 2.2, 0.75), look: K.win, fov: fv(28) },
       ringA: { pos: G0(FX + 4.6, FZ + 1.6, 1.9), look: [FX, F[1] + 0.7, FZ], fov: fv(46) },
@@ -144,15 +144,15 @@ M.film({
   draw(ctx, u, t, IMG) {
     ctx.fillStyle = '#000'; ctx.fillRect(0, 0, FW, FH);
     const C = K.cams;
-    let cam, expo = 0.9;
+    let cam, expo = 0.95;
     if (t < 1.96) cam = camL(C.fireA, C.fireB, E.inOutSine(prog(t, 0, 1.96)));
     else if (t < 4.14) cam = camL(C.rackA, C.rackB, E.inOutCubic(prog(t, 2.1, 3.9)));
     else if (t < 5.83) cam = camL(C.ringA, C.ringB, E.inOutSine(prog(t, 4.14, 5.83)));
     else if (t < 7.90) cam = camL(C.wallA, C.wallB, E.inOutSine(prog(t, 5.83, 7.9)));
-    else if (t < 11.39) { cam = camL(C.winA, C.winB, E.inOutCubic(prog(t, 8.6, 10.9))); expo = lerp(0.75, 1.0, E.inOutSine(prog(t, 8.6, 10.9))); }
+    else if (t < 11.39) { cam = camL(C.winA, C.winB, E.inOutCubic(prog(t, 8.6, 10.9))); expo = lerp(0.8, 1.05, E.inOutSine(prog(t, 8.6, 10.9))); }
     else if (t < 13.05) cam = C.listen;
     else if (t < 14.69) cam = camL(C.leanA, C.leanB, E.inOutSine(prog(t, 13.05, 14.69)));
-    else if (t < 16.75) { cam = C.well; expo = 0.8; }
+    else if (t < 16.75) { cam = C.well; expo = 1.1; }
     else if (t < 18.33) cam = C.shrink;
     else if (t < 20.77) cam = camL(C.embA, C.embB, E.inOutSine(prog(t, 18.33, 20.77)));
     else if (t < 23.58) cam = C.spark;
@@ -165,7 +165,7 @@ M.film({
     K.coals.forEach((o) => { let k = 1 - sm((t - o.out) / 0.6); if (o.last) k = t < 23.58 ? 1 : 1 + 0.8 * sm((t - 23.8) / 1.4);
       if (t > 24.6) k = Math.max(k, sm((t - 24.6 - o.d * 2) / 1.0));                  // the glow spreads back through the bed (loop to shot 1)
       o.m.emissiveIntensity = 1.6 * k * (0.85 + 0.15 * Math.sin(t * 2.3 + o.d * 20)); glow += k; });
-    K.EL.intensity = 0.4 + 5 * flameK + 0.06 * glow; K.EL.position.y = K.F[1] + 0.3 + 0.3 * flameK;
+    K.EL.intensity = 0.3 + 2.4 * flameK + 0.04 * glow; K.EL.position.y = K.F[1] + 0.3 + 0.3 * flameK;
     K.sparks.userData.update(t, clamp(flameK * 1.1));
     // ---- the brothers: kneeling, heads turn toward each other (12.0), the ring leans in (13.1), one points at the well (13.6)
     K.bros.forEach((b, i) => {
@@ -178,7 +178,10 @@ M.film({
         reach(p, 'Right', rest.lerp(sh.clone().addScaledVector(dir, 0.62), k), sh.clone().add(V3(0, -1, 0))); }
     });
     // the dusk light keeps falling all film
-    A.sun.intensity = lerp(2.0, 0.6, prog(t, 0, 20)); HILLS.scene.environmentIntensity = lerp(1.1, 0.45, prog(t, 0, 20));
+    // evening: the last glow sinks behind the ridge as the night comes on
+    const sky = P.sky.userData.u, dusk = lerp(1.2, 0.45, prog(t, 0, 22));
+    sky.sunD.value.set(-0.6, -0.04, -0.8).normalize(); sky.sunC.value.setRGB(1.0 * dusk, 0.5 * dusk, 0.2 * dusk); sky.glow.value = 1.0; sky.sunDisc.value = 2.0; sky.moonOn.value = 0;
+    A.sun.intensity = 0.4; HILLS.scene.environmentIntensity = lerp(0.6, 0.3, prog(t, 0, 20)); if (A.hemi) A.hemi.intensity = 0.06;
     G.renderSet(ctx, HILLS, t, u, { cam, exposure: expo, fire: flameK });
     CAP.draw(ctx, t);
     const su = prog(t, 25.05, D - 0.05), a = Math.sin(Math.PI * su);
