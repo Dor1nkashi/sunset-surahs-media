@@ -40,7 +40,7 @@ const SHOTS = [
   { t0: 26.96, t1: D, set: 'm', a: 'tally_a', b: 'tally_c', who: 'tally' },
 ];
 // where the man stands for each action
-const STAND = { tally: [WALLX + 0.52, -1.62, -Math.PI / 2], tools: [0, 0, Math.PI], hips: [0, 0, Math.PI], hand: [0.6, 1.4, 0.35] };
+const STAND = { tally: [WALLX + 0.52, -1.62, -Math.PI / 2], tools: [0, 0, Math.PI], hips: [0, 0, Math.PI], hand: [-1.6, 1.6, 0.35] };
 
 function poseMan(t, s) {
   const p = MAN, who = s.who;
@@ -93,7 +93,7 @@ M.film({
       S.props.tally.material = S.props.tally.material.clone(); S.props.tally.material.map = tx; TALLY[key] = { c, tx, k: -1 };
     }
     // the doorway lamp throws his shadow over the tools (dusk set): move it into the yard, low, and let it cast shadows
-    const L = d.props.lamps[0]; L.position.set(FRONT.x + 2.3, gy + 0.02, FRONT.z + 1.75); L.rotation.y = 2.3;
+    const L = d.props.lamps[0]; L.position.set(FRONT.x + 2.6, gy + 0.02, FRONT.z + 2.7); L.rotation.y = 2.3;
     L.traverse((o) => { if (o.isPointLight) { o.castShadow = true; o.shadow.mapSize.set(1024, 1024); o.shadow.bias = -0.002; o.distance = 9; LAMPL = o; } });
     m.props.lamps[0].position.copy(L.position); m.props.lamps[0].visible = false;
     // the morning: a cold fill that warms as the sun clears the wall
@@ -116,23 +116,23 @@ M.film({
       SUN.material.map = new THREE.CanvasTexture(c); SUN.material.color.set(0xffffff); SUN.scale.setScalar(2.4); }
     m.scene.add(SUN);
     // cameras
-    C.tally_a = { pos: [WALLX + 0.62, gy + TY + 0.02, markZ(6) + 0.05], look: [WALLX, gy + TY - 0.01, markZ(3)], fov: 30 };
-    C.tally_b = { pos: [WALLX + 0.6, gy + TY + 0.01, markZ(6) + 0.04], look: [WALLX, gy + TY - 0.02, markZ(3)], fov: 29 };
-    C.tally_c = { pos: [WALLX + 0.61, gy + TY + 0.02, markZ(6) + 0.045], look: [WALLX, gy + TY - 0.01, markZ(3)], fov: 29.5 };
-    C.rack_a = { pos: [WALLX + 0.45, gy + TY + 0.04, markZ(6) + 0.25], look: [WALLX, gy + TY, markZ(6)], fov: 26 };
-    C.rack_b = { pos: [WALLX + 0.5, gy + TY + 0.05, markZ(1) + 0.3], look: [WALLX, gy + TY, markZ(1)], fov: 26 };
+    C.tally_a = { pos: [WALLX + 0.5, gy + TY + 0.04, markZ(6) - 0.34], look: [WALLX, gy + TY - 0.01, markZ(4)], fov: 30 };
+    C.tally_b = { pos: [WALLX + 0.48, gy + TY + 0.03, markZ(6) - 0.33], look: [WALLX, gy + TY - 0.02, markZ(4)], fov: 29 };
+    C.tally_c = { pos: [WALLX + 0.49, gy + TY + 0.035, markZ(6) - 0.335], look: [WALLX, gy + TY - 0.01, markZ(4)], fov: 29.5 };
+    C.rack_a = { pos: [WALLX + 0.48, gy + TY + 0.03, markZ(6) - 0.33], look: [WALLX, gy + TY - 0.02, markZ(5)], fov: 27 };
+    C.rack_b = { pos: [WALLX + 0.5, gy + TY + 0.05, markZ(6) - 0.3], look: [WALLX, gy + TY, markZ(1)], fov: 26 };
     C.back_a = { pos: [FRONT.x + 1.5, gy + 1.55, FRONT.z + 3.9], look: [FRONT.x - 0.4, gy + 0.7, FRONT.z], fov: 44 };
     C.back_b = { pos: [FRONT.x + 1.3, gy + 1.5, FRONT.z + 3.5], look: [FRONT.x - 0.4, gy + 0.7, FRONT.z], fov: 43 };
     C.hips_a = { pos: [FRONT.x + 1.9, gy + 1.25, FRONT.z + 4.1], look: [FRONT.x - 0.1, gy + 0.9, FRONT.z], fov: 40 };
     C.hips_b = { pos: [FRONT.x + 1.8, gy + 1.22, FRONT.z + 3.85], look: [FRONT.x - 0.1, gy + 0.9, FRONT.z], fov: 39 };
-    C.push_a = { pos: [FRONT.x - 0.7, gy + 1.25, FRONT.z + 2.7], look: [FRONT.x - 0.7, gy + 0.35, FRONT.z + 0.2], fov: 44 };
-    C.push_b = { pos: [FRONT.x - 0.7, gy + 1.05, FRONT.z + 2.1], look: [FRONT.x - 0.7, gy + 0.32, FRONT.z + 0.2], fov: 42 };
-    C.lamp = { pos: [FRONT.x + 3.2, gy + 0.45, FRONT.z + 3.1], look: [FRONT.x + 1.4, gy + 0.15, FRONT.z + 0.6], fov: 38 };
+    C.push_a = { pos: [FRONT.x + 0.2, gy + 1.15, FRONT.z + 2.5], look: [FRONT.x - 0.9, gy + 0.4, FRONT.z + 0.15], fov: 46 };
+    C.push_b = { pos: [FRONT.x - 0.1, gy + 0.95, FRONT.z + 1.95], look: [FRONT.x - 0.9, gy + 0.35, FRONT.z + 0.15], fov: 44 };
+    C.lamp = { pos: [FRONT.x + 3.25, gy + 0.32, FRONT.z + 3.35], look: [FRONT.x + 2.4, gy + 0.12, FRONT.z + 2.4], fov: 34 };
     poseMan(13, SHOTS[7]); const hd = MAN.bones('LeftHand').getWorldPosition(V()); console.error(`[k18-03] hand ${hd.toArray().map((v) => v.toFixed(2))}`);
-    C.cord_a = { pos: [hd.x + 0.5, hd.y + 0.08, hd.z + 0.12], look: [hd.x, hd.y + 0.01, hd.z], fov: 30 };
-    C.cord_b = { pos: [hd.x + 0.42, hd.y + 0.07, hd.z + 0.1], look: [hd.x, hd.y + 0.01, hd.z], fov: 28 };
-    C.open = { pos: [hd.x + 0.55, hd.y + 0.12, hd.z + 0.18], look: [hd.x, hd.y, hd.z], fov: 32 };
-    C.knot = { pos: [hd.x + 0.3, hd.y + 0.06, hd.z + 0.08], look: [hd.x, hd.y + 0.01, hd.z], fov: 20 };
+    C.cord_a = { pos: [hd.x + 0.12, hd.y + 0.3, hd.z + 0.34], look: [hd.x, hd.y, hd.z], fov: 26 };
+    C.cord_b = { pos: [hd.x + 0.1, hd.y + 0.25, hd.z + 0.28], look: [hd.x, hd.y, hd.z], fov: 24 };
+    C.open = { pos: [hd.x + 0.14, hd.y + 0.34, hd.z + 0.38], look: [hd.x, hd.y, hd.z], fov: 28 };
+    C.knot = { pos: [hd.x + 0.07, hd.y + 0.18, hd.z + 0.2], look: [hd.x, hd.y, hd.z], fov: 20 };
     C.wide_a = { pos: [2.8, gy + 1.7, 3.0], look: [-1.0, gy + 1.0, -2.8], fov: 54 };
     C.wide_b = { pos: [1.6, gy + 1.7, 3.2], look: [-1.6, gy + 1.0, -2.8], fov: 54 };
     C.sun_a = { pos: [0.8, gy + 0.75, -2.2], look: [-4.2, gy + 2.6, -0.6], fov: 30 };
