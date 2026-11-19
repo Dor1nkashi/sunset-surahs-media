@@ -88,6 +88,7 @@ M.film({
     CAP = captions((await loadLines('lines.json')).map((l) => ({ ...l, text: fixT(l.text), keys: (l.keys || []).map(fixT) })), { display: 'Display', ui: 'UI', size: PORT ? 84 : 74 });
     const S = WELL.set, P = S.props, sc = WELL.scene, hy = P.terrain.heightAt, h0 = P.well.position.y;
     K.h0 = h0; K.hy = hy;
+    WELL.bloom = 0.06;
     { const wm = P.water.material; wm.envMapIntensity = 0.35; wm.color.set(0x1c3236); wm.roughness = 0.08; }
     P.terrain.mesh.castShadow = false;                                       // the ground has no hole: let the sun into the shaft
     const R0 = 0.78, WY = h0 - 9 + 0.25, top = h0 + 0.91; K.WY = WY; K.top = top;
@@ -201,7 +202,7 @@ M.film({
           const pole = o.position.clone().add(V3(0, 0.2, 0)).addScaledVector(fw, -0.3); reach(p, 'Right', h1, pole); reach(p, 'Left', h2, pole);
           const hw = p.bones('RightHand').getWorldPosition(_v()), top = V3(0, K.h0 + 1.86, 0), c = K.pull[i], d = top.clone().sub(hw);
           c.visible = t < 6.45; c.position.copy(hw).addScaledVector(d, 0.5); c.scale.set(1, d.length(), 1); c.quaternion.setFromUnitVectors(V3(0, 1, 0), d.normalize()); } }
-      else { const tw = t - 6.5 - i * 0.12, sp = clamp(p.speed ? p.speed('walk') : 1.2, 0.7, 1.4), d = sp * tw, sx = b.x >= 0 ? 1 : -1, dx = sx * 0.55, dz = -1, n = Math.hypot(dx, dz);
+      else { const tw = t - 6.5 - i * 0.12, sp = 1.1, d = sp * tw, sx = b.x >= 0 ? 1 : -1, dx = sx * 0.55, dz = -1, n = Math.hypot(dx, dz);
         // walk out round the well and on up the slope (-z), backs to the camera
         const x = b.x + Math.min(d, 1.6) * sx * 0.9 + Math.max(0, d - 1.6) * dx / n, z = b.z - d * 0.8;
         p.setPose('walk', tw + i * 0.4); o.rotation.y = Math.atan2(d < 1.6 ? sx * 0.9 : dx / n, d < 1.6 ? -0.8 : dz / n); o.position.set(x, K.hy(x, z), z); }
