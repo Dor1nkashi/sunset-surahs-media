@@ -82,8 +82,8 @@ export async function saddlebag({ seed = 1, open = false, h = 0.62, r = 0.27, co
   const base = Float32Array.from(fp.array), R = r * 1.15;
   const setOpen = (f) => {
     f = clamp(f); const w = sstep(0.55, 1, f);
-    flap.rotation.x = -4.5 * K_ease(f); flap.position.z = -r * 1.02 - 0.045 * w; flap.position.y = h + 0.035 + 0.01 * w;
-    for (let i = 0; i < fp.count; i++) { const x = base[i * 3], z = base[i * 3 + 2]; fp.setXYZ(i, x, base[i * 3 + 1] + w * (x * x / (2 * R)) - w * 0.02 * sstep(0.1, 0.5, z / (fr * 1.84)), z); }
+    flap.rotation.x = -4.2 * K_ease(f); flap.position.z = -r * 1.02 - 0.03 * w; flap.position.y = h + 0.035 + 0.01 * w;
+    for (let i = 0; i < fp.count; i++) { const x = base[i * 3], z = base[i * 3 + 2]; fp.setXYZ(i, x, base[i * 3 + 1] + 0.25 * w * (x * x / (2 * R)) - w * 0.02 * sstep(0.1, 0.5, z / (fr * 1.84)), z); }
     fp.needsUpdate = true; fg.computeVertexNormals(); flap.updateMatrixWorld(true);
   };
   setOpen(open ? 1 : 0);
@@ -214,7 +214,7 @@ export function starfield({ count = 2600, seed = 7, minY = -0.02, bright = 1 } =
   for (let i = 0; i < count; i++) {
     let x, y, z; do { x = r() * 2 - 1; y = r() * 2 - 1; z = r() * 2 - 1; } while (x * x + y * y + z * z > 1 || y < minY);
     const l = Math.hypot(x, y, z); pos.set([x / l * 1000, y / l * 1000, z / l * 1000], i * 3);
-    const m = Math.pow(r(), 6); size[i] = 1.4 + 5.5 * m; ph[i] = r() * 6.28;
+    const m = Math.pow(r(), 5); size[i] = 2.2 + 8 * m; ph[i] = r() * 6.28;
     const c = new THREE.Color().setHSL(0.08 + r() * 0.55 * (r() < 0.5 ? 1 : 0), 0.35 * r(), 0.82 + 0.18 * m); col.set([c.r, c.g, c.b], i * 3);
   }
   const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.setAttribute('size', new THREE.BufferAttribute(size, 1));

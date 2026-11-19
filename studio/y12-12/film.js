@@ -36,7 +36,7 @@ async function build() {
     const b = await K.saddlebag({ seed: i + 1, open: i === 2, cover: covers[i] }); b.group.position.set(x, hAt(x, z) - 0.02, z); b.group.rotation.y = (i * 0.37) % 0.5 - 0.25 + (i === 2 ? 0.25 : 0);
     g.add(b.group); const cs = W.contactShadow(0.75, 0.75, { op: 0.45 }); cs.position.set(x, hAt(x, z) + 0.01, z); g.add(cs); BAGS.push(b); }
   BAGB = BAGS[2];
-  STAR = K.brightStar({ dir: [-0.05, 0.62, -1], size: 14 }); SET.scene.add(STAR); SKY = K.starfield({ count: 2600, bright: 1 }); SET.scene.add(SKY);
+  STAR = K.brightStar({ dir: [-0.05, 0.62, -1], size: 14 }); SET.scene.add(STAR); SKY = K.starfield({ count: 5200, bright: 2.2 }); SET.scene.add(SKY);
   // people
   const PE = await K.people();
   P.yusuf = PE.make({ kind: 'man', outfit: 'noble', palette: 'noble', beard: 'short', headwear: 'wrap', seed: 12, detail: 1 });
@@ -45,6 +45,10 @@ async function build() {
   P.bro = bro.map(([pal, beard, hw], i) => PE.make({ kind: 'man', outfit: 'traveller', palette: pal, beard, headwear: hw, seed: 60 + i * 7, detail: 0.6 }));
   for (const p of [P.yusuf, P.guard, ...P.bro]) g.add(p.object3d);
   SET.scene.environment = SET.scene.environment || G.ENV;
+  // a deeper night: weaker moon and sky light so the torches make the warm pools; a blue night sky instead of black
+  SET.atmo.sun.intensity *= 0.45; SET.scene.environmentIntensity *= 0.5; if (SET.atmo.hemi) SET.atmo.hemi.intensity *= 0.5;
+  const su = SET.atmo.sky?.userData.u; if (su) { su.zen.value = new THREE.Color(0x050b1e); su.hor.value = new THREE.Color(0x1a2440); su.gnd.value = new THREE.Color(0x0c1018); }
+  if (SET.scene.fog) SET.scene.fog.color.set(0x141c30);
 }
 
 // ------------------------------------------------------------------ staging helpers
