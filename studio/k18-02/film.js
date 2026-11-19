@@ -79,7 +79,7 @@ M.film({
     S.add(MAN.object3d);
     MAN.object3d.traverse((o) => { if (o.isMesh && o.material && 'sheen' in o.material) { o.material.sheen = Math.min(o.material.sheen, 0.12); o.material.envMapIntensity = 0.5; if (o.material.emissive && o.material.emissive.getHex() === 0 && o.material.color.getHSL({}).l > 0.3) o.material.color.set(0x4a3c30); } });
     // his clothes in the same coarse wool as the cloaks (plain standard material on the skinned meshes)
-    { const src = SET.props.sleepers[0].material, wool = new THREE.MeshStandardMaterial({ color: 0x3e3226, roughness: 1, envMapIntensity: 0.3 });
+    { const src = SET.props.sleepers[0].material, wool = new THREE.MeshStandardMaterial({ color: 0xff0000, roughness: 1, envMapIntensity: 0.3 });
       MAN.object3d.traverse((o) => { if (o.isMesh && !/hand|head|foot|sandal/i.test(o.name)) o.material = wool; }); }
     // his own cloak drawn over him (the same wool as the others): only the sleeve and hand come out from under its edge
     { const src = SET.props.sleepers[0]; const cm = src.material.clone(); cm.onBeforeCompile = src.material.onBeforeCompile; cm.customProgramCacheKey = src.material.customProgramCacheKey; cm.alphaHash = false; cm.opacity = 1; COVER = new THREE.Mesh(src.geometry, cm); COVER.userData.U = src.userData.U; COVER.castShadow = COVER.receiveShadow = true;
