@@ -102,7 +102,7 @@ M.film({
     S.add(HAND.object3d);
     STAFF = W.shadows(new THREE.Mesh(new THREE.CylinderGeometry(0.017, 0.021, 1.75, 16).translate(0, 0.875, 0), new THREE.MeshStandardMaterial({ color: 0x5e4128, roughness: 0.62, map: planks.map }))); S.add(STAFF);
     // ---- world points and cameras
-    const fd = DOOR.group.position.x, doorW = V(7.5 - fd, HT(7.5, 19.5), 19.48), lampW = P.lamps[P.lamps.length - 1].position.clone().add(V(0, 0.08, 0));
+    const fd = DOOR.group.position.x, doorW = V(7.5 - fd, HT(7.5, 19.5), 19.48), lampW = (P.lamps[P.lamps.length - 1].updateMatrixWorld(true), P.lamps[P.lamps.length - 1].userData.flame.getWorldPosition(V()));
     C.doorW = doorW; C.lampW = lampW;
     C.musaAt = V(7.15, HT(7.15, 1.2), 1.2);
     const lw = ROOMLAMP.position;
@@ -113,7 +113,7 @@ M.film({
       lane_low:  { pos: [7.35, HT(7.3, 12.6) + 0.3, 12.6], look: [7.7, HT(7.7, 17.5) + 0.2, 17.5], fov: 38 },
       door_a:    { pos: [7.45 - fd, doorW.y + 1.25, 14.2], look: [doorW.x, doorW.y + 0.9, doorW.z], fov: 40 },
       door_b:    { pos: [7.45 - fd, doorW.y + 1.2, 15.6], look: [doorW.x, doorW.y + 0.9, doorW.z], fov: 38 },
-      flame_out: { pos: [lampW.x + 0.75, lampW.y + 0.32, lampW.z - 0.55], look: [lampW.x, lampW.y + 0.05, lampW.z], fov: 22 },
+      flame_out: { pos: [lampW.x + 0.5, lampW.y + 0.12, lampW.z - 0.45], look: [lampW.x, lampW.y + 0.03, lampW.z], fov: 24 },
       push_a:    { pos: [doorW.x + 0.05, doorW.y + 1.15, 16.6], look: [doorW.x, doorW.y + 1.0, doorW.z + 2], fov: 44 },
       push_b:    { pos: [doorW.x + 0.02, doorW.y + 1.05, 17.9], look: [doorW.x, doorW.y + 0.95, doorW.z + 2], fov: 50 },
       window:    { pos: [RX + 1.3, HT(RX, RZ) + 1.35, RZ + 1.5], look: [RX + wx, HT(RX, RZ) + 1.15, RZ - 0.1], fov: 46 },
@@ -152,7 +152,7 @@ M.film({
     // light: outside golden; inside the room the dawn spot carries the light and the sun shadow box follows us in
     const inRoom = !!s.room;
     const op = E.inOutCubic(prog(t, 17.6, 18.7)), dawn = t < 17.17 ? 0 : op * (0.75 + 0.25 * prog(t, 18.7, D));
-    if (S.fog) S.fog.density = inRoom ? 0.0006 : 0.003;
+    if (S.fog) S.fog.density = inRoom ? 0.0 : 0.003;
     if (inRoom) { P.sun.intensity = 0.0; S.environmentIntensity = SUN0.env * 0.18; S.backgroundIntensity = 0.15 + 0.05 * dawn; }
     else { P.sun.intensity = SUN0.I; S.environmentIntensity = SUN0.env; S.backgroundIntensity = 1; }
     // the shutters: closed until 17.6, swing open by 18.6; then the dawn grows
@@ -202,7 +202,7 @@ M.film({
     }
     const expo = SET.exposure * (inRoom ? 1.15 - 0.55 * dawn : i === 6 ? 0.45 : 1);
     ST.bloom = i === 6 || inRoom ? 0.06 : 0.14;
-    G.renderSet(ctx, ST, t, u, { cam, exposure: expo, lights: i >= 5 ? 1 : 0, lamp: i >= 4 ? 0.7 : 0 });
+    G.renderSet(ctx, ST, t, u, { cam, exposure: expo, lights: i >= 5 ? 1 : 0, lamp: i >= 4 ? 1 : 0 });
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.55);
   },
