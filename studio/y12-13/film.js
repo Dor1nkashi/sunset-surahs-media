@@ -212,7 +212,8 @@ M.film({
         console.error('child', i, o.name || o.type, o.isInstancedMesh ? 'inst' + o.count : '', hit, b.min.toArray().map((v) => v.toFixed(1)).join('/'), b.max.toArray().map((v) => v.toFixed(1)).join('/')); }); }
     ST.update(0, 0, {}); G.R.compile(ST.scene, ST.camera);
   },
-  draw(ctx, u, t, IMG) {
+  draw(ctx, u, t0, IMG) {
+    const OVER = t0 >= 40, t = OVER ? t0 - 40 : t0;
     M.fill(ctx, '#000');
     hideAll(); growth(t); drops(t); TREE.setFruit?.(0); TREE.object3d.visible = !DBG.notree; SKIN.visible = !DBG.noskin; MOTES.visible = !DBG.nomotes;
     const s = K.shotAt(SHOTS, t);
@@ -236,6 +237,7 @@ M.film({
       if (k === 6) cam = C([-1.7, h0 + 0.6, 3.3], [2.4, h0 + 0.9, 0.4], 50);
       if (k === 7) cam = C([-6, h0 + 1.75, 8], [2.4, h0 + 0.9, 0.4], 50);
     }
+    if (OVER) cam = C([3.0, h0 + 9, 4.5], [3.0, h0, 0.8], 50);
     G.renderSet(ctx, ST, t, u, { cam, exposure: 0.72 });
     K.vignette(ctx, 0.3);
     CAP.draw(ctx, t);
