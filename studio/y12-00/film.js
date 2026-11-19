@@ -46,7 +46,7 @@ async function buildLamps(hy) {
     const x = -LEN / 2 + 0.15 + i * (LEN - 0.3) / (N - 1);
     const w = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.011, 0.05, 10), wickMat); w.position.set(x, 0.85, 0.06); g.add(w); wicks.push(w);
     const tip = new THREE.Mesh(new THREE.SphereGeometry(0.009, 8, 6), charMat); tip.position.set(x, 0.876, 0.06); g.add(tip);
-    const f = W.flame({ h: 0.085, w: 0.04, seed: 20 + i, inten: 0.85, light: 0, planes: 2 }); f.position.set(x, 0.868, 0.06); g.add(f); flames.push(f);
+    const f = W.flame({ h: 0.1, w: 0.045, seed: 20 + i, inten: 0.85, light: 0, planes: 2 }); f.position.set(x, 0.868, 0.06); g.add(f); flames.push(f);
   }
   const run = W.flame({ h: 0.06, w: 0.06, seed: 9, inten: 3.2, light: 0, planes: 2 }); run.position.set(0, 0.83, 0.06); g.add(run);
   const runL = new THREE.PointLight(0xff9a4a, 3, 3.5, 1.6); g.add(runL);
@@ -112,14 +112,14 @@ M.film({
     K.cams = {
       wideA, wideB: { ...wideA, pos: G0(10.1, 20.6, 1.5), look: toward(G0(10.1, 20.6, 1.5), -3, -10, PORT ? 13 : 9) },
       tiltA: { pos: G0(9.8, 19.8, 1.5), look: toward(G0(9.8, 19.8, 1.5), -3, -10, PORT ? 14 : 10), fov: fv(48) },
-      tiltB: { pos: G0(9.8, 19.8, 1.5), look: toward(G0(9.8, 19.8, 1.5), -4, -12, PORT ? 33 : 37), fov: fv(48) },
+      tiltB: { pos: G0(9.8, 19.8, 1.5), look: ((p) => ELEVEN_C.map((v, i) => p[i] + v * 30 - (i === 1 ? (PORT ? 4 : 2) : 0)))(G0(9.8, 19.8, 1.5)), fov: fv(48) },
       skyHold: { pos: G0(6, 14, 1.6), look: toward(G0(6, 14, 1.6), 0.5, -20, PORT ? 24 : 31), fov: fv(52) },
       craneA: { pos: G0(-24.5, 12.5, 9), look: ((p) => ELEVEN_C.map((v, i) => p[i] + v * 40))(G0(-24.5, 12.5, 9)), fov: fv(46) },
       craneB: { pos: G0(-24.5, 12.5, 2.7), look: [-3, h0 + 1.3, -1], fov: fv(46) },
       settleA: { pos: G0(-24.5, 12.5, 2.7), look: [-3, h0 + 1.3, -1], fov: fv(46) },
       settleB: { pos: G0(-23.9, 12.0, 2.6), look: [-3.2, h0 + 1.25, -1], fov: fv(45) },
-      lampA: { pos: K.LW(-1.2, 1.25, 2.5), look: K.LW(-0.7, PORT ? 1.2 : 0.95, -4), fov: PORT ? 38 : 26 },
-      lampB: { pos: K.LW(1.0, 1.25, 2.5), look: K.LW(0.7, PORT ? 1.2 : 0.95, -4), fov: PORT ? 38 : 26 },
+      lampA: { pos: K.LW(-1.2, PORT ? 1.25 : 1.05, PORT ? 2.5 : 1.9), look: K.LW(-0.7, PORT ? 1.2 : 1.15, -4), fov: PORT ? 38 : 24 },
+      lampB: { pos: K.LW(1.0, PORT ? 1.25 : 1.05, PORT ? 2.5 : 1.9), look: K.LW(0.7, PORT ? 1.2 : 1.15, -4), fov: PORT ? 38 : 24 },
     };
     { const sp = G0(4, 12, 1.6); K.cams.stars = aimAt(sp, far(ELEVEN[BRIGHTEST]).map((v, i) => v + sp[i]), fv(24)); }
     const wc = WELL.set.cameras, pc = PRISON.set.cameras, qc = PALACE.set.cameras;
