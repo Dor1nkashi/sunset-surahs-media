@@ -112,7 +112,7 @@ M.film({
     K.cams = {
       wideA, wideB: { ...wideA, pos: G0(10.1, 20.6, 1.5), look: toward(G0(10.1, 20.6, 1.5), -3, -10, PORT ? 13 : 9) },
       tiltA: { pos: G0(9.8, 19.8, 1.5), look: toward(G0(9.8, 19.8, 1.5), -3, -10, PORT ? 14 : 10), fov: fv(48) },
-      tiltB: { pos: G0(9.8, 19.8, 1.5), look: ((p) => ELEVEN_C.map((v, i) => p[i] + v * 30 - (i === 1 ? (PORT ? 4 : 2) : 0)))(G0(9.8, 19.8, 1.5)), fov: fv(48) },
+      tiltB: { pos: G0(9.8, 19.8, 1.5), look: ((p) => ELEVEN_C.map((v, i) => p[i] + v * 30 - (i === 1 ? (PORT ? 4 : -3) : 0)))(G0(9.8, 19.8, 1.5)), fov: fv(48) },
       skyHold: { pos: G0(6, 14, 1.6), look: toward(G0(6, 14, 1.6), 0.5, -20, PORT ? 24 : 31), fov: fv(52) },
       craneA: { pos: G0(-24.5, 12.5, 9), look: ((p) => ELEVEN_C.map((v, i) => p[i] + v * 40))(G0(-24.5, 12.5, 9)), fov: fv(46) },
       craneB: { pos: G0(-24.5, 12.5, 2.7), look: [-3, h0 + 1.3, -1], fov: fv(46) },
