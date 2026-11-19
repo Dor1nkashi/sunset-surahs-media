@@ -140,7 +140,7 @@ M.film({
       rimB: { pos: [0.85, hy(0.85, 4.4) + 0.62, 4.4], look: [0, h0 + 1.25, -0.4], fov: fv(50) },
       ropeA: { pos: [1.0, top + 0.4, 0.95], look: [0, top - 0.7, 0], fov: fv(50) },
       ropeB: { pos: [0.85, top + 0.3, 0.8], look: [0, top - 1.4, 0], fov: fv(46) },
-      leaveA: { pos: [0.5, h0 + 1.2, 4.2], look: [0, h0 + 1.3, -5], fov: fv(48) },
+      leaveA: { pos: [0.3, h0 + 1.6, 6.8], look: [0, h0 + 0.9, -4], fov: fv(58) },
       leaveB: { pos: [0.15, top + 0.7, 0.5], look: [0, h0 - 1.0, -1.5], fov: fv(48) },
       sink: { pos: [0.0, h0 - 1.2, 0.15], look: [0, WY, -0.2], fov: fv(52) },
       descA: { pos: [0.6, h0 - 1.6, -0.38], look: [-0.68, h0 - 3.2, -0.42], fov: fv(46) },
@@ -204,9 +204,8 @@ M.film({
           c.visible = t < 6.45; c.position.copy(hw).addScaledVector(d, 0.5); c.scale.set(1, d.length(), 1); c.quaternion.setFromUnitVectors(V3(0, 1, 0), d.normalize()); } }
       else { const tw = t - 6.5 - i * 0.12, sp = 1.1, d = sp * tw, sx = b.x >= 0 ? 1 : -1, dx = sx * 0.55, dz = -1, n = Math.hypot(dx, dz);
         // walk out round the well and on up the slope (-z), backs to the camera
-        const x = b.x + Math.min(d, 1.6) * sx * 0.9 + Math.max(0, d - 1.6) * dx / n, z = b.z - d * 0.8;
-        p.setPose('walk', tw + i * 0.4); o.rotation.y = Math.atan2(d < 1.6 ? sx * 0.9 : dx / n, d < 1.6 ? -0.8 : dz / n); o.position.set(x, K.hy(x, z), z); }
-      if (i === 0 && Math.abs(t - 7.2) < 0.01) { const hp = p.bones('Hips').getWorldPosition(_v()); console.error('[dbg]', JSON.stringify([o.position.toArray(), o.rotation.y, hp.toArray(), o.visible, inside])); }
+        const ox = Math.max(0, 1.45 - Math.abs(b.x)) * sx, x = b.x + ox * sm(d / 1.2), z = b.z - d;
+        p.setPose('walk', tw + i * 0.4); o.rotation.y = Math.atan2(d < 1.2 ? sx * 0.6 : 0, -1); o.position.set(x, K.hy(x, z), z); }
       o.visible = !inside; if (i < 2 && (leave || inside)) K.pull[i].visible = false;
     });
     G.renderSet(ctx, WELL, t, u, { cam, exposure: expo });
