@@ -25,20 +25,20 @@ function gripPose(t, k) {
   K.handAim(MUSA, 'Right', grip.clone().add(V(0.05, 0.02, 0.2)), 0);
   for (const f of ['Thumb', 'Index', 'Middle', 'Ring', 'Pinky']) for (let j = 1; j <= 3; j++) { const b = MUSA.bones(`RightHand${f}${j}`); if (!b) continue; const q = b.quaternion.clone(); b.quaternion.slerp(q.clone().multiply(q).multiply(q), k); }
   MUSA.object3d.updateMatrixWorld(true);
-  STAFF.position.set(grip.x + 0.035, HT(grip.x, grip.z), grip.z + 0.06); STAFF.rotation.set(0.02, 0, -0.03);
-  return MUSA.bones('RightHand').getWorldPosition(V());
+  const fist = MUSA.bones('RightHandMiddle1').getWorldPosition(V()).lerp(MUSA.bones('RightHand').getWorldPosition(V()), 0.25);
+  STAFF.position.set(fist.x, HT(fist.x, fist.z), fist.z); STAFF.rotation.set(0, 0, 0);
+  return fist;
 }
 // the hoop rolls down the lane beside the child (3.39-5.28), then alone, slower, and falls over (7.3-9.6)
 function hoopAt(t) {
-  const x0 = 7.7, z0 = 6.2;
-  let z, lean = 0, rollA, y;
-  if (t < 7.18) { z = z0 + 2.6 * Math.max(0, t - 3.0); }
-  else { const a = t - 7.18, v0 = 1.1, dec = 0.48, ts = v0 / dec, s = a < ts ? v0 * a - 0.5 * dec * a * a : v0 * ts - 0.5 * dec * ts * ts; z = z0 + 2.6 * 4.18 + 3.0 + s;
-    const f = clamp((a - ts + 0.25) / 0.8); lean = (Math.PI / 2) * E.inQuad(f) + 0.06 * Math.sin(f * 14) * f * (1 - f); }
-  rollA = -(z - z0) / 0.22;
-  return { x: x0, z, lean, rollA };
+  const x0 = 7.7, z0 = 7.0, v = 2.6, T1 = 5.28, dec = 0.65, ts = v / dec;
+  let z, lean = 0;
+  if (t < T1) z = z0 + v * Math.max(0, t - 3.2);
+  else { const a = Math.min(t - T1, ts); z = z0 + v * (T1 - 3.2) + v * a - 0.5 * dec * a * a; }
+  const f = clamp((t - (T1 + ts) + 0.3) / 0.75); lean = (Math.PI / 2 - 0.05) * E.inQuad(f) + 0.05 * Math.sin(f * 12) * f * (1 - f);
+  return { x: x0, z, lean, rollA: -(z - z0) / 0.22 };
 }
-function childAt(t) { const z = 5.6 + CHILD.speed('run') * 0.85 * Math.max(0, t - 3.0); return V(7.4, HT(7.4, z), z); }
+function childAt(t) { const z = 8.6 + CHILD.speed('run') * 0.8 * Math.max(0, t - 3.0), x = 7.45 - 0.9 * Math.max(0, z - 13.5); return V(x, HT(x, z), z); }
 
 M.film({
   fonts: ['800 76px Display', '600 64px UI', '600 30px Display'],
@@ -51,6 +51,7 @@ M.film({
     SUN0 = { pos: P.sun.position.clone(), tgt: P.sun.target.position.clone(), I: P.sun.intensity, env: S.environmentIntensity };
     // the family door: its leaf opens inward for the push through the doorway
     DOOR = P.familyHouse.userData.door;
+    { const v = new THREE.Mesh(new THREE.PlaneGeometry(0.95, 1.9), new THREE.MeshBasicMaterial({ color: 0x050302 })); v.position.set(DOOR.group.position.x, 0.95, DOOR.group.position.z - 0.012); P.familyHouse.add(v); }
     // the hoop the child rolls
     HOOP = W.shadows(new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.012, 12, 96), new THREE.MeshStandardMaterial({ color: 0x7a5a3a, roughness: 0.75 }))); S.add(HOOP);
     // ---- the room inside the house (walls cast shadows; a window with two shutter leaves on the west wall)
@@ -92,9 +93,9 @@ M.film({
     // ---- people: Musa (hand and staff only), the child (small and far), the parents (seated backs)
     const PP = await K.people();
     MUSA = PP.make({ kind: 'man', outfit: 'traveller', palette: { robe: '#8a7458', wrap: '#9a8468', cloak: '#5a4632', sash: '#3c3024', trousers: '#9a8a70', skin: '#a8724c' }, beard: 'full', headwear: 'wrap', seed: 31 });
-    CHILD = PP.make({ kind: 'boy', outfit: 'thobe', palette: { robe: '#d8c8a4', sash: '#8a3a2a' }, seed: 9, detail: 0.6 });
+    CHILD = PP.make({ kind: 'boy', outfit: 'thobe', palette: { robe: '#8a6e4e', sash: '#6a2a1e' }, seed: 9, detail: 0.6 });
     DAD = PP.make({ kind: 'elder', outfit: 'thobe', palette: { robe: '#6a5a46', wrap: '#c8bca4', cloak: '#4a3a2c', sash: '#3a2c20' }, beard: 'grey', seed: 61, detail: 0.6 });
-    MUM = PP.make({ kind: 'woman', outfit: 'abaya', palette: { abaya: '#3a3040', khimar: '#4a3a48' }, seed: 62, detail: 0.6 });
+    MUM = PP.make({ kind: 'woman', outfit: 'abaya', palette: { abaya: '#2a2026', khimar: '#352a30' }, seed: 62, detail: 0.6 });
     for (const f of [MUSA, CHILD, DAD, MUM]) { S.add(f.object3d); f.object3d.traverse((m) => { if (m.isMesh) { m.castShadow = m.receiveShadow = true; m.frustumCulled = false; } }); }
     HAND = PP.make({ kind: 'man', outfit: 'traveller', palette: { robe: '#8a7458', cloak: '#5a4632', skin: '#a8724c' }, beard: 'full', headwear: 'wrap', seed: 31 });
     S.add(HAND.object3d);
@@ -108,12 +109,12 @@ M.film({
       lane_wide: { pos: [7.0, HT(7.0, 1.0) + 1.05, 1.0], look: [7.6, HT(7.6, 14) + 0.7, 14], fov: 44 },
       olive_a:   { pos: [5.6, HT(5, 5) + 1.3, 6.4], look: [4.2, HT(5, 5) + 5.5, 4.0], fov: 46 },
       olive_b:   { pos: [5.6, HT(5, 5) + 1.3, 6.4], look: [4.5, HT(5, 5) + 5.6, 3.8], fov: 45 },
-      lane_low:  { pos: [7.25, HT(7.3, 9.0) + 0.32, 9.0], look: [7.7, HT(7.7, 17) + 0.25, 17], fov: 38 },
+      lane_low:  { pos: [7.35, HT(7.3, 12.6) + 0.3, 12.6], look: [7.7, HT(7.7, 17.5) + 0.2, 17.5], fov: 38 },
       door_a:    { pos: [7.45 - fd, doorW.y + 1.25, 14.2], look: [doorW.x, doorW.y + 0.9, doorW.z], fov: 40 },
       door_b:    { pos: [7.45 - fd, doorW.y + 1.2, 15.6], look: [doorW.x, doorW.y + 0.9, doorW.z], fov: 38 },
       flame_out: { pos: [lampW.x - 0.12, lampW.y + 0.1, lampW.z - 0.32], look: [lampW.x + 0.0, lampW.y + 0.06, lampW.z + 0.1], fov: 22 },
       push_a:    { pos: [doorW.x + 0.05, doorW.y + 1.15, 16.6], look: [doorW.x, doorW.y + 1.0, doorW.z + 2], fov: 44 },
-      push_b:    { pos: [doorW.x + 0.02, doorW.y + 1.05, 19.15], look: [doorW.x, doorW.y + 0.95, doorW.z + 2], fov: 50 },
+      push_b:    { pos: [doorW.x + 0.02, doorW.y + 1.0, 19.42], look: [doorW.x, doorW.y + 0.95, doorW.z + 2], fov: 50 },
       window:    { pos: [RX + 1.3, HT(RX, RZ) + 1.35, RZ + 1.5], look: [RX + wx, HT(RX, RZ) + 1.15, RZ - 0.1], fov: 46 },
       lamp_a:    { pos: [lw.x + 1.25, lw.y + 0.45, lw.z + 1.0], look: [lw.x, lw.y - 0.35, lw.z - 0.1], fov: 40 },
       lamp_b:    { pos: [lw.x + 1.0, lw.y + 0.4, lw.z + 0.8], look: [lw.x, lw.y - 0.3, lw.z - 0.1], fov: 38 },
@@ -154,12 +155,12 @@ M.film({
     // the shutters: closed until 17.6, swing open by 18.6; then the dawn grows
     const op = E.inOutCubic(prog(t, 17.6, 18.7)), dawn = t < 17.17 ? 0 : op * (0.75 + 0.25 * prog(t, 18.7, D));
     SHUT.forEach(({ piv, sd }) => { piv.rotation.y = sd * -1.9 * op; });
-    SPOT.intensity = 520 * dawn; SHAFT.visible = dawn > 0.02; SHAFT.material.uniforms.op.value = 0.05 * dawn;
+    SPOT.intensity = 70 * dawn; SHAFT.visible = dawn > 0.02; SHAFT.material.uniforms.op.value = 0.05 * dawn;
     DUST.userData.update(t, inRoom ? 0.3 + 0.7 * dawn : 0); DUST2.userData.update(t, i <= 1 || i === 10 ? 1 : 0);
     // the lamp on the sill: a steady flame; the room lamp is unlit outside the room shots
     ROOMLAMP.userData.flame.userData.update(t, inRoom ? 1 : 0);
     // the family door opens inward during the push
-    DOOR.leaf.rotation.y = -1.25 * E.inOutSine(prog(t, 14.9, 16.4));
+    DOOR.leaf.rotation.y = 1.35 * E.inOutSine(prog(t, 14.9, 16.4));
     // the hoop
     const h = hoopAt(t); HOOP.position.set(h.x, HT(h.x, h.z) + 0.224 * Math.cos(h.lean), h.z); HOOP.rotation.set(0, Math.PI / 2, 0); HOOP.rotateZ(h.rollA * 0); HOOP.rotateX(0);
     HOOP.rotation.set(h.rollA, Math.PI / 2, 0, 'YXZ'); HOOP.rotation.z = h.lean;
@@ -167,7 +168,7 @@ M.film({
     HOOP.visible = i >= 2 && i <= 4;
     // people
     for (const f of [MUSA, CHILD, DAD, MUM, HAND]) f.object3d.visible = false; STAFF.visible = false;
-    if (i === 2) { const c = childAt(t); CHILD.object3d.visible = true; CHILD.object3d.position.copy(c); CHILD.object3d.rotation.y = 0; CHILD.setPose('run', t);
+    if (i === 2) { const c = childAt(t); CHILD.object3d.visible = true; CHILD.object3d.position.copy(c); CHILD.object3d.rotation.y = c.z > 13.5 ? -0.73 : 0; CHILD.setPose('run', t);
       // the two travellers walk behind the camera: only their long shadows reach into the lane
       for (const [f, dx, ph] of [[MUSA, -0.5, 0], [DAD, 0.55, 0.4]]) { const z = -1.4 + f.speed('walk') * 0.8 * (t - 3.39); f.object3d.visible = true; f.object3d.position.set(7.2 + dx, HT(7.2 + dx, z), z); f.object3d.rotation.y = 0; f.setPose('walk', t + ph); } }
     if (i === 5 || i === 7) {
@@ -190,17 +191,18 @@ M.film({
     let cam;
     if (s.a === 'grip' || s.a === 'rack') {
       const hp = C.handW.clone();
-      if (s.a === 'grip') { const k = s.loosen ? 0 : E.inOutSine(p); cam = { pos: hp.clone().add(V(0.42 - 0.04 * k, -0.04, -0.3 + 0.03 * k)).toArray(), look: hp.clone().add(V(0.0, 0.0, 0.05)).toArray(), fov: K.lensFov(24) }; }
-      else { const k = E.inOutCubic(p), a = hp.clone().add(V(0.42, -0.04, -0.27)), b = V(7.0, HT(7.0, 1.0) + 1.0, 0.6);
-        cam = { pos: a.lerp(b, k).toArray(), look: hp.clone().add(V(0, 0, 0.05)).lerp(V(7.6, HT(7.6, 14) + 0.9, 14), k).toArray(), fov: K.lensFov(lerp(24, 42, k)) };
+      if (s.a === 'grip') { const k = s.loosen ? 0 : E.inOutSine(p); cam = { pos: hp.clone().add(V(-0.5 + 0.05 * k, 0.03, 0.42 - 0.04 * k)).toArray(), look: hp.clone().add(V(0.0, 0.0, 0.0)).toArray(), fov: K.lensFov(26) }; }
+      else { const k = E.inOutCubic(p), a = hp.clone().add(V(-0.5, 0.03, 0.42)), b = V(7.0, HT(7.0, 1.0) + 1.0, 0.6);
+        cam = { pos: a.lerp(b, k).toArray(), look: hp.clone().lerp(V(7.6, HT(7.6, 14) + 0.9, 14), k).toArray(), fov: K.lensFov(lerp(26, 42, k)) };
         // the hand stays in the shot only while the camera is still close: keep the figure posed from the grip shot
         MUSA.object3d.visible = k < 0.5; STAFF.visible = k < 0.5; }
     } else {
       cam = K.camLerp(s.a, s.b, (s.ease || E.linear)(p));
       cam = K.breathe(cam, t, s.b ? 0.0012 : 0.002, 11 + i);
     }
-    const expo = SET.exposure * (inRoom ? 1.5 + 0.4 * dawn : i === 6 ? 0.9 : 1);
-    G.renderSet(ctx, ST, t, u, { cam, exposure: expo, lights: i >= 5 ? 1 : 0.4 });
+    const expo = SET.exposure * (inRoom ? 1.25 - 0.35 * dawn : i === 6 ? 0.45 : 1);
+    ST.bloom = i === 6 || inRoom ? 0.06 : 0.14;
+    G.renderSet(ctx, ST, t, u, { cam, exposure: expo, lights: i >= 5 ? 1 : 0, lamp: i >= 4 ? 0.7 : 0 });
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.55);
   },
