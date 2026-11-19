@@ -26,12 +26,14 @@ async function silo(mud, { r = 2.1, h = 4.0, dome = 2.4 } = {}) {
 async function extras() {
   const mud = await W.pbr('rough_plaster_03', { tile: 2.0, tint: 0xd9b48a, res: 1024 }), hs = await W.pbr('hessian_230', { tile: 0.5, tint: 0xc8b8a0, res: 1024 });
   const pl = await W.pbr('old_planks_02', { tile: 1.6, tint: 0x8a6a4e, res: 1024 }), sandM = await W.pbr('sand_01', { tile: 4, tint: 0xf0d8b0, res: 1024 });
-  // ---- palace: the yard outside the open end of the hall, with a row of silos and a worker crossing
-  const yard = new THREE.Mesh(new THREE.PlaneGeometry(200, 120), sandM); W.boxUV(yard.geometry); yard.rotation.x = -Math.PI / 2; yard.position.set(0, -0.02, 64); yard.receiveShadow = true; PAL.scene.add(yard);
-  for (let i = 0; i < 5; i++) { const s = await silo(mud, { h: 4 + (i % 2) * 0.4 }); s.position.set(-11 + i * 5.5, 0, 42); PAL.scene.add(s); }
-  const wall = W.rbox(40, 2.6, 0.6, mud, { r: 0.1 }); wall.position.set(0, 0, 36); PAL.scene.add(wall);
+  // ---- palace: the back wall behind the dais is opened onto the granary yard: sand, a wall, five silos
+  PAL.group.traverse((o) => { if (o.isMesh && Math.abs(o.position.z - (-35.6)) < 0.35 && o.position.y < 1) o.visible = false; });
+  const yard = new THREE.Mesh(new THREE.PlaneGeometry(200, 120), sandM); W.boxUV(yard.geometry); yard.rotation.x = -Math.PI / 2; yard.position.set(0, -0.02, -96); yard.receiveShadow = true; PAL.scene.add(yard);
+  for (let i = 0; i < 5; i++) { const s = await silo(mud, { h: 4 + (i % 2) * 0.4 }); s.position.set(-11 + i * 5.5, 0, -60); PAL.scene.add(s); }
+  const wall = W.rbox(40, 2.6, 0.6, mud, { r: 0.1 }); wall.position.set(0, 0, -52); PAL.scene.add(wall);
+  X.walker = null;
   // the gold collar for Yusuf in office (added to his neck bone after he is built)
-  X.collar = new THREE.Mesh(new THREE.TorusGeometry(0.15, 0.035, 12, 48), W.goldMat()); X.collar.scale.set(1, 0.32, 1);
+  X.collar = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.15, 0.06, 48, 1, true), new THREE.MeshStandardMaterial({ color: 0xd8a848, metalness: 0.9, roughness: 0.35, side: THREE.DoubleSide }));
   // ---- granary yard: storeroom with a wooden pin lock, a heap, keys, a scale on the scribes' table
   const S_ = STORE, H = NILE.props.terrain.heightAt, gy = H((S_.x0 + S_.x1) / 2, (S_.z0 + S_.z1) / 2) - 0.05, g = new THREE.Group(); g.position.y = gy; NILE.scene.add(g); X.store = g;
   const wl = (w, h, d, x, y, z) => { const b = W.rbox(w, h, d, mud, { r: 0.04, seg: 2 }); b.position.set(x, y, z); g.add(b); };
@@ -76,43 +78,43 @@ async function extras() {
   for (let k = 0; k < 11; k++) { const row = k < 6 ? 0 : k < 10 ? 1 : 2, col = row === 0 ? k : row === 1 ? k - 6 : 0, x = GX - 9 + col * 0.58 + row * 0.29, z = GZ + 1.2, s = W.sack(hs, { w: 0.5, h: 0.62, seed: k + 31 });
     s.position.set(x, H(x, z) + row * 0.5, z); s.rotation.set(0, k * 0.8, 0); NILE.scene.add(s); X.pile.push(s); }
   X.lifted = W.sack(hs, { w: 0.5, h: 0.62, seed: 77 }); NILE.scene.add(X.lifted);
-  X.dust = K.dustMotes({ centre: [GX - 3, 2.0, GZ + 6], size: [16, 4, 10], count: 900, seed: 4, color: 0xffe0a0, px: 0.03, op: 0.5, fall: 0.03 }); NILE.scene.add(X.dust);
-  X.motes = K.dustMotes({ centre: [0, 2.0, DZ + 2], size: [5, 3.5, 6], count: 500, seed: 6, color: 0xffe8c0, px: 0.012, op: 0.6, fall: 0.02 }); PAL.scene.add(X.motes);
+  X.dust = K.dustMotes({ centre: [GX - 2, 2.0, GZ + 2], size: [14, 4, 10], count: 700, seed: 4, color: 0xffe0a0, px: 0.008, op: 0.5, fall: 0.03 }); NILE.scene.add(X.dust);
+  X.motes = K.dustMotes({ centre: [0, 2.0, DZ + 3], size: [5, 3.5, 6], count: 500, seed: 6, color: 0xffe8c0, px: 0.006, op: 0.6, fall: 0.02 }); PAL.scene.add(X.motes);
 }
 
 // ------------------------------------------------------------------ shots
 const C = {
-  dais_a: { pos: [-1.3, 2.3, DZ - 2.4], look: [0, 1.6, 30], fov: 30 },
-  dais_b: { pos: [-1.25, 2.3, DZ - 2.3], look: [0, 1.6, 30], fov: 30 },
-  rack_a: { pos: [-1.25, 2.3, DZ - 2.3], look: [0, 1.6, 30], fov: 30 },
-  rack_b: { pos: [-1.0, 2.25, DZ - 2.0], look: [2.0, 3.5, 42], fov: 16 },
+  dais_a: { pos: [0.9, 1.75, DZ + 11], look: [0, 2.3, DZ - 2], fov: 24 },
+  dais_b: { pos: [0.88, 1.75, DZ + 10.7], look: [0, 2.3, DZ - 2], fov: 24 },
+  rack_a: { pos: [0.88, 1.75, DZ + 10.7], look: [0, 2.3, DZ - 2], fov: 24 },
+  rack_b: { pos: [0.8, 1.8, DZ + 10.2], look: [2.5, 3.4, -60], fov: 14 },
   aud_a: { pos: [0.6, 1.65, DZ + 9.5], look: [0, 1.8, DZ - 1], fov: 46 },
   aud_b: { pos: [0.5, 1.65, DZ + 8.2], look: [0, 1.8, DZ - 1], fov: 44 },
   turn_a: { pos: [-1.6, 1.8, DZ + 6.5], look: [0.2, 1.7, DZ + 4.2], fov: 32 },
   turn_b: { pos: [-1.5, 1.8, DZ + 6.2], look: [0.2, 1.7, DZ + 4.2], fov: 30 },
-  dolly_a: { pos: [0.4, 1.7, -14], look: [0.6, 2.0, 40], fov: 48 },
-  dolly_b: { pos: [0.4, 1.7, 2.5], look: [0.6, 2.5, 40], fov: 48 },
-  yard_a: { pos: [GX - 3, 1.7, GZ + 11], look: [GX - 2, 2.6, GZ - 4.5], fov: 48 },
-  yard_b: { pos: [GX - 3, 1.7, GZ + 7.5], look: [GX - 2, 2.8, GZ - 4.5], fov: 48 },
+  dolly_a: { pos: [1.6, 1.7, DZ + 5], look: [0.5, 2.6, -60], fov: 48 },
+  dolly_b: { pos: [1.6, 1.7, DZ - 6], look: [0.5, 2.8, -60], fov: 48 },
+  yard_a: { pos: [GX - 1.5, 1.7, GZ + 8.4], look: [GX - 2, 2.6, GZ - 4.5], fov: 48 },
+  yard_b: { pos: [GX - 1.8, 1.7, GZ + 4.0], look: [GX - 2, 2.8, GZ - 4.5], fov: 48 },
   keys: { pos: [GX + 1.55, 1.15, GZ + 6.55], look: [GX + 2.05, 0.98, GZ + 6.0], fov: 26 },
-  sun: { pos: [GX - 10, 1.6, GZ + 12], look: [GX, 2.0, GZ - 4], fov: 56 },
-  domes_a: { pos: [GX - 1, 1.4, GZ + 10.5], look: [GX - 2, 2.2, GZ - 4.5], fov: 46 },
-  domes_b: { pos: [GX - 1, 4.6, GZ + 11.5], look: [GX - 2, 3.0, GZ - 4.5], fov: 46 },
-  pour_a: { pos: [GX + 2.95, 1.0, GZ + 8.6], look: [GX + 2.0, 0.6, GZ + 7.5], fov: 34 },
-  pour_b: { pos: [GX + 2.8, 0.95, GZ + 8.35], look: [GX + 2.0, 0.6, GZ + 7.5], fov: 32 },
-  lock: { pos: [STORE.x0 - 0.75, 1.3, STORE.door.z + 0.35], look: [STORE.x0 - 0.2, 1.1, STORE.door.z + 0.45], fov: 32 },
-  table_a: { pos: [GX + 5.1, 1.55, GZ + 5.7], look: [GX + 4.1, 0.75, GZ + 4.9], fov: 40 },
-  table_b: { pos: [GX + 4.4, 1.55, GZ + 5.8], look: [GX + 4.3, 0.75, GZ + 4.85], fov: 40 },
+  sun: { pos: [GX - 1, 1.6, GZ + 8.3], look: [GX - 4, 2.0, GZ - 4], fov: 58 },
+  domes_a: { pos: [GX + 6, 1.4, GZ + 8.2], look: [GX - 2, 2.2, GZ - 4.5], fov: 46 },
+  domes_b: { pos: [GX + 6, 4.6, GZ + 8.2], look: [GX - 2, 3.0, GZ - 4.5], fov: 46 },
+  pour_a: { pos: [GX + 2.95, 1.55, GZ + 5.7], look: [GX + 2.0, 0.6, GZ + 7.5], fov: 40 },
+  pour_b: { pos: [GX + 2.85, 1.5, GZ + 5.9], look: [GX + 2.0, 0.6, GZ + 7.5], fov: 38 },
+  lock: { pos: [STORE.x0 - 0.65, 1.3, STORE.door.z - 0.3], look: [STORE.x0 - 0.2, 1.08, STORE.door.z + 0.45], fov: 34 },
+  table_a: { pos: [GX + 4.6, 1.75, GZ + 6.5], look: [GX + 4.1, 0.75, GZ + 4.95], fov: 40 },
+  table_b: { pos: [GX + 4.1, 1.75, GZ + 6.55], look: [GX + 4.25, 0.75, GZ + 4.9], fov: 40 },
   sacks: { pos: [GX - 7.4, 1.4, GZ + 5.0], look: [GX - 7.6, 0.6, GZ + 1.2], fov: 44 },
-  lift_a: { pos: [GX - 6.2, 1.25, GZ + 3.6], look: [GX - 7.7, 1.15, GZ + 1.2], fov: 36 },
-  lift_b: { pos: [GX - 6.2, 1.3, GZ + 3.6], look: [GX - 4.5, 3.0, GZ - 4.5], fov: 30 },
+  lift_a: { pos: [GX - 5.0, 1.3, GZ + 2.5], look: [GX - 7.4, 1.0, GZ + 1.5], fov: 40 },
+  lift_b: { pos: [GX - 5.0, 1.35, GZ + 2.5], look: [GX - 4.5, 3.0, GZ - 4.5], fov: 34 },
 };
 const SHOTS = [
-  { t0: 0.00, t1: 1.23, set: 'pal', a: C.dais_a, b: C.dais_b },
-  { t0: 1.23, t1: 3.45, set: 'pal', a: C.rack_a, b: C.rack_b },
+  { t0: 0.00, t1: 1.23, set: 'pal', a: C.dais_a, b: C.dais_b, ex: 0.7 },
+  { t0: 1.23, t1: 3.45, set: 'pal', a: C.rack_a, b: C.rack_b, ex: 0.7 },
   { t0: 3.45, t1: 5.57, set: 'pal', a: C.aud_a, b: C.aud_b },
   { t0: 5.57, t1: 7.07, set: 'pal', a: C.turn_a, b: C.turn_b },
-  { t0: 7.07, t1: 8.45, set: 'pal', a: C.dolly_a, b: C.dolly_b, ease: E.inCubic },
+  { t0: 7.07, t1: 8.45, set: 'pal', a: C.dolly_a, b: C.dolly_b, ease: E.inCubic, ex: 0.7 },
   { t0: 8.45, t1: 9.83, set: 'nile', a: C.yard_a, b: C.yard_b, ease: E.outCubic },
   { t0: 9.83, t1: 12.70, set: 'nile', a: C.keys },
   { t0: 12.70, t1: 14.82, set: 'nile', a: C.sun },
@@ -135,7 +137,7 @@ M.film({
     await extras();
     const PP = await K.people();
     P.yusuf = PP.make({ kind: 'man', outfit: 'noble', palette: { robe: '#f2ede2', wrap: '#f3efe6', cloak: '#f2ede2', trim: '#c9a046', sash: '#c9a046', trousers: '#e6dccb' }, beard: 'short', headwear: 'none', seed: 12, height: 1.04 });
-    P.yusuf.bones('Neck').add(X.collar); X.collar.scale.multiplyScalar(100); X.collar.position.set(0, 2, 2);
+    P.yusuf.bones('Neck').add(X.collar); X.collar.scale.setScalar(100); X.collar.position.set(0, -4, 1);
     PAL.scene.add(P.yusuf.object3d);
     P.scribes = [0, 1].map((k) => PP.make({ kind: 'man', outfit: 'thobe', palette: 'white', beard: k ? 'short' : 'full', headwear: 'kufi', seed: 90 + k, detail: 0.55 }));
     for (const s of P.scribes) PAL.scene.add(s.object3d);
@@ -153,11 +155,12 @@ M.film({
     const { i, s, p } = K.shotAt(SHOTS, t);
     if (s.set === 'pal') palace(t, i); else yard(t, i);
     let cam = K.camLerp(s.a, s.b, (s.ease || E.inOutSine)(p));
+    if (i === 6) { X.keys.updateMatrixWorld(true); const k = X.keys.getWorldPosition(V()); cam = { ...cam, pos: [k.x - 0.32, k.y + 0.1, k.z - 0.62], look: [k.x, k.y - 0.04, k.z] }; }
     cam = K.breathe(cam, t, 0.002, 61 + i);
     // the sun comes out over the yard in shot 7 (clouds clear): the exposure and the sun rise together
     const sunK = i === 7 ? 0.45 + 0.55 * E.inOutSine(prog(t, 12.9, 14.4)) : 1;
     if (s.set === 'nile') { NILE.atmo.sun.intensity = SUN0 * sunK; }
-    G.renderSet(ctx, ST[s.set], t, u, { cam, exposure: ST[s.set].set.exposure * (s.set === 'nile' ? 0.75 + 0.25 * sunK : 1) * (s.ex ?? 1) });
+    G.renderSet(ctx, ST[s.set], t, u, { cam, exposure: ST[s.set].set.exposure * (s.set === 'nile' ? 0.8 * (0.7 + 0.3 * sunK) : 1) * (s.ex ?? 1) });
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.5);
   },
@@ -198,7 +201,7 @@ function yard(t, i) {
   if (i === 9) {      // a worker pours grain from a sack in a golden stream onto the heap
     const w = P.worker; w.object3d.visible = true; w.object3d.position.set(GX + 2.0, H(GX + 2, GZ + 6.85), GZ + 6.85); w.object3d.rotation.y = 0.0; w.setPose('stand', t);
     w.object3d.updateMatrixWorld(true);
-    const mouth = V(GX + 2.0, 1.05, GZ + 7.35);
+    const mouth = V(GX + 2.0, H(GX + 2, GZ + 7.4) + 1.05, GZ + 7.4);
     X.pourSack.position.copy(mouth.clone().add(V(0, 0.2, -0.1))); X.pourSack.rotation.set(2.4, 0, 0);
     K.reach(w, 'Left', mouth.clone().add(V(0.2, 0.25, -0.12)), w.object3d.localToWorld(V(0.7, 0.8, -0.2)));
     K.reach(w, 'Right', mouth.clone().add(V(-0.2, 0.3, -0.18)), w.object3d.localToWorld(V(-0.7, 0.8, -0.2)));
