@@ -81,9 +81,10 @@ function printTex() {
   if (_pt) return _pt;
   const c = document.createElement('canvas'); c.width = 128; c.height = 256; const x = c.getContext('2d');
   x.fillStyle = '#000'; x.fillRect(0, 0, 128, 256); x.filter = 'blur(5px)'; x.fillStyle = '#fff';
-  x.beginPath(); x.ellipse(64, 190, 30, 44, 0, 0, Math.PI * 2); x.fill();
-  x.beginPath(); x.ellipse(66, 90, 38, 62, 0.05, 0, Math.PI * 2); x.fill();
-  x.beginPath(); x.ellipse(64, 140, 28, 40, 0, 0, Math.PI * 2); x.fill();
+  // one sole outline: round heel, narrow arch, broad ball and toe
+  x.beginPath(); x.moveTo(64, 236);
+  x.bezierCurveTo(34, 236, 36, 190, 44, 160); x.bezierCurveTo(50, 138, 30, 110, 30, 76); x.bezierCurveTo(30, 34, 52, 16, 70, 16);
+  x.bezierCurveTo(92, 16, 102, 40, 100, 78); x.bezierCurveTo(98, 112, 84, 138, 86, 162); x.bezierCurveTo(90, 196, 94, 236, 64, 236); x.fill();
   return (_pt = new THREE.CanvasTexture(c));
 }
 
@@ -106,14 +107,14 @@ function placeStaff() {
 }
 function pointPose(t) {
   // the tall traveller lifts his right hand and points at the seam (14.2-15.0), then holds it there
-  const k = E.inOutCubic(prog(t, 14.15, 15.0));
+  const k = E.inOutCubic(prog(t, 14.2, 15.05));
   TALL.object3d.updateMatrixWorld(true);
   const sh = TALL.bones('RightArm').getWorldPosition(V()), h0 = TALL.bones('RightHand').getWorldPosition(V());
   const dir = C.pointAt.clone().sub(sh).normalize(), tgt = sh.clone().addScaledVector(dir, 0.56);
   K.reach(TALL, 'Right', h0.clone().lerp(tgt, k), sh.clone().add(V(0.6, -0.6, 0.3)));
   K.handAim(TALL, 'Right', tgt.clone().addScaledVector(dir, 0.5), 0);
   // index straight, the other fingers curled in
-  for (const f of ['Middle', 'Ring', 'Pinky']) for (let j = 1; j <= 3; j++) { const b = TALL.bones(`RightHand${f}${j}`); if (b) b.rotation.z += 0.0; if (b) b.rotation.x += 0.9 * k; }
+  for (const f of ['Middle', 'Ring', 'Pinky']) for (let j = 1; j <= 3; j++) { const b = TALL.bones(`RightHand${f}${j}`); if (b) b.quaternion.slerp(b.quaternion.clone().multiply(b.quaternion).multiply(b.quaternion), k); }
   for (let j = 1; j <= 3; j++) { const b = TALL.bones(`RightHandIndex${j}`); if (b) b.quaternion.slerp(new THREE.Quaternion(), k); }
   TALL.object3d.updateMatrixWorld(true);
 }
@@ -190,7 +191,7 @@ M.film({
       prints:  { pos: [-2.25, 0.3, 2.55], look: [-2.05, 0.04, 4.8], fov: 38 },
     });
     const pr = PUDDLES[0].userData.base;
-    C.one = { pos: [pr[0] - 0.3, pr[3] + 0.2, pr[1] - 0.12], look: [pr[0], pr[3], pr[1] - 0.02], fov: 34 };
+    C.one = { pos: [pr[0] - 0.42, pr[3] + 0.42, pr[1] - 0.2], look: [pr[0], pr[3], pr[1] - 0.02], fov: 36 };
     SHOTS = [
       { t0: 0.00, t1: 1.87, a: C.flip_a, b: C.flip_b, ease: E.inOutSine },
       { t0: 1.87, t1: 3.74, a: C.water_a, b: C.water_b },
@@ -240,7 +241,7 @@ M.film({
     // camera
     let cam;
     if (s.a === 'hand') {
-      const h = TALL.bones('RightHand').getWorldPosition(V()), d = C.pointAt.clone().sub(h).normalize();
+      const sh = TALL.bones('RightArm').getWorldPosition(V()), dd = C.pointAt.clone().sub(sh).normalize(), h = sh.clone().addScaledVector(dd, 0.56), d = C.pointAt.clone().sub(h).normalize();
       const side = V(-d.z, 0, d.x).normalize();                                          // to the right of the pointing line
       const k = i === 7 ? E.inOutSine(p) : 1;
       const pos = h.clone().addScaledVector(d, -lerp(0.5, 0.38, k)).addScaledVector(side, 0.07).add(V(0, -0.09, 0));
