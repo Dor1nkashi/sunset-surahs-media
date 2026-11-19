@@ -80,13 +80,13 @@ M.film({
     // ---- the fire at the pen edge (the set's pit), with our own coal bed: each coal cools on its own schedule
     const FX = 7.2, FZ = -4.5, FY = hy(FX, FZ); K.F = [FX, FY, FZ];
     const nz = W.noise2(77);
-    const coalGeo = (rad, sd) => { const g = new THREE.IcosahedronGeometry(rad, 4), p = g.attributes.position;
+    const coalGeo = (rad, sd) => { const g = new THREE.IcosahedronGeometry(rad, 3), p = g.attributes.position;
       for (let k = 0; k < p.count; k++) { const v = V3(p.getX(k), p.getY(k), p.getZ(k)), l = v.length(), f = 1 + 0.22 * nz(v.x * 40 + sd, v.y * 40 + v.z * 30) + 0.08 * nz(v.x * 130, v.z * 130 + sd); v.multiplyScalar(f); p.setXYZ(k, v.x, v.y, v.z); }
       g.computeVertexNormals(); return g; };
     const coals = [], r = mulberry32(23);
-    for (let i = 0; i < 46; i++) {
-      const a = r() * 6.28, d = Math.sqrt(r()) * 0.34, m = new THREE.MeshStandardMaterial({ color: 0x1a120c, emissive: 0xff4a10, emissiveIntensity: 1.4, roughness: 1 });
-      const c = new THREE.Mesh(coalGeo(0.045 + r() * 0.03, i), m); c.scale.set(1 + r() * 0.6, 0.6 + r() * 0.4, 1 + r() * 0.5);
+    for (let i = 0; i < 130; i++) {
+      const a = r() * 6.28, d = Math.sqrt(r()) * 0.36, m = new THREE.MeshStandardMaterial({ color: 0x3a342e, emissive: 0xff4a10, emissiveIntensity: 1.4, roughness: 1 });
+      const c = new THREE.Mesh(coalGeo(0.02 + r() * 0.022, i % 12), m); c.scale.set(1 + r() * 0.6, 0.6 + r() * 0.4, 1 + r() * 0.5);
       c.position.set(FX + Math.cos(a) * d, FY + 0.1 + r() * 0.03, FZ + Math.sin(a) * d); c.rotation.set(r() * 3, r() * 3, 0); sc.add(c);
       coals.push({ m, c, d, out: 0 });
     }
@@ -124,24 +124,26 @@ M.film({
     K.cams = {
       fireA: { pos: G0(FX + 0.6, FZ + 4.4, 0.75), look: [FX - 0.3, F[1] + 0.8, FZ - 1], fov: fv(46) },
       fireB: { pos: G0(FX + 0.57, FZ + 4.25, 0.75), look: [FX - 0.3, F[1] + 0.8, FZ - 1], fov: fv(45) },
-      rackA: { pos: G0(FX + 3.6, FZ - 3.2, 1.0), look: [FX, F[1] + 0.35, FZ], fov: fv(30) },
-      rackB: { pos: G0(FX + 3.6, FZ - 3.2, 1.0), look: K.win, fov: fv(26) },
+      rackA: { pos: G0(10.6, -3.1, 1.15), look: [FX, F[1] + 0.4, FZ], fov: fv(30) },
+      rackB: { pos: G0(10.6, -3.1, 1.15), look: K.win, fov: fv(26) },
       ringA: { pos: G0(FX + 5.6, FZ + 2.0, 2.2), look: [FX, F[1] + 0.7, FZ], fov: fv(48) },
       ringB: { pos: G0(FX + 4.6, FZ + 3.8, 2.2), look: [FX, F[1] + 0.7, FZ], fov: fv(48) },
-      wallA: { pos: G0(FX + 5.4, FZ - 3.4, 1.2), look: [FX, F[1] + 0.6, FZ], fov: fv(40) },
-      wallB: { pos: G0(FX + 3.4, FZ - 5.2, 1.2), look: [FX, F[1] + 0.6, FZ], fov: fv(40) },
-      winA: { pos: G0(FX + 2.4, FZ - 1.4, 1.3), look: K.win, fov: fv(30) },
-      winB: { pos: G0(FX + 2.4, FZ - 1.4, 1.3), look: [FX - 0.6, F[1] + 0.4, FZ + 0.5], fov: fv(44) },
-      listen: { pos: G0(FX + 4.0, FZ - 2.8, 1.7), look: [FX - 0.3, F[1] + 0.7, FZ + 0.3], fov: fv(46) },
-      leanA: { pos: G0(FX + 3.7, FZ - 2.5, 1.65), look: [FX - 0.3, F[1] + 0.65, FZ + 0.3], fov: fv(44) },
-      leanB: { pos: G0(FX + 3.4, FZ - 2.2, 1.6), look: [FX - 0.4, F[1] + 0.6, FZ + 0.4], fov: fv(41) },
+      wallA: { pos: G0(12.6, -2.6, 1.6), look: [FX, F[1] + 0.6, FZ], fov: fv(42) },
+      wallB: { pos: G0(10.4, -0.9, 1.6), look: [FX, F[1] + 0.6, FZ], fov: fv(42) },
+      winA: { pos: G0(10.9, -2.0, 1.7), look: K.win, fov: fv(28) },
+      winB: { pos: G0(10.9, -2.0, 1.7), look: [FX - 0.4, F[1] + 0.5, FZ - 0.2], fov: fv(46) },
+      listen: { pos: G0(10.2, -0.6, 1.75), look: [FX - 0.2, F[1] + 0.75, FZ - 0.5], fov: fv(46) },
+      leanA: { pos: G0(10.0, -0.9, 1.7), look: [FX - 0.2, F[1] + 0.7, FZ - 0.5], fov: fv(44) },
+      leanB: { pos: G0(9.7, -1.3, 1.65), look: [FX - 0.3, F[1] + 0.65, FZ - 0.5], fov: fv(41) },
       well: { pos: G0(3.0, 7.5, 1.6), look: [wellP.x, wellP.y + 0.5, wellP.z], fov: fv(16) },
       shrink: { pos: G0(FX + 1.4, FZ + 2.2, 1.0), look: [FX, F[1] + 0.3, FZ], fov: fv(34) },
-      embA: { pos: G0(FX + 0.9, FZ + 1.3, 1.05), look: [FX, F[1] + 0.1, FZ], fov: fv(26) },
-      embB: { pos: G0(FX + 0.8, FZ + 1.15, 0.95), look: [FX, F[1] + 0.1, FZ], fov: fv(24) },
-      spark: { pos: G0(FX + 0.75, FZ + 1.05, 0.85), look: [FX, F[1] + 0.12, FZ], fov: fv(20) },
+      embA: { pos: G0(FX + 1.2, FZ + 1.4, 1.25), look: [FX, F[1] + 0.1, FZ], fov: fv(22) },
+      embB: { pos: G0(FX + 1.05, FZ + 1.25, 1.12), look: [FX, F[1] + 0.1, FZ], fov: fv(20) },
+      spark: { pos: G0(FX + 0.95, FZ + 1.15, 1.0), look: [FX, F[1] + 0.12, FZ], fov: fv(14) },
     };
     K.wellP = [wellP.x, wellP.y, wellP.z];
+    { const a = K.cams.well.pos, b = K.wellP; for (const o of P.olives) { const ox = o.position.x - a[0], oz = o.position.z - a[2], dx = b[0] - a[0], dz = b[2] - a[2], L = dx * dx + dz * dz;
+      const k = clamp((ox * dx + oz * dz) / L), ex = ox - k * dx, ez = oz - k * dz; if (Math.hypot(ex, ez) < 3.5 && k < 0.9) o.visible = false; } }
     HILLS.update(0, 0, {}); G.R.compile(HILLS.scene, HILLS.camera);
     console.error(`[y12-02] init ${((performance.now() - T0) / 1000).toFixed(1)} s`);
   },
