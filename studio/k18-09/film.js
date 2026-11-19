@@ -150,8 +150,8 @@ M.film({
     const near = P.prints.filter(([, z]) => z < 12).sort((a, b) => a[1] - b[1]);
     // each print: a damp sandal-shaped hollow (always there) and the water that seeps into it (grows with fill)
     const pt = printTex();
-    const dryM = new THREE.MeshStandardMaterial({ color: 0x4a3a2a, roughness: 0.6, alphaMap: pt, transparent: true, opacity: 0.6, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 });
-    const wetM = new THREE.MeshBasicMaterial({ color: 0xa9c6d6, alphaMap: pt, transparent: true, opacity: 0.9, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4 });
+    const dryM = new THREE.MeshStandardMaterial({ color: 0x3a2c20, roughness: 0.6, alphaMap: pt, transparent: true, opacity: 0.55, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 });
+    const wetM = new THREE.MeshBasicMaterial({ color: 0x8fa4ac, alphaMap: pt, transparent: true, opacity: 0.9, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4 });
     for (const [x, z, a] of near) { const h = HT(x, z);
       const dry = new THREE.Mesh(new THREE.PlaneGeometry(0.13, 0.29).rotateX(-Math.PI / 2), dryM); dry.position.set(x, h + 0.003, z); dry.rotation.y = a; dry.receiveShadow = true; S.add(dry);
       const m = new THREE.Mesh(new THREE.PlaneGeometry(0.13, 0.29).rotateX(-Math.PI / 2), wetM.clone()); m.userData.base = [x, z, a, h]; m.receiveShadow = true; S.add(m); PUDDLES.push(m); }
@@ -170,7 +170,8 @@ M.film({
     console.error('[k18-09] sun elev', (Math.atan(tanE) * 57.3).toFixed(1), 'dir', sd.x.toFixed(2), sd.z.toFixed(2));
     const R1 = V(0.75, TOP, 0.75), R2 = V(-0.15, TOP, 0.85), off = Math.min(1.1, 1.15 / tanE);
     C.tallAt = R1.clone().addScaledVector(sh, off); C.youngAt = R2.clone().addScaledVector(sh, off);
-    C.shadowCam = { pos: [-1.55, TOP + 1.2, 0.05], look: [0.45, TOP - 0.05, 0.75], fov: 40 };
+    { const m = C.tallAt.clone().add(C.youngAt).multiplyScalar(0.5);                     // behind the two at the hem line, the sea beyond them
+      C.hemsCam = { pos: [m.x + 0.25, m.y + 0.38, m.z + 1.75], look: [m.x - 0.1, m.y + 0.2, m.z - 3], fov: 40 }; }
     C.pointAt = V(2.8, 0.4, -14);
     const top = TOP, bx = BK0.x, bz = BK0.z;
     // camera poses (vertical fov for 9x16; 16x9 is tightened in K.lensFov)
@@ -180,19 +181,19 @@ M.film({
       water_a: { pos: [0.2, 0.9, 0.3], look: [1.4, -0.05, -4.5], fov: 32 },
       water_b: { pos: [0.25, 0.86, 0.15], look: [1.6, -0.05, -5.2], fov: 31 },
       pull_a:  { pos: [0.45, top + 0.45, 0.95], look: [-0.25, 0.0, -0.7], fov: 36 },
-      pull_b:  { pos: C.shadowCam.pos, look: C.shadowCam.look, fov: 44 },
+      pull_b:  { pos: [-0.9, top + 1.05, -1.1], look: [0.35, top - 0.05, 1.05], fov: 46 },
       far:     { pos: [-6, 3.4, 62], look: [0.6, 1.3, 1.5], fov: 9 },
       basket_a:{ pos: [bx + 1.25, top + 0.8, bz + 0.85], look: [bx - 0.05, top + 0.08, bz], fov: 46 },
       basket_b:{ pos: [bx + 1.0, top + 0.66, bz + 0.68], look: [bx - 0.05, top + 0.08, bz], fov: 44 },
       seam:    { pos: [0.6, 2.0, 0.4], look: [2.8, 0.0, -9], fov: 40 },
-      shadow:  C.shadowCam,
+      shadow:  C.hemsCam,
       feet_a:  { pos: [-2.05, 1.5, 1.9], look: [-2.05, 0.0, 4.0], fov: 46 },
       feet_b:  { pos: [-2.05, 0.2, 2.3], look: [-2.05, -0.2, 8.0], fov: 44 },
       empty:   { pos: [bx + 1.5, top + 0.95, bz + 1.25], look: [bx - 0.1, top + 0.05, bz - 0.1], fov: 46 },
       prints:  { pos: [-2.25, 0.3, 2.55], look: [-2.05, 0.04, 4.8], fov: 38 },
     });
     const pr = PUDDLES[0].userData.base;
-    C.one = { pos: [pr[0] - 0.42, pr[3] + 0.42, pr[1] - 0.2], look: [pr[0], pr[3], pr[1] - 0.02], fov: 36 };
+    C.one = { pos: [pr[0] - 0.55, pr[3] + 0.55, pr[1] - 0.45], look: [pr[0] + 0.05, pr[3], pr[1] + 0.1], fov: 34 };
     SHOTS = [
       { t0: 0.00, t1: 1.87, a: C.flip_a, b: C.flip_b, ease: E.inOutSine },
       { t0: 1.87, t1: 3.74, a: C.water_a, b: C.water_b },
@@ -231,12 +232,12 @@ M.film({
     // the puddles in the prints: dry until the walkers have left; they fill slowly (seawater seeps up the sand)
     const fill = (k) => E.outQuad(clamp(k));
     PUDDLES.forEach((m, j) => { const [x, z, a, h] = m.userData.base; const k = fill(prog(t, 18.9 + 0.3 * j, 27.6 + 0.15 * j)) * (t > 16 ? 1 : 0);
-      m.visible = k > 0.01; m.position.set(x, h + 0.004, z); m.rotation.y = a; const q = 0.45 + 0.5 * Math.sqrt(k); m.scale.set(q, 1, q); m.material.opacity = 0.25 + 0.6 * k; });
+      m.visible = k > 0.01; m.position.set(x, h + 0.004, z); m.rotation.y = a; const q = 0.45 + 0.5 * Math.sqrt(k); m.scale.set(q, 1, q); m.material.opacity = 0.2 + 0.55 * k; });
     if (i === 12) { const pr = PUDDLES[0].userData.base, g = prog(t, 26.0, 27.2);
       GLINT.visible = g > 0 && g < 1; GLINT.position.set(pr[0] - 0.08 + 0.16 * g, pr[3] + 0.006, pr[1] + 0.02); GLINT.rotation.y = 0; GLINT.scale.set(0.05, 1, 0.006); GLINT.material.opacity = 0.9 * Math.sin(Math.PI * g); }
     // people per shot
     hideAll();
-    if (i === 2 || i === 3 || i === 6) standRest(t, i);
+    if (i === 3 || i === 6) standRest(t, i);
     if (i === 7 || i === 10) { standRest(t, i); pointPose(i === 10 ? Math.max(t, 15.2) : t); }
     if (i === 8) walkBack(t);
     // camera
@@ -245,15 +246,13 @@ M.film({
       const sh = TALL.bones('RightArm').getWorldPosition(V()), dd = C.pointAt.clone().sub(sh).normalize(), h = sh.clone().addScaledVector(dd, 0.56), d = C.pointAt.clone().sub(h).normalize();
       const side = V(-d.z, 0, d.x).normalize();                                          // to the right of the pointing line
       const k = i === 7 ? E.inOutSine(p) : 1;
-      const pos = h.clone().addScaledVector(d, -lerp(0.78, 0.66, k)).addScaledVector(side, 0.13).add(V(0, 0.0, 0));
-      cam = { pos: pos.toArray(), look: h.clone().addScaledVector(d, 1.6).add(V(0, -0.12, 0)).toArray(), fov: K.lensFov(i === 7 ? 36 : 32) };
+      const pos = h.clone().addScaledVector(side, lerp(1.05, 0.9, k)).addScaledVector(d, -0.35).add(V(0, 0.04, 0));
+      cam = { pos: pos.toArray(), look: h.clone().addScaledVector(d, 0.42).toArray(), fov: K.lensFov(i === 7 ? 30 : 28) };
     } else {
       cam = K.camLerp(s.a, s.b, (s.ease || E.linear)(p));
       cam = K.breathe(cam, t, s.b ? 0.0015 : 0.0025, 11 + i);
     }
     G.renderSet(ctx, ST, t, u, { cam, exposure: SET.exposure * ([1, 2, 5, 7, 10].includes(i) ? 0.8 : i === 3 ? 0.92 : 0.95) });
-    if (Math.abs(t - 12.5) < 0.002) { const L = SET.props.sun; let nc = 0; SET.scene.traverse((m) => { if (m.isMesh && m.castShadow && m.visible) nc++; });
-      console.error('[dbg]', t, 'cast', L.castShadow, 'map', !!L.shadow.map, 'enabled', G.R.shadowMap.enabled, 'auto', G.R.shadowMap.autoUpdate, 'I', L.intensity, 'env', SET.scene.environmentIntensity, 'casters', nc, 'pos', L.position.toArray().map((v) => v.toFixed(1)).join(','), 'tgt', L.target.position.toArray().join(','), 'cam', JSON.stringify(L.shadow.camera.left), L.shadow.camera.far); }
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.6);
   },
