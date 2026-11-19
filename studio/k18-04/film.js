@@ -46,22 +46,22 @@ function camFor(s, t, p, pe) {
   if (s.cam === 'grapes2') return K.camLerp(C.g1, C.g2, E.inOutSine(p));
   if (s.cam === 'pullup') { const k = E.inOutCubic(p); const a = C.g2, b = C.aerial; const L = (x, y) => x.map((v, i) => v + (y[i] - v) * k);
     return { pos: L(a.pos, b.pos), look: L(a.look, b.look), fov: K.lensFov(a.fov * (b.fov / a.fov) ** k) }; }
-  if (s.cam === 'glide') { const z = glideZ(t), low = s.look === 'barley' ? 0.62 : 1.0, x = sx(z) + 0.15;
-    const ls = { vines: [-13.5, 1.6, z - 7], palms: [-7.3, 7.5, z - 5], barley: [-3.0, 0.25, z - 6.5] };
+  if (s.cam === 'glide') { const z = glideZ(t), x = sx(z) + 0.15;
+    const ls = { vines: [-13.5, 1.3, z - 6], palms: [-7.3, 7.5, z - 5], barley: [-3.0, 0.45, z - 6.5] };
     // look blends across the joins so the glide never jumps
     const j0 = prog(t, 7.6, 8.3), j1 = prog(t, 10.4, 11.1);
     const lk = ls.vines.map((v, i) => v + (ls.palms[i] - v) * E.inOutSine(j0) + (ls.barley[i] - ls.palms[i]) * E.inOutSine(j1));
-    const y = hy(x, z) + 1.0 - 0.38 * E.inOutSine(j1);
+    const y = hy(x, z) + 1.95 - 1.1 * E.inOutSine(j1);
     return { pos: [x, y, z], look: lk, fov: K.lensFov(44) }; }
   if (s.cam === 'follow') { const z = walkZ(t) + 2.6; return { pos: [AISLE + 0.55, hy(AISLE, z) + 1.5, z], look: [AISLE - 0.3, 1.4, z - 9], fov: K.lensFov(42) }; }
-  if (s.cam === 'sweep') { const z = walkZ(18.42) + 1.1; return { pos: [AISLE + 0.9, hy(AISLE, z) + 1.55, z + 0.2 - 0.15 * p], look: [AISLE - 2.5, 1.7, z - 4.5], fov: K.lensFov(36) }; }
+  if (s.cam === 'sweep') { const z = walkZ(18.42) + 2.4; return { pos: [AISLE + 1.3, hy(AISLE, z) + 1.35, z - 0.15 * p], look: [AISLE - 1.2, 1.55, z - 4.0], fov: K.lensFov(44) }; }
   if (s.cam === 'rack') { const k = E.inOutSine(p); const L = (x, y) => x.map((v, i) => v + (y[i] - v) * k);
     return { pos: C.g0.pos, look: L(C.rack.look, C.g0.look), fov: K.lensFov(C.g0.fov) }; }
   return K.camLerp(C[s.a], s.b ? C[s.b] : null, pe);
 }
 
 function ring(gold, gem) {
-  const g = new THREE.Group(); const r = new THREE.Mesh(new THREE.TorusGeometry(0.0105, 0.0024, 12, 48), gold); r.rotation.x = Math.PI / 2; g.add(r);
+  const g = new THREE.Group(); const r = new THREE.Mesh(new THREE.TorusGeometry(0.0125, 0.003, 12, 48), gold); r.rotation.x = Math.PI / 2; g.add(r);
   if (gem) { const s = new THREE.Mesh(new THREE.SphereGeometry(0.0042, 16, 12), gem); s.position.set(0, 0, 0.012); g.add(s); }
   g.scale.setScalar(100); return g;
 }
@@ -82,7 +82,7 @@ function posePeople(t, i) {
   FRI.object3d.visible = i === 7 || i === 8;
   if (i <= 1) {
     // beside and a little behind the camera: the ringed hand comes in from the lower right and cups the bunch
-    const at = V(HB.x + 0.55, hy(HB.x, HB.z) , HB.z + 0.62); K.place(OWN, at.x, at.y, at.z, Math.atan2(HB.x - at.x, HB.z - at.z));
+    const at = V(HB.x + 0.62, hy(HB.x, HB.z), HB.z - 0.12); K.place(OWN, at.x, at.y, at.z, Math.atan2(HB.x - at.x, HB.z - at.z));
     OWN.setPose('stand', 1.0);
     const k = E.inOutSine(prog(t, 0.25, 1.15)), tug = i === 1 ? 0.05 * E.inOutSine(prog(t, 1.7, 2.4)) : 0;
     const tgt = V(HB.x + 0.035 + tug * 0.5, HB.y - 0.1, HB.z + 0.05 + tug);
@@ -137,22 +137,22 @@ M.film({
     const gold = new THREE.MeshStandardMaterial({ color: 0xf0c050, metalness: 1, roughness: 0.18 }), ruby = new THREE.MeshPhysicalMaterial({ color: 0x9a0a1a, roughness: 0.05, transmission: 0.2, clearcoat: 1 });
     OWN.bones('RightHandRing1').add(ring(gold, ruby)); OWN.bones('RightHandIndex1').add(ring(gold, null)); OWN.bones('LeftHandRing1').add(ring(gold, null));
     // cameras
-    C.g0 = { pos: [HB.x + 0.26, HB.y - 0.06, HB.z + 0.29], look: [HB.x, HB.y - 0.11, HB.z], fov: 30 };
-    C.g1 = { pos: [HB.x + 0.24, HB.y - 0.06, HB.z + 0.27], look: [HB.x + 0.01, HB.y - 0.1, HB.z], fov: 28 };
-    C.g2 = { pos: [HB.x + 0.22, HB.y - 0.05, HB.z + 0.25], look: [HB.x + 0.01, HB.y - 0.1, HB.z], fov: 26 };
+    C.g0 = { pos: [HB.x + 0.42, HB.y - 0.02, HB.z + 0.48], look: [HB.x + 0.02, HB.y - 0.12, HB.z], fov: 36 };
+    C.g1 = { pos: [HB.x + 0.39, HB.y - 0.03, HB.z + 0.45], look: [HB.x + 0.03, HB.y - 0.12, HB.z], fov: 35 };
+    C.g2 = { pos: [HB.x + 0.35, HB.y - 0.03, HB.z + 0.4], look: [HB.x + 0.03, HB.y - 0.12, HB.z], fov: 34 };
     C.aerial = { pos: [-6, 38, 52], look: [0, 0, 0], fov: 46 };
     C.gate_a = { pos: [GATE[0] + 2.2, hy(...GATE) + 1.55, GATE[1] + 7], look: [GATE[0], hy(...GATE) + 1.9, GATE[1]], fov: 44 };
     C.gate_b = { pos: [GATE[0] + 0.15, hy(...GATE) + 1.6, GATE[1] - 1.8], look: [GATE[0] - 0.6, hy(...GATE) + 2.2, GATE[1] - 14], fov: 52 };
     const P = PALM.position;
-    C.dates_a = { pos: [P.x + 2.6, TOPY - 3.2, P.z + 2.0], look: [P.x, TOPY - 2.2, P.z], fov: 30 };
-    C.dates_b = { pos: [P.x + 2.6, TOPY - 3.2, P.z + 2.0], look: [P.x, TOPY - 1.3, P.z], fov: 30 };
+    C.dates_a = { pos: [P.x + 5.5, TOPY - 4.2, P.z + 4.2], look: [P.x, TOPY - 2.6, P.z], fov: 30 };
+    C.dates_b = { pos: [P.x + 5.5, TOPY - 4.2, P.z + 4.2], look: [P.x, TOPY - 1.8, P.z], fov: 30 };
     C.stream = { pos: [sx(14) + 0.25, -0.05, 14], look: [sx(8), -0.2, 8], fov: 34 };
     const P2 = PALM2.position;
-    C.ring = { pos: [P2.x + 0.5, hy(P2.x, P2.z) + 1.5, P2.z + 0.5], look: [P2.x + 0.2, hy(P2.x, P2.z) + 1.42, P2.z + 0.12], fov: 16 };
+    C.ring = { pos: [P2.x + 0.55, hy(P2.x, P2.z) + 1.62, P2.z + 0.62], look: [P2.x + 0.2, hy(P2.x, P2.z) + 1.42, P2.z + 0.12], fov: 24 };
     const PL = near(-34, -15).position;
     C.lone_a = { pos: [PL.x + 5, hy(PL.x, PL.z) + 0.4, PL.z + 4], look: [PL.x, hy(PL.x, PL.z) + 4, PL.z], fov: 50 };
     C.lone_b = { pos: [PL.x + 5, hy(PL.x, PL.z) + 0.4, PL.z + 4], look: [PL.x, hy(PL.x, PL.z) + 9, PL.z], fov: 50 };
-    C.rack = { look: [HB.x - 1.5, HB.y + 1.2, HB.z - 6] };
+    C.rack = { look: [HB.x - 4, HB.y + 0.6, HB.z - 14] };
     ST = W.stage(SET);
     SET.update(0, null, {}); G.R.compile(S, ST.camera);
     CAP = captions(await loadLines('lines.json'), { display: 'Display', ui: 'UI' });
