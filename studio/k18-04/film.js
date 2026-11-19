@@ -148,7 +148,7 @@ M.film({
     C.dates_b = { pos: [P.x + 7.5, hy(P.x, P.z) + 1.6, P.z + 3.0], look: [P.x, TOPY - 1.6, P.z], fov: 24 };
     C.stream = { pos: [sx(14) + 0.25, -0.05, 14], look: [sx(8), -0.2, 8], fov: 34 };
     const P2 = PALM2.position;
-    C.ring = { pos: [P2.x + 0.62, hy(P2.x, P2.z) + 1.58, P2.z - 0.3], look: [P2.x + 0.2, hy(P2.x, P2.z) + 1.45, P2.z + 0.12], fov: 30 };
+    C.ring = { pos: [P2.x + 1.55, hy(P2.x, P2.z) + 1.75, P2.z + 0.15], look: [P2.x + 0.15, hy(P2.x, P2.z) + 1.4, P2.z + 0.1], fov: 30 };
     const PL = near(-34, -15).position;
     C.lone_a = { pos: [PL.x + 5, hy(PL.x, PL.z) + 0.4, PL.z + 4], look: [PL.x, hy(PL.x, PL.z) + 4, PL.z], fov: 50 };
     C.lone_b = { pos: [PL.x + 5, hy(PL.x, PL.z) + 0.4, PL.z + 4], look: [PL.x, hy(PL.x, PL.z) + 9, PL.z], fov: 50 };
@@ -170,7 +170,7 @@ M.film({
       BEE.position.copy(on).add(V(0.01 * Math.sin(t * 2.1), 0.005 * Math.sin(t * 1.3), 0)).add(V(0.25 * lift * lift, 0.18 * lift, 0.12 * lift));
       BEE.rotation.set(-0.4, 1.2 + 0.3 * Math.sin(t * 0.9), 0.2);
       for (const [w, sgn] of WINGS) w.rotation.z = sgn * (lift > 0 ? 0.9 * Math.sin(t * 190) : 0.15); }
-    G.renderSet(ctx, ST, t, u, { cam, exposure: SET.exposure * (i === 10 ? 0.9 : 1) });
+    G.renderSet(ctx, ST, t, u, { cam, exposure: SET.exposure * (i === 10 ? 0.9 : i === 11 ? 0.7 : 1) });
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.6);
   },
