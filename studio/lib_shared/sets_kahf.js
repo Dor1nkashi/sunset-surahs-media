@@ -621,7 +621,7 @@ export async function mountain_cave({ time = 'day', seed = 18, sleepers = 5, dog
     for (let i = 0; i < p.count; i++) { const x = p.getX(i), z = p.getZ(i); if (x < -30 || x > 30 || z < -22 || z > 12) continue; P.set(x, p.getY(i), z); N.fromBufferAttribute(nr, i); o[i] = ROCK.occAt(P, N); }
     g.setAttribute('occ', new THREE.BufferAttribute(o, 1)); }
   // --- inside: sleepers in a row, the lamp, the dog on the lip
-  const woolM = (await MATS.wool()).clone(); woolM.color.set(0x9a8a74);
+  const woolM = (await MATS.wool()).clone(); woolM.color.set(0xb4a288);
   const sleeperList = [];
   for (let i = 0; i < sleepers; i++) { const x = -4 + i * 2.0, z = -9.2 + 0.5 * Math.sin(i * 1.7), sl = sleeper(woolM, { seed: seed + i * 3, len: 0.95 + 0.06 * Math.sin(i * 2.3), mirror: i % 2 ? 1 : -1 });
     sl.position.set(x, H(x, z), z); sl.rotation.y = 0.12 * Math.sin(i * 3.1) + (i % 2 ? 0.05 : -0.05); add(S, sl); bakeOcc(sl, ROCK.occAt, { floor: 0.03 }); occify(sl.material); sleeperList.push(sl); }
@@ -671,7 +671,7 @@ export async function mountain_cave({ time = 'day', seed = 18, sleepers = 5, dog
   const mouthGlow = new THREE.SpotLight(dayMode ? 0xf0e2cc : time === 'bluehour' || time === 'night' ? 0x6a78a8 : 0xffc890, 1, 0, 0.62, 1, 1.35);
   mouthGlow.position.set(0, 1.1, 5.5); mouthGlow.target.position.set(0, 0.2, -9); mouthGlow.castShadow = true; mouthGlow.shadow.mapSize.set(1024, 1024); mouthGlow.shadow.bias = -0.0004; mouthGlow.shadow.radius = 6;
   add(S, mouthGlow); add(S, mouthGlow.target);
-  const fill = new THREE.PointLight(0xffd8b0, { day: 2.2, sunrise: 1.4, dusk: 1.2, bluehour: 0.5, night: 0.3 }[time] ?? 1, 13, 1.2); fill.position.set(0, 2.6, -6.5); add(S, fill);   // light bounced off the sunlit floor near the mouth
+  const fill = new THREE.PointLight(0xffd8b0, { day: 3.4, sunrise: 1.4, dusk: 1.2, bluehour: 0.5, night: 0.3 }[time] ?? 1, 13, 1.2); fill.position.set(0, 2.6, -6.5); add(S, fill);   // light bounced off the sunlit floor near the mouth
   const glowI = { day: 60, sunrise: 34, dusk: 30, bluehour: 12, night: 5 }[time] ?? 28; mouthGlow.intensity = glowI;
   const dust = motes({ count: 1600, box: [-4, 0, -12, 4, 3.2, 1.5] }); add(S, dust);
   const mouth = V3(0, 1.0, 0.6);
@@ -703,12 +703,12 @@ export async function mountain_cave({ time = 'day', seed = 18, sleepers = 5, dog
   const cameras = {
     hero:      { pos: [2.4, 0.55, 7.8], look: [0, 1.2, -1], fov: 42 },                          // low outside: the mouth in the cliff, the lip, the dog
     mouth_out: { pos: [0.3, 1.0, -8.2], look: [0, 0.9, 6], fov: 56, exposure: 1.5 },                           // from deep inside, looking out of the rough arch
-    interior:  { pos: [-1.6, 1.55, -2.2], look: [0, 0.25, -9.4], fov: 50, exposure: 2.8 },                     // the sleepers in a row
-    sleepers:  { pos: [1.2, 0.75, -6.2], look: [-0.6, 0.3, -9.4], fov: 40, exposure: 3.0 },
+    interior:  { pos: [-1.6, 1.55, -2.2], look: [0, 0.25, -9.4], fov: 50, exposure: 3.6 },                     // the sleepers in a row
+    sleepers:  { pos: [1.2, 0.75, -6.2], look: [-0.6, 0.3, -9.4], fov: 40, exposure: 4.2 },
     threshold: { pos: [0.1, 0.36, 2.75], look: [-0.85, 0.32, 0.55], fov: 34 },                    // the dog on the stone lip
     path:      { pos: [pathX(34) + 2.5, H(pathX(34) + 2.5, 34) + 1.7, 34], look: [0, 3, -1], fov: 40 },
     ridge:     { pos: [-34, Hm(-34, -16) + 3, -16], look: [-90, -160, 420], fov: 44 },          // along the ridge, the valley below
-    vista:     { pos: [12, 5, 16], look: [-40, -172, 400], fov: 40 },                           // down to the four places
+    vista:     { pos: [12, 25, 10], look: [-40, -175, 420], fov: 40 },                           // down to the four places
   };
   const slots = { youth_1: [pathX(14), H(pathX(14), 14), 14, Math.PI + 0.3], youth_2: [pathX(17), H(pathX(17), 17), 17, Math.PI + 0.3], youth_3: [pathX(20), H(pathX(20), 20), 20, Math.PI + 0.2],
     youth_4: [pathX(23), H(pathX(23), 23), 23, Math.PI + 0.2], youth_5: [pathX(26), H(pathX(26), 26), 26, Math.PI + 0.1] };
@@ -1326,7 +1326,7 @@ async function buildBoat({ scale = 1, sailColors = null, seed = 1, damaged = tru
 // props.setDamage(q): the plank at the waterline (starboard, midships) is prised out, a dark gap opens.
 // props.setFlood(q): water rises over the floorboards inside. Lesson 10.
 export async function sea_boat({ time = 'day', seed = 70 } = {}) {
-  const S = await base('sea_boat', time, { sun: { azim: 120 }, shadowBox: 9, focus: [0, 0.8, 0], fog: 0.0007, exposure: 0.85 });
+  const S = await base('sea_boat', time, { sun: { azim: 35 }, shadowBox: 9, focus: [0, 0.8, 0], fog: 0.0007, exposure: 0.85 });
   const ocean = oceanMaterial({ colA: 0x0a3442, colB: 0x0a3442, shallow: 0x0e4a52, foam: 0, tile: 5, flow: [0.01, 0.004], opacity: 1, rough: 0.08, envI: 0.7 });
   const sea = new THREE.Mesh(warpedSheet(6000, 420, 0.012), ocean); sea.receiveShadow = true; add(S, sea);
   // the rocky coast to the west
@@ -1470,7 +1470,7 @@ export async function village_wall({ time = 'day', seed = 82, repair = 0 } = {})
   add(S, await W.prop('wooden_bucket_01', { pos: [STACK[0] + 1.4, hy(STACK[0] + 1.4, STACK[1]), STACK[1] + 0.3], height: 0.3 }));
   // ---- the sealed jar under the wall's foot and the soil cut-away for the underground shot
   const JAR = [1.1, 0.55], jar = clayJar({ h: 0.62, r: 0.26, seal: true, seed }); jar.position.set(JAR[0], hy(...JAR) - 0.95, JAR[1]); add(S, jar);
-  const cut = GR.makeSoilCutaway(THREE, { w: 1.7, h: 1.25, d: 1.1, seed: seed + 5, surround: false, xray: 0.32, haze: 0.12 }); cut.object3d.position.set(JAR[0], hy(...JAR) + 0.002, JAR[1] - 0.05); add(S, cut.object3d);
+  const cut = GR.makeSoilCutaway(THREE, { w: 1.7, h: 1.25, d: 1.1, seed: seed + 5, surround: false, xray: 0.6, haze: 0.05 }); cut.object3d.position.set(JAR[0], hy(...JAR) + 0.002, JAR[1] - 0.05); add(S, cut.object3d);
   if (cut.object3d.getObjectByName) cut.object3d.traverse((m) => { if (m.name === 'seed') m.visible = false; }); if (cut.seed?.object3d) cut.seed.object3d.visible = false;
   add(S, await W.groundCover({ heightAt: hy, focus: [0, 4], radius: 16, seed: seed + 9, pebbles: 600, rocks: 25, tuftN: 80, tuftColor: 0xb8a878, area: (x, z) => z > 0.5 && z < 7.5 && Math.abs(x) < 15 ? 1 : 0 }));
   const cg = gy0;
@@ -1481,7 +1481,7 @@ export async function village_wall({ time = 'day', seed = 82, repair = 0 } = {})
     tree:    { pos: [-3.2, cg + 1.3, 7.6], look: [-6.8, cg + 1.2, 3.8], fov: 46 },
     track_a: { pos: [-8, cg + 1.5, 3.2], look: [-6, cg + 1.3, 0], fov: 40 },                            // tracking along the wall as it straightens
     track_b: { pos: [8, cg + 1.5, 3.2], look: [10, cg + 1.3, 0], fov: 40 },
-    jar:     { pos: [JAR[0] + 0.3, cg + 0.35, JAR[1] + 2.4], look: [JAR[0], cg - 0.6, JAR[1]], fov: 40 },   // below ground, through the soil section
+    jar:     { pos: [JAR[0] + 0.25, cg - 0.55, JAR[1] + 3.3], look: [JAR[0], cg - 0.62, JAR[1]], fov: 34, exposure: 1.3 },   // below ground, through the soil section
   };
   const slots = { traveller_1: [-6.4, hy(-6.4, 5.2), 5.2, Math.PI * 0.9], traveller_2: [-7.4, hy(-7.4, 5.4), 5.4, Math.PI * 0.9], child_1: [-5.0, hy(-5, 7.1) + 0.3, 7.1, Math.PI], child_2: [-4.1, hy(-4.1, 7.1) + 0.3, 7.1, Math.PI], mason: [0, gy0, 1.1, Math.PI] };
   return finish(S, 'village_wall', cameras, { wall: im, freshBricks: fresh, rubble, setRepair, setCrack: (q) => setRepair(0, q), houses, thorn, jar, cutaway: cut.object3d, step, terrain: T, sun: S.atmo.sun }, slots);
@@ -1664,7 +1664,7 @@ export async function journeys({ side = 'west', seed = 130 } = {}) {
     const mt = await W.terrainMaterial([{ name: 'brown_mud_dry', tile: 2.4, tint: 0x8a7a68 }, { name: 'mud_cracked_dry_03', tile: 2.2, tint: 0x9a8a78 }, { name: 'sandy_gravel', tile: 3 }], { macro: 0.2 });
     T = W.terrain({ size: 1600, seg: 460, warp: 0.1, centre: [0, 0], height, material: mt, weights: (x, z) => [1, 0.5 * sstep(-0.2, 0.5, n(x / 8, z / 8)), 0.2] });
     add(S, T.mesh);
-    const lag = seaMat({ colA: 0x231a10, colB: 0x2c2214, shallow: 0x4a3a26, foam: 0, rough: 0.035, tile: 9, flow: [0.004, 0.002], opacity: 1, envI: 1.1 });
+    const lag = seaMat({ colA: 0x120c06, colB: 0x18100a, shallow: 0x2a2012, foam: 0, rough: 0.09, tile: 9, flow: [0.004, 0.002], opacity: 1, envI: 0.22 });
     const water = new THREE.Mesh(waterSheet({ rect: [-800, -1500, 800, 20], seg: [300, 300], y: -0.08, bed: height }), lag); add(S, water); S.updaters.push((t) => lag.userData.update(t));
     const rd = W.scatterPoints({ seed: seed + 2, count: 1100, rect: [-40, -6, 40, 14], heightAt: (x, z) => Math.max(height(x, z), -0.1), s: [0.7, 1.3], area: (x, z) => { const d = z - (6 + 4 * Math.sin(x / 19) + 2 * Math.sin(x / 7)); return Math.abs(d + 0.5) < 2.5 && n(x / 4, z / 4) > 0.1 && Math.abs(x - 1.5) > 5 ? 1 : 0; } });
     const rb = reeds(rd, { h: 1.8, color: 0x5a5a34, wind: 0.35 }); add(S, rb); S.updaters.push((t) => { rb.userData.U.time.value = t; });
@@ -1865,7 +1865,7 @@ export async function night_shore({ seed = 150 } = {}) {
   S.updaters.push((t, o) => { ocean.userData.update(t); if (o.tide !== undefined) setTide(o.tide); if (o.ink !== undefined) setInk(o.ink); if (o.writing !== undefined) setWriting(o.writing); });
   const cameras = {
     hero:   { pos: [0.75, ty + 0.22, 1.55], look: [-0.6, ty - 0.35, -8], fov: 46 },                 // table height, the sea and the moon glint beyond
-    ink:    { pos: [0.5, ty + 0.2, 0.86], look: [0.32, ty + 0.05, 0.55], fov: 30 },
+    ink:    { pos: [0.4, ty + 0.21, 0.69], look: [0.32, ty + 0.055, 0.55], fov: 34 },
     parchment: { pos: [-0.05, ty + 0.42, 0.95], look: [-0.12, ty, 0.56], fov: 38 },
     shore:  { pos: [2.5, 1.1, 3.5], look: [-1, 0, -4], fov: 46 },
     sky:    { pos: [0, 1.3, 3], look: [-2, 12, -40], fov: 60 },
