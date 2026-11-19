@@ -92,7 +92,7 @@ M.film({
     CAP = captions(await loadLines('lines.json'), { display: 'Display', ui: 'UI' });
     const P = HILLS.set.props, hy = P.terrain.heightAt, hp = P.house.position;
     K.h0 = hp.y; K.hx = hp.x; K.hz = hp.z; K.hy = hy;
-    K.LX = 8.5; K.LZ = 12.5; K.LRY = -0.55;   // ledge on the terrace, facing back toward the house, the eastern glow beyond it
+    K.LX = 12; K.LZ = 15; K.LRY = -0.55;   // ledge on the terrace, facing back toward the house, the eastern glow beyond it
     E11 = elevenStars(THREE, { size: 17 }); HILLS.scene.add(E11);
     windowGlow();
     await buildLamps(hy);
@@ -101,20 +101,22 @@ M.film({
     const far = (d, s = 1300) => d.map((v) => v * s);
     // camera poses (shot list names)
     const G0 = (x, z, dy) => [x, hy(x, z) + dy, z];                       // a camera dy metres above the ground at (x, z)
-    const wideA = { pos: G0(10.5, 21.5, 1.5), look: [-1.5, h0 + 5.0, -10], fov: fv(60) };
+    const toward = (pos, tx, tz, el, d = 30) => { const dx = tx - pos[0], dz = tz - pos[2], l = Math.hypot(dx, dz); return [pos[0] + dx / l * d, pos[1] + Math.tan(el * Math.PI / 180) * d, pos[2] + dz / l * d]; };
+    K.toward = toward;
+    const wp0 = G0(10.5, 21.5, 1.5), wideA = { pos: wp0, look: toward(wp0, -3, -10, PORT ? 13 : 9), fov: fv(62) };
     const ly = K.lamps.y0, cr = Math.cos(K.LRY), sr = Math.sin(K.LRY);
     K.LW = (x, y, z) => [K.LX + x * cr + z * sr, ly + y, K.LZ - x * sr + z * cr];   // ledge-local -> world
     K.cams = {
-      wideA, wideB: { ...wideA, pos: G0(10.1, 20.6, 1.5) },
-      tiltA: { pos: G0(9.8, 19.8, 1.5), look: [-1.5, h0 + 5.2, -10], fov: fv(46) },
-      tiltB: { pos: G0(9.8, 19.8, 1.5), look: [-7, h0 + 17, -14], fov: fv(46) },
-      skyHold: { pos: G0(6, 14, 1.6), look: [-4, h0 + 14.5, -22], fov: fv(52) },
+      wideA, wideB: { ...wideA, pos: G0(10.1, 20.6, 1.5), look: toward(G0(10.1, 20.6, 1.5), -3, -10, PORT ? 13 : 9) },
+      tiltA: { pos: G0(9.8, 19.8, 1.5), look: toward(G0(9.8, 19.8, 1.5), -3, -10, PORT ? 14 : 10), fov: fv(48) },
+      tiltB: { pos: G0(9.8, 19.8, 1.5), look: toward(G0(9.8, 19.8, 1.5), -4, -12, PORT ? 33 : 30), fov: fv(48) },
+      skyHold: { pos: G0(6, 14, 1.6), look: toward(G0(6, 14, 1.6), 0.5, -20, PORT ? 24 : 26), fov: fv(52) },
       craneA: { pos: G0(-24.5, 12.5, 10), look: [-2, h0 + 15, -12], fov: fv(46) },
       craneB: { pos: G0(-24.5, 12.5, 2.7), look: [-3, h0 + 1.3, -1], fov: fv(46) },
       settleA: { pos: G0(-24.5, 12.5, 2.7), look: [-3, h0 + 1.3, -1], fov: fv(46) },
       settleB: { pos: G0(-23.9, 12.0, 2.6), look: [-3.2, h0 + 1.25, -1], fov: fv(45) },
-      lampA: { pos: K.LW(-1.5, 1.02, 1.2), look: K.LW(-1.0, 0.72, -3), fov: fv(30) },
-      lampB: { pos: K.LW(1.3, 1.02, 1.2), look: K.LW(0.95, 0.76, -3), fov: fv(30) },
+      lampA: { pos: K.LW(-1.5, 1.06, 1.25), look: K.LW(-1.0, 0.86, -3), fov: fv(30) },
+      lampB: { pos: K.LW(1.3, 1.06, 1.25), look: K.LW(0.95, 0.88, -3), fov: fv(30) },
     };
     { const sp = G0(4, 12, 1.6); K.cams.stars = aimAt(sp, far(ELEVEN[BRIGHTEST]).map((v, i) => v + sp[i]), fv(24)); }
     const wc = WELL.set.cameras, pc = PRISON.set.cameras, qc = PALACE.set.cameras;
@@ -137,7 +139,8 @@ M.film({
     else if (t < 11.14) { st = PRISON; cam = C.prison; glint = 1; }
     else if (t < 11.90) { st = PALACE; cam = C.palace; glint = 1; }
     else if (t < 14.28) { const p = E.inOutSine(prog(t, 11.9, 14.1)); cam = camL(C.lampA, C.lampB, p); }
-    else cam = camL(C.lampB, C.wideA, E.inOutCubic(prog(t, 14.28, D)));
+    else { const p = E.inOutCubic(prog(t, 14.28, D)), a = camL(C.lampB, C.wideA, p), lift = 4.5 * Math.sin(Math.PI * p);
+      cam = { ...a, pos: [a.pos[0], a.pos[1] + lift, a.pos[2]] }; }
     // ------------------------------------------------------------ world state (pure in t)
     if (st === HILLS) {
       const P = HILLS.set.props, sky = P.sky.userData.u;
