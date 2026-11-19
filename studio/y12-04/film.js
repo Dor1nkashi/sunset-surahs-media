@@ -56,7 +56,7 @@ function tunic(wool, { w = 0.62, h = 0.72, seed = 3, folded = false } = {}) {
   x.fillStyle = '#d8c8a6'; x.fillRect(0, 0, 256, 320);
   const r = mulberry32(seed);
   for (let i = 0; i < 9; i++) { const cx = 120 + (r() - 0.5) * 70, cy = 150 + (r() - 0.5) * 90, rr = 18 + r() * 34; const g = x.createRadialGradient(cx, cy, 0, cx, cy, rr);
-    g.addColorStop(0, 'rgba(92,18,12,0.92)'); g.addColorStop(0.6, 'rgba(110,26,16,0.7)'); g.addColorStop(1, 'rgba(120,40,24,0)'); x.fillStyle = g; x.beginPath(); x.ellipse(cx, cy, rr, rr * (0.6 + r() * 0.6), r() * 3, 0, 7); x.fill(); }
+    g.addColorStop(0, 'rgba(92,24,14,0.7)'); g.addColorStop(0.6, 'rgba(104,34,20,0.5)'); g.addColorStop(1, 'rgba(120,40,24,0)'); x.fillStyle = g; x.beginPath(); x.ellipse(cx, cy, rr, rr * (0.6 + r() * 0.6), r() * 3, 0, 7); x.fill(); }
   const map = new THREE.CanvasTexture(c); map.colorSpace = THREE.SRGBColorSpace;
   const a = document.createElement('canvas'); a.width = 256; a.height = 320; const y = a.getContext('2d');
   y.fillStyle = '#000'; y.fillRect(0, 0, 256, 320); y.fillStyle = '#fff';
@@ -88,7 +88,7 @@ M.film({
       W.pbr('rustic_stone_wall', { tile: 1.2, tint: 0xeee2cc, res: 1024 }), W.pbr('old_planks_02', { tile: 1.6, tint: 0x8a6a4e, res: 1024 })]);
     // ---- the lamp on a stone ledge beside the door (right of the door, on the front wall)
     const shelf = W.rbox(0.42, 0.07, 0.24, stoneM, { r: 0.015 }); shelf.position.set(1.05, h0 + 1.32, DZ + 0.3); sc.add(W.shadows(shelf));
-    const lamp = clayLamp(7, 5.5); lamp.position.set(1.05, h0 + 1.39, DZ + 0.36); lamp.rotation.y = -0.2; sc.add(lamp); K.lamp = lamp;
+    const lamp = clayLamp(7, 2.6); lamp.position.set(1.05, h0 + 1.39, DZ + 0.36); lamp.rotation.y = -0.2; sc.add(lamp); K.lamp = lamp;
     K.lampW = [1.05, h0 + 1.45, DZ + 0.42];
     // ---- the father's staff leaning by the door, his folded cloak on the threshold stone
     const staff = new THREE.Mesh(W.boxUV(new THREE.CylinderGeometry(0.022, 0.03, 1.8, 16)), darkPl); staff.position.set(-0.78, h0 + 0.88, DZ + 0.32); staff.rotation.z = 0.13; sc.add(W.shadows(staff));
@@ -110,7 +110,7 @@ M.film({
     K.bros = Array.from({ length: 10 }, (_, i) => {
       const p = PP.make({ kind: 'man', ...T3[i % 3], palette: { robe: PAL[i][0], cloak: PAL[i][1], wrap: '#d8ccb4', trousers: '#9a8a70', sash: '#6a4a2a' }, detail: 0.6, height: 0.95 + 0.07 * Math.sin(i * 2.7) });
       // end spot: a loose cluster in the lamp pool before the door; start: back through the gate (+z)
-      const ex = -1.6 + (i % 5) * 0.8 + (r() - 0.5) * 0.3, ez = DZ + 1.6 + Math.floor(i / 5) * 0.9 + (r() - 0.5) * 0.3;
+      const ex = -1.9 + (i % 5) * 0.95 + (r() - 0.5) * 0.3, ez = DZ + 3.3 + Math.floor(i / 5) * 0.9 + (r() - 0.5) * 0.3;
       const sx = ex * 0.4, sz = DZ + 6.5 + i * 0.35;
       sc.add(p.object3d); return { p, ex, ez, sx, sz, t0: 3.1 + i * 0.12 };
     });
@@ -127,15 +127,15 @@ M.film({
       gateB: { pos: G0(1.6, DZ + 7.4, 1.65), look: [0, h0 + 1.3, DZ], fov: fv(48) },
       tunic: { pos: [0, 0, 0], look: [0, 0, 0], fov: fv(34) },           // set per frame from the held tunic
       stainA: { pos: [0, 0, 0], look: [0, 0, 0], fov: fv(20) },
-      pastA: { pos: [0.6, h0 + 1.55, DZ + 4.2], look: [-0.5, h0 + 1.0, DZ + 0.3], fov: fv(42) },
-      pastB: { pos: [0.1, h0 + 1.35, DZ + 2.4], look: [-0.7, h0 + 0.9, DZ + 0.3], fov: fv(38) },
-      staff: { pos: [0.35, h0 + 1.2, DZ + 1.9], look: [-0.6, h0 + 0.75, DZ + 0.3], fov: fv(40) },
+      pastA: { pos: [0.9, h0 + 2.3, DZ + 6.0], look: [-0.4, h0 + 1.0, DZ + 0.3], fov: fv(44) },
+      pastB: { pos: [0.2, h0 + 1.6, DZ + 2.6], look: [-0.6, h0 + 0.85, DZ + 0.3], fov: fv(40) },
+      staff: { pos: [0.45, h0 + 1.35, DZ + 2.1], look: [-0.55, h0 + 0.85, DZ + 0.3], fov: fv(42) },
       skyA: { pos: [-0.2, h0 + 1.25, DZ + 2.2], look: [-0.6, h0 + 1.8, DZ + 0.3], fov: fv(46) },
       skyB: { pos: [-0.2, h0 + 1.25, DZ + 2.2], look: sky([-0.2, h0 + 1.25, DZ + 2.2]), fov: fv(46) },
       court: { pos: [2.3, h0 + 1.5, DZ + 3.0], look: [0.6, h0 + 1.3, DZ + 0.3], fov: fv(46) },
-      step: { pos: [0.75, h0 + 0.85, DZ + 1.35], look: [0.25, h0 + 0.05, DZ + 0.42], fov: fv(34) },
-      stepB: { pos: [0.6, h0 + 0.68, DZ + 1.05], look: [0.25, h0 + 0.05, DZ + 0.42], fov: fv(32) },
-      flame: { pos: [1.05 + 0.08, h0 + 1.5, DZ + 0.72], look: L, fov: fv(26) },
+      step: { pos: [1.3, h0 + 1.25, DZ + 2.2], look: [0.2, h0 + 0.3, DZ + 0.3], fov: fv(40) },
+      stepB: { pos: [1.1, h0 + 1.05, DZ + 1.8], look: [0.2, h0 + 0.2, DZ + 0.35], fov: fv(38) },
+      flame: { pos: [1.05 + 0.25, h0 + 1.62, DZ + 1.3], look: L, fov: fv(30) },
     };
     K.door = P.door; P.door.leaf.rotation.y = -0.5;
     // cool moonlight rim from behind-left so the figures read against the dark hills, and a faint sky fill
@@ -176,9 +176,9 @@ M.film({
     else if (t < 3.41) cam = camL(C.ledgeA, C.ledgeB, E.inOutSine(prog(t, 1.17, 3.41)));
     else if (t < 6.41) { const p = E.inOutSine(prog(t, 3.41, 6.41)); cam = camL(C.gateA, C.gateB, p); const sh = 0.012 * Math.sin(t * 7.3) + 0.008 * Math.sin(t * 11.1); cam = { ...cam, pos: [cam.pos[0] + sh, cam.pos[1] + sh * 0.6, cam.pos[2]] }; }
     else if (t < 9.05) {
-      const c = K.tHeldC || V3(0, h0 + 1.0, DZ + 1.5), fw = K.tHeldFw || V3(0, 0, -1), back = c.clone().addScaledVector(fw, 1.6).add(V3(0.35, 0.25, 0));
-      if (t < 8.0) cam = { pos: back.toArray(), look: c.clone().add(V3(0, -0.05, 0)).toArray(), fov: fv(44) };
-      else { const p = E.inOutSine(prog(t, 8.0, 9.05)), near = c.clone().addScaledVector(fw, lerp(0.95, 0.75, p)).add(V3(0.1, 0.05, 0)); cam = { pos: near.toArray(), look: c.clone().add(V3(0, -0.12, 0)).toArray(), fov: fv(26) }; }
+      const c = K.tHeldC || V3(0, h0 + 1.0, DZ + 3.0);           // seen from the lamp side of the yard, the door dark behind
+      if (t < 8.0) cam = { pos: [c.x + 1.5, c.y + 0.25, c.z + 0.9], look: [c.x, c.y - 0.05, c.z - 0.2], fov: fv(42) };
+      else { const p = E.inOutSine(prog(t, 8.0, 9.05)); cam = { pos: [c.x + lerp(0.9, 0.7, p), c.y + 0.15, c.z + lerp(0.6, 0.45, p)], look: [c.x, c.y - 0.12, c.z], fov: fv(28) }; }
     }
     else if (t < 11.34) cam = camL(C.pastA, C.pastB, E.inOutSine(prog(t, 9.05, 11.34)));
     else if (t < 13.68) cam = C.staff;
@@ -195,7 +195,7 @@ M.film({
     K.door.leaf.rotation.y = -0.5 + 0.035 * Math.sin(t * 0.9) + 0.02 * Math.sin(t * 2.3);
     { const L = K.lampW, a = t * 3.1, rr = 0.16 + 0.04 * Math.sin(t * 1.3); K.moth.g.position.set(L[0] + Math.cos(a) * rr, L[1] + 0.12 + 0.05 * Math.sin(t * 2.2), L[2] + Math.sin(a) * rr);
       K.moth.g.rotation.y = -a; const fl = 0.9 * Math.sin(t * 60); K.moth.l.rotation.x = fl; K.moth.r.rotation.x = -fl; K.moth.g.visible = t < 24.4; }
-    G.renderSet(ctx, HILLS, t, u, { cam, exposure: 1.25, fire: 0 });
+    G.renderSet(ctx, HILLS, t, u, { cam, exposure: t > 24.48 ? 0.85 : t < 3.41 && t > 1.17 ? 0.9 : 1.25, fire: 0 });
     CAP.draw(ctx, t);
     const su = prog(t, 26.33, D - 0.05), a = Math.sin(Math.PI * su);
     if (a > 0 && IMG.seal) { const s = PORT ? 480 : 400; ctx.save(); ctx.globalAlpha = a * 0.95; ctx.drawImage(IMG.seal, FW / 2 - s / 2, FH * (PORT ? 0.36 : 0.42) - s / 2, s, s); ctx.restore(); }
