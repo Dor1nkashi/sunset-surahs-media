@@ -41,6 +41,18 @@ function one(film, fmt) {
 
 // Shorts first: every READY film's 9x16 before any 16x9 (long-form chapters).
 function nextJob() {
+  const films = fs.readdirSync(ROOT).filter((d) => fs.existsSync(path.join(ROOT, d, 'READY')) && !fs.existsSync(path.join(ROOT, d, 'DONE')) && !fs.existsSync(path.join(ROOT, d, 'FAILED'))).sort();
+  for (const pass of ['9x16', '16x9']) for (const film of films) {
+    const cfg = JSON.parse(fs.readFileSync(path.join(ROOT, film, 'film.json'), 'utf8'));
+    if (cfg.formats.includes(pass) && !fs.existsSync(path.join(ROOT, film, `DONE_${pass}`))) return [film, pass];
+  }
+  return null;
+}
+
+const once = process.argv.includes('--once');
+for (;;) {
+  if (fs.existsSync(path.join(ROOT, 'QUEUE_STOP'))) { log('stop file found'); break; }
+  spawnSync('git', ['-C', '..', 'pull', '-q'], { env: { ...env, GIT_TERMINAL_PROMPT: '0' } });
   for (let job = nextJob(); job; job = nextJob()) {
     if (fs.existsSync(path.join(ROOT, 'QUEUE_STOP'))) break;
     const [film, fmt] = job;
