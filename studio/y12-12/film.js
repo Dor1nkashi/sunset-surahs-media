@@ -39,7 +39,7 @@ async function build() {
   STAR = K.brightStar({ dir: [-0.05, 0.62, -1], size: 14 }); SET.scene.add(STAR); SKY = K.starfield({ count: 5200, bright: 2.2 }); SET.scene.add(SKY);
   // people
   const PE = await K.people();
-  P.yusuf = PE.make({ kind: 'man', outfit: 'noble', palette: 'noble', beard: 'short', headwear: 'wrap', seed: 12, detail: 1 });
+  P.yusuf = PE.make({ kind: 'man', outfit: 'noble', palette: K.YUSUF_PAL, beard: 'short', headwear: 'wrap', seed: 12, detail: 1 });
   P.guard = PE.make({ kind: 'man', outfit: 'worker', palette: 'night', beard: 'full', headwear: 'wrap', seed: 41, detail: 0.8 });
   const bro = [['rust', 'full', 'keffiyeh'], ['olive', 'full', 'turban'], ['earth', 'short', 'wrap'], ['sand', 'full', 'keffiyeh'], ['indigo', 'short', 'turban']];
   P.bro = bro.map(([pal, beard, hw], i) => PE.make({ kind: 'man', outfit: 'traveller', palette: pal, beard, headwear: hw, seed: 60 + i * 7, detail: 0.6 }));

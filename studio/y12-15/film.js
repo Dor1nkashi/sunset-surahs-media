@@ -31,7 +31,7 @@ async function build() {
   MOON = K.brightStar({ dir: [0.55, 0.42, -0.72], size: 34, color: 0xdfe8ff }); SET.scene.add(MOON);
   MOONL = new THREE.DirectionalLight(0x9fb4ff, 0); MOONL.position.set(0.55 * 200, 0.42 * 200, -0.72 * 200); SET.scene.add(MOONL, MOONL.target);
   const PE = await K.people();
-  P.y = PE.make({ kind: 'man', outfit: 'noble', palette: 'noble', beard: 'short', headwear: 'wrap', seed: 12, detail: 1 });
+  P.y = PE.make({ kind: 'man', outfit: 'noble', palette: K.YUSUF_PAL, beard: 'short', headwear: 'wrap', seed: 12, detail: 1 });
   P.yq = PE.make({ kind: 'elder', outfit: 'traveller', palette: { robe: '#a8987c', wrap: '#d8ccb4', cloak: '#8e7d62', sash: '#6a4a2a', trousers: '#9c8a6c', shemagh: '#b8892e' }, beard: 'grey', headwear: 'keffiyeh', seed: 3, detail: 0.8 });
   P.w = PE.make({ kind: 'woman', palette: { abaya: '#262b3b', khimar: '#2f3650' }, seed: 21, detail: 0.7 });
   const bro = [['rust', 'full', 'keffiyeh'], ['olive', 'full', 'turban'], ['night', 'full', 'wrap'], ['earth', 'short', 'keffiyeh']];

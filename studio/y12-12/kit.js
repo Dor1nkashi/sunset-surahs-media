@@ -269,3 +269,5 @@ export function clearScatter(group, cx, cz, r) {
     for (let i = 0; i < o.count; i++) { o.getMatrixAt(i, M4); P.setFromMatrixPosition(M4); if (Math.hypot(P.x - cx, P.z - cz) < r) { o.setMatrixAt(i, Z); n++; } }
     if (n) { o.instanceMatrix.needsUpdate = true; o.computeBoundingSphere(); } });
 }
+// Yusuf in office: white pleated linen, gold trim and collar
+export const YUSUF_PAL = { robe: '#efe9de', wrap: '#f3efe6', cloak: '#e6dccb', trim: '#c9a046', sash: '#c9a046', trousers: '#e4dccb' };

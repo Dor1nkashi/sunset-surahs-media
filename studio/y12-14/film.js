@@ -17,11 +17,11 @@ const C = (pos, look, fov, roll = 0) => ({ pos, look, fov, roll });
 const DZ = -24, FLOOR = 0.08;
 // the dais: three steps (tops 0.38, 0.68, 0.98), fronts at z -21.8, -22.55, -23.3; smooth risers so feet never pop
 const stepY = (z) => FLOOR + 0.3 * sstep(-21.7, -21.9, z) + 0.3 * sstep(-22.45, -22.65, z) + 0.3 * sstep(-23.2, -23.4, z);
-const BRO = [[-1.9, -14.6], [-0.85, -14.1], [0.2, -14.5], [1.25, -14.0], [2.2, -14.7]];
-const YSTOP = -18.2;
+const BRO = [[-1.8, -10.9], [-0.9, -10.5], [0.0, -11.0], [0.9, -10.6], [1.8, -11.1]];
+const YSTOP = -18.0;
 
 // the sun comes from the gate side (+z), low, and sinks a little through the film: shadows lengthen toward the dais
-function sunDir(t) { const e = (16 - 6.5 * sm(t, 11, 26)) * Math.PI / 180, a = 0.22; return V3(Math.sin(a) * Math.cos(e), Math.sin(e), Math.cos(a) * Math.cos(e)); }
+function sunDir(t) { const e = (17 - 7 * sm(t, 15, 22)) * Math.PI / 180, a = 0.0; return V3(Math.sin(a) * Math.cos(e), Math.sin(e), Math.cos(a) * Math.cos(e)); }
 function aimSun(t) {
   const L = SET.atmo.sun, f = V3(0, 0, -16), d = sunDir(t);
   L.position.copy(f).addScaledVector(d, 150); L.target.position.copy(f); L.target.updateMatrixWorld();
@@ -33,15 +33,15 @@ async function build() {
   ST = W.stage(SET);
   // turn the sky (env + background) so the HDRI's sun sits where our sun is (gate side, +z)
   const da = (250 - 78) * Math.PI / 180; SET.scene.environmentRotation.y += da; SET.scene.backgroundRotation.y += da;
-  SET.atmo.sun.intensity *= 1.25; SET.atmo.sun.color.set(0xffc58a);
+  SET.atmo.sun.intensity *= 1.4; SET.atmo.sun.color.set(0xffc58a); ST.bloom = 0.1; ST.bloomThreshold = 0.96;
   // dust in the low sun across the court
   const N = 700, mg = new THREE.SphereGeometry(0.004, 6, 4), mm = new THREE.MeshBasicMaterial({ color: 0xffd8a0, transparent: true, opacity: 0.7, blending: THREE.AdditiveBlending, depthWrite: false });
   MOTES = new THREE.InstancedMesh(mg, mm, N); MOTES.frustumCulled = false; SET.group.add(MOTES);
   // empty grain sacks at the brothers' feet (folded flat)
   const hs = await K.mats.hessian();
-  for (const [x, z, r] of [[-1.4, -13.6, 0.4], [0.7, -13.4, 2.1], [1.8, -13.7, 1.1]]) { const s = W.sack(hs, { w: 0.55, h: 0.5, seed: x * 10 | 0, tie: false, open: true }); s.scale.set(1.1, 0.22, 1.1); s.position.set(x, FLOOR, z); s.rotation.y = r; SET.group.add(s); SACKS.push(s); }
+  for (const [x, z, r] of [[-1.35, -10.1, 0.4], [0.45, -9.9, 2.1], [1.35, -10.2, 1.1]]) { const s = W.sack(hs, { w: 0.55, h: 0.5, seed: x * 10 | 0, tie: false, open: true }); s.scale.set(1.1, 0.22, 1.1); s.position.set(x, FLOOR, z); s.rotation.y = r; SET.group.add(s); SACKS.push(s); }
   const PE = await K.people();
-  P.y = PE.make({ kind: 'man', outfit: 'noble', palette: 'noble', beard: 'short', headwear: 'wrap', seed: 12, detail: 1 });
+  P.y = PE.make({ kind: 'man', outfit: 'noble', palette: K.YUSUF_PAL, beard: 'short', headwear: 'wrap', seed: 12, detail: 1 });
   const bro = [['rust', 'full', 'keffiyeh'], ['olive', 'full', 'turban'], ['night', 'full', 'wrap'], ['earth', 'short', 'keffiyeh'], ['sand', 'short', 'turban']];
   P.bro = bro.map(([pal, beard, hw], i) => PE.make({ kind: 'man', outfit: 'traveller', palette: pal, beard, headwear: hw, seed: 60 + i * 7, detail: 0.7 }));
   for (const p of [P.y, ...P.bro]) SET.group.add(p.object3d);
@@ -68,7 +68,7 @@ function yusuf(t) {
 }
 function brothers(t) {
   P.bro.forEach((b, i) => { b.object3d.visible = true; const [x, z] = BRO[i];
-    const kneel = (i === 1 && t >= 8.38) || (i === 3 && t >= 13.5) || (i === 0 && t >= 17.38);
+    const kneel = (i === 1 && t >= 8.6) || (i === 3 && t >= 13.6) || (i === 0 && t >= 17.6);
     K.place(b, x, FLOOR, z, Math.PI + (x * 0.04)); b.setPose(kneel ? 'kneel' : 'stand', t, { offset: i * 0.8 }); if (!kneel) K.tilt(b, 'Neck', 14, 0, 0); });
 }
 function dust(t) {
@@ -82,21 +82,22 @@ function dust(t) {
 }
 
 function shots() {
-  const floorA = C([1.1, 0.22, -16.6], [0.0, 0.25, -24.5], 64), floorB = C([0.95, 0.22, -17.4], [0.0, 0.3, -24.5], 62);
+  const floorA = C([1.2, 0.25, -12.4], [0.0, 0.3, -24.5], 62), floorB = C([1.0, 0.25, -13.4], [0.0, 0.32, -24.5], 60);
+  const armA = C([-1.3, 2.32, -24.15], [-0.62, 1.96, -24.95], 28), armB = C([-1.27, 2.3, -24.2], [-0.62, 1.96, -24.95], 26);
   return [
-    { t0: 0, t1: 2.16, a: floorA, b: floorB },                                                                  // 1 the long shadows on the stone, toward the dais
-    { t0: 2.16, t1: 4.04, a: C([0.6, 0.38, -19.2], [0, 0.55, -23.5], 52), b: C([0.5, 0.42, -20.2], [0, 0.6, -23.6], 48) },   // 2 the shadows reach the steps; dust
-    { t0: 4.04, t1: 6.44, a: C([1.6, 1.55, -8.4], [0, 1.6, -22], 38), b: C([1.45, 1.55, -9.4], [0, 1.6, -22], 36) },         // 3 their backs; the throne beyond
-    { t0: 6.44, t1: 8.38, a: C([-1.35, 2.15, DZ - 2.0], [-0.6, 1.62, DZ - 0.9], 30), b: C([-1.3, 2.15, DZ - 1.95], [-0.6, 1.66, DZ - 0.9], 29) }, // 4 his hand on the throne arm, lifting
-    { t0: 8.38, t1: 10.84, a: C([1.25, 2.05, DZ - 2.3], [0.0, 1.0, -15.5], 42), b: C([1.1, 1.85, DZ - 0.6], [0.0, 1.0, -15.5], 40) },    // 5 one brother kneels; he steps down
-    { t0: 10.84, t1: 13.5, a: C([1.3, 1.15, -21.2], [0, 0.9, -15.5], 44), b: C([1.2, 0.42, -20.6], [0, 0.6, -15.5], 46) },     // 6 lowering toward the stone between them
-    { t0: 13.5, t1: 15.9, a: C([-3.6, 0.16, -16.3], [0.2, 0.0, -17.6], 74), b: C([-3.2, 0.16, -16.5], [0.2, 0.0, -17.7], 72) }, // 7 floor level: the shadows begin to meet
-    { t0: 15.9, t1: 17.38, a: C([-1.2, 0.45, -20.5], [0, 1.3, -6], 56), b: C([-1.0, 0.48, -19.9], [0, 1.35, -6], 53) },     // 8 dust glowing in the low sun
-    { t0: 17.38, t1: 20.84, a: C([-4.2, 3.6, -21.5], [0, 0, -18.4], 52), b: null },                                    // 9 the two shadows merge into one (locked)
-    { t0: 20.84, t1: 22.64, a: C([-1.35, 2.05, DZ - 0.1], [-0.6, 1.55, DZ - 0.95], 30), b: C([-1.3, 2.0, DZ - 0.15], [-0.6, 1.55, DZ - 0.95], 28.5) }, // 10 the throne arm, empty: the power he had
-    { t0: 22.64, t1: 24.48, a: C([0.55, 1.8, YSTOP - 1.25], [-0.1, 1.35, -15], 40), b: C([0.5, 1.75, YSTOP - 1.0], [-0.1, 1.35, -15], 37) }, // 11 his open hand lifted in the light
-    { t0: 24.48, t1: 26.42, a: C([0.9, 1.0, -19.6], [0, 1.2, DZ - 1], 36), b: null },                                     // 12 the dais, empty
-    { t0: 26.42, t1: D + 0.01, a: floorA, b: floorA },                                                                  // 13 the merged shadow on the same floor (shot 1's pose)
+    { t0: 0, t1: 2.16, a: floorA, b: floorB },                                                                                  // 1 long shadows on the stone, toward the dais
+    { t0: 2.16, t1: 4.04, a: C([0.6, 0.4, -15.5], [0, 0.7, -23.5], 50), b: C([0.5, 0.42, -16.8], [0, 0.8, -23.5], 46) },            // 2 the shadows reach for the steps; dust
+    { t0: 4.04, t1: 6.44, a: C([1.4, 1.6, -4.6], [0, 1.6, -22], 40), b: C([1.3, 1.6, -5.6], [0, 1.6, -22], 38) },                    // 3 their backs, the throne beyond
+    { t0: 6.44, t1: 8.38, a: armA, b: armB },                                                                                   // 4 his hand on the throne arm, lifting
+    { t0: 8.38, t1: 10.84, a: C([0.8, 3.45, -26.2], [0, 1.2, -12], 40), b: C([0.7, 2.7, -23.2], [0, 1.1, -12], 40) },                 // 5 one brother kneels; he steps down toward them
+    { t0: 10.84, t1: 13.5, a: C([3.3, 1.7, -14.2], [0, 0.85, -14.6], 46), b: C([3.1, 0.45, -14.1], [0, 0.35, -14.6], 52) },            // 6 lowering toward the stone between them
+    { t0: 13.5, t1: 15.9, a: C([-3.3, 0.18, -14.0], [0.3, 0.02, -14.8], 74), b: C([-3.0, 0.18, -14.1], [0.3, 0.02, -14.9], 72) },        // 7 floor level: the shadows reach toward him
+    { t0: 15.9, t1: 17.38, a: C([-1.0, 0.55, -19.6], [0, 1.4, -4], 56), b: C([-0.9, 0.58, -19.0], [0, 1.45, -4], 53) },               // 8 dust glowing in the low sun
+    { t0: 17.38, t1: 20.84, a: C([-5.0, 7.0, -14.2], [0, 0, -14.6], 52), b: null },                                               // 9 the shadows merge into one (locked)
+    { t0: 20.84, t1: 22.64, a: armA, b: armB },                                                                                 // 10 the throne arm, empty: the power he had
+    { t0: 22.64, t1: 24.48, a: C([0.55, 1.85, YSTOP - 1.3], [-0.1, 1.35, -11], 40), b: C([0.5, 1.8, YSTOP - 1.05], [-0.1, 1.35, -11], 37) }, // 11 his open hand lifted in the light
+    { t0: 24.48, t1: 26.42, a: C([2.6, 1.25, -19.6], [0, 1.4, -25], 38), b: null },                                               // 12 the dais, empty
+    { t0: 26.42, t1: D + 0.01, a: floorA, b: floorA },                                                                           // 13 the merged shadow on the same floor (shot 1's pose)
   ];
 }
 
@@ -115,7 +116,7 @@ M.film({
     M.fill(ctx, '#000');
     aimSun(t); yusuf(t); brothers(t); dust(t);
     const s = K.shotAt(SHOTS, t), cam = K.camAt(s, t);
-    G.renderSet(ctx, ST, t, u, { cam, exposure: 0.9 });
+    G.renderSet(ctx, ST, t, u, { cam, exposure: 0.78 });
     K.vignette(ctx, 0.3);
     CAP.draw(ctx, t);
     K.drawSeal(ctx, IMG.seal, t, 27.65, D);
