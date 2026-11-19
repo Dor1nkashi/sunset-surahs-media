@@ -98,7 +98,7 @@ M.film({
     const EL = new THREE.PointLight(0xff7a30, 2.5, 9, 1.6); EL.position.set(FX, FY + 0.5, FZ); sc.add(EL); K.EL = EL;
     // ---- the father's lit window on the slope (the house front faces +z)
     const H = P.house;
-    const pane = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.34), new THREE.MeshBasicMaterial({ color: new THREE.Color(1.0, 0.55, 0.22).multiplyScalar(0.9) }));
+    const pane = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.34), new THREE.MeshBasicMaterial({ color: new THREE.Color(1.0, 0.5, 0.16), toneMapped: false }));
     pane.position.set(3.83, 1.95, -0.85); pane.rotation.y = Math.PI / 2; H.add(pane);                      // a small window in the side wall that faces the pen
     const dpl = await W.pbr('old_planks_02', { tile: 1.6, tint: 0x8a6a4e, res: 1024 });
     for (const [y, h] of [[1.68, 0.07], [2.18, 0.07]]) { const fr = W.rbox(0.09, h, 0.7, dpl, { r: 0.015 }); fr.position.set(3.86, y, -0.85); H.add(fr); }

@@ -87,7 +87,8 @@ M.film({
     const fixT = (x) => x.replace(/ʿ/g, '‘').replace(/ʾ/g, '’').replace(/ṣ/g, 's').replace(/ḥ/g, 'h');
     CAP = captions((await loadLines('lines.json')).map((l) => ({ ...l, text: fixT(l.text), keys: (l.keys || []).map(fixT) })), { display: 'Display', ui: 'UI', size: PORT ? 84 : 74 });
     const S = WELL.set, P = S.props, sc = WELL.scene, hy = P.terrain.heightAt, h0 = P.well.position.y;
-    K.h0 = h0; K.hy = hy; const R0 = 0.78, WY = h0 - 9 + 0.25, top = h0 + 0.91; K.WY = WY; K.top = top;
+    K.h0 = h0; K.hy = hy;
+    P.terrain.mesh.castShadow = false;                                       // the ground has no hole: let the sun into the shaft const R0 = 0.78, WY = h0 - 9 + 0.25, top = h0 + 0.91; K.WY = WY; K.top = top;
     // ---- the rope end hangs from the beam; pivot at the beam so it can swing (pendulum, pure in t)
     const rope = P.rope, piv = new THREE.Group(); piv.position.set(0, h0 + 1.86, 0); sc.add(piv);
     rope.parent.remove(rope); rope.position.set(0, -1.86, 0); piv.add(rope); K.ropePiv = piv;
@@ -104,7 +105,9 @@ M.film({
     { const n = 160, r = mulberry32(9), pos = new Float32Array(n * 3), base = [];
       for (let i = 0; i < n; i++) base.push([(r() - 0.5) * 1.3, WY + 0.3 + r() * 8.2, (r() - 0.5) * 1.3, r() * 6.28, 0.02 + r() * 0.03]);
       const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-      const m = new THREE.PointsMaterial({ color: 0xfff0d0, size: 0.012, transparent: true, opacity: 0.55, depthWrite: false, blending: THREE.AdditiveBlending });
+      const cv = document.createElement('canvas'); cv.width = cv.height = 64; const cx = cv.getContext('2d'), gr = cx.createRadialGradient(32, 32, 0, 32, 32, 32);
+      gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.35, 'rgba(255,255,255,0.35)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); cx.fillStyle = gr; cx.fillRect(0, 0, 64, 64);
+      const m = new THREE.PointsMaterial({ color: 0xffe8c0, size: 0.009, map: new THREE.CanvasTexture(cv), transparent: true, opacity: 0.5, depthWrite: false, blending: THREE.AdditiveBlending });
       const pts = new THREE.Points(g, m); pts.frustumCulled = false; sc.add(pts);
       K.motes = { pts, m, upd: (t) => { base.forEach(([x, y, z, ph, v], i) => pos.set([x + 0.08 * Math.sin(t * 0.3 + ph), y + ((v * t + ph) % 1.2) - 0.6, z + 0.08 * Math.cos(t * 0.27 + ph)], i * 3)); g.attributes.position.needsUpdate = true; } }; }
     // ---- water rings: grit at 13.3, the droplet at 23.35; a seam drop falls from the wall
@@ -123,6 +126,7 @@ M.film({
       p.object3d.position.set(x, hy(x, z), z); p.object3d.rotation.y = Math.atan2(-x, -z) + yaw * 0.1; sc.add(p.object3d);
       return { p, x, z, yaw: p.object3d.rotation.y };
     });
+    const rm = W.ropeMat(); K.pull = [0, 1].map(() => { const c = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 1, 10, 1), rm); c.castShadow = true; sc.add(c); return c; });
     // ---- cameras
     const up = [0.16, WY + 0.75, 0.1];
     K.cams = {
@@ -131,8 +135,8 @@ M.film({
       upC: { pos: [0.16, WY + 1.25, 0.1], look: [0.02, h0 + 6, 0.0], fov: fv(68), roll: 5 * Math.PI / 180 },
       rim: { pos: [0.9, hy(0.9, 4.6) + 0.6, 4.6], look: [0, h0 + 1.25, -0.4], fov: fv(50) },
       rimB: { pos: [0.85, hy(0.85, 4.4) + 0.62, 4.4], look: [0, h0 + 1.25, -0.4], fov: fv(50) },
-      ropeA: { pos: [0.35, top + 1.6, -0.9], look: [0, top - 0.9, 0.05], fov: fv(44) },
-      ropeB: { pos: [0.3, top + 1.45, -0.75], look: [0, top - 2.2, 0.05], fov: fv(42) },
+      ropeA: { pos: [1.0, top + 0.4, 0.95], look: [0, top - 0.7, 0], fov: fv(50) },
+      ropeB: { pos: [0.85, top + 0.3, 0.8], look: [0, top - 1.4, 0], fov: fv(46) },
       leaveA: { pos: [0.5, h0 + 1.2, 4.2], look: [0, h0 + 1.3, -5], fov: fv(48) },
       leaveB: { pos: [0.15, top + 0.7, 0.5], look: [0, h0 - 1.0, -1.5], fov: fv(48) },
       sink: { pos: [0.0, h0 - 1.2, 0.15], look: [0, WY, -0.2], fov: fv(52) },
@@ -144,7 +148,7 @@ M.film({
       coinA: { pos: up, look: [-0.3, WY + 2.5, -0.4], fov: fv(70) },
       coinB: { pos: up, look: [0.02, h0 + 6, 0.0], fov: fv(70), roll: 0 },
       ring: { pos: [0.25, WY + 2.2, 0.3], look: [-0.3, h0 - 2.5, -0.35], fov: fv(46) },
-      dropA: { pos: [-0.05, WY + 0.55, 0.2], look: [-0.5, WY + 0.15, 0.35], fov: fv(32) },
+      dropA: { pos: [0.2, WY + 1.0, 0.0], look: [-0.6, WY + 0.25, 0.44], fov: fv(40) },
     };
     WELL.update(0, 0, {}); G.R.compile(WELL.scene, WELL.camera);
   },
@@ -187,13 +191,17 @@ M.film({
     K.bros.forEach((b, i) => {
       const p = b.p, o = p.object3d, leave = t > 6.5 + i * 0.12;
       if (!leave) { p.setPose('stand', t + i * 1.3); o.position.set(b.x, K.h0 + 0.0, b.z); o.rotation.y = b.yaw;
-        if (i < 2) { const ph = (t - 3.0) * 2.4 + i * Math.PI, rp = V3(0, K.h0 + 1.4, 0), h1 = rp.clone().add(V3(0, 0.1 + 0.12 * Math.sin(ph), 0)), h2 = rp.clone().add(V3(0, -0.15 - 0.12 * Math.sin(ph), 0));
-          const pole = o.position.clone().add(V3(0, 0.3, 0)); reach(p, 'Right', h1.lerp(o.position.clone().setY(K.h0 + 1.3), 0.35), pole); reach(p, 'Left', h2.lerp(o.position.clone().setY(K.h0 + 1.1), 0.35), pole); } }
+        if (i < 2) { // hands at the chest, one above the other on the rope, alternating as it is paid out toward the beam
+          const ph = (t - 3.0) * 2.4 + i * Math.PI, fw = V3(-b.x, 0, -b.z).normalize(), base = o.position.clone().addScaledVector(fw, 0.38).setY(K.h0 + 1.15);
+          const h1 = base.clone().add(V3(0, 0.12 + 0.08 * Math.sin(ph), 0)).addScaledVector(fw, 0.06), h2 = base.clone().add(V3(0, -0.12 - 0.08 * Math.sin(ph), 0)).addScaledVector(fw, -0.04);
+          const pole = o.position.clone().add(V3(0, 0.2, 0)).addScaledVector(fw, -0.3); reach(p, 'Right', h1, pole); reach(p, 'Left', h2, pole);
+          const hw = p.bones('RightHand').getWorldPosition(_v()), top = V3(0, K.h0 + 1.86, 0), c = K.pull[i], d = top.clone().sub(hw);
+          c.visible = t < 6.45; c.position.copy(hw).addScaledVector(d, 0.5); c.scale.set(1, d.length(), 1); c.quaternion.setFromUnitVectors(V3(0, 1, 0), d.normalize()); } }
       else { const tw = t - 6.5 - i * 0.12, sp = p.speed ? p.speed('walk') : 1.2, d = sp * tw, sx = b.x >= 0 ? 1 : -1, dx = sx * 0.55, dz = -1, n = Math.hypot(dx, dz);
         // walk out round the well and on up the slope (-z), backs to the camera
         const x = b.x + Math.min(d, 1.6) * sx * 0.9 + Math.max(0, d - 1.6) * dx / n, z = b.z - d * 0.8;
         p.setPose('walk', tw + i * 0.4); o.rotation.y = Math.atan2(d < 1.6 ? sx * 0.9 : dx / n, d < 1.6 ? -0.8 : dz / n); o.position.set(x, K.hy(x, z), z); }
-      o.visible = !inside;
+      o.visible = !inside; if (i < 2 && (leave || inside)) K.pull[i].visible = false;
     });
     G.renderSet(ctx, WELL, t, u, { cam, exposure: expo });
     CAP.draw(ctx, t);
