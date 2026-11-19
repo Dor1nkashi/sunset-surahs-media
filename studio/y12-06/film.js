@@ -18,8 +18,8 @@ const BOLT1 = [0.6, 1.36, DZ + 0.018], BOLT2 = [0.6, 1.95, DZ + 0.045];
 
 // camera poses (fov = vertical degrees in 9x16; 16x9 is tightened in K.lensFov)
 const C = {
-  bolt_a:   { pos: [0.98, 1.30, DZ + 0.62], look: [0.52, 1.33, DZ], fov: 30 },
-  bolt_b:   { pos: [0.95, 1.31, DZ + 0.58], look: [0.54, 1.34, DZ], fov: 29 },
+  bolt_a:   { pos: [1.15, 1.45, DZ + 1.0], look: [0.45, 1.33, DZ], fov: 30 },
+  bolt_b:   { pos: [1.08, 1.43, DZ + 0.86], look: [0.47, 1.33, DZ], fov: 29 },
   push_a:   { pos: [0.15, 1.45, DZ + 3.6], look: [0.05, 1.35, DZ], fov: 46 },
   push_b:   { pos: [0.18, 1.42, DZ + 2.3], look: [0.10, 1.38, DZ], fov: 44 },
   court_a:  { pos: [5.7, 1.5, 0.9], look: [10.5, 1.6, -2.6], fov: 50 },
@@ -34,8 +34,8 @@ const C = {
   emb_a:    { pos: [0.05, 2.9, DZ + 1.9], look: [0.0, 3.38, ZB], fov: 30 },
   emb_b:    { pos: [0.05, 3.05, DZ + 1.45], look: [0.0, 3.38, ZB], fov: 28 },
   lamp:     { pos: [-3.25, 1.86, -0.35], look: [LAMP3[0], 1.5, LAMP3[2]], fov: 28 },
-  boltc_a:  { pos: [1.02, 1.52, DZ + 0.55], look: [0.6, 1.36, DZ], fov: 22 },
-  boltc_b:  { pos: [1.0, 1.51, DZ + 0.5], look: [0.6, 1.36, DZ], fov: 21 },
+  boltc_a:  { pos: [0.3, 1.64, DZ + 0.5], look: [0.62, 1.36, DZ], fov: 25 },
+  boltc_b:  { pos: [0.32, 1.62, DZ + 0.46], look: [0.62, 1.36, DZ], fov: 24 },
   flame:    { pos: [0.0, 1.42, DZ + 0.36], look: [0.55, 1.36, DZ], fov: 26 },
 };
 // the shot table (times from shotlists/y12_06.md)
@@ -74,7 +74,7 @@ function posePeople(t, i) {
       const pt = h0.clone().lerp(tgt, k), pole = V(0.8, 0.2, DZ + 0.9);
       K.reach(MAN, 'Right', pt, pole);
       K.flatHand(MAN, 'Right', 0.03 + 0.97 * (1 - k));
-      K.handAim(MAN, 'Right', pt.clone().add(V(0.02, 0.2 * k - 0.2 * (1 - k), 0.0)), i === 11 ? Math.PI : HROLL);
+      K.handAim(MAN, 'Right', pt.clone().add(V(0.02, 0.2 * k - 0.2 * (1 - k), 0.0)), HROLL);
     }
   }
   if (WOMAN.object3d.visible) {
