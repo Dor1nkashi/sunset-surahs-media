@@ -172,3 +172,21 @@ export function palmsUp(p, k = 1, { y = 1.12, fwd = 0.34, w = 0.13 } = {}) {
     flatHand(p, side, 0.35);
   }
 }
+// ---- shell fur: thin offset layers of a mesh with strands cut by a hash noise (reads as a short coat close up)
+export function shellFur(mesh, { layers = 10, len = 0.012, dens = 900, tint = 1, wind = 0.002 } = {}) {
+  const U = { time: { value: 0 } }, out = [];
+  for (let l = 1; l <= layers; l++) {
+    const h = l / layers;
+    const m = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.95, color: new THREE.Color(tint, tint, tint).multiplyScalar(0.75 + 0.35 * h) });
+    m.onBeforeCompile = (s) => {
+      s.uniforms.time = U.time;
+      s.vertexShader = s.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vFp; uniform float time;')
+        .replace('#include <begin_vertex>', `#include <begin_vertex>\nvFp = position; transformed += normal * ${(h * len).toFixed(5)} + vec3(sin(time * 1.7 + position.z * 9.) , 0., cos(time * 1.3 + position.x * 7.)) * ${(wind * h * h).toFixed(5)};`);
+      s.fragmentShader = s.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec3 vFp; float sh(vec3 p){ return fract(sin(dot(floor(p), vec3(127.1, 311.7, 74.7))) * 43758.5453); }')
+        .replace('#include <clipping_planes_fragment>', `#include <clipping_planes_fragment>\n{ vec3 q = vFp * ${dens.toFixed(1)}; float s = sh(q) ; if (s < ${(0.35 + 0.6 * h).toFixed(3)}) discard; }`);
+    };
+    m.customProgramCacheKey = () => 'shellfur' + l;
+    const sm = new THREE.Mesh(mesh.geometry, m); sm.castShadow = false; sm.receiveShadow = true; mesh.add(sm); out.push(sm);
+  }
+  return { shells: out, update: (t) => { U.time.value = t; } };
+}
