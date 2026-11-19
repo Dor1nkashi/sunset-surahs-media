@@ -206,6 +206,7 @@ M.film({
         // walk out round the well and on up the slope (-z), backs to the camera
         const x = b.x + Math.min(d, 1.6) * sx * 0.9 + Math.max(0, d - 1.6) * dx / n, z = b.z - d * 0.8;
         p.setPose('walk', tw + i * 0.4); o.rotation.y = Math.atan2(d < 1.6 ? sx * 0.9 : dx / n, d < 1.6 ? -0.8 : dz / n); o.position.set(x, K.hy(x, z), z); }
+      if (i === 0 && Math.abs(t - 7.2) < 0.01) { const hp = p.bones('Hips').getWorldPosition(_v()); console.error('[dbg]', JSON.stringify([o.position.toArray(), o.rotation.y, hp.toArray(), o.visible, inside])); }
       o.visible = !inside; if (i < 2 && (leave || inside)) K.pull[i].visible = false;
     });
     G.renderSet(ctx, WELL, t, u, { cam, exposure: expo });
