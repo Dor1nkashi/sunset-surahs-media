@@ -140,7 +140,8 @@ M.film({
     K.door = P.door; P.door.leaf.rotation.y = -0.5;
     // cool moonlight rim from behind-left so the figures read against the dark hills, and a faint sky fill
     const rim = new THREE.DirectionalLight(0x9ab4ff, 0.9); rim.position.set(-6, h0 + 9, DZ - 10); rim.target.position.set(0, h0, DZ + 2); sc.add(rim, rim.target);
-    P.fire.visible = false;                                                    // no fire tonight: lamp and moon only
+    P.fire.visible = false;
+    HILLS.bloom = 0;                                                            // no bloom: a NaN pixel in the terrain shader at grazing angles spreads into black blocks through the bloom mips                                                    // no fire tonight: lamp and moon only
     HILLS.update(0, 0, {}); G.R.compile(HILLS.scene, HILLS.camera);
     console.error(`[y12-04] init ${((performance.now() - T0) / 1000).toFixed(1)} s`);
   },
