@@ -97,7 +97,7 @@ async function openPages(browser, url, n) {
     page.on('console', (m) => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) console.error('[console]', m.text()); });
     await page.goto(url);
     // 3-D films build their sets in init(): give them time
-    await page.waitForFunction(() => window.filmReady === true, null, { timeout: Number(process.env.MR_READY_TIMEOUT || 120000) });
+    await page.waitForFunction(() => window.filmReady === true, null, { timeout: Number(process.env.MR_READY_TIMEOUT || 480000) });
     return page;
   }));
 }
