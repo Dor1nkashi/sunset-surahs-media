@@ -88,7 +88,7 @@ export async function buildLane(S, { seed = 8 } = {}) {
     const cup = W.lathe([[0.001, 0], [0.05, 0.0], [0.07, 0.12], [0.065, 0.13]], iron, { seg: 32 }); cup.position.set(0, -0.12, 0.26); tg.add(cup);
     const stick = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.025, 0.42, 16), dpl); stick.position.set(0, -0.02, 0.26); tg.add(W.shadows(stick));
     const wrap = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.04, 0.12, 16), new THREE.MeshStandardMaterial({ color: 0x1a120c, roughness: 1, emissive: 0x401000, emissiveIntensity: 0.6 })); wrap.position.set(0, 0.2, 0.26); tg.add(wrap);
-    const f = W.flame({ h: 0.42, w: 0.22, seed: 4 + s, inten: 5, light: 3.2, dist: 9 }); f.position.set(0, 0.24, 0.26); tg.add(f);
+    const f = W.flame({ h: 0.42, w: 0.22, seed: 4 + s, inten: 3.2, light: 2.2, dist: 9 }); f.position.set(0, 0.24, 0.26); tg.add(f);
     G.add(tg); out.torches.push({ group: tg, flame: f });
   }
   W.shadows(G);

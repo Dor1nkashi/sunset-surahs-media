@@ -114,11 +114,11 @@ M.film({
     if (A.leaf) { const L = LANE.door.leaf; L.updateMatrixWorld(true); const o = LANE.bolt.position; cam = { ...cam, pos: L.localToWorld(V(...cam.pos).add(o)).toArray(), look: L.localToWorld(V(...cam.look).add(o)).toArray() }; }
     if (s.a === 'follow_a' || s.a === 'over') { const mz = manZ(t); cam = { ...cam, pos: [cam.pos[0], cam.pos[1], cam.pos[2] + (s.a === 'follow_a' ? mz - Z0 : 0)], look: s.a === 'follow_a' ? [cam.look[0], cam.look[1], cam.look[2] + (mz - Z0) * (1 - p)] : cam.look }; }
     if (s.a === 'palm') { MAN.object3d.updateMatrixWorld(true); const h = MAN.bones('RightHand').getWorldPosition(V());
-      const look = h.clone().lerp(V(0, 1.15, DOORF), 0.35); cam = { ...cam, pos: [h.x - 0.38, h.y + 0.22, h.z - 0.95], look: look.toArray() }; }
+      const look = h.clone().lerp(V(0, 1.15, DOORF), 0.35); cam = { ...cam, pos: [h.x - 0.5, h.y + 0.28, h.z - 1.25], look: look.toArray() }; }
     cam = K.breathe(cam, t, 0.0025, 31 + i);
     // light fades from late afternoon to torchlit dusk over the film
     const dusk = prog(t, 2.0, 30.0);
-    const ex = SET.exposure * (1.0 - 0.25 * dusk) * ([1, 1, 1.1, 0.85, 0.85, 0.9, 0.85, 0.85, 0.42, 0.85, 0.45, 1, 0.85, 1, 0.8][i]);
+    const ex = SET.exposure * (1.0 - 0.25 * dusk) * ([1, 1, 1.1, 0.85, 0.85, 0.9, 0.85, 0.85, 0.36, 0.85, 0.38, 1, 0.85, 1, 0.8][i]);
     G.renderSet(ctx, ST, t, u, { cam, exposure: ex });
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.5);
