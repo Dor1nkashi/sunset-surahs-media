@@ -402,9 +402,10 @@ export async function prop(name, { pos = [0, 0, 0], height = null, scale = 1, ry
 }
 // instanced copies of a library model. items: [{ x, y, z, s, ry, rx, rz }]. near/far LOD: items farther
 // than lod.far from lod.focus use a cheap proxy geometry (a displaced icosphere with the model's material).
-export async function scatter(name, items, { lod = null, cast = true, base = true } = {}) {
+export async function scatter(name, items, { lod = null, cast = true, base = true, tint = null } = {}) {
   const g = await gltf(name), grp = new THREE.Group(); grp.name = `scatter:${name}`;
-  const meshes = []; g.scene.traverse((m) => { if (m.isMesh) meshes.push(m); });
+  const meshes = []; g.scene.traverse((m) => { if (m.isMesh) meshes.push(tint === null ? m : Object.assign(Object.create(m), { material: m.material.clone() })); });
+  if (tint !== null) meshes.forEach((m) => m.material.color.multiply(new THREE.Color(tint)));
   const yoff = base ? -g.bbox.min.y : 0;
   const near = lod ? items.filter((it) => Math.hypot(it.x - lod.focus[0], it.z - lod.focus[1]) < lod.far) : items;
   const far = lod ? items.filter((it) => !near.includes(it)) : [];
@@ -596,14 +597,14 @@ export async function oliveTree({ seed = 1, height = 5.5 } = {}) {
     gnarliness: { 0: 0.22, 1: 0.28, 2: 0.25, 3: 0.12 }, length: { 0: 9, 1: 9, 2: 5.5, 3: 2.2 }, radius: { 0: 1.35, 1: 0.55, 2: 0.6, 3: 0.6 },
     sections: { 0: 14, 1: 10, 2: 7, 3: 4 }, segments: { 0: 14, 1: 9, 2: 6, 3: 4 }, start: { 1: 0.32, 2: 0.25, 3: 0.2 },
     taper: { 0: 0.62, 1: 0.6, 2: 0.7, 3: 0.75 }, twist: { 0: 0.35, 1: 0.2, 2: 0.1, 3: 0 } });
-  Object.assign(o.leaves, { type: 'ash', billboard: 'double', angle: 35, count: 22, start: 0.05, size: 1.25, sizeVariance: 0.5, tint: 0xa9b893, alphaTest: 0.45 });
+  Object.assign(o.leaves, { type: 'ash', billboard: 'double', angle: 35, count: 22, start: 0.05, size: 1.25, sizeVariance: 0.5, tint: 0xb4bfa6, alphaTest: 0.45 });
   t.generate();
   const bb = new THREE.Box3().setFromObject(t), k = height / (bb.max.y - bb.min.y);
   t.scale.setScalar(k); t.position.y = -bb.min.y * k;
   // bark as a PBR standard material (keeps ez-tree's textures)
   const bm = t.branchesMesh.material;
   t.branchesMesh.material = new THREE.MeshStandardMaterial({ map: bm.map, normalMap: bm.normalMap, aoMap: bm.aoMap, roughnessMap: bm.roughnessMap, color: 0x8d877c, roughness: 1 });
-  const lm = t.leavesMesh.material; if (lm.color) lm.color.set(0xa9b893); lm.shininess = 6; if (lm.specular) lm.specular.set(0x222222);
+  const lm = t.leavesMesh.material; if (lm.color) lm.color.set(0xb4bfa6); lm.shininess = 6; if (lm.specular) lm.specular.set(0x222222);
   const g = new THREE.Group(); g.add(t); g.userData.tree = t; g.name = 'olive';
   g.userData.update = (time) => t.update(time);                // wind sway: a pure function of absolute time
   return g;

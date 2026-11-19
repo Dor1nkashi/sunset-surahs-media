@@ -342,7 +342,7 @@ export async function caravan_route({ time = 'golden', seed = 51 } = {}) {
   // stones and dead wood along the route
   const rocks = W.scatterPoints({ seed: seed + 6, count: 260, rect: [-200, -260, 200, 60], heightAt: hy, s: [0.5, 2.6], sink: 0.2,
     area: (x, z) => { const dp = Math.abs(x - path(z)); return dp < 3.5 || Math.hypot(x - CAMP[0], z - CAMP[1]) < 4 || Math.hypot(x - WELL[0], z - WELL[1]) < 3 ? 0 : 0.25 + 0.75 * (1 - T.normalAt(x, z).y) * 3; } });
-  add(S, await W.scatter('rock_07', rocks.filter((_, i) => i % 3 !== 2).map((p) => ({ ...p, s: p.s * 4 })), { lod: { focus: CAMP, far: 50 } }));
+  add(S, await W.scatter('rock_07', rocks.filter((_, i) => i % 3 !== 2).map((p) => ({ ...p, s: p.s * 4, y: p.y - 0.15 * p.s })), { lod: { focus: CAMP, far: 50 }, tint: 0xe0c49a }));
   add(S, await W.groundCover({ heightAt: hy, focus: CAMP, radius: 22, seed: seed + 11, pebbles: 700, rocks: 40, tuftN: 140, tuftColor: 0xc0a870, area: (x, z) => Math.abs(x - path(z)) > 1.2 && Math.hypot(x - CAMP[0], z - CAMP[1]) > 2.6 ? 1 : 0 }));
   add(S, await W.scatter('namaqualand_boulder_03', rocks.filter((_, i) => i % 3 === 2 && Math.hypot(rocks[i].x, rocks[i].z) > 30).map((p) => ({ ...p, s: p.s * 0.8 })), { lod: { focus: CAMP, far: 70 } }));
   add(S, await W.prop('dead_quiver_trunk', { pos: [CAMP[0] - 5, hy(CAMP[0] - 5, CAMP[1] - 6) - 0.1, CAMP[1] - 6], height: 2.4, ry: 2 }));
@@ -382,14 +382,15 @@ export async function egypt_market({ time = 'day', seed = 61 } = {}) {
     for (let k = 0; k < 3; k++) {
       const gx = x - side * 1.1, gz = z - 1.0 + k * 1.0;
       if (kind === 0) { const sk = W.sack(hs, { w: 0.42, h: 0.5, seed: i * 10 + k, open: true }); sk.position.set(gx, 0.85, gz); add(S, sk); goods.push(sk);
-        const grain = new THREE.Mesh(new THREE.SphereGeometry(0.2, 32, 12, 0, Math.PI * 2, 0, 1.0), new THREE.MeshStandardMaterial({ color: [0xd8b060, 0x9a6a3a, 0xe8d8a0][k], roughness: 1 })); grain.scale.y = 0.4; grain.position.set(gx, 0.85 + 0.42, gz); add(S, grain); }
+        const grain = new THREE.Mesh(new THREE.SphereGeometry(0.2, 32, 12, 0, Math.PI * 2, 0, 1.0), new THREE.MeshStandardMaterial({ color: [0xa88850, 0x6a4a2a, 0xb0a070][k], roughness: 1 })); grain.scale.y = 0.4; grain.position.set(gx, 0.85 + 0.42, gz); add(S, grain); }
       else if (kind === 1) { const b = await W.prop('wicker_basket_02', { pos: [gx, 0.85, gz], height: 0.28, ry: k }); add(S, b); goods.push(b);
         const fr = fruitNames[(i + k) % 3], gl = await W.gltf(fr), fs = 0.26 / (gl.bbox.max.x - gl.bbox.min.x) * 0.3;
         add(S, await W.scatter(fr, Array.from({ length: 7 }, (_, q) => ({ x: gx + Math.cos(q * 0.9) * 0.08 * (q % 3), y: 0.85 + 0.18 + (q > 4 ? 0.05 : 0), z: gz + Math.sin(q * 0.9) * 0.08 * (q % 3), s: fs * (1 + 0.1 * Math.sin(q)) * (fr === 'lemon' ? 0.9 : 1), ry: q }))));
       } else { const p = await W.prop(['ceramic_pot', 'jug_01', 'antique_ceramic_vase_01'][k], { pos: [gx, 0.85, gz], height: [0.4, 0.3, 0.45][k], ry: k }); add(S, p); goods.push(p); }
     }
     if (i % 2 === 0) for (let k = 0; k < 2; k++) { const sx = x - side * (1.85 + r() * 0.3), sz = z - 1.2 + k * 2.1 + r() * 0.4, sk = W.sack(hs, { w: 0.5 + r() * 0.12, h: 0.5 + r() * 0.15, seed: i * 31 + k, open: true }); add(S, sk); W.ground(sk, sx, sz, height, { sink: 0.02, ry: r() * 6, parent: S.group });
-      const gr = new THREE.Mesh(new THREE.SphereGeometry(0.26, 32, 12, 0, Math.PI * 2, 0, 1.1), new THREE.MeshStandardMaterial({ color: [0xd8b060, 0x9a6a3a, 0xe8d8a0][(i + k) % 3], roughness: 1 })); gr.scale.y = 0.35; gr.position.set(sx, sk.position.y + 0.5 + 0.0, sz); gr.position.y = sk.position.y + (sk.userData.h ?? 0.55) * 0.9; add(S, gr); }
+      const sh = sk.children[0].geometry.boundingBox || (sk.children[0].geometry.computeBoundingBox(), sk.children[0].geometry.boundingBox);
+      const gr = new THREE.Mesh(new THREE.SphereGeometry(0.22, 32, 12, 0, Math.PI * 2, 0, 1.2), new THREE.MeshStandardMaterial({ color: [0xa88850, 0x6a4a2a, 0xb0a070][(i + k) % 3], roughness: 1 })); gr.scale.set(1, 0.3, 1); gr.position.set(sx, sk.position.y + sh.max.y - 0.1, sz); add(S, gr); }
   }
   // the small square with the stone block, and the brass scale
   const stone = await MATS.rustic();
@@ -650,7 +651,7 @@ export async function palace_hall({ time = 'day', seed = 101 } = {}) {
 // REUNION: the city gate (two battered mud-brick pylons, great wooden gate open) onto an open court with
 // a colonnade, palms and a dais; golden hour with the first stars. time: 'golden' | 'dusk' | 'day'
 export async function reunion({ time = 'golden', seed = 111, stars = 0.6 } = {}) {
-  const S = await base('reunion', time, { background: 'sky', sky: { glow: 1.2 }, sun: { azim: 250 }, shadowBox: 36, focus: [0, 0, -8], starsOn: time === 'day' ? 0 : stars, exposure: 0.8 });
+  const S = await base('reunion', time === 'golden' ? 'dusk' : time, { sun: { azim: 250 }, shadowBox: 36, focus: [0, 0, -8], starsOn: time === 'day' ? 0 : stars, exposure: 0.8 });
   const n = W.noise2(seed), height = (x, z) => 0.06 * n(x / 4, z / 4) + 6 * sstep(80, 200, Math.hypot(x, z)) * W.fbm(n, x / 80, z / 80, 4);
   const mt = await W.terrainMaterial([{ name: 'dry_ground_rocks', tile: 3 }, { name: 'sand_01', tile: 3.5, tint: 0xf0d8b0 }, { name: 'brown_mud_dry', tile: 2.6 }], { macro: 0.2 });
   const T = W.terrain({ size: 900, seg: 380, height, material: mt, weights: (x, z) => [1, sstep(20, 60, Math.hypot(x, z)) * 1.4, 0.4 * (1 + n(x / 6, z / 6))] });
@@ -667,7 +668,7 @@ export async function reunion({ time = 'golden', seed = 111, stars = 0.6 } = {})
   for (const s of [-1, 1]) for (const [y, c] of [[8.6, 0x2a4a6a], [8.9, 0xb8892e], [9.15, 0x8a3a22]]) add(S, W.rbox(4.3, 0.18, 0.02, new THREE.MeshStandardMaterial({ color: c, roughness: 0.85 }), { r: 0.004 }), s * 5.2, y, GZ - 1.5);
   add(S, W.rbox(5.2, 1.2, 3.0, mud, { r: 0.1 }), 0, 7.2, GZ);
   const leaves = [];
-  for (const s of [-1, 1]) { const D = W.door(dpl, iron, { w: 2.3, h: 7.0, t: 0.18, frame: 0.001 }); D.group.position.set(s * (2.4 - 1.15), 0, GZ - 1.75); D.group.scale.x = -s; D.leaf.rotation.y = 1.3; add(S, D.group); leaves.push(D); }
+  for (const s of [-1, 1]) { const D = W.door(await MATS.planks(), iron, { w: 2.3, h: 7.0, t: 0.18, frame: 0.001 }); D.group.position.set(s * (2.4 - 1.15), 0, GZ - 1.75); D.group.scale.x = -s; D.leaf.rotation.y = 1.3; add(S, D.group); leaves.push(D); }
   // colonnade along the left side of the court, a wall on the right
   const colMat = (await MATS.plaster()).clone(); colMat.vertexColors = true;
   const proto = W.column(colMat, { h: 6, r: 0.42, cap: 'papyrus' }), im = new THREE.InstancedMesh(proto.geometry, colMat, 6), M = new THREE.Matrix4();
@@ -688,8 +689,8 @@ export async function reunion({ time = 'golden', seed = 111, stars = 0.6 } = {})
   for (let k = 0; k < 5; k++) { const sk = W.sack(hs, { w: 0.5, h: 0.45, seed: k + 40 }); sk.position.set(2.5 + k * 0.55, 0.08, -2 + (k % 2) * 0.4); sk.rotation.y = k; sk.scale.y = 0.55; add(S, sk); sacks.push(sk); }
   const bundles = []; for (const [x, z] of [[-2.8, -1.4], [-3.6, -0.8]]) { const b = await bundle({ w: 0.9, h: 0.45, d: 0.55 }); b.position.set(x, 0.08, z); b.rotation.y = x; add(S, b); bundles.push(b); }
   const cameras = {
-    hero:  { pos: [1.2, 1.3, -14], look: [0, 4.6, GZ + 4], fov: 50 },                       // from the court to the gate, sunset + first stars above
-    gate:  { pos: [0.5, 1.6, 14], look: [0, 2.5, -12], fov: 44 },                           // arriving through the gate toward the dais
+    hero:  { pos: [0.4, 1.55, GZ + 0.5], look: [0, 2.6, DZ], fov: 50 },                       // from inside the gateway into the court: dais, colonnade, palms, first stars
+    gate:  { pos: [1.2, 1.3, -14], look: [0, 4.6, GZ + 4], fov: 50 },                       // from the court back to the gate
     dais:  { pos: [-1.4, 1.2, DZ + 9], look: [0, 1.6, DZ - 1], fov: 40 },
     floor: { pos: [0.6, 0.25, -12], look: [0, 0.4, DZ + 2], fov: 44 },
     sky:   { pos: [0, 1.4, -10], look: [0, 30, 20], fov: 60 },
