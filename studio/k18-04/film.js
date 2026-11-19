@@ -110,7 +110,7 @@ function posePeople(t, i) {
     const P = PALM2.position, at = V(P.x + 0.62, hy(P.x + 0.62, P.z + 0.35), P.z + 0.35);
     K.place(OWN, at.x, at.y, at.z, Math.atan2(P.x - at.x, P.z - at.z)); OWN.setPose('stand', 2.0);
     const tgt = V(P.x + 0.2, at.y + 1.42, P.z + 0.12);
-    K.reach(OWN, 'Right', tgt, K.onBody(OWN, -0.8, 0.5, -0.3)); K.handAim(OWN, 'Right', tgt.clone().add(V(-0.02, 0.15, -0.02)), 1.3 + Math.PI); K.flatHand(OWN, 'Right', 0.2);
+    K.reach(OWN, 'Right', tgt, K.onBody(OWN, -0.8, 0.5, -0.3)); K.handAim(OWN, 'Right', tgt.clone().add(V(-0.02, 0.15, -0.02)), 1.3); K.flatHand(OWN, 'Right', 0.35);
   }
 }
 
@@ -148,7 +148,7 @@ M.film({
     C.dates_b = { pos: [P.x + 7.5, hy(P.x, P.z) + 1.6, P.z + 3.0], look: [P.x, TOPY - 1.6, P.z], fov: 24 };
     C.stream = { pos: [sx(14) + 0.25, -0.05, 14], look: [sx(8), -0.2, 8], fov: 34 };
     const P2 = PALM2.position;
-    C.ring = { pos: [P2.x + 0.55, hy(P2.x, P2.z) + 1.62, P2.z + 0.62], look: [P2.x + 0.2, hy(P2.x, P2.z) + 1.45, P2.z + 0.12], fov: 30 };
+    C.ring = { pos: [P2.x + 0.62, hy(P2.x, P2.z) + 1.58, P2.z - 0.3], look: [P2.x + 0.2, hy(P2.x, P2.z) + 1.45, P2.z + 0.12], fov: 30 };
     const PL = near(-34, -15).position;
     C.lone_a = { pos: [PL.x + 5, hy(PL.x, PL.z) + 0.4, PL.z + 4], look: [PL.x, hy(PL.x, PL.z) + 4, PL.z], fov: 50 };
     C.lone_b = { pos: [PL.x + 5, hy(PL.x, PL.z) + 0.4, PL.z + 4], look: [PL.x, hy(PL.x, PL.z) + 9, PL.z], fov: 50 };
