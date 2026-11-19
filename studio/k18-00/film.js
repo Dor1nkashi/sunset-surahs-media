@@ -12,7 +12,7 @@ const { THREE } = W;
 const { prog, E, clamp } = M;
 const V = (...a) => new THREE.Vector3(...a);
 
-let CAVE, GARD, SEAS, PASS, CAP, Hc, WICKS = [], RUNNER, ROWLIGHT, WARM, SPOTS = {}, PALM;
+let FOG0 = 0, CAVE, GARD, SEAS, PASS, CAP, Hc, WICKS = [], RUNNER, ROWLIGHT, WARM, SPOTS = {}, PALM;
 const D = 18.17;
 // the ledge of fifteen wicks on the shelf outside the mouth
 const LEDGE_Z = 4.6, WX0 = -3.5, WX1 = 3.5, NW = 15;
@@ -37,8 +37,8 @@ function poses() {
   C.mouth_b = { pos: [2.1, 0.42, 6.6], look: [0, 0.95, -1.5], fov: 42 };
   C.stones = { pos: [1.15, 0.42, 1.55], look: [0.35, 0.12, 0.25], fov: 30 };
   C.g_lip = { pos: [-1.15, 0.36, 1.45], look: [-1.75, 0.15, 0.3], fov: 28 };
-  C.row_a = { pos: [wickX(0) - 0.6, 0.62, LEDGE_Z + 3.4], look: [wickX(0) - 0.2, 0.15, LEDGE_Z], fov: 34 };
-  C.row_b = { pos: [wickX(NW - 1) + 0.2, 0.75, LEDGE_Z + 3.9], look: [wickX(NW - 1) - 0.7, 0.2, LEDGE_Z], fov: 36 };
+  C.row_a = { pos: [wickX(0) - 0.6, 0.55, LEDGE_Z + 2.2], look: [wickX(0) - 0.2, 0.2, LEDGE_Z], fov: 32 };
+  C.row_b = { pos: [wickX(NW - 1) + 0.2, 0.62, LEDGE_Z + 2.6], look: [wickX(NW - 1) - 0.7, 0.2, LEDGE_Z], fov: 34 };
   C.back_a = { pos: [0.25, 1.05, -0.6], look: [0.1, 0.75, 8], fov: 58 };
 }
 // the shot table (times from shotlists/k18_00.md)
@@ -73,21 +73,21 @@ M.film({
     const T0 = performance.now();
     await G.initGL({ exposure: 1.0 }); W.init(G.R);
     CAVE = await mountain_cave({ time: 'bluehour', sleepers: 0, dog: false, lamp: true, vista: true });
-    Hc = CAVE.props.terrain.heightAt; poses();
+    Hc = CAVE.props.terrain.heightAt; poses(); FOG0 = CAVE.scene.fog.density;
     const S = CAVE.scene;
     // the wick ledge: a long carved stone with an oil channel and fifteen wicks
-    const stoneM = new THREE.MeshStandardMaterial({ color: 0xb8ab96, roughness: 0.9 });
+    const stoneM = await W.pbr('old_stone_wall', { tile: 0.9, tint: 0xa89a86, res: 1024 });
     const ledge = W.rbox(WX1 - WX0 + 0.8, 0.16, 0.34, stoneM, { r: 0.05, seg: 3 }); ledge.position.set(0, Hc(0, LEDGE_Z) + 0.0, LEDGE_Z); S.add(W.shadows(ledge));
-    const oil = new THREE.Mesh(new THREE.BoxGeometry(WX1 - WX0 + 0.5, 0.004, 0.06), new THREE.MeshStandardMaterial({ color: 0x1a1208, roughness: 0.08, metalness: 0.1 }));
+    const oil = new THREE.Mesh(new THREE.BoxGeometry(WX1 - WX0 + 0.5, 0.004, 0.06), new THREE.MeshStandardMaterial({ color: 0x140e08, roughness: 0.45, envMapIntensity: 0.15 }));
     oil.position.set(0, ledge.position.y + 0.161, LEDGE_Z); S.add(oil);
     const wickM = new THREE.MeshStandardMaterial({ color: 0x2a2018, roughness: 0.95 });
     for (let i = 0; i < NW; i++) {
       const g = new THREE.Group(); g.position.set(wickX(i), ledge.position.y + 0.165, LEDGE_Z);
       const w = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.008, 0.035, 10), wickM); w.position.y = 0.012; g.add(w);
-      const f = W.flame({ h: 0.075, w: 0.034, seed: 11 + i, inten: 3.2, light: 0, planes: 2 }); f.position.y = 0.026; g.add(f); g.userData.f = f;
+      const f = W.flame({ h: 0.12, w: 0.05, seed: 11 + i, inten: 3.2, light: 0, planes: 2 }); f.position.y = 0.026; g.add(f); g.userData.f = f;
       S.add(g); WICKS.push(g);
     }
-    RUNNER = W.flame({ h: 0.06, w: 0.05, seed: 3, inten: 3.6, light: 1.0, dist: 4 }); S.add(RUNNER);
+    RUNNER = W.flame({ h: 0.09, w: 0.07, seed: 3, inten: 3.6, light: 1.0, dist: 4 }); S.add(RUNNER);
     ROWLIGHT = new THREE.PointLight(0xff9a4a, 0, 9, 1.6); ROWLIGHT.position.set(0, ledge.position.y + 0.5, LEDGE_Z + 0.5); S.add(ROWLIGHT);
     // the first sun: a low warm light from the east that turns the stones gold in shot 6
     WARM = new THREE.DirectionalLight(0xffb070, 0); WARM.position.set(60, 9, 18); WARM.target.position.set(0, 0, 0.5);
@@ -105,7 +105,7 @@ M.film({
     // a palm by the back wall of garden A
     let best = null; for (const p of gard.props.palms) { const d = Math.hypot(p.position.x - (-21 - 7.5), p.position.z - (-15.8)); if (!best || d < best.d) best = { p, d }; }
     PALM = best.p.position.clone();
-    C.g_palm = { pos: [PALM.x - 1.4, PALM.y + 1.25, PALM.z + 2.3], look: [PALM.x + 0.25, PALM.y + 1.35, PALM.z - 0.9], fov: 30 };
+    C.g_palm = { pos: [PALM.x - 2.6, PALM.y + 1.5, PALM.z + 5.2], look: [PALM.x + 0.5, PALM.y + 1.8, PALM.z - 1.5], fov: 34 };
     SPOTS.palm = spot(gard.scene, [PALM.x - 2, PALM.y + 3.5, PALM.z + 3], [PALM.x + 0.15, PALM.y + 1.4, PALM.z], 0xffc070, 120, 0.09);
     GARD = W.stage(gard);
 
@@ -141,14 +141,15 @@ M.film({
       WICKS.forEach((w, j) => { const on = t >= RUN0 && rx >= wickX(j) - 0.02 ? clamp((rx - wickX(j) + 0.02) / 0.12) : 0, k = on * out * (0.9 + 0.1 * Math.sin(t * 7 + j)); w.userData.f.visible = k > 0.01; w.userData.f.userData.update(t, k); lit += k; });
       const running = t > RUN0 - 0.05 && t < RUN1 + 0.1;
       RUNNER.visible = running; RUNNER.position.set(rx, WICKS[0].position.y + 0.005, LEDGE_Z); RUNNER.userData.update(t, running ? 1 : 0);
-      ROWLIGHT.intensity = 2.2 * lit / NW; ROWLIGHT.position.x = 0.5 * rx;
+      ROWLIGHT.intensity = 6 * lit / NW; ROWLIGHT.position.x = 0.5 * rx;
       // the sun comes up over shots 5-7; it never goes back (the loop shot is again blue: the light fades with the wicks)
       const sunK = i <= 2 ? 0 : i === 3 ? 0.25 * prog(t, 5.56, 7.81) : i === 4 ? 0.25 + 0.75 * E.inOutSine(prog(t, 7.81, 9.9)) : i === 5 ? 1 : i === 9 ? 0.35 : 0;
       WARM.intensity = 3.2 * sunK; WARM.position.set(60, 4 + 10 * sunK, 18);
       SPOTS.lip.intensity = i === 5 ? 40 : 0;
       CAVE.set.props.vista.rays.forEach((r, j) => { const c = [0.1, 0.36, 0.62, 0.86][[3, 0, 1, 2].indexOf(j)]; const kp = s.vista ? Math.exp(-(((prog(t, 3.26, 5.56) - c) / 0.16) ** 2)) : 0; r.userData.update(t, 1.6 * kp); });
       const ex = i === 0 || i === 10 ? 2.3 : i === 2 ? 2.4 : i === 4 || i === 5 ? 1.3 : i === 9 ? 1.9 : 1.6;
-      G.renderSet(ctx, CAVE, t, u, { cam, exposure: ex, mist: 1 });
+      CAVE.scene.fog.density = FOG0 * (s.vista ? 0.3 : 1);
+      G.renderSet(ctx, CAVE, t, u, { cam, exposure: ex, mist: s.vista ? 0 : 1, lamp: i === 0 || i === 10 ? 0.4 : 1 });
     } else if (s.set === 'gard') G.renderSet(ctx, GARD, t, u, { cam });
     else if (s.set === 'seas') G.renderSet(ctx, SEAS, t, u, { cam, fish: 0 });
     else G.renderSet(ctx, PASS, t, u, { cam, build: 1, pour: 0.3 });
