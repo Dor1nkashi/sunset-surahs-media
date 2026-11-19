@@ -252,7 +252,7 @@ export function stars({ count = 3500, seed = 11, radius = 1400, size = 2.2 } = {
 // sun: { elev, azim } in degrees (azim 0 = +x, 90 = +z) overrides the HDRI's sun; the env is rotated to agree.
 export async function atmosphere(scene, { hdri: name = 'plains_sunset', envI = 1, bgI = 1, background = 'sky', blur = 0.05, sun = null,
   sunI = 3, sunColor = null, fog = 0.004, fogColor = null, sky = {}, starsOn = 0, moon = null, shadowBox = 30, focus = [0, 0, 0],
-  shadowFar = 400, shadowRes = 4096, hemi = 0.25, skyGain = 1 } = {}) {
+  shadowFar = 400, shadowRes = 4096, hemi = 0.25, skyGain = 1, fogGain = 1 } = {}) {
   const H = await hdri(name), info = H.info;
   let dir = info.sunDir.clone();
   if (sun) {
@@ -263,7 +263,7 @@ export async function atmosphere(scene, { hdri: name = 'plains_sunset', envI = 1
     dir = nd;
   }
   scene.environment = H.env; scene.environmentIntensity = envI;
-  const hor = (fogColor ? new THREE.Color(fogColor) : info.horizon.clone().multiplyScalar(skyGain));
+  const hor = (fogColor ? new THREE.Color(fogColor) : info.horizon.clone().multiplyScalar(skyGain * fogGain));
   const out = { info, sunDir: dir, horizon: hor, hdri: H };
   if (background === 'hdri') {
     scene.background = H.tex; scene.backgroundBlurriness = blur; scene.backgroundIntensity = bgI;
@@ -450,7 +450,7 @@ export function sack(mat, { w = 0.55, h = 0.75, seed = 1, open = false, tie = tr
     let x = p.getX(i), y = p.getY(i), z = p.getZ(i);
     const yy = y + 0.5;                                  // 0 bottom .. 1 top
     let r = 1 + 0.06 * n(x * 6 + seed, z * 6 + y * 4) + 0.03 * n(x * 17, y * 17 + z * 9);
-    if (!open) { const neck = sstep(0.72, 0.9, yy); r *= 1 - 0.72 * neck; y += neck * 0.12; }
+    if (!open) { const neck = sstep(0.8, 0.98, yy); r *= 1 - 0.5 * neck; y += neck * 0.06; r *= 1 + 0.12 * Math.sin(Math.PI * clamp(yy * 1.3)); }
     else { r *= 1 + 0.08 * sstep(0.7, 1, yy); }
     y = y < -0.3 ? -0.3 - (y + 0.3) * 0.15 : y;          // flat, settled bottom
     p.setXYZ(i, x * r * w * 1.05, (y + 0.32) * h, z * r * w * (0.9 + 0.1 * n(seed, 3)));

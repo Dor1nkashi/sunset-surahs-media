@@ -42,8 +42,8 @@ const TIMES = {
              sky: { zenith: 0x040a1e, sunColor: 0x000000, glow: 0, hazeH: 0.45 }, fogColor: 0x1c2640, moon: { dir: dirFrom(30, 210), phase: 0.4 }, hemi: 0.2 },
   dawn:    { hdri: 'rogland_sunset', background: 'hdri', sun: { azim: -25 }, sunI: 2.4, envI: 1.0, exposure: 1.0, fog: 0.0022 },
   day:     { hdri: 'goegap', background: 'hdri', sun: { azim: 40 }, sunI: 3.6, envI: 1.0, exposure: 0.85, fog: 0.0016 },
-  golden:  { hdri: 'plains_sunset', background: 'hdri', sun: { azim: -30 }, sunI: 3.2, envI: 1.0, exposure: 0.95, fog: 0.0018 },
-  dusk:    { hdri: 'rogland_sunset', background: 'hdri', sun: { azim: -35 }, sunI: 2.0, envI: 1.1, exposure: 1.05, fog: 0.0022 },
+  golden:  { hdri: 'plains_sunset', background: 'hdri', bgI: 0.75, sun: { azim: -30 }, sunI: 3.2, envI: 0.9, exposure: 0.72, fog: 0.0011, fogGain: 0.55 },
+  dusk:    { hdri: 'rogland_sunset', background: 'hdri', sun: { azim: -35 }, sunI: 2.0, envI: 1.1, exposure: 1.0, fog: 0.0018, fogGain: 0.8 },
 };
 async function base(name, time, extra = {}) {
   const scene = new THREE.Scene(), group = new THREE.Group(); group.name = name; scene.add(group);
@@ -196,7 +196,7 @@ function oilLamp(S, { seed = 1, light = 2.2 } = {}) {
   const body = new THREE.Mesh(new THREE.LatheGeometry([[0.001, 0], [0.06, 0.004], [0.075, 0.025], [0.06, 0.04], [0.03, 0.035]].map(([a, b]) => new THREE.Vector2(a, b)), 48), clay);
   body.scale.set(1, 1, 1.35); g.add(W.shadows(body));
   const sp = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.022, 0.06, 16).rotateX(Math.PI / 2), clay); sp.position.set(0, 0.035, 0.09); g.add(W.shadows(sp));
-  const f = W.flame({ h: 0.09, w: 0.04, seed, inten: 7, light, dist: 9, planes: 2 }); f.position.set(0, 0.045, 0.115); g.add(f);
+  const f = W.flame({ h: 0.09, w: 0.04, seed, inten: 3.5, light, dist: 9, planes: 2 }); f.position.set(0, 0.045, 0.115); g.add(f);
   S.updaters.push((t) => f.userData.update(t));
   g.userData.flame = f; return g;
 }
@@ -312,7 +312,7 @@ export async function the_well({ time = 'day', seed = 31 } = {}) {
 // CARAVAN ROUTE: dunes and rocky hills, a beaten track, a resting place with loaded pack bundles,
 // water jars, saddle blankets, and a wayside well. No camels (bundles tell the story).
 export async function caravan_route({ time = 'golden', seed = 51 } = {}) {
-  const S = await base('caravan_route', time, { sun: { azim: -20 }, shadowBox: 26 });
+  const S = await base('caravan_route', time, { sun: { azim: 125 }, shadowBox: 26 });
   const n = W.noise2(seed), n2 = W.noise2(seed + 2);
   const path = (z) => 5 * Math.sin(z / 36) + 2 * Math.sin(z / 11);
   const raw = (x, z) => {
@@ -348,7 +348,7 @@ export async function caravan_route({ time = 'golden', seed = 51 } = {}) {
   add(S, await W.scatter('dry_branches_medium_01', W.scatterPoints({ seed: seed + 8, count: 30, rect: [-50, -80, 50, 30], heightAt: hy, s: [0.6, 1.1], area: (x, z) => Math.abs(x - path(z)) > 3 ? 0.6 : 0 })));
   const cy = hy(...CAMP);
   const cameras = {
-    hero:  { pos: [CAMP[0] - 3.6, cy + 1.25, CAMP[1] + 6.5], look: [CAMP[0] + 0.6, cy + 0.9, CAMP[1] - 6], fov: 46 },   // bundles in front, the track winding off
+    hero:  { pos: [CAMP[0] - 2.4, cy + 1.15, CAMP[1] + 4.6], look: [CAMP[0] + 0.5, cy + 0.55, CAMP[1] - 3], fov: 46 },   // bundles in front, the track winding off
     track: { pos: [path(16), hy(path(16), 16) + 1.7, 16], look: [path(-30), hy(path(-30), -30) + 1, -30], fov: 42 },
     well:  { pos: [WELL[0] + 3.5, hy(...WELL) + 1.4, WELL[1] + 3.8], look: [WELL[0], hy(...WELL) + 0.7, WELL[1]], fov: 40 },
     wide:  { pos: [CAMP[0] + 18, cy + 9, CAMP[1] + 22], look: [CAMP[0] - 4, cy, CAMP[1] - 14], fov: 40 },
@@ -440,7 +440,7 @@ export async function ministers_house({ time = 'evening', seed = 71 } = {}) {
   wall(t, RH, lz0 - (OZ + OW / 2), xr, 0, (lz0 + OZ + OW / 2) / 2); wall(t, RH, (OZ - OW / 2) - lz1, xr, 0, (OZ - OW / 2 + lz1) / 2); wall(t, RH - OH, OW, xr, OH, OZ);
   // painted dado band
   const band = new THREE.MeshStandardMaterial({ color: 0x8a3a22, roughness: 0.9 }), band2 = new THREE.MeshStandardMaterial({ color: 0x2a4a6a, roughness: 0.9 });
-  for (const [x, z, w, d] of [[0, zb + t / 2 + 0.01, RW, 0.02]]) { add(S, W.rbox(w, 0.12, d, band, { r: 0.005 }), x, 0.9, z); add(S, W.rbox(w, 0.06, d, band2, { r: 0.005 }), x, 1.05, z); }
+  for (const [x, z, w, d] of [[-(RW + DW) / 4 - 0.15, zb + t / 2 + 0.01, (RW - DW) / 2 - 0.3, 0.02], [(RW + DW) / 4 + 0.15, zb + t / 2 + 0.01, (RW - DW) / 2 - 0.3, 0.02]]) { add(S, W.rbox(w, 0.12, d, band, { r: 0.005 }), x, 0.9, z); add(S, W.rbox(w, 0.06, d, band2, { r: 0.005 }), x, 1.05, z); }
   // ceiling: planks on heavy beams
   add(S, W.rbox(RW + 1, 0.12, RD + 1, dpl, { r: 0.02 }), 0, RH, -RD / 2 + 2);
   for (let i = 0; i < 7; i++) add(S, W.rbox(0.26, 0.3, RD + 1, dpl, { r: 0.04 }), -RW / 2 + 0.6 + i * (RW - 1.2) / 6, RH - 0.3, -RD / 2 + 2);
@@ -454,9 +454,9 @@ export async function ministers_house({ time = 'evening', seed = 71 } = {}) {
   // oil lamps on wooden stands either side of the door, one on a wall ledge
   const lamps = [];
   for (const x of [-1.35, 1.35]) { const st = W.rbox(0.08, 1.25, 0.08, dpl, { r: 0.02 }); add(S, st, x, 0, zb + 0.6); const top = W.rbox(0.3, 0.05, 0.3, dpl, { r: 0.015 }); add(S, top, x, 1.25, zb + 0.6);
-    const L = oilLamp(S, { seed: x > 0 ? 3 : 4, light: eve ? 2.6 : 0.6 }); add(S, L, x, 1.3, zb + 0.6); L.rotation.y = x > 0 ? 0.6 : -0.6; lamps.push(L); }
+    const L = oilLamp(S, { seed: x > 0 ? 3 : 4, light: eve ? 0.7 : 0.2 }); add(S, L, x, 1.3, zb + 0.6); L.rotation.y = x > 0 ? 0.6 : -0.6; lamps.push(L); }
   const ledge = W.rbox(0.6, 0.08, 0.25, wash, { r: 0.02 }); add(S, ledge, xl + 0.35, 1.6, -1.2);
-  const L3 = oilLamp(S, { seed: 7, light: eve ? 1.6 : 0.4 }); add(S, L3, xl + 0.38, 1.68, -1.2); L3.rotation.y = Math.PI / 2; lamps.push(L3);
+  const L3 = oilLamp(S, { seed: 7, light: eve ? 0.5 : 0.15 }); add(S, L3, xl + 0.38, 1.68, -1.2); L3.rotation.y = Math.PI / 2; lamps.push(L3);
   // linen curtain at the courtyard opening, a low cedar bench, jars
   const cur = W.cloth(1.0, OH - 0.1, linen, { segW: 40, segH: 60, folds: 0.03, sag: (u, v) => 0.06 * Math.sin(u * 18) }); cur.rotation.y = -Math.PI / 2; add(S, cur, xr - t / 2 - 0.05, (OH - 0.1) / 2 + 0.02, OZ + OW / 2 - 0.45);
   add(S, W.rbox(2.2, 0.45, 0.55, pl, { r: 0.05 }), -3.2, 0, -1.0);
@@ -480,7 +480,7 @@ export async function ministers_house({ time = 'evening', seed = 71 } = {}) {
     window:    { pos: [2.0, 1.2, -0.5], look: [xl, WY, WZ], fov: 44 },
   };
   const slots = { young_man_door: [0, 0, zb + 1.1, Math.PI], woman_sleeve: [-1.6, 0, zb + 2.2, -2.6], servant_court: [RW / 2 + 3, 0, -1.5, 0.5], husband_threshold: [0, 0, zb - 0.6, 0] };
-  return finish(S, 'ministers_house', cameras, { door: D, bolt: D.leaf.userData.bolt, lamps, columns: cols, curtain: cur, shaft, pond, emblem: emb }, slots, { bloom: 0.24, bloomThreshold: 0.88 });
+  return finish(S, 'ministers_house', cameras, { door: D, bolt: D.leaf.userData.bolt, lamps, columns: cols, curtain: cur, shaft, pond, emblem: emb }, slots, { bloom: 0.14, bloomThreshold: 0.92 });
 }
 
 // PRISON: a stone cell with a small high barred window (sun shaft), two cellmates' bedding,
@@ -534,7 +534,7 @@ export async function prison({ time = 'morning', seed = 81 } = {}) {
   sun.position.copy(V3(WX, WY, zb).add(dir.multiplyScalar(40))); sun.target.position.set(WX - 0.6, 0, zb + 2.6); sun.shadow.camera.far = 80; sun.shadow.camera.updateProjectionMatrix();
   const fill = new THREE.PointLight(0xffd8b0, 0.6, 7, 2); fill.position.set(0, 1.2, 0.8); add(S, fill);
   const cameras = {
-    hero:   { pos: [-0.9, 1.45, 2.25], look: [0.5, 1.6, zb], fov: 50 },                 // the cell: window shaft, both beds
+    hero:   { pos: [-0.2, 1.75, 2.35], look: [0.35, 0.95, zb + 0.6], fov: 54 },                 // the cell: window shaft, both beds
     window: { pos: [0.2, 1.4, -0.4], look: [WX, WY, zb], fov: 38 },
     floor:  { pos: [0.6, 0.35, 0.9], look: [WX - 0.6, 0.0, zb + 2.0], fov: 42 },         // the patch of light on the floor
     door:   { pos: [-0.6, 1.3, 0.4], look: [CW / 2, 1.0, 1.2], fov: 44 },
@@ -546,7 +546,7 @@ export async function prison({ time = 'morning', seed = 81 } = {}) {
 // NILE FIELDS + GRANARY: irrigated plots (green crop, furrows), channels, palms, a row of beehive silos
 // in a walled yard with stacked sacks and a scribes' table; the desert edge beyond.
 export async function nile_fields_granary({ time = 'golden', seed = 91, ripe = 0 } = {}) {
-  const S = await base('nile_fields_granary', time, { sun: { azim: -40 }, shadowBox: 40, focus: [0, 0, -14], fog: 0.0016 });
+  const S = await base('nile_fields_granary', time, { sun: { azim: 150 }, shadowBox: 40, focus: [0, 0, -14], fog: 0.0016 });
   const n = W.noise2(seed), n2 = W.noise2(seed + 3);
   const desert = (x, z) => sstep(70, 140, x + 10 * n(z / 50, 0)) ;
   const chan = (x, z) => Math.min(Math.abs(z + 2), Math.abs(x + 12));
@@ -648,7 +648,7 @@ export async function palace_hall({ time = 'day', seed = 101 } = {}) {
 // REUNION: the city gate (two battered mud-brick pylons, great wooden gate open) onto an open court with
 // a colonnade, palms and a dais; golden hour with the first stars. time: 'golden' | 'dusk' | 'day'
 export async function reunion({ time = 'golden', seed = 111, stars = 0.6 } = {}) {
-  const S = await base('reunion', time, { sun: { azim: 75 }, shadowBox: 36, focus: [0, 0, -8], starsOn: time === 'day' ? 0 : stars, exposure: 0.8 });
+  const S = await base('reunion', time === 'golden' ? 'dusk' : time, { sun: { azim: 150 }, shadowBox: 36, focus: [0, 0, -8], starsOn: time === 'day' ? 0 : stars, exposure: 0.8 });
   const n = W.noise2(seed), height = (x, z) => 0.06 * n(x / 4, z / 4) + 6 * sstep(80, 200, Math.hypot(x, z)) * W.fbm(n, x / 80, z / 80, 4);
   const mt = await W.terrainMaterial([{ name: 'dry_ground_rocks', tile: 3 }, { name: 'sand_01', tile: 3.5, tint: 0xf0d8b0 }, { name: 'brown_mud_dry', tile: 2.6 }], { macro: 0.2 });
   const T = W.terrain({ size: 900, seg: 380, height, material: mt, weights: (x, z) => [1, sstep(20, 60, Math.hypot(x, z)) * 1.4, 0.4 * (1 + n(x / 6, z / 6))] });
