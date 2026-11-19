@@ -31,7 +31,7 @@ function gripPose(t, k) {
 }
 // the hoop rolls down the lane beside the child (3.39-5.28), then alone, slower, and falls over (7.3-9.6)
 function hoopAt(t) {
-  const x0 = 7.7, z0 = 7.0, v = 2.6, T1 = 5.28, dec = 0.65, ts = v / dec;
+  const x0 = 7.7, z0 = 7.0, v = 2.6, T1 = 5.28, dec = 0.9, ts = v / dec;
   let z, lean = 0;
   if (t < T1) z = z0 + v * Math.max(0, t - 3.2);
   else { const a = Math.min(t - T1, ts); z = z0 + v * (T1 - 3.2) + v * a - 0.5 * dec * a * a; }
@@ -113,7 +113,7 @@ M.film({
       lane_low:  { pos: [7.35, HT(7.3, 12.6) + 0.3, 12.6], look: [7.7, HT(7.7, 17.5) + 0.2, 17.5], fov: 38 },
       door_a:    { pos: [7.45 - fd, doorW.y + 1.25, 14.2], look: [doorW.x, doorW.y + 0.9, doorW.z], fov: 40 },
       door_b:    { pos: [7.45 - fd, doorW.y + 1.2, 15.6], look: [doorW.x, doorW.y + 0.9, doorW.z], fov: 38 },
-      flame_out: { pos: [lampW.x - 0.25, lampW.y + 0.12, lampW.z - 0.6], look: [lampW.x, lampW.y + 0.02, lampW.z], fov: 24 },
+      flame_out: { pos: [lampW.x + 0.42, lampW.y + 0.1, lampW.z - 0.32], look: [lampW.x, lampW.y + 0.04, lampW.z + 0.08], fov: 26 },
       push_a:    { pos: [doorW.x + 0.05, doorW.y + 1.15, 16.6], look: [doorW.x, doorW.y + 1.0, doorW.z + 2], fov: 44 },
       push_b:    { pos: [doorW.x + 0.02, doorW.y + 1.05, 18.75], look: [doorW.x, doorW.y + 0.95, doorW.z + 2], fov: 50 },
       window:    { pos: [RX + 1.3, HT(RX, RZ) + 1.35, RZ + 1.5], look: [RX + wx, HT(RX, RZ) + 1.15, RZ - 0.1], fov: 46 },
@@ -152,6 +152,7 @@ M.film({
     // light: outside golden; inside the room the dawn spot carries the light and the sun shadow box follows us in
     const inRoom = !!s.room;
     const op = E.inOutCubic(prog(t, 17.6, 18.7)), dawn = t < 17.17 ? 0 : op * (0.75 + 0.25 * prog(t, 18.7, D));
+    if (S.fog) S.fog.density = inRoom ? 0.0006 : 0.003;
     if (inRoom) { P.sun.intensity = 0.0; S.environmentIntensity = SUN0.env * 0.18; S.backgroundIntensity = 0.22 + 0.12 * dawn; }
     else { P.sun.intensity = SUN0.I; S.environmentIntensity = SUN0.env; S.backgroundIntensity = 1; }
     // the shutters: closed until 17.6, swing open by 18.6; then the dawn grows
@@ -182,7 +183,7 @@ M.film({
     if (i === 11) {
       // a hand comes from the left and cups the flame on its window side (the side room's figure is out of frame)
       HAND.object3d.visible = true; const lw = ROOMLAMP.position, gy = HT(RX, RZ);
-      HAND.object3d.position.set(lw.x + 0.5, gy, lw.z - 0.5); HAND.object3d.rotation.y = -Math.PI * 0.75; HAND.setPose('stand', t);
+      HAND.object3d.position.set(lw.x + 0.36, gy, lw.z - 0.3); HAND.object3d.rotation.y = -Math.PI * 0.75; HAND.setPose('stand', t);
       HAND.object3d.updateMatrixWorld(true);
       const k = E.inOutCubic(prog(t, 24.3, 25.0)), tgt = V(lw.x - 0.01, lw.y + 0.09, lw.z - 0.1), h0 = HAND.bones('RightHand').getWorldPosition(V());
       K.reach(HAND, 'Right', h0.lerp(tgt, k), V(lw.x + 0.6, lw.y - 0.5, lw.z - 0.6));
