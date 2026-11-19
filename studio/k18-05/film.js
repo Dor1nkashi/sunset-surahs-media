@@ -18,7 +18,7 @@ const D = 33.21;
 let LUSH, RUIN, CAP, hy, gy, OWN, FRI, TUMBLE, FROND, DATES;
 const C = {};
 const GATE = [-21, 18], PIER_X = GATE[0] + 1.3;           // inner face of the east gate pier
-const OR = [-21, 2];                                       // where he stands in the ruin (the middle vine row)
+const OR = [-24.75, 3];                                       // where he stands in the ruin (the middle vine row)
 const sx = (z) => 0.6 * Math.sin(z / 9);
 
 const SHOTS = [
@@ -42,10 +42,10 @@ function shot(t) {
 }
 function orbitCam(t) {
   // one continuous orbit (shots 6-9): from behind (+z) round his left to the front-left; knee height rising to the belt
-  const k = prog(t, 10.69, 21.75), a = 0.15 + 2.25 * k, R = 2.3 - 0.25 * k;
+  const k = prog(t, 10.69, 21.75), a = 0.15 + 2.25 * k, R = 3.4 - 0.4 * k;
   const y = hy(OR[0], OR[1]) + 0.55 + 0.42 * E.inOutSine(prog(t, 15.5, 19.5));
   const pos = [OR[0] - Math.sin(a) * R, y, OR[1] + Math.cos(a) * R];
-  return { pos, look: [OR[0], hy(OR[0], OR[1]) + 0.82, OR[1]], fov: K.lensFov(36) };
+  return { pos, look: [OR[0], hy(OR[0], OR[1]) + 0.92, OR[1]], fov: K.lensFov(40) };
 }
 
 function posePeople(t, i, set) {
@@ -53,12 +53,12 @@ function posePeople(t, i, set) {
   if (set === 'l') {
     show(OWN, i >= 1 && i <= 4); show(FRI, i === 1 || i === 2);
     // the friend inside the gate on the left, facing into the garden; his right hand shows the way in
-    K.place(FRI, GATE[0] - 0.85, gy, GATE[1] - 0.9, Math.PI + 0.35); FRI.setPose('stand', t + 2);
+    K.place(FRI, GATE[0] - 0.45, gy, GATE[1] - 2.6, Math.PI + 0.35); FRI.setPose('stand', t + 2);
     const pk = E.inOutSine(prog(t, 3.0, 4.0));
     if (pk > 0) { FRI.object3d.updateMatrixWorld(true); const h0 = K.handPos(FRI, 'Right'), tgt = K.onBody(FRI, -0.42, 1.2, 0.45);
       K.reach(FRI, 'Right', h0.lerp(tgt, pk), K.onBody(FRI, -0.9, 0.6, -0.3)); K.handAim(FRI, 'Right', K.onBody(FRI, -0.55, 1.18, 0.9), -1.2 * pk); K.flatHand(FRI, 'Right', 0.25); }
     // the owner walks in through the gate (shot 2), then stands by the east pier with his hand on it (shots 4-5)
-    if (i === 1 || i === 2) { const z = GATE[1] + 1.6 - 1.15 * (t - 2.6); K.place(OWN, GATE[0] + 0.55, gy, z, Math.PI); OWN.setPose('walk', t); }
+    if (i === 1 || i === 2) { const z = GATE[1] - 0.7 - 1.0 * (t - 2.6); K.place(OWN, GATE[0] + 0.55, gy, z, Math.PI); OWN.setPose('walk', t); }
     else if (i === 3 || i === 4) {
       K.place(OWN, PIER_X - 0.55, gy, GATE[1] + 0.25, Math.PI); OWN.setPose('stand', 1.5);
       const zz = GATE[1] + 0.25 - 0.3 * E.inOutSine(prog(t, 6.3, 7.8));           // brushes along the post
@@ -95,7 +95,7 @@ function makeFrond() {
   const cur = new THREE.CatmullRomCurve3(pts); g.add(W.shadows(new THREE.Mesh(new THREE.TubeGeometry(cur, 60, 0.012, 8), stem)));
   const r = W.rng(4);
   for (let j = 0; j < 46; j++) { const u = 0.12 + 0.85 * j / 46, p = cur.getPointAt(u), s = j % 2 ? 1 : -1, L = 0.32 * (1 - 0.6 * u) + 0.05;
-    const leaf = new THREE.Mesh(new THREE.PlaneGeometry(L, 0.022).translate(L / 2, 0, 0), lm); leaf.position.copy(p); leaf.rotation.set(-1.35 + 0.3 * r(), s * (1.0 + 0.3 * r()), 0.25 * r()); g.add(W.shadows(leaf)); }
+    const leaf = new THREE.Mesh(new THREE.PlaneGeometry(L, 0.034).translate(L / 2, 0, 0), lm); leaf.position.copy(p); leaf.rotation.set(-1.35 + 0.3 * r(), s * (1.0 + 0.3 * r()), 0.25 * r()); g.add(W.shadows(leaf)); }
   return g;
 }
 
@@ -128,8 +128,8 @@ M.film({
     C.post = { pos: [PIER_X - 0.42, gy + 1.42, GATE[1] + 0.85], look: [PIER_X - 0.02, gy + 1.3, GATE[1] + 0.05], fov: 24 };
     C.post2 = { pos: [PIER_X - 0.38, gy + 1.38, GATE[1] + 0.8], look: [PIER_X - 0.02, gy + 1.22, GATE[1] + 0.0], fov: 26 };
     C.bed = { pos: [sx(10) + 0.2, hy(sx(10), 10) + 0.18, 10], look: [sx(4), hy(sx(4), 4) - 0.05, 4], fov: 34 };
-    C.empty = { pos: [GATE[0] - 0.4, gy + 0.7, GATE[1] - 2.4], look: [GATE[0] + 0.8, gy + 0.55, GATE[1]], fov: 40 };
-    C.frond = { pos: [-14.4, hy(-14.4, 14) + 0.45, 14.1], look: [-15.0, hy(-15, 13.3) + 0.02, 13.3], fov: 32 };
+    C.empty = { pos: [GATE[0] + 0.1, gy + 0.95, GATE[1] - 3.2], look: [GATE[0], gy + 0.4, GATE[1] + 0.2], fov: 46 };
+    C.frond = { pos: [-14.3, hy(-14.3, 14) + 1.0, 13.9], look: [-14.6, hy(-15, 13.3) + 0.02, 13.3], fov: 36 };
     C.crack_a = { pos: [sx(-6) - 0.1, hy(sx(-6), -6) + 0.22, -6], look: [sx(-9), hy(sx(-9), -9) - 0.1, -9], fov: 30 };
     C.crack_b = { pos: [sx(-6.5) - 0.1, hy(sx(-6.5), -6.5) + 0.18, -6.5], look: [sx(-9), hy(sx(-9), -9) - 0.1, -9], fov: 28 };
     C.gate_end = { pos: [GATE[0] + 2.6, gy + 1.55, GATE[1] + 8.5], look: [GATE[0], gy + 1.8, GATE[1]], fov: 42 };
@@ -144,9 +144,10 @@ M.film({
     const { i, s, p } = shot(t);
     const ST = s.set === 'l' ? LUSH : RUIN;
     for (const f of [OWN, FRI]) if (f.object3d.parent !== ST.scene) ST.scene.add(f.object3d);
-    let cam = s.orbit ? orbitCam(t) : K.camLerp(C[s.a], s.b ? C[s.b] : null, (s.ease || E.linear)(p));
-    cam = K.breathe(cam, t, 0.0008, 6 + i);
     posePeople(t, i, s.set);
+    let cam = s.orbit ? orbitCam(t) : K.camLerp(C[s.a], s.b ? C[s.b] : null, (s.ease || E.linear)(p));
+    if (i === 2) { const k = E.inOutSine(p), a = K.onBody(FRI, -0.3 + 0.05 * k, 1.58, -0.6 + 0.15 * k), b = K.onBody(FRI, -0.5, 1.15, 0.75); cam = { pos: a.toArray(), look: b.toArray(), fov: K.lensFov(40) }; }
+    cam = K.breathe(cam, t, 0.0008, 6 + i);
     // the loose vine rolls past his feet in the gust (shot 9), and across the bed (shot 10)
     { const a = prog(t, 19.3, 21.6), b = prog(t, 21.9, 24.4), on = a > 0 && a < 1 ? 1 : b > 0 && b < 1 ? 2 : 0;
       TUMBLE.visible = on > 0;
@@ -154,7 +155,8 @@ M.film({
       if (on === 2) { const z = 9.2 - 4.5 * b, x = sx(z) - 1.6 + 3.0 * b; TUMBLE.position.set(x, hy(x, z) + 0.18, z); TUMBLE.rotation.set(-(z) / 0.19, 0, -(x) / 0.19); } }
     { const M4 = new THREE.Matrix4(); for (let k = 0; k < 6; k++) { const t0 = 16.6 + k * 0.33, dt = t - t0, y = 9.5 - 4.9 * dt * dt;
         M4.makeTranslation(-27.5 + 0.2 * k, dt > 0 && y > hy(-27.5, -6) ? y : (dt > 0 ? hy(-27.5, -6) + 0.02 : -50), -6 + 0.15 * k); DATES.setMatrixAt(k, M4); } DATES.instanceMatrix.needsUpdate = true; }
-    G.renderSet(ctx, ST, t, u, { cam, dust: 1 });
+    const ex = (i === 3 || i === 4) ? 0.7 : (i === 9 || i === 12) ? 0.72 : 1;
+    G.renderSet(ctx, ST, t, u, { cam, dust: 1, exposure: ST.set.exposure * ex });
     // the last 1.6 s: the clear light flattens toward the grey of the ruin (loop into frame 1)
     const grey = s.set === 'l' && i === 13 ? E.inOutSine(prog(t, D - 1.6, D)) : 0;
     if (grey > 0) { ctx.save(); ctx.globalCompositeOperation = 'saturation'; ctx.globalAlpha = 0.85 * grey; ctx.fillStyle = '#808080'; ctx.fillRect(0, 0, M.W, M.H);
