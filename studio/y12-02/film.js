@@ -79,10 +79,14 @@ M.film({
     K.hy = hy; K.h0 = h0;
     // ---- the fire at the pen edge (the set's pit), with our own coal bed: each coal cools on its own schedule
     const FX = 7.2, FZ = -4.5, FY = hy(FX, FZ); K.F = [FX, FY, FZ];
+    const nz = W.noise2(77);
+    const coalGeo = (rad, sd) => { const g = new THREE.IcosahedronGeometry(rad, 4), p = g.attributes.position;
+      for (let k = 0; k < p.count; k++) { const v = V3(p.getX(k), p.getY(k), p.getZ(k)), l = v.length(), f = 1 + 0.22 * nz(v.x * 40 + sd, v.y * 40 + v.z * 30) + 0.08 * nz(v.x * 130, v.z * 130 + sd); v.multiplyScalar(f); p.setXYZ(k, v.x, v.y, v.z); }
+      g.computeVertexNormals(); return g; };
     const coals = [], r = mulberry32(23);
     for (let i = 0; i < 46; i++) {
       const a = r() * 6.28, d = Math.sqrt(r()) * 0.34, m = new THREE.MeshStandardMaterial({ color: 0x1a120c, emissive: 0xff4a10, emissiveIntensity: 1.4, roughness: 1 });
-      const c = new THREE.Mesh(new THREE.IcosahedronGeometry(0.045 + r() * 0.03, 1), m); c.scale.set(1 + r() * 0.6, 0.6 + r() * 0.4, 1 + r() * 0.5);
+      const c = new THREE.Mesh(coalGeo(0.045 + r() * 0.03, i), m); c.scale.set(1 + r() * 0.6, 0.6 + r() * 0.4, 1 + r() * 0.5);
       c.position.set(FX + Math.cos(a) * d, FY + 0.1 + r() * 0.03, FZ + Math.sin(a) * d); c.rotation.set(r() * 3, r() * 3, 0); sc.add(c);
       coals.push({ m, c, d, out: 0 });
     }
@@ -106,7 +110,7 @@ M.film({
       ['#4a5a3a', '#3e3428'], ['#2e2c2a', '#1d1b1a'], ['#8a6a3a', '#5b4130'], ['#5a3424', '#3a2b22'], ['#6a6a52', '#4a3626']];
     K.bros = [];
     for (let i = 0; i < 10; i++) {
-      const apart = i === 9, a = (i / 9.6) * Math.PI * 2 + 0.55, rad = apart ? 2.75 : 1.65;
+      const apart = i === 9, a = (i / 9.6) * Math.PI * 2 + 0.55, rad = apart ? 3.3 : 2.25;
       const x = FX + Math.cos(a) * rad, z = FZ + Math.sin(a) * rad;
       // three body builds (geometry is cached per build), ten palettes and heights
       const T = [{ outfit: 'traveller', beard: 'full', headwear: 'keffiyeh', seed: 41 }, { outfit: 'thobe', beard: 'short', headwear: 'keffiyeh', seed: 42 }, { outfit: 'thobe', beard: 'full', headwear: 'wrap', seed: 43 }][i % 3];
@@ -118,24 +122,24 @@ M.film({
     const G0 = (x, z, dy) => [x, hy(x, z) + dy, z], F = K.F;
     const wellP = P.well.position;
     K.cams = {
-      fireA: { pos: G0(FX + 0.5, FZ + 3.6, 0.5), look: [FX - 0.3, F[1] + 0.8, FZ - 1], fov: fv(44) },
-      fireB: { pos: G0(FX + 0.47, FZ + 3.45, 0.5), look: [FX - 0.3, F[1] + 0.8, FZ - 1], fov: fv(43) },
-      rackA: { pos: G0(FX + 1.4, FZ - 2.2, 0.75), look: [FX, F[1] + 0.35, FZ], fov: fv(34) },
-      rackB: { pos: G0(FX + 1.4, FZ - 2.2, 0.75), look: K.win, fov: fv(28) },
-      ringA: { pos: G0(FX + 4.6, FZ + 1.6, 1.9), look: [FX, F[1] + 0.7, FZ], fov: fv(46) },
-      ringB: { pos: G0(FX + 4.0, FZ + 3.0, 1.9), look: [FX, F[1] + 0.7, FZ], fov: fv(46) },
+      fireA: { pos: G0(FX + 0.6, FZ + 4.4, 0.75), look: [FX - 0.3, F[1] + 0.8, FZ - 1], fov: fv(46) },
+      fireB: { pos: G0(FX + 0.57, FZ + 4.25, 0.75), look: [FX - 0.3, F[1] + 0.8, FZ - 1], fov: fv(45) },
+      rackA: { pos: G0(FX + 3.6, FZ - 3.2, 1.0), look: [FX, F[1] + 0.35, FZ], fov: fv(30) },
+      rackB: { pos: G0(FX + 3.6, FZ - 3.2, 1.0), look: K.win, fov: fv(26) },
+      ringA: { pos: G0(FX + 5.6, FZ + 2.0, 2.2), look: [FX, F[1] + 0.7, FZ], fov: fv(48) },
+      ringB: { pos: G0(FX + 4.6, FZ + 3.8, 2.2), look: [FX, F[1] + 0.7, FZ], fov: fv(48) },
       wallA: { pos: G0(FX + 5.4, FZ - 3.4, 1.2), look: [FX, F[1] + 0.6, FZ], fov: fv(40) },
       wallB: { pos: G0(FX + 3.4, FZ - 5.2, 1.2), look: [FX, F[1] + 0.6, FZ], fov: fv(40) },
       winA: { pos: G0(FX + 2.4, FZ - 1.4, 1.3), look: K.win, fov: fv(30) },
       winB: { pos: G0(FX + 2.4, FZ - 1.4, 1.3), look: [FX - 0.6, F[1] + 0.4, FZ + 0.5], fov: fv(44) },
-      listen: { pos: G0(FX + 3.0, FZ - 2.4, 1.55), look: [FX - 0.3, F[1] + 0.6, FZ + 0.3], fov: fv(44) },
-      leanA: { pos: G0(FX + 2.6, FZ - 2.0, 1.45), look: [FX - 0.3, F[1] + 0.6, FZ + 0.3], fov: fv(42) },
-      leanB: { pos: G0(FX + 2.2, FZ - 1.7, 1.35), look: [FX - 0.4, F[1] + 0.55, FZ + 0.4], fov: fv(40) },
-      well: { pos: G0(FX - 0.2, FZ + 1.0, 1.2), look: [wellP.x, wellP.y + 0.5, wellP.z], fov: fv(14) },
-      shrink: { pos: G0(FX + 0.9, FZ + 1.5, 0.75), look: [FX, F[1] + 0.3, FZ], fov: fv(36) },
-      embA: { pos: G0(FX + 0.55, FZ + 0.85, 0.75), look: [FX, F[1] + 0.1, FZ], fov: fv(32) },
-      embB: { pos: G0(FX + 0.4, FZ + 0.6, 0.6), look: [FX, F[1] + 0.1, FZ], fov: fv(30) },
-      spark: { pos: G0(FX + 0.3, FZ + 0.42, 0.45), look: [FX, F[1] + 0.1, FZ], fov: fv(26) },
+      listen: { pos: G0(FX + 4.0, FZ - 2.8, 1.7), look: [FX - 0.3, F[1] + 0.7, FZ + 0.3], fov: fv(46) },
+      leanA: { pos: G0(FX + 3.7, FZ - 2.5, 1.65), look: [FX - 0.3, F[1] + 0.65, FZ + 0.3], fov: fv(44) },
+      leanB: { pos: G0(FX + 3.4, FZ - 2.2, 1.6), look: [FX - 0.4, F[1] + 0.6, FZ + 0.4], fov: fv(41) },
+      well: { pos: G0(3.0, 7.5, 1.6), look: [wellP.x, wellP.y + 0.5, wellP.z], fov: fv(16) },
+      shrink: { pos: G0(FX + 1.4, FZ + 2.2, 1.0), look: [FX, F[1] + 0.3, FZ], fov: fv(34) },
+      embA: { pos: G0(FX + 0.9, FZ + 1.3, 1.05), look: [FX, F[1] + 0.1, FZ], fov: fv(26) },
+      embB: { pos: G0(FX + 0.8, FZ + 1.15, 0.95), look: [FX, F[1] + 0.1, FZ], fov: fv(24) },
+      spark: { pos: G0(FX + 0.75, FZ + 1.05, 0.85), look: [FX, F[1] + 0.12, FZ], fov: fv(20) },
     };
     K.wellP = [wellP.x, wellP.y, wellP.z];
     HILLS.update(0, 0, {}); G.R.compile(HILLS.scene, HILLS.camera);
@@ -160,7 +164,7 @@ M.film({
     // ---- fire state: full -> lower flame (16.75) -> no flame (18.3) -> embers dark from the edge -> one ember
     const P = HILLS.set.props, A = HILLS.set.atmo;
     const flameK = t > 24.6 ? sm((t - 24.6) / 1.6) : 1 - 0.55 * sm((t - 16.8) / 1.2) - 0.45 * sm((t - 17.9) / 0.8);
-    P.fire.visible = flameK > 0.01; P.fire.scale.setScalar(Math.max(0.05, 0.4 + 0.6 * flameK));
+    P.fire.visible = flameK > 0.01; P.fire.scale.setScalar(Math.max(0.05, 0.3 + 0.45 * flameK));
     let glow = 0;
     K.coals.forEach((o) => { let k = 1 - sm((t - o.out) / 0.6); if (o.last) k = t < 23.58 ? 1 : 1 + 0.8 * sm((t - 23.8) / 1.4);
       if (t > 24.6) k = Math.max(k, sm((t - 24.6 - o.d * 2) / 1.0));                  // the glow spreads back through the bed (loop to shot 1)
@@ -182,7 +186,7 @@ M.film({
     const sky = P.sky.userData.u, dusk = lerp(1.2, 0.45, prog(t, 0, 22));
     sky.sunD.value.set(-0.6, -0.04, -0.8).normalize(); sky.sunC.value.setRGB(1.0 * dusk, 0.5 * dusk, 0.2 * dusk); sky.glow.value = 1.0; sky.sunDisc.value = 2.0; sky.moonOn.value = 0;
     A.sun.intensity = 0.4; HILLS.scene.environmentIntensity = lerp(0.6, 0.3, prog(t, 0, 20)); if (A.hemi) A.hemi.intensity = 0.06;
-    G.renderSet(ctx, HILLS, t, u, { cam, exposure: expo, fire: flameK });
+    G.renderSet(ctx, HILLS, t, u, { cam, exposure: expo, fire: 0.4 * flameK });
     CAP.draw(ctx, t);
     const su = prog(t, 25.05, D - 0.05), a = Math.sin(Math.PI * su);
     if (a > 0 && IMG.seal) { const s = PORT ? 480 : 400; ctx.save(); ctx.globalAlpha = a * 0.95; ctx.drawImage(IMG.seal, FW / 2 - s / 2, FH * (PORT ? 0.36 : 0.42) - s / 2, s, s); ctx.restore(); }
