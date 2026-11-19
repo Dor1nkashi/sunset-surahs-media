@@ -293,6 +293,22 @@ export function ironPBR({ tile = 0.6 } = {}) {
   for (const t of [m.map, m.normalMap]) { t.needsUpdate = true; t.repeat.set(1 / tile, 1 / tile); }
   m.normalScale.set(1.2, 1.2); return m;
 }
+// fine fur: perturbs the shading normal with oriented high-frequency 3-D noise (world space, no uvs needed)
+export function furify(m, { scale = 380, amp = 0.35 } = {}) {
+  const prev = m.onBeforeCompile, key0 = m.customProgramCacheKey?.bind(m);
+  m.onBeforeCompile = (s, r) => { prev?.call(m, s, r);
+    s.vertexShader = s.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vFurP;').replace('#include <begin_vertex>', '#include <begin_vertex>\nvFurP = position;');
+    s.fragmentShader = s.fragmentShader.replace('#include <common>', `#include <common>
+      varying vec3 vFurP; float fh(vec3 p){ return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453); }
+      float fn(vec3 p){ vec3 i = floor(p), f = fract(p); f = f*f*(3.-2.*f); return mix(mix(mix(fh(i), fh(i+vec3(1,0,0)), f.x), mix(fh(i+vec3(0,1,0)), fh(i+vec3(1,1,0)), f.x), f.y), mix(mix(fh(i+vec3(0,0,1)), fh(i+vec3(1,0,1)), f.x), mix(fh(i+vec3(0,1,1)), fh(i+vec3(1,1,1)), f.x), f.y), f.z); }`)
+      .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
+      { vec3 q = vFurP * vec3(${scale.toFixed(1)}, ${(scale * 0.25).toFixed(1)}, ${(scale * 0.25).toFixed(1)}); float e = 0.35;
+        vec3 g = vec3(fn(q + vec3(e,0,0)) - fn(q - vec3(e,0,0)), fn(q + vec3(0,e,0)) - fn(q - vec3(0,e,0)), fn(q + vec3(0,0,e)) - fn(q - vec3(0,0,e)));
+        normal = normalize(normal + (viewMatrix * vec4(g, 0.)).xyz * ${amp.toFixed(3)}); }`);
+  };
+  m.customProgramCacheKey = () => (key0 ? key0() : '') + '|fur';
+  return m;
+}
 // a short-haired coat / fine fibre normal (dog, cloaks)
 function fibreNormal(seed = 3) {
   return cachedTex('fibre' + seed, () => { const N = 256, r = W.rng(seed), H = new Float32Array(N * N);
@@ -490,14 +506,14 @@ function sleeper(material, { seed = 1, len = 1.0, mirror = 1 } = {}) {
 function dogSDF() {
   const caps = [
     [[0.075, 0.1, 0.22], [0.085, 0.042, 0.5], 0.036, 0.03], [[-0.075, 0.1, 0.22], [-0.08, 0.042, 0.51], 0.036, 0.03],   // forelegs stretched out (taper)
-    [[0, 0.25, 0.2], [0, 0.4, 0.36], 0.075, 0.06],                                                                      // neck
-    [[0, 0.44, 0.45], [0, 0.418, 0.585], 0.044, 0.026],                                                                 // muzzle, tapering to the nose
+    [[0, 0.25, 0.2], [0, 0.36, 0.36], 0.075, 0.062],                                                                      // neck
+    [[0, 0.405, 0.47], [0, 0.375, 0.6], 0.044, 0.026],                                                                 // muzzle, tapering to the nose
     [[0.14, 0.045, -0.2], [0.15, 0.032, 0.02], 0.033, 0.026], [[-0.14, 0.045, -0.2], [-0.15, 0.032, 0.02], 0.033, 0.026], // hind feet tucked forward
     [[-0.05, 0.05, -0.4], [0.08, 0.032, -0.52], 0.026, 0.018], [[0.08, 0.032, -0.52], [0.22, 0.026, -0.42], 0.018, 0.011], // tail curled on the ground
   ];
   const ells = [
     [0, 0.19, -0.03, 0.14, 0.145, 0.35], [0, 0.215, 0.19, 0.13, 0.17, 0.16], [0.11, 0.13, -0.25, 0.1, 0.12, 0.16], [-0.11, 0.13, -0.25, 0.1, 0.12, 0.16],
-    [0.085, 0.026, 0.55, 0.04, 0.026, 0.06], [-0.08, 0.026, 0.56, 0.04, 0.026, 0.06], [0, 0.455, 0.385, 0.072, 0.07, 0.088],
+    [0.085, 0.026, 0.55, 0.04, 0.026, 0.06], [-0.08, 0.026, 0.56, 0.04, 0.026, 0.06], [0, 0.415, 0.405, 0.072, 0.07, 0.088],
   ];
   const capT = (x, y, z, a, b, ra, rb) => { const pax = x - a[0], pay = y - a[1], paz = z - a[2], bax = b[0] - a[0], bay = b[1] - a[1], baz = b[2] - a[2];
     const h = clamp((pax * bax + pay * bay + paz * baz) / (bax * bax + bay * bay + baz * baz)); return Math.hypot(pax - bax * h, pay - bay * h, paz - baz * h) - lerp(ra, rb, h); };
@@ -512,23 +528,23 @@ function dogSDF() {
 function earSDF() { return (x, y, z) => { let d = sdEll(x, y - 0.05, z, 0.038, 0.07, 0.013); d = smax(d, Math.abs(x) * 0.93 + (y - 0.11) * 0.37, 0.006); return smax(d, -sdEll(x, y - 0.045, z + 0.014, 0.026, 0.055, 0.011), 0.004); }; }
 function dogMesh(occAt) {
   const grp = new THREE.Group(); grp.name = 'dog';
-  const coat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, vertexColors: true, roughness: 0.8, sheen: 0.35, sheenRoughness: 0.7, sheenColor: new THREE.Color(0x8a6a48) });
+  const coat = furify(new THREE.MeshPhysicalMaterial({ color: 0xffffff, vertexColors: true, roughness: 0.86, sheen: 0.25, sheenRoughness: 0.8, sheenColor: new THREE.Color(0x6a4a28) }), { scale: 420, amp: 0.4 });
   const M = sdfMesh(dogSDF(), { min: [-0.28, -0.01, -0.62], max: [0.28, 0.56, 0.68], step: 0.0075, occ: false });
   const p = M.geometry.attributes.position, col = new Float32Array(p.count * 3), n = noise3(9);
   for (let i = 0; i < p.count; i++) { const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
     const saddle = sstep(0.2, 0.33, y) * sstep(0.3, -0.05, z), muzzle = sstep(0.52, 0.6, z) * sstep(0.36, 0.43, y), belly = 1 - sstep(0.06, 0.16, y);
     const k = 1 + 0.06 * n(x * 30, y * 30, z * 30);
-    const c = [0.5, 0.33, 0.18].map((v, q) => v * k * (1 - 0.3 * saddle - 0.35 * muzzle) + belly * [0.14, 0.11, 0.07][q]);
+    const c = [0.34, 0.19, 0.08].map((v, q) => v * k * (1 - 0.35 * saddle - 0.45 * muzzle) + belly * [0.12, 0.08, 0.04][q]);
     col.set(c, i * 3); }
   M.geometry.setAttribute('color', new THREE.BufferAttribute(col, 3));
   const body = W.shadows(new THREE.Mesh(M.geometry, coat)); grp.add(body);
   const ears = [];
   for (const s of [-1, 1]) { const E = sdfMesh(earSDF(), { min: [-0.05, -0.01, -0.03], max: [0.05, 0.13, 0.03], step: 0.0035, occ: false });
-    const ec = new Float32Array(E.geometry.attributes.position.count * 3); for (let q = 0; q < ec.length; q += 3) ec.set([0.4, 0.26, 0.15], q); E.geometry.setAttribute('color', new THREE.BufferAttribute(ec, 3));
-    const ear = W.shadows(new THREE.Mesh(E.geometry, coat)); const piv = new THREE.Group(); piv.position.set(s * 0.05, 0.5, 0.37); piv.rotation.set(-0.2, s * 0.35, -s * 0.28); piv.add(ear); grp.add(piv); ears.push(piv); }
+    const ec = new Float32Array(E.geometry.attributes.position.count * 3); for (let q = 0; q < ec.length; q += 3) ec.set([0.26, 0.14, 0.06], q); E.geometry.setAttribute('color', new THREE.BufferAttribute(ec, 3));
+    const ear = W.shadows(new THREE.Mesh(E.geometry, coat)); const piv = new THREE.Group(); piv.position.set(s * 0.05, 0.46, 0.39); piv.rotation.set(-0.2, s * 0.35, -s * 0.28); piv.add(ear); grp.add(piv); ears.push(piv); }
   const dark = new THREE.MeshStandardMaterial({ color: 0x14100c, roughness: 0.25 });
-  const nose = new THREE.Mesh(new THREE.SphereGeometry(0.019, 24, 16), dark); nose.scale.set(1.2, 0.9, 0.8); nose.position.set(0, 0.425, 0.607); grp.add(nose);
-  for (const s of [-1, 1]) { const e = new THREE.Mesh(new THREE.SphereGeometry(0.011, 20, 14), dark); e.position.set(s * 0.038, 0.47, 0.46); grp.add(e); }
+  const nose = new THREE.Mesh(new THREE.SphereGeometry(0.019, 24, 16), dark); nose.scale.set(1.2, 0.9, 0.8); nose.position.set(0, 0.383, 0.622); grp.add(nose);
+  for (const s of [-1, 1]) { const e = new THREE.Mesh(new THREE.SphereGeometry(0.011, 20, 14), dark); e.position.set(s * 0.037, 0.432, 0.475); grp.add(e); }
   if (occAt) grp.userData.bake = () => { grp.updateMatrixWorld(true); grp.traverse((m) => { if (m.isMesh && m.geometry.attributes.normal) bakeOcc(m, occAt, { floor: 0.05 }); }); grp.traverse((m) => { if (m.isMesh) { m.material = m.material.clone(); occify(m.material); } }); };
   // breathing + ear twitches: a pure function of t
   grp.userData.update = (t) => {
@@ -653,7 +669,7 @@ export async function mountain_cave({ time = 'day', seed = 18, sleepers = 5, dog
   // the bright mouth seen from inside acts as a big soft light (faces into the cave; nothing outside is lit by it)
   const mouthGlow = rectLight(dayMode ? 0xf4e4cc : time === 'bluehour' || time === 'night' ? 0x6a78a8 : 0xffc890, 1, 5.6, 1.7);
   mouthGlow.position.set(0, 0.95, 0.3); mouthGlow.lookAt(0, 0.6, -6); add(S, mouthGlow);
-  const glowI = { day: 2.6, sunrise: 1.6, dusk: 1.4, bluehour: 0.5, night: 0.25 }[time] ?? 1.5; mouthGlow.intensity = glowI;
+  const glowI = { day: 16, sunrise: 9, dusk: 8, bluehour: 3, night: 1.5 }[time] ?? 8; mouthGlow.intensity = glowI;
   const dust = motes({ count: 1600, box: [-4, 0, -12, 4, 3.2, 1.5] }); add(S, dust);
   const mouth = V3(0, 1.0, 0.6);
   const setDay = (p) => {
@@ -706,7 +722,7 @@ function grapeLeafTexture() {
       const tooth = 1 + 0.025 * Math.sin(a * 46), r = 104 * lob * tooth * (0.9 + 0.1 * Math.sin(a)); const px = Math.cos(a) * r, py = Math.sin(a) * r * 0.95;
       i ? path.lineTo(px, py) : path.moveTo(px, py); }
     path.closePath();
-    const gr = x.createRadialGradient(0, 0, 10, 0, 0, 120); gr.addColorStop(0, '#9ab860'); gr.addColorStop(1, '#5e8a34'); x.fillStyle = gr; x.fill(path);
+    const gr = x.createRadialGradient(0, 0, 10, 0, 0, 120); gr.addColorStop(0, '#7a9448'); gr.addColorStop(1, '#4a6a2a'); x.fillStyle = gr; x.fill(path);
     x.save(); x.clip(path); x.strokeStyle = 'rgba(220,235,170,0.55)'; x.lineWidth = 3;
     for (let k = 0; k < 5; k++) { const a = -Math.PI / 2 + Math.PI + (k - 2) * 0.75; x.beginPath(); x.moveTo(0, 0); x.lineTo(Math.cos(a) * 110, -Math.sin(a) * 100); x.stroke();
       x.lineWidth = 1.2; for (let s = 1; s < 5; s++) { const bx = Math.cos(a) * s * 22, by = -Math.sin(a) * s * 20; for (const side of [-1, 1]) { x.beginPath(); x.moveTo(bx, by); x.lineTo(bx + Math.cos(a + side * 0.9) * 22, by - Math.sin(a + side * 0.9) * 22); x.stroke(); } } x.lineWidth = 3; }
@@ -716,8 +732,8 @@ function grapeLeafTexture() {
 // rows of pergola trellis with vines; ruined = posts fallen, beams on the ground, withered leaves, rotted grapes
 async function vineyard({ rows = [[0, 0]], len = 21, width = 2.4, h = 2.15, gap = 3, seed = 1, ruined = false, heightAt = () => 0 } = {}) {
   const r = W.rng(seed), n = W.noise2(seed + 3), grp = new THREE.Group(); grp.name = ruined ? 'vineyard_ruined' : 'vineyard';
-  const pl = (await MATS.darkPlanks()).clone(); pl.color.set(ruined ? 0x8a7a6a : 0x9a7a5e);
-  const bark = new THREE.MeshStandardMaterial({ color: ruined ? 0x5a4a3c : 0x4a3626, roughness: 0.9, normalMap: fibreNormal(7), normalScale: new THREE.Vector2(0.6, 0.6) });
+  const pl = (await MATS.planks()).clone(); pl.color.set(ruined ? 0xb8b0a4 : 0xa88a6a);
+  const bark = new THREE.MeshStandardMaterial({ color: ruined ? 0x7a6a5a : 0x5a4232, roughness: 0.9, normalMap: fibreNormal(7), normalScale: new THREE.Vector2(0.6, 0.6) });
   const postG = [], beamG = [], caneG = [], leafM = [], bunchP = [], hangs = [];
   const M4 = new THREE.Matrix4(), Q = new THREE.Quaternion(), up = V3(0, 1, 0);
   const pole = (a, b, rad) => { const d = b.clone().sub(a), L = d.length(), g = W.boxUV(new THREE.CylinderGeometry(rad * 0.9, rad, L, 14, Math.max(2, Math.ceil(L * 3))));
@@ -770,14 +786,14 @@ async function vineyard({ rows = [[0, 0]], len = 21, width = 2.4, h = 2.15, gap 
     if (ruined) C.setHSL(0.07 + r() * 0.04, 0.35 + r() * 0.2, 0.18 + r() * 0.12); else C.setHSL(0.24 + r() * 0.05, 0.4 + r() * 0.2, 0.32 + r() * 0.16); leaves.setColorAt(i, C); });
   leaves.castShadow = leaves.receiveShadow = true; grp.add(leaves);
   // grape bunches: a tapering cone of berries (instanced spheres with a dusty bloom); ruined = shrivelled heaps on the ground
-  const berry = new THREE.SphereGeometry(1, 18, 14), bm = new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: ruined ? 0.85 : 0.42, sheen: ruined ? 0 : 0.6, sheenColor: new THREE.Color(0x9aa0c8), sheenRoughness: 0.5, clearcoat: ruined ? 0 : 0.25, clearcoatRoughness: 0.5 });
+  const berry = new THREE.SphereGeometry(1, 18, 14), bm = new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: ruined ? 0.85 : 0.5, sheen: ruined ? 0 : 0.18, sheenColor: new THREE.Color(0x7a7a9a), sheenRoughness: 0.6, clearcoat: ruined ? 0 : 0.15, clearcoatRoughness: 0.6 });
   const per = ruined ? 30 : 64, berries = new THREE.InstancedMesh(berry, bm, bunchP.length * per);
   let q = 0;
   bunchP.forEach((b, bi) => { const L = 0.2 + r() * 0.08;
     for (let k = 0; k < per; k++) { const f = Math.pow(k / per, 0.8), a = k * 2.39996 + bi, rad = (ruined ? 0.12 * (1 - f) + 0.05 : 0.07 * (1 - f * 0.85)) * Math.sqrt(r() * 0.6 + 0.4);
       const p = ruined ? V3(b.x + Math.cos(a) * rad * 1.6, b.y + 0.006 + (1 - f) * 0.01, b.z + Math.sin(a) * rad * 1.6) : V3(b.x + Math.cos(a) * rad, b.y - f * L + 0.02 * Math.sin(k), b.z + Math.sin(a) * rad);
-      const s = ruined ? 0.006 + r() * 0.004 : 0.0095 + r() * 0.002; M4.compose(p, Q.identity(), V3(s, ruined ? s * 0.6 : s * 1.08, s)); berries.setMatrixAt(q, M4);
-      if (ruined) C.setHSL(0.05 + r() * 0.04, 0.4, 0.07 + r() * 0.06); else C.setHSL(0.76 + r() * 0.04, 0.45 + r() * 0.15, 0.1 + r() * 0.07); berries.setColorAt(q++, C); }
+      const s = ruined ? 0.006 + r() * 0.004 : 0.0085 + r() * 0.0035; M4.compose(p, Q.identity(), V3(s, ruined ? s * 0.6 : s * 1.08, s)); berries.setMatrixAt(q, M4);
+      if (ruined) C.setHSL(0.05 + r() * 0.04, 0.4, 0.07 + r() * 0.06); else C.setRGB(0.05 + r() * 0.03, 0.012 + r() * 0.008, 0.045 + r() * 0.03); berries.setColorAt(q++, C); }
     if (!ruined) hangs.push(b);
   });
   berries.castShadow = berries.receiveShadow = true; grp.add(berries);
@@ -833,7 +849,8 @@ export async function two_gardens({ state = 'lush', time = null, seed = 32 } = {
   // date palms ringing each garden (growth.js palms; 5 shapes cloned)
   const palmProto = [];
   for (let k = 0; k < 5; k++) { const tr = GR.makeTree(THREE, { species: 'date_palm', seed: seed + k * 7 }); tr.set(1, ruined ? 1 : 0.8); const o = tr.object3d;
-    if (ruined) o.traverse((m) => { if (m.isMesh && m.material) { m.material = m.material.clone(); if (m.material.color) m.material.color.multiply(new THREE.Color(0xb08a60)); } });
+    o.traverse((m) => { if (m.isInstancedMesh && m.material && m.material.side === THREE.DoubleSide) { m.material = m.material.clone(); m.material.roughness = 0.68; m.material.color.set(ruined ? 0x9a7448 : 0xe6e2b0);
+      if (ruined && m.instanceColor) { const a = m.instanceColor.array; for (let q = 0; q < a.length; q += 3) { const l = (a[q] + a[q + 1] + a[q + 2]) / 3; a[q] = l * 1.1; a[q + 1] = l * 0.85; a[q + 2] = l * 0.55; } m.instanceColor.needsUpdate = true; } } });
     palmProto.push(o); }
   const palms = [];
   for (const C of [A, B]) { const per = 2 * (GW + GD) - 8, N = 22;
@@ -880,4 +897,216 @@ export async function two_gardens({ state = 'lush', time = null, seed = 32 } = {
 }
 
 // all builders by name (for the gallery and lesson films)
-export const SETS = { mountain_cave, two_gardens };
+
+
+// ------------------------------------------------------------------ the shared pure-function wind (JS + GLSL agree)
+// strength 0..1 -> a gusting field over x,z moving downwind (+x, slightly +z). Used by the barley and the chaff.
+export const WIND_DIR = [0.94, 0.34];
+export function windAt(x, z, t, strength = 1) {
+  const along = x * WIND_DIR[0] + z * WIND_DIR[1];
+  const gust = 0.55 + 0.45 * Math.sin(t * 0.9 - along * 0.045) * Math.sin(t * 0.37 - along * 0.018 + 1.3);
+  return strength * gust * (0.75 + 0.25 * Math.sin(t * 2.3 - along * 0.21 + z * 0.17));
+}
+const WIND_GLSL = `
+  vec2 WIND_DIR = vec2(0.94, 0.34);
+  float windAt(vec2 xz, float t, float s){ float along = dot(xz, WIND_DIR);
+    float gust = 0.55 + 0.45 * sin(t * 0.9 - along * 0.045) * sin(t * 0.37 - along * 0.018 + 1.3);
+    return s * gust * (0.75 + 0.25 * sin(t * 2.3 - along * 0.21 + xz.y * 0.17)); }`;
+
+// one barley plant (3 stalks per tuft): stems, leaves, awned ears; attribute 'part' = 1 on the ear
+function barleyTuftGeometry(seed = 3) {
+  const r = W.rng(seed), parts = [];
+  const tag = (g, part) => { const n = g.index ? g.toNonIndexed() : g; for (const k of Object.keys(n.attributes)) if (!['position', 'normal', 'uv'].includes(k)) n.deleteAttribute(k);
+    n.setAttribute('part', new THREE.BufferAttribute(new Float32Array(n.attributes.position.count).fill(part), 1)); return n; };
+  for (let k = 0; k < 3; k++) {
+    const ox = (r() - 0.5) * 0.06, oz = (r() - 0.5) * 0.06, h = 0.82 + r() * 0.18, lean = (r() - 0.5) * 0.12;
+    const stem = new THREE.CylinderGeometry(0.0028, 0.0042, h, 6, 10, true).translate(0, h / 2, 0), sp = stem.attributes.position;
+    for (let i = 0; i < sp.count; i++) { const y = sp.getY(i) / h; sp.setX(i, sp.getX(i) + lean * y * y * h + ox); sp.setZ(i, sp.getZ(i) + oz + 0.03 * y * y); }
+    parts.push(tag(stem, 0));
+    for (const [y0, a] of [[0.22, r() * 6], [0.45, r() * 6], [0.62, r() * 6]]) { const L = 0.26 + r() * 0.08, lf = new THREE.PlaneGeometry(0.014, L, 1, 6).translate(0, L / 2, 0), lp = lf.attributes.position;
+      for (let i = 0; i < lp.count; i++) { const y = lp.getY(i) / L; lp.setX(i, lp.getX(i) * (1 - y * 0.85)); lp.setZ(i, y * y * 0.14); }
+      lf.rotateX(-0.45); lf.rotateY(a); lf.translate(ox + lean * y0 * y0 * h, y0 * h, oz); parts.push(tag(lf, 0)); }
+    // the ear: two rows of plump spikelets on a nodding tip, long awns
+    const top = V3(ox + lean * h, h, oz + 0.03);
+    for (let q = 0; q < 16; q++) { const side = q % 2 ? 1 : -1, t = q / 16, g = new THREE.SphereGeometry(0.0055, 7, 5).scale(1, 2.1, 0.8);
+      g.rotateZ(side * 0.32); g.translate(top.x + side * 0.0045, top.y + t * 0.075, top.z + t * t * 0.02); parts.push(tag(g, 1));
+      const awn = new THREE.CylinderGeometry(0.00045, 0.0003, 0.11, 3, 1).translate(0, 0.055, 0); awn.rotateZ(side * 0.18); awn.rotateX(0.12); awn.translate(top.x + side * 0.006, top.y + 0.008 + t * 0.075, top.z + t * t * 0.02); parts.push(tag(awn, 1)); }
+  }
+  const geo = W.BGU.mergeGeometries(parts); geo.computeVertexNormals();
+  return geo;
+}
+// a barley field whose whole life is setStage-driven: grow (0..1), ripe (0 green, 0.5 gold, 1 brown), wind 0..1,
+// broken (0..1: stalks snap and their tops are carried off, leaving stubble). All per-instance timing is seeded.
+function barleyField({ rect, count, seed = 7, heightAt, focus = [0, 0] }) {
+  const geo = barleyTuftGeometry(seed), r = W.rng(seed + 1);
+  const mat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.78, side: THREE.DoubleSide });
+  const U = { time: { value: 0 }, grow: { value: 1 }, ripe: { value: 0 }, wind: { value: 0.2 }, broken: { value: 0 }, wet: { value: 0 } };
+  mat.onBeforeCompile = (s) => {
+    Object.assign(s.uniforms, U);
+    s.vertexShader = s.vertexShader.replace('#include <common>', `#include <common>
+      uniform float time, grow, ripe, wind, broken, wet; attribute float part; attribute vec4 aR; varying vec3 vPC; varying float vH;
+      ${WIND_GLSL}`)
+      .replace('#include <begin_vertex>', `#include <begin_vertex>
+        float delay = aR.z, gi = clamp((grow - delay * 0.35) / 0.65, 0., 1.), ge = 1. - (1. - gi) * (1. - gi);
+        float yy = clamp(position.y, 0., 1.2);
+        float head = smoothstep(0.62, 0.92, gi);
+        // the ear forms late: until heading it is folded into the top of the stem
+        if (part > 0.5) { vec3 c = vec3(position.x, 0.9, position.z); transformed = mix(c + (transformed - c) * 0.05, transformed, head); }
+        transformed.y *= ge * aR.y; transformed.xz *= mix(0.45, 1., ge);
+        // snapping: tops above 45 % fold and shrink into the break as the chaff leaves
+        float bt = 0.06 + aR.x * 0.85, bk = clamp((broken - bt) / 0.08, 0., 1.);
+        float cut = 0.38 * aR.y;
+        if (transformed.y > cut) { vec3 b = vec3(transformed.x * 0.3, cut, transformed.z * 0.3); vec3 rel = transformed - b;
+          float fold = smoothstep(0., 0.5, bk) * 1.4; rel = vec3(rel.x + rel.y * sin(fold) , rel.y * cos(fold), rel.z);
+          transformed = b + rel * (1. - smoothstep(0.4, 1., bk)); }
+        vH = yy;
+        float rk = clamp(ripe + (aR.x - 0.5) * 0.18, 0., 1.);
+        vec3 green = vec3(0.13, 0.26, 0.05), gold = vec3(0.62, 0.48, 0.18), brown = vec3(0.3, 0.2, 0.1);
+        vPC = rk < 0.5 ? mix(green, gold, rk * 2.) : mix(gold, brown, rk * 2. - 1.);
+        if (part > 0.5) vPC = mix(vPC, vPC * vec3(1.15, 1.1, 0.8) + vec3(0.04, 0.03, 0.), 0.6);
+        vPC *= mix(0.35, 1., smoothstep(0., 0.7, yy)) * mix(1., 0.75, wet);`)
+      .replace('#include <project_vertex>', `
+        vec4 mvPosition = vec4(transformed, 1.0);
+        #ifdef USE_INSTANCING
+          mvPosition = instanceMatrix * mvPosition;
+        #endif
+        { vec2 ip = vec2(instanceMatrix[3][0], instanceMatrix[3][2]);
+          float w = windAt(ip, time, wind) * (1.2 - 0.4 * ge) + (aR.w - 0.5) * 0.35 * ge;      // gusts + the tangle of a grown stand
+          float k = vH * vH * mix(1.2, 0.7, ripe);
+          mvPosition.xz += (WIND_DIR * w * 0.32 + vec2(sin(time * 3.1 + ip.x) , cos(time * 2.7 + ip.y)) * 0.012 * wind) * k;
+          mvPosition.y -= abs(w) * 0.08 * k; }
+        mvPosition = modelViewMatrix * mvPosition;
+        gl_Position = projectionMatrix * mvPosition;`);
+    s.fragmentShader = s.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec3 vPC; varying float vH;').replace('#include <color_fragment>', '#include <color_fragment>\ndiffuseColor.rgb *= vPC;');
+  };
+  mat.customProgramCacheKey = () => 'barley2';
+  const im = new THREE.InstancedMesh(geo, mat, count), M = new THREE.Matrix4(), Q = new THREE.Quaternion(), aR = new Float32Array(count * 4), tops = [];
+  for (let i = 0; i < count; i++) {
+    // denser near the focus
+    let x, z; do { x = lerp(rect[0], rect[2], r()); z = lerp(rect[1], rect[3], r()); } while (r() > 0.35 + 0.65 * Math.exp(-Math.hypot(x - focus[0], z - focus[1]) / 25));
+    Q.setFromAxisAngle(V3(0, 1, 0), r() * TAU); M.compose(V3(x, heightAt(x, z) - 0.01, z), Q, V3(1, 1, 1)); im.setMatrixAt(i, M);
+    aR.set([r(), 0.85 + r() * 0.3, r(), r()], i * 4); tops.push([x, z, aR[i * 4]]);
+  }
+  im.geometry.setAttribute('aR', new THREE.InstancedBufferAttribute(aR, 4));
+  im.castShadow = false; im.receiveShadow = true; im.frustumCulled = false; im.name = 'barley';
+  im.userData = { U, tops };
+  return im;
+}
+// straw chaff carried downwind: each bit leaves a broken stalk top at that stalk's break stage and flies on the wind
+function chaff({ tops, count = 7000, seed = 9, heightAt }) {
+  const r = W.rng(seed), g = new THREE.PlaneGeometry(0.035, 0.008, 2, 1), a = new Float32Array(count * 4), o = new Float32Array(count * 3);
+  for (let i = 0; i < count; i++) { const t = tops[Math.floor(r() * tops.length)]; o.set([t[0], heightAt(t[0], t[1]) + 0.55, t[1]], i * 3); a.set([0.06 + t[2] * 0.85 + r() * 0.03, 0.6 + r() * 0.8, r() * 100, r()], i * 4); }
+  const ig = new THREE.InstancedBufferGeometry().copy(g); ig.instanceCount = count;
+  ig.setAttribute('aO', new THREE.InstancedBufferAttribute(o, 3)); ig.setAttribute('aC', new THREE.InstancedBufferAttribute(a, 4));
+  const U = { time: { value: 0 }, broken: { value: 0 }, wind: { value: 0 } };
+  const m = new THREE.MeshStandardMaterial({ color: 0xb89a62, roughness: 0.85, side: THREE.DoubleSide });
+  m.onBeforeCompile = (s) => { Object.assign(s.uniforms, U);
+    s.vertexShader = s.vertexShader.replace('#include <common>', `#include <common>\nuniform float time, broken, wind; attribute vec3 aO; attribute vec4 aC;\n${WIND_GLSL}`)
+      .replace('#include <begin_vertex>', `#include <begin_vertex>
+        float age = (broken - aC.x) * 60.;                          // stage -> seconds of flight
+        float alive = step(0., age) * (1. - smoothstep(18., 26., age));
+        float sp = time * (3. + aC.w * 4.) + aC.z;
+        mat3 rot = mat3(cos(sp), sin(sp), 0., -sin(sp), cos(sp), 0., 0., 0., 1.) * mat3(1., 0., 0., 0., cos(sp * 0.7), sin(sp * 0.7), 0., -sin(sp * 0.7), cos(sp * 0.7));
+        transformed = rot * transformed * alive;
+        float a = max(age, 0.);
+        vec3 drift = vec3(WIND_DIR.x, 0., WIND_DIR.y) * (a * 2.2 * aC.y + a * a * 0.06) + vec3(0., sin(a * 0.9 + aC.z) * 0.6 + a * 0.12 * aC.y, 0.) + vec3(sin(a * 1.7 + aC.z), 0., cos(a * 1.3 + aC.z)) * 0.25;
+        transformed += aO + drift;`);
+  };
+  m.customProgramCacheKey = () => 'chaff1';
+  const mesh = new THREE.Mesh(ig, m); mesh.frustumCulled = false; mesh.castShadow = false; mesh.userData.U = U; mesh.name = 'chaff';
+  return mesh;
+}
+// rain streaks (pure in t) in a box; k = 0..1 opacity
+function rainStreaks({ box = [-30, 0, -60, 30, 22, 12], count = 9000, seed = 2 } = {}) {
+  const r = W.rng(seed), p = new Float32Array(count * 4);
+  for (let i = 0; i < count; i++) p.set([lerp(box[0], box[3], r()), lerp(box[2], box[5], r()), r(), 0.7 + r() * 0.6], i * 4);
+  const g = new THREE.InstancedBufferGeometry().copy(new THREE.PlaneGeometry(0.006, 0.55).translate(0, 0.275, 0)); g.instanceCount = count; g.setAttribute('aP', new THREE.InstancedBufferAttribute(p, 4));
+  const U = { time: { value: 0 }, k: { value: 0 }, y0: { value: box[1] }, hh: { value: box[4] - box[1] } };
+  const m = new THREE.ShaderMaterial({ uniforms: U, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    vertexShader: `uniform float time, y0, hh; attribute vec4 aP; varying float vA;
+      void main(){ float y = y0 + hh * (1. - fract(time * 1.25 * aP.w + aP.z)); vec3 c = vec3(aP.x + (hh - y + y0) * 0.06, y, aP.y);
+        vec4 mv = viewMatrix * vec4(c, 1.); mv.x += position.x * 1.0; mv.y += position.y; vA = 1.; gl_Position = projectionMatrix * mv; }`,
+    fragmentShader: `uniform float k; void main(){ gl_FragColor = vec4(vec3(0.75, 0.8, 0.85) * 0.22 * k, 1.);
+      #include <tonemapping_fragment>
+      #include <colorspace_fragment>
+    }` });
+  const mesh = new THREE.Mesh(g, m); mesh.frustumCulled = false; mesh.renderOrder = 7; mesh.userData.U = U; mesh.name = 'rain';
+  return mesh;
+}
+
+// ================================================================== RAIN ON PLANTS (the parable of 18:45)
+// A wide flat barley plain under a huge sky, scattered stones, one mud-brick field hut far off. Everything is driven
+// by props.setStage(p), one continuous time-lapse:
+//   0.00-0.14 rain on dry cracked earth, the ground darkens, first green points (the macro seedling: growth.js)
+//   0.14-0.42 green stalks thicken, tangle and lean together      0.42-0.55 rain gone, golden sun, ears form
+//   0.55-0.75 baked yellow, then brown and brittle, the ground dries   0.75-0.95 wind rises, stalks snap, chaff streams off
+//   0.95-1.00 the wind drops: stubble on a bare plain.
+// props.setDrop(q) (0..1) is the raindrop for the macro: falls, splashes, leaves a dark wet spot. Lesson 6.
+export async function rain_on_plants({ seed = 45, stage = 0.5 } = {}) {
+  const S = await base('rain_on_plants', 'overcast', { background: 'sky', sky: { zenith: 0x6a7480, hazeH: 0.6 }, fog: 0.0035, fogColor: 0x8a9096, sun: { elev: 24, azim: 140 }, sunI: 0.6, shadowBox: 40, focus: [0, 0, -14] });
+  const n = W.noise2(seed), n2 = W.noise2(seed + 1);
+  const height = (x, z) => 0.08 * n(x / 8, z / 8) + 0.03 * n2(x * 1.3, z * 1.3) + 8 * sstep(250, 700, Math.hypot(x, z)) * W.fbm(n2, x / 300, z / 300, 3);
+  const tm = await W.terrainMaterial([{ name: 'mud_cracked_dry_03', tile: 2.4 }, { name: 'farm_soil', tile: 2.8 }, { name: 'dry_ground_rocks', tile: 3 }], { macro: 0.18 });
+  // wetness + far-field vegetation colour (the plain beyond the near plants greens and browns with the stage)
+  const GU = { wet: { value: 0 }, veg: { value: 0 }, vegCol: { value: new THREE.Color(0x3a5a1a) } };
+  { const prev = tm.onBeforeCompile; tm.onBeforeCompile = (s, r) => { prev(s, r); Object.assign(s.uniforms, GU);
+      s.fragmentShader = s.fragmentShader.replace('#include <common>', '#include <common>\nuniform float wet, veg; uniform vec3 vegCol;')
+        .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\nroughnessFactor *= mix(1., 0.3, wet);')
+        .replace('diffuseColor.rgb *= col;', 'diffuseColor.rgb *= col; diffuseColor.rgb *= mix(1., 0.5, wet); { float vn = tvn(vWP.xz * 0.6) * 0.5 + tvn(vWP.xz * 0.11) * 0.5; diffuseColor.rgb = mix(diffuseColor.rgb, vegCol * (0.7 + 0.6 * vn), veg * smoothstep(0.2, 0.6, vn + 0.25)); }'); };
+    tm.customProgramCacheKey = () => 'terrainWet'; }
+  const T = W.terrain({ size: 1600, seg: 460, warp: 0.12, centre: [0, -12], height, material: tm, weights: (x, z) => [0.8 + 0.4 * n(x / 20, z / 20), 0.6 * sstep(-0.2, 0.5, n2(x / 30, z / 30)), 0.25] });
+  add(S, T.mesh);
+  const field = barleyField({ rect: [-36, -95, 36, 14], count: 52000, seed, heightAt: height, focus: [0, 4] }); add(S, field);
+  const bits = chaff({ tops: field.userData.tops, count: 8000, heightAt: height }); add(S, bits);
+  const rain = rainStreaks({ box: [-24, 0, -50, 24, 20, 14] }); add(S, rain);
+  add(S, await W.scatter('rock_07', W.scatterPoints({ seed: seed + 3, count: 40, rect: [-60, -150, 60, 12], heightAt: height, s: [1.5, 5], sink: 0.15, minDist: 4 }), { tint: 0xd8ccb8, matte: true, lod: { focus: [0, 0], far: 60 } }));
+  const hut = await mudHouse({ w: 4.2, d: 3.6, h: 2.6, seed: seed + 2, shutters: false }); hut.rotation.y = 0.6; add(S, hut, 52, height(52, -150) - 0.05, -150);
+  // the macro: a seed under cracked earth that germinates, and a raindrop that hits beside it
+  const MX = 0.6, MZ = 7.2, my = height(MX, MZ);
+  const sd = GR.makeSeed(THREE, { size: 0.012, seed: seed + 4 }); sd.object3d.position.set(MX, my - 0.035, MZ); add(S, sd.object3d);
+  const dropM = new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.02, transmission: 0.9, thickness: 0.004, ior: 1.33, transparent: true });
+  const drop = new THREE.Mesh(new THREE.SphereGeometry(0.0035, 32, 24), dropM); add(S, drop);
+  const spot = W.contactShadow(0.06, 0.06, { op: 0 }); spot.position.set(MX + 0.012, my + 0.003, MZ + 0.008); add(S, spot);
+  const crown = new THREE.Mesh(new THREE.CylinderGeometry(1, 0.6, 1, 48, 1, true), new THREE.MeshPhysicalMaterial({ color: 0xdde8f0, roughness: 0.05, transparent: true, opacity: 0.6, side: THREE.DoubleSide })); add(S, crown);
+  const setDrop = (q) => { q = clamp(q); const fall = clamp(q / 0.5), imp = clamp((q - 0.5) / 0.5);
+    drop.visible = q < 0.5; drop.position.set(MX + 0.012, my + 0.003 + 0.25 * (1 - fall * fall), MZ + 0.008); drop.scale.set(1, 1 + 0.6 * fall, 1);
+    crown.visible = q >= 0.5 && imp < 0.6; const cr = 0.004 + 0.016 * Math.sqrt(imp), ch = 0.006 * Math.sin(Math.PI * Math.min(1, imp / 0.6)); crown.scale.set(cr, ch + 1e-4, cr); crown.position.set(MX + 0.012, my + ch / 2 + 0.002, MZ + 0.008);
+    spot.material.opacity = 0.55 * sstep(0.5, 0.7, q) * (1 - 0.3 * sstep(0.8, 1, q)); };
+  setDrop(0);
+  // stage
+  const sky = S.atmo.sky.userData.u, sun = S.atmo.sun, fog = S.scene.fog;
+  const C = (h) => new THREE.Color(h);
+  const keys = [ // [p, zenith, horizon, fog density, sun I, sun colour, env I]
+    [0.0, C(0x5a636c), C(0x7e868c), 0.006, 0.4, C(0xd8dce0), 1.0], [0.14, C(0x5a636c), C(0x7e868c), 0.006, 0.4, C(0xd8dce0), 1.0],
+    [0.3, C(0x5a7aa0), C(0xa8b0b0), 0.003, 1.8, C(0xfff0d8), 1.1], [0.5, C(0x3a6aac), C(0xe0c8a0), 0.0018, 3.2, C(0xffd8a0), 1.0],
+    [0.75, C(0x5a7aa8), C(0xd8b888), 0.0024, 2.8, C(0xffc888), 0.9], [0.92, C(0x7a8aa0), C(0xc8a880), 0.004, 2.2, C(0xffc080), 0.85], [1.0, C(0x6a86b0), C(0xd8c098), 0.0022, 2.6, C(0xffc888), 0.9] ];
+  const kAt = (p) => { let i = 0; while (i < keys.length - 2 && p > keys[i + 1][0]) i++; const a = keys[i], b = keys[i + 1], f = sstep(a[0], b[0], p);
+    return { zen: a[1].clone().lerp(b[1], f), hor: a[2].clone().lerp(b[2], f), fog: lerp(a[3], b[3], f), sunI: lerp(a[4], b[4], f), sunC: a[5].clone().lerp(b[5], f), env: lerp(a[6], b[6], f) }; };
+  const setStage = (p) => {
+    p = clamp(p); const k = kAt(p);
+    sky.zen.value.copy(k.zen); sky.hor.value.copy(k.hor); sky.gnd.value.copy(k.hor).multiplyScalar(0.7); sky.glow.value = sstep(0.2, 0.45, p);
+    fog.color.copy(k.hor); fog.density = k.fog; sun.intensity = k.sunI; sun.color.copy(k.sunC); sky.sunC.value.copy(k.sunC); S.scene.environmentIntensity = k.env;
+    const rainK = 1 - sstep(0.12, 0.2, p), wet = sstep(0.0, 0.08, p) * (1 - sstep(0.4, 0.7, p));
+    const grow = sstep(0.06, 0.45, p), ripe = sstep(0.5, 0.62, p) * 0.5 + sstep(0.64, 0.76, p) * 0.5, wind = 0.15 + 0.85 * sstep(0.74, 0.8, p) * (1 - sstep(0.93, 0.99, p)), broken = clamp((p - 0.78) / 0.15);
+    Object.assign(field.userData.U, {}); const U = field.userData.U; U.grow.value = grow; U.ripe.value = ripe; U.wind.value = wind; U.broken.value = broken; U.wet.value = wet;
+    bits.userData.U.broken.value = broken; bits.userData.U.wind.value = wind;
+    rain.userData.U.k.value = rainK; GU.wet.value = wet;
+    const vegC = ripe < 0.5 ? C(0x3a5a1a).lerp(C(0xa88a40), ripe * 2) : C(0xa88a40).lerp(C(0x7a5e3a), ripe * 2 - 1);
+    GU.vegCol.value.copy(vegC); GU.veg.value = 0.85 * sstep(0.12, 0.35, p) * (1 - 0.6 * broken);
+    sd.setGerm(sstep(0.02, 0.2, p));
+    field.userData.stage = p;
+  };
+  setStage(stage);
+  S.updaters.push((t, o) => { if (o.stage !== undefined) setStage(o.stage); if (o.drop !== undefined) setDrop(o.drop); field.userData.U.time.value = t; bits.userData.U.time.value = t; rain.userData.U.time.value = t; });
+  const cameras = {
+    hero:   { pos: [2, 1.3, 16], look: [-2, 1.2, -40], fov: 52 },                      // low over the plain, the huge sky
+    wide:   { pos: [-6, 4.5, 26], look: [4, 6, -80], fov: 58 },                        // locked-off wide: the empty plain, enormous sky
+    field:  { pos: [1.4, 0.75, 9.5], look: [-0.5, 0.55, 2], fov: 44 },                  // in among the stalks
+    macro:  { pos: [MX + 0.07, my + 0.035, MZ + 0.09], look: [MX + 0.005, my + 0.012, MZ], fov: 34 },
+    hut:    { pos: [10, 1.6, 10], look: [52, 2, -150], fov: 30 },
+  };
+  return finish(S, 'rain_on_plants', cameras, { field, chaff: bits, rain, seedling: sd, drop, setStage, setDrop, terrain: T, hut, sun, sky: S.atmo.sky }, { }, { bloom: 0.12 });
+}
+
+// all builders by name (for the gallery and lesson films)
+export const SETS = { mountain_cave, two_gardens, rain_on_plants };

@@ -17,6 +17,11 @@ export const SLOTS = [
   ['gardens', 'two_gardens', {}, 'gate', 'The garden gate'],
   ['gardens', 'two_gardens', {}, 'grapes', 'Grapes on the vine'],
   ['ruin', 'two_gardens', { state: 'ruined' }, 'trellis', 'The ruined garden'],
+  ['rain', 'rain_on_plants', {}, 'hero', 'Rain on the plain', { stage: 0.08 }],
+  ['rain', 'rain_on_plants', {}, 'macro', 'A drop, a shoot', { stage: 0.16, drop: 0.75 }],
+  ['rain', 'rain_on_plants', {}, 'field', 'Green, tangled', { stage: 0.46 }],
+  ['rain', 'rain_on_plants', {}, 'hero', 'Gold, then brown', { stage: 0.72 }],
+  ['rain', 'rain_on_plants', {}, 'hero', 'Scattered by the wind', { stage: 0.87 }],
 ];
 const SLOT = 2;
 const LINES = SLOTS.map(([, , , , label], i) => ({ t0: i * SLOT + 0.15, t1: i * SLOT + 1.9, text: label + '.', keys: [], quran: null }));
