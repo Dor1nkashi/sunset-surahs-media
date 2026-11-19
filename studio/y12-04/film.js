@@ -150,7 +150,7 @@ M.film({
     const C = K.cams, P = HILLS.set.props, A = HILLS.set.atmo, h0 = K.h0, DZ = K.DZ;
     // ---- brothers: walk in from the gate (3.1-5.9), stand weeping in the lamp pool; shoulders shake
     K.bros.forEach((b, i) => {
-      const p = b.p, o = p.object3d, sp = p.speed ? p.speed('walk') * 0.8 : 1.0, dist = Math.hypot(b.ex - b.sx, b.ez - b.sz), dur = dist / sp, k = clamp((t - b.t0) / dur);
+      const p = b.p, o = p.object3d, sp = 0.9, dist = Math.hypot(b.ex - b.sx, b.ez - b.sz), dur = dist / sp, k = clamp((t - b.t0) / dur);
       const x = lerp(b.sx, b.ex, k), z = lerp(b.sz, b.ez, k);
       if (k < 1) p.setPose('walk', (t - b.t0) * 0.8 + i * 0.3); else p.setPose('sad_pose', t + i * 0.7);
       o.position.set(x, K.hy(x, z), z); o.rotation.y = Math.PI + Math.atan2(b.sx - b.ex, b.sz - b.ez) * (k < 1 ? 1 : 0.4);

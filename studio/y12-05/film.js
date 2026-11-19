@@ -178,7 +178,7 @@ M.film({
         const s = rest.x < -0.1 ? -1 : 1; ch.position.y = rest.y - s * 0.29 * Math.sin(th); ch.position.x = rest.x + 0.01 * Math.sin(sw * 20); });
       const coinDy = -0.29 * Math.sin(th); K.coins.forEach((o, i) => { if (i < n && t >= onPan(i) && !(i === 3 && t > 19.9)) o.c.position.y += coinDy; });
       // crowd walks the lane
-      K.crowd.forEach((c, i) => { const p = c.p, o = p.object3d, sp = (p.speed ? p.speed('walk') : 1.1) * 0.75, z = c.z0 + c.dir * sp * t;
+      K.crowd.forEach((c, i) => { const p = c.p, o = p.object3d, sp = 0.85, z = c.z0 + c.dir * sp * t;
         p.setPose('walk', t * 0.75 + i); o.position.set(c.x, 0, z); o.rotation.y = c.dir > 0 ? 0 : Math.PI; });
     }
     const exposure = st === ROAD ? 0.95 : 0.85;
