@@ -62,7 +62,7 @@ function frond(len, seed) {
 
 // expanding water rings (a shader disc on the water): rings born at fixed times
 function rings(radius, times) {
-  const u = { t: { value: 0 }, T: { value: times.concat([-99, -99, -99, -99]).slice(0, 4) }, P: { value: [new THREE.Vector2(0.1, -0.15), new THREE.Vector2(-0.2, 0.1), new THREE.Vector2(0.1, -0.15), new THREE.Vector2(0, 0)] } };
+  const u = { t: { value: 0 }, T: { value: times.concat([-99, -99, -99, -99]).slice(0, 4) }, P: { value: [new THREE.Vector2(0.1, -0.15), new THREE.Vector2(-0.6, -0.44), new THREE.Vector2(0.1, -0.15), new THREE.Vector2(0, 0)] } };
   const m = new THREE.ShaderMaterial({ uniforms: u, transparent: true, depthWrite: false,
     vertexShader: 'varying vec2 vP; void main(){ vP = position.xy; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.); }',
     fragmentShader: `uniform float t; uniform float T[4]; uniform vec2 P[4]; varying vec2 vP;
@@ -105,13 +105,13 @@ M.film({
     });
     // ---- dust motes in the sunlit column (drift on fixed paths)
     { const n = 160, r = mulberry32(9), pos = new Float32Array(n * 3), base = [];
-      for (let i = 0; i < n; i++) base.push([(r() - 0.5) * 1.3, WY + 0.3 + r() * 8.2, (r() - 0.5) * 1.3, r() * 6.28, 0.02 + r() * 0.03]);
+      for (let i = 0; i < n; i++) base.push([(r() - 0.5) * 1.3, WY + 1.2 + r() * 7.3, (r() - 0.5) * 1.3, r() * 6.28, 0.02 + r() * 0.03]);
       const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
       const cv = document.createElement('canvas'); cv.width = cv.height = 64; const cx = cv.getContext('2d'), gr = cx.createRadialGradient(32, 32, 0, 32, 32, 32);
       gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.35, 'rgba(255,255,255,0.35)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); cx.fillStyle = gr; cx.fillRect(0, 0, 64, 64);
       const m = new THREE.PointsMaterial({ color: 0xffe8c0, size: 0.009, map: new THREE.CanvasTexture(cv), transparent: true, opacity: 0.5, depthWrite: false, blending: THREE.AdditiveBlending });
       const pts = new THREE.Points(g, m); pts.frustumCulled = false; sc.add(pts);
-      K.motes = { pts, m, upd: (t) => { base.forEach(([x, y, z, ph, v], i) => pos.set([x + 0.08 * Math.sin(t * 0.3 + ph), Math.max(K.WY + 0.08, y + ((v * t + ph) % 1.2) - 0.6), z + 0.08 * Math.cos(t * 0.27 + ph)], i * 3)); g.attributes.position.needsUpdate = true; } }; }
+      K.motes = { pts, m, upd: (t) => { base.forEach(([x, y, z, ph, v], i) => pos.set([x + 0.08 * Math.sin(t * 0.3 + ph), Math.max(K.WY + 0.9, y + ((v * t + ph) % 1.2) - 0.6), z + 0.08 * Math.cos(t * 0.27 + ph)], i * 3)); g.attributes.position.needsUpdate = true; } }; }
     // ---- water rings: grit at 13.3, the droplet at 23.35; a seam drop falls from the wall
     K.rings = rings(R0, [13.3, 23.35]); K.rings.position.y = WY + 0.004; sc.add(K.rings);
     K.dropSeam = V3(-0.62, h0 - 3.4, 0.45);
@@ -150,7 +150,7 @@ M.film({
       coinA: { pos: up, look: [-0.3, WY + 2.5, -0.4], fov: fv(70) },
       coinB: { pos: up, look: [0.02, h0 + 6, 0.0], fov: fv(70), roll: 0 },
       ring: { pos: [0.25, WY + 2.2, 0.3], look: [-0.3, h0 - 2.5, -0.35], fov: fv(46) },
-      dropA: { pos: [0.2, WY + 1.0, 0.0], look: [-0.6, WY + 0.25, 0.44], fov: fv(40) },
+      dropA: { pos: [0.25, WY + 1.25, -0.15], look: [-0.55, WY + 0.05, 0.4], fov: fv(46) },
     };
     WELL.update(0, 0, {}); G.R.compile(WELL.scene, WELL.camera);
   },
