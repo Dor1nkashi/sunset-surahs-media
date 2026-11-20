@@ -127,6 +127,8 @@ M.film({
     M.fill(ctx, '#000');
     const { i, s, p } = K.shotAt(SHOTS, t);
     let cam = K.camLerp(C[s.a], s.b ? C[s.b] : null, (s.ease || E.linear)(p));
+    if (i === 2) { const k = (s.ease || E.linear)(p); cam = { ...cam, pos: [cam.pos[0], cam.pos[1] + 1.1 * Math.sin(Math.PI * Math.min(1, k * 1.4)) * (1 - k) + 0, cam.pos[2]] }; }
+    MAN.object3d.visible = [0, 1, 2, 8, 11].includes(i);
     cam = K.breathe(cam, t, s.lapse ? 0 : 0.0012, 5 + i);
     poseMan(t);
     // the cloaks turn: twin dissolve + a small roll about the long axis
@@ -151,7 +153,7 @@ M.film({
       const M4 = new THREE.Matrix4(), Q = new THREE.Quaternion();
       VLEAF_BASE.forEach(([uu, pp, j]) => { const sc = clamp((gk - uu) * 8) * (0.7 + 0.3 * Math.sin(j * 2.3)); Q.setFromEuler(new THREE.Euler(-1.1 + 0.3 * Math.sin(j), j * 2.1, 0.2 * Math.sin(L * 3 + j)));
         M4.compose(pp, Q, V(sc + 1e-4, sc + 1e-4, sc + 1e-4)); VLEAF.setMatrixAt(j, M4); }); VLEAF.instanceMatrix.needsUpdate = true; }
-    const ex = i === 3 ? 0.75 : i === 10 ? 0.85 : i === 7 ? 0.9 : i === 0 || i === 1 || i === 8 ? 0.62 : i === 11 ? 1.45 - 0.83 * E.inOutSine(prog(t, 28.6, 30.0)) : 1.45;
+    const ex = i === 3 ? 0.75 : i === 10 ? 1.3 : i === 7 ? 0.9 : i === 0 || i === 1 || i === 8 ? 0.62 : i === 11 ? 1.45 - 0.83 * E.inOutSine(prog(t, 28.6, 30.0)) : 1.45;
     G.renderSet(ctx, ST, t, u, { cam, exposure: ex, day, mist: 0, breath: 1 });
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.6);
