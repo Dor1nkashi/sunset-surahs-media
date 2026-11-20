@@ -176,7 +176,7 @@ M.film({
     let cam;
     if (s.a === 'fist' || s.a === 'palm' || s.a === 'both') {
       const tg = s.a === 'fist' ? C.fistW : s.a === 'palm' ? C.palmW : C.fistW.clone().lerp(C.palmW, 0.5);
-      const off = s.a === 'both' ? V(0.3, 1.3, -1.15) : V(s.a === 'fist' ? 0.45 : -0.45, 1.2, -1.0);   // over his shoulder: his back and head, his hands below
+      const off = s.a === 'both' ? V(0.75, 1.15, -1.5) : V(s.a === 'fist' ? 0.8 : -0.8, 1.05, -1.3);   // over his shoulder: his back and head, his hands below
       const mv = 1 - 0.14 * E.inOutSine(p), arc = (p - 0.5) * 0.08; off.multiplyScalar(mv).add(V(arc, 0, 0));   // slow push in on the hands
       cam = { pos: tg.clone().add(off).toArray(), look: tg.toArray(), fov: K.lensFov(s.a === 'both' ? 34 : 32) };
     } else { cam = K.camLerp(s.a, s.b || K.autoMove(s.a, s.k ?? 0.12, s.side ?? 0.05), (s.ease || E.inOutSine)(p)); cam = K.breathe(cam, t, s.b ? 0.0015 : 0.0025, 11 + i); }
