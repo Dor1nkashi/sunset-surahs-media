@@ -66,7 +66,7 @@ M.film({
       stack_a: { pos: [-3, 1.5, 22], look: [0, 2, 0], fov: 50 },
       stack_b: { pos: [-3, 6.5, 24], look: [0, 6.5, 0], fov: 50 },
       up:      { pos: [0.8, 0.35, 3.2], look: [0.0, 9.0, 0], fov: 64 },
-      palm:    { pos: [-0.3, 1.5, 1.4], look: [0.35, 1.32, 0.52], fov: 32 },
+      palm:    { pos: [-1.1, 1.75, 2.6], look: [0.4, 1.3, 0.5], fov: 38 },
       bagm:    { pos: [ST0[0] - 0.6, sg + 0.3, ST0[1] - 0.15], look: [ST0[0], sg + 0.05, ST0[1] + 0.2], fov: 32 },
       belh:    { pos: [si.x + 0.2, si.y + 1.5, si.z - 0.4], look: [si.x - 1.45, si.y + 0.35, si.z + 0.35], fov: 40 },
       cool:    { pos: [0.75, 1.36, 1.0], look: [0.4, 1.3, 0.5], fov: 24 },

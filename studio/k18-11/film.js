@@ -52,7 +52,7 @@ M.film({
     // the family door: its leaf opens inward for the push through the doorway
     DOOR = P.familyHouse.userData.door;
     P.lamps[P.lamps.length - 1].position.y = HT(7.5, 19.2) + 0.2;
-    { const v = new THREE.Mesh(new THREE.PlaneGeometry(0.95, 1.9), new THREE.MeshBasicMaterial({ color: 0x050302 })); v.position.set(DOOR.group.position.x, 0.95, DOOR.group.position.z - 0.012); P.familyHouse.add(v); }
+    { const v = new THREE.Mesh(new THREE.PlaneGeometry(0.95, 1.9), new THREE.MeshBasicMaterial({ color: 0x2a1a0e })); v.position.set(DOOR.group.position.x, 0.95, DOOR.group.position.z - 0.012); P.familyHouse.add(v); }
     // the hoop the child rolls
     HOOP = W.shadows(new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.012, 12, 96), new THREE.MeshStandardMaterial({ color: 0x7a5a3a, roughness: 0.75 }))); S.add(HOOP);
     // ---- the room inside the house (walls cast shadows; a window with two shutter leaves on the west wall)
@@ -113,15 +113,15 @@ M.film({
       lane_low:  { pos: [7.35, HT(7.3, 12.6) + 0.3, 12.6], look: [7.7, HT(7.7, 17.5) + 0.2, 17.5], fov: 38 },
       door_a:    { pos: [7.45 - fd, doorW.y + 1.25, 14.2], look: [doorW.x, doorW.y + 0.9, doorW.z], fov: 40 },
       door_b:    { pos: [7.45 - fd, doorW.y + 1.2, 15.6], look: [doorW.x, doorW.y + 0.9, doorW.z], fov: 38 },
-      flame_out: { pos: [lampW.x + 0.95, lampW.y + 0.5, lampW.z - 1.35], look: [lampW.x - 0.1, lampW.y + 0.1, lampW.z], fov: 30 },
+      flame_out: { pos: [lampW.x + 1.5, lampW.y + 0.95, lampW.z - 2.9], look: [lampW.x - 0.6, lampW.y + 0.35, lampW.z], fov: 34 },
       push_a:    { pos: [doorW.x + 0.05, doorW.y + 1.15, 16.6], look: [doorW.x, doorW.y + 1.0, doorW.z + 2], fov: 44 },
-      push_b:    { pos: [doorW.x + 0.02, doorW.y + 1.05, 17.9], look: [doorW.x, doorW.y + 0.95, doorW.z + 2], fov: 50 },
+      push_b:    { pos: [doorW.x + 0.02, doorW.y + 1.1, 16.9], look: [doorW.x, doorW.y + 0.95, doorW.z + 2], fov: 50 },
       window:    { pos: [RX + 1.3, HT(RX, RZ) + 1.35, RZ + 1.5], look: [RX + wx, HT(RX, RZ) + 1.15, RZ - 0.1], fov: 46 },
       lamp_a:    { pos: [lw.x + 1.25, lw.y + 0.45, lw.z + 1.0], look: [lw.x, lw.y - 0.35, lw.z - 0.1], fov: 40 },
       lamp_b:    { pos: [lw.x + 1.0, lw.y + 0.4, lw.z + 0.8], look: [lw.x, lw.y - 0.3, lw.z - 0.1], fov: 38 },
-      cup:       { pos: [lw.x + 0.62, lw.y + 0.13, lw.z + 0.5], look: [lw.x, lw.y + 0.07, lw.z - 0.02], fov: 30 },
+      cup:       { pos: [lw.x + 1.0, lw.y + 0.3, lw.z + 0.8], look: [lw.x, lw.y + 0.07, lw.z - 0.02], fov: 32 },
       sill:      { pos: [RX + 0.5, HT(RX, RZ) + 1.25, RZ + 0.75], look: [RX + wx, HT(RX, RZ) + 1.05, RZ - 0.05], fov: 40 },
-      lampwin:   { pos: [lw.x + 0.9, lw.y + 0.18, lw.z + 0.4], look: [lw.x - 0.2, lw.y + 0.1, lw.z - 0.05], fov: 36 },
+      lampwin:   { pos: [RX + 1.6, HT(RX, RZ) + 1.5, RZ + 1.6], look: [RX + wx, HT(RX, RZ) + 1.05, RZ - 0.1], fov: 50 },
       gold_a:    { pos: [lw.x + 0.75, lw.y + 0.16, lw.z + 0.35], look: [lw.x - 0.05, lw.y + 0.1, lw.z - 0.02], fov: 30 },
       gold_b:    { pos: [lw.x + 0.6, lw.y + 0.14, lw.z + 0.28], look: [lw.x - 0.05, lw.y + 0.1, lw.z - 0.02], fov: 28 },
     });
@@ -193,7 +193,7 @@ M.film({
     let cam;
     if (s.a === 'grip' || s.a === 'rack') {
       const hp = C.handW.clone();
-      if (s.a === 'grip') { const k = E.inOutSine(p); cam = { pos: hp.clone().add(V(-0.5 + 0.05 * k, 0.03, 0.42 - 0.04 * k)).toArray(), look: hp.clone().add(V(0.0, 0.0, 0.0)).toArray(), fov: K.lensFov(26) }; }
+      if (s.a === 'grip') { const k = E.inOutSine(p); cam = { pos: hp.clone().add(V(-0.95 + 0.1 * k, 0.15, 0.8 - 0.08 * k)).toArray(), look: hp.clone().add(V(0.05, 0.1, 0.0)).toArray(), fov: K.lensFov(34) }; }
       else { const k = E.inOutCubic(prog(p, 0.15, 0.9)), sb = V(STAFF.position.x, STAFF.position.y + 0.12, STAFF.position.z), pos = V(hp.x - 0.32, HT(hp.x, hp.z) + 0.2, hp.z - 0.22);
         cam = { pos: pos.toArray(), look: sb.lerp(V(7.6, HT(7.6, 14) + 0.6, 14), k).toArray(), fov: K.lensFov(lerp(30, 40, k)) }; }
     } else {

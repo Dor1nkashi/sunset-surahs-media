@@ -176,9 +176,9 @@ M.film({
     let cam;
     if (s.a === 'fist' || s.a === 'palm' || s.a === 'both') {
       const tg = s.a === 'fist' ? C.fistW : s.a === 'palm' ? C.palmW : C.fistW.clone().lerp(C.palmW, 0.5);
-      const off = s.a === 'both' ? V(0.0, 0.45, 1.05) : V(s.a === 'fist' ? 0.15 : -0.15, 0.4, 0.62);
+      const off = s.a === 'both' ? V(0.0, 0.55, 1.7) : V(s.a === 'fist' ? 0.35 : -0.35, 0.55, 1.25);
       const mv = 1 - 0.14 * E.inOutSine(p), arc = (p - 0.5) * 0.08; off.multiplyScalar(mv).add(V(arc, 0, 0));   // slow push in on the hands
-      cam = { pos: tg.clone().add(off).toArray(), look: tg.toArray(), fov: K.lensFov(s.a === 'both' ? 30 : 28) };
+      cam = { pos: tg.clone().add(off).toArray(), look: tg.toArray(), fov: K.lensFov(s.a === 'both' ? 34 : 32) };
     } else { cam = K.camLerp(s.a, s.b || K.autoMove(s.a, s.k ?? 0.12, s.side ?? 0.05), (s.ease || E.inOutSine)(p)); cam = K.breathe(cam, t, s.b ? 0.0015 : 0.0025, 11 + i); }
     st.bloom = 0;                     // bloom on grazing outdoor shots spreads (NaN) and washed the lagoon white
     G.renderSet(ctx, st, t, u, { cam, mist: s.w ? 0.2 : 1, exposure: set.exposure * (s.w ? (i === 5 ? 1.0 : i < 3 ? 0.5 : 0.7) : s.m ? 0.95 : 1) });
