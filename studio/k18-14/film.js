@@ -52,8 +52,8 @@ M.film({
     const rg = HT(...RUL), sg = HT(...ST0) + 0.37, si = SITE;
     Object.assign(C, {
       pour:    SET.cameras.pour,
-      seam_a:  { pos: [1.2, 1.5, 1.6], look: [0.5, 1.3, 0.5], fov: 30 },
-      seam_b:  { pos: [0.9, 1.45, 1.25], look: [0.3, 1.3, 0.5], fov: 28 },
+      seam_a:  { pos: [2.3, 1.7, 2.9], look: [0.3, 1.3, 0.5], fov: 34 },
+      seam_b:  { pos: [1.9, 1.6, 2.4], look: [0.2, 1.3, 0.5], fov: 32 },
       mouth:   { pos: [0.6, HT(0.6, 28.5) + 1.7, 28.5], look: [-0.2, HT(0, 20) + 2.5, 12], fov: 46 },
       bag_a:   { pos: [ST0[0] + 1.05, sg + 0.45, ST0[1] + 0.2], look: [ST0[0], sg + 0.1, ST0[1] + 0.25], fov: 34 },
       bag_b:   { pos: [ST0[0] + 0.9, sg + 0.4, ST0[1] + 0.15], look: [ST0[0], sg + 0.1, ST0[1] + 0.2], fov: 32 },
@@ -66,12 +66,12 @@ M.film({
       stack_a: { pos: [-3, 1.5, 22], look: [0, 2, 0], fov: 50 },
       stack_b: { pos: [-3, 6.5, 24], look: [0, 6.5, 0], fov: 50 },
       up:      { pos: [0.8, 0.35, 3.2], look: [0.0, 9.0, 0], fov: 64 },
-      palm:    { pos: [1.05, 1.95, 2.55], look: [0.3, 1.25, 0.5], fov: 40 },
+      palm:    { pos: [1.55, 1.8, 2.15], look: [0.25, 1.3, 0.5], fov: 40 },
       bagm:    { pos: [ST0[0] - 0.6, sg + 0.3, ST0[1] - 0.15], look: [ST0[0], sg + 0.05, ST0[1] + 0.2], fov: 32 },
-      belh:    { pos: [si.x + 0.2, si.y + 1.5, si.z - 0.4], look: [si.x - 1.45, si.y + 0.35, si.z + 0.35], fov: 40 },
-      cool:    { pos: [0.75, 1.36, 1.0], look: [0.4, 1.3, 0.5], fov: 24 },
-      warm_a:  { pos: [0.8, 1.38, 1.05], look: [0.4, 1.3, 0.5], fov: 24 },
-      warm_b:  { pos: [0.7, 1.36, 0.95], look: [0.4, 1.3, 0.5], fov: 23 },
+      belh:    { pos: [si.x - 0.1, si.y + 1.4, si.z + 3.0], look: [si.x - 1.55, si.y + 0.5, si.z + 0.6], fov: 44 },
+      cool:    { pos: [2.0, 1.75, 2.8], look: [0.3, 1.4, 0.5], fov: 36 },
+      warm_a:  { pos: [4.5, 2.4, 7.5], look: [0.3, 2.2, 0.5], fov: 44 },
+      warm_b:  { pos: [2.6, 1.8, 3.6], look: [0.3, 1.4, 0.5], fov: 36 },
     });
     SHOTS = [
       { t0: 0.00, t1: 1.86, a: C.pour },
