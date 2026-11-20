@@ -46,8 +46,8 @@ M.film({
     PASS = W.stage(pass);
     // cave poses (the last one is k18-00's first pose: inside, looking out of the arch)
     Object.assign(C, {
-      sun_a:   { pos: [-3.8, 1.0, 4.4], look: [26, 1.2, -9], fov: 48 },
-      sun_b:   { pos: [-3.2, 1.05, 4.2], look: [26, 1.8, -7], fov: 48 },
+      sun_a:   { pos: [-1.5, 0.9, 6.0], look: [30, 3.0, 14], fov: 52 },
+      sun_b:   { pos: [-1.0, 0.95, 6.1], look: [30, 3.6, 14.5], fov: 52 },
       glide_a: { pos: [7.5, 1.9, 15.5], look: [0, 1.2, -1], fov: 46 },
       glide_b: { pos: [4.6, 1.2, 11.5], look: [0, 1.1, -1], fov: 44 },
       v_gard:  { pos: [10, 24, 12], look: [-150, -178, 360], fov: 24 },
@@ -89,7 +89,7 @@ M.film({
       // rays (as in k18-00): 0 garden, 1 two waters, 2 village wall, 3 barrier
       CAVE.set.props.vista.rays.forEach((r, j) => { const on = s.ray === j ? E.inOutSine(prog(t, s.t0, s.t0 + 0.8)) : 0; r.userData.update(t, 1.4 * on); });
       if (CAVE.scene.fog) CAVE.scene.fog.density = FOG0 * (s.ray !== undefined ? 0.3 : 1);
-      const inside = i >= 10, ex = i === 11 ? 2.0 : i === 10 ? lerp(1.0, 1.8, E.inOutSine(p)) : i === 6 ? 0.7 : i === 0 ? 0.5 : 1.0;
+      const inside = i >= 10, ex = i === 11 ? 2.0 : i === 10 ? lerp(1.0, 1.8, E.inOutSine(p)) : i === 6 ? 0.7 : i === 0 ? 0.65 : 1.0;
       CAVE.bloom = i === 10 || i === 11 ? CAVE.set.bloom : 0;               // grazing outdoor shots: bloom off (NaN spread)
       G.renderSet(ctx, CAVE, t, u, { cam, exposure: ex, mist: i <= 1 ? 0.35 - 0.25 * prog(t, 0, 3.78) : inside ? 1 : 0.3, lamp: inside ? 0.5 : 1 });
     } else if (s.set === 'gard') G.renderSet(ctx, GARD, t, u, { cam, exposure: GARD.set.exposure * (s.sweep ? lerp(0.6, 1.05, E.inOutSine(p)) : 1) });
