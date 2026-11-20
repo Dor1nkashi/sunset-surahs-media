@@ -26,14 +26,14 @@ const SHOTS = [
   { t0: 0.00, t1: 1.89, a: 'hand_a', b: 'hand_b' },
   { t0: 1.89, t1: 3.77, a: 'rack_a', b: 'rack_b', ease: E.inOutSine },
   { t0: 3.77, t1: 6.60, a: 'pull_a', b: 'pull_b', ease: E.inOutCubic },
-  { t0: 6.60, t1: 9.51, a: 'dog' },
+  { t0: 6.60, t1: 9.51, a: 'dog', b: 'dog_b', ease: E.inOutSine },
   { t0: 9.51, t1: 12.43, a: 'roll_a', b: 'roll_b', ease: E.inOutSine },
   { t0: 12.43, t1: 15.35, a: 'roll_b', b: 'roll_a', ease: E.inOutSine },
-  { t0: 15.35, t1: 17.77, a: 'lapse', lapse: true },
-  { t0: 17.77, t1: 20.18, a: 'lip', lapse: true },
-  { t0: 20.18, t1: 22.22, a: 'hand_b' },
+  { t0: 15.35, t1: 17.77, a: 'lapse', b: 'lapse_b', lapse: true },
+  { t0: 17.77, t1: 20.18, a: 'lip', b: 'lip_b', lapse: true },
+  { t0: 20.18, t1: 22.22, a: 'hand_b', b: 'hand_a', ease: E.inOutSine },
   { t0: 22.22, t1: 25.17, a: 'side_a', b: 'side_b', ease: E.inOutSine },
-  { t0: 25.17, t1: 27.87, a: 'paws' },
+  { t0: 25.17, t1: 27.87, a: 'paws', b: 'paws_b', ease: E.inOutSine },
   { t0: 27.87, t1: D, a: 'push_a', b: 'hand_a', ease: E.inOutSine },
 ];
 
@@ -103,15 +103,19 @@ M.film({
     C.rack_a = { pos: [HAND.x + 0.22, HAND.y + 0.29, HAND.z + 0.58], look: [HAND.x + 0.1, HAND.y + 0.03, HAND.z], fov: 24 };
     C.rack_b = { pos: [HAND.x + 0.2, HAND.y + 0.3, HAND.z + 0.6], look: [HAND.x + 0.3, HAND.y + 0.12, HAND.z - 0.15], fov: 26 };
     C.pull_a = { pos: [HAND.x + 0.26, HAND.y + 0.33, HAND.z + 0.66], look: [HAND.x + 0.2, HAND.y + 0.05, HAND.z - 0.3], fov: 26 };
-    C.pull_b = { pos: [2.3, 1.15, -3.3], look: [-0.4, 0.15, -8.6], fov: 44 };
-    C.dog = { pos: [0.6, 0.55, -5.2], look: [-0.7, 0.4, 0.8], fov: 56 };
-    C.roll_a = { pos: [2.6, 1.0, -5.0], look: [-0.6, 0.2, -9.3], fov: 42 };
-    C.roll_b = { pos: [-2.2, 1.0, -5.0], look: [1.2, 0.2, -9.3], fov: 42 };
-    C.lapse = { pos: [-2.2, 1.7, -2.4], look: [0.3, 0.0, -6.8], fov: 60 };
+    C.pull_b = { pos: [1.4, 2.2, -3.0], look: [-0.3, 0.2, -8.9], fov: 50 };
+    C.dog = { pos: [0.6, 0.62, -5.2], look: [-0.7, 0.4, 0.8], fov: 56 };
+    C.dog_b = { pos: [0.3, 0.55, -3.9], look: [-0.75, 0.38, 0.8], fov: 50 };
+    C.roll_a = { pos: [1.8, 2.0, -4.6], look: [-2.2, 0.15, -9.3], fov: 46 };
+    C.roll_b = { pos: [-1.2, 2.0, -4.6], look: [2.4, 0.15, -9.3], fov: 46 };
+    C.lapse = { pos: [2.4, 2.3, -3.0], look: [-0.5, 0.0, -7.5], fov: 60 };
+    C.lapse_b = { pos: [2.25, 2.22, -3.25], look: [-0.5, 0.0, -7.5], fov: 59 };
     C.lip = { pos: [-0.4, 0.55, 2.25], look: [-1.6, 0.12, 0.6], fov: 40 };
-    C.side_a = { pos: [0.4, 0.75, -5.8], look: [-0.2, 0.2, -9.3], fov: 34 };
-    C.side_b = { pos: [0.35, 0.68, -6.25], look: [-0.2, 0.2, -9.3], fov: 32 };
+    C.lip_b = { pos: [-0.55, 0.5, 2.0], look: [-1.6, 0.12, 0.6], fov: 38 };
+    C.side_a = { pos: [0.5, 1.9, -5.2], look: [0.0, 0.15, -9.3], fov: 42 };
+    C.side_b = { pos: [0.45, 1.6, -6.3], look: [0.0, 0.15, -9.3], fov: 40 };
     C.paws = { pos: [-0.5, 0.34, 1.85], look: [-0.86, 0.12, 0.95], fov: 28 };
+    C.paws_b = { pos: [-0.56, 0.3, 1.62], look: [-0.86, 0.12, 0.95], fov: 26 };
     C.push_a = { pos: [2.2, 0.75, -5.4], look: [HAND.x, HAND.y, HAND.z], fov: 34 };
     ST = W.stage(SET);
     poseMan(0); SET.update(0, null, {});
