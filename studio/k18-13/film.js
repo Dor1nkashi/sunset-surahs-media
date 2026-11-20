@@ -75,13 +75,13 @@ M.film({
     Object.assign(C, {
       sun_a:   { pos: [1.5, 0.9, 7.5], look: [0, 0.6, -200], fov: 30 },
       sun_b:   { pos: [1.5, 0.88, 7.0], look: [0, 0.6, -200], fov: 29 },
-      sink:    { pos: [-2.0, 0.85, 10.6], look: [-1.0, 0.55, -200], fov: 18 },
+      sink:    { pos: [-2.9, 0.8, 11.2], look: [1.5, 0.6, -200], fov: 24 },
       shore_a: { pos: [-2.8, 0.8, 11.2], look: [-0.4, 1.0, -60], fov: 40 },
       shore_b: { pos: [-2.2, 0.75, 10.2], look: [0.6, 0.9, -60], fov: 40 },
       ridge:   { pos: [-10, 2, 20], look: [-30, HE(-30, -110) + 1.0, -110], fov: 9 },
       plain:   { pos: [-2, 1.2, 12], look: [3, 2.5, -120], fov: 44 },
-      airW_a:  { pos: [-50, 45, 70], look: [0, 0, -10], fov: 44 },
-      airW_b:  { pos: [10, 42, 75], look: [40, 0, -5], fov: 44 },
+      airW_a:  { pos: [-50, 45, 70], look: [-15, 0, 25], fov: 44 },
+      airW_b:  { pos: [10, 42, 75], look: [30, 0, 28], fov: 44 },
       airE_a:  { pos: [-50, 45, 70], look: [-5, 0, -20], fov: 44 },
       airE_b:  { pos: [-5, 50, 45], look: [-15, 0, -90], fov: 44 },
       meet:    { pos: [mgx + 0.8, my + 1.1, mgz - 3.2], look: [mgx, my + 1.3, mgz + 6], fov: 46 },
@@ -176,7 +176,7 @@ M.film({
     let cam;
     if (s.a === 'fist' || s.a === 'palm' || s.a === 'both') {
       const tg = s.a === 'fist' ? C.fistW : s.a === 'palm' ? C.palmW : C.fistW.clone().lerp(C.palmW, 0.5);
-      const off = s.a === 'both' ? V(0.3, 0.95, -0.75) : V(s.a === 'fist' ? 0.4 : -0.4, 0.85, -0.6);   // over his shoulder: his back and head, his hands below
+      const off = s.a === 'both' ? V(0.3, 1.3, -1.15) : V(s.a === 'fist' ? 0.45 : -0.45, 1.2, -1.0);   // over his shoulder: his back and head, his hands below
       const mv = 1 - 0.14 * E.inOutSine(p), arc = (p - 0.5) * 0.08; off.multiplyScalar(mv).add(V(arc, 0, 0));   // slow push in on the hands
       cam = { pos: tg.clone().add(off).toArray(), look: tg.toArray(), fov: K.lensFov(s.a === 'both' ? 34 : 32) };
     } else { cam = K.camLerp(s.a, s.b || K.autoMove(s.a, s.k ?? 0.12, s.side ?? 0.05), (s.ease || E.inOutSine)(p)); cam = K.breathe(cam, t, s.b ? 0.0015 : 0.0025, 11 + i); }
