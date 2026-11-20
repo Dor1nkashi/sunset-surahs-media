@@ -113,7 +113,7 @@ M.film({
       lane_low:  { pos: [7.35, HT(7.3, 12.6) + 0.3, 12.6], look: [7.7, HT(7.7, 17.5) + 0.2, 17.5], fov: 38 },
       door_a:    { pos: [7.45 - fd, doorW.y + 1.25, 14.2], look: [doorW.x, doorW.y + 0.9, doorW.z], fov: 40 },
       door_b:    { pos: [7.45 - fd, doorW.y + 1.2, 15.6], look: [doorW.x, doorW.y + 0.9, doorW.z], fov: 38 },
-      flame_out: { pos: [lampW.x + 1.5, lampW.y + 0.95, lampW.z - 2.9], look: [lampW.x - 0.6, lampW.y + 0.35, lampW.z], fov: 34 },
+      flame_out: { pos: [doorW.x + 2.9, doorW.y + 1.35, 16.6], look: [doorW.x - 0.1, doorW.y + 0.6, 18.7], fov: 40 },
       push_a:    { pos: [doorW.x + 0.05, doorW.y + 1.15, 16.6], look: [doorW.x, doorW.y + 1.0, doorW.z + 2], fov: 44 },
       push_b:    { pos: [doorW.x + 0.02, doorW.y + 1.1, 16.9], look: [doorW.x, doorW.y + 0.95, doorW.z + 2], fov: 50 },
       window:    { pos: [RX + 1.3, HT(RX, RZ) + 1.35, RZ + 1.5], look: [RX + wx, HT(RX, RZ) + 1.15, RZ - 0.1], fov: 46 },
@@ -172,7 +172,7 @@ M.film({
     if (i === 2) { const c = childAt(t); CHILD.object3d.visible = true; CHILD.object3d.position.copy(c); CHILD.object3d.rotation.y = c.z > 13.5 ? -0.73 : 0; CHILD.setPose('run', t);
       // the two travellers walk behind the camera: only their long shadows reach into the lane
       for (const [f, dx, ph] of [[MUSA, -0.5, 0], [DAD, 0.55, 0.4]]) { const z = -1.4 + f.speed('walk') * 0.8 * (t - 3.39); f.object3d.visible = true; f.object3d.position.set(7.2 + dx, HT(7.2 + dx, z), z); f.object3d.rotation.y = 0; f.setPose('walk', t + ph); } }
-    if (i === 5 || i === 7) {
+    if (i === 5 || i === 6 || i === 7) {
       // the parents kneel side by side before their door, a space between them
       for (const [f, dx, ph] of [[DAD, -0.62, 0], [MUM, 0.58, 3]]) { f.object3d.visible = true; f.object3d.position.set(C.doorW.x + dx, HT(C.doorW.x + dx, 18.55), 18.55); f.object3d.rotation.y = 0; f.setPose('kneel', t + ph); }
     }
