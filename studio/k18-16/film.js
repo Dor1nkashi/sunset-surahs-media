@@ -65,8 +65,7 @@ M.film({
     SHOTS = [
       { t0: 0.00, t1: 2.42, set: 'cave', a: C.sun_a, b: C.sun_b },
       { t0: 2.42, t1: 3.78, set: 'cave', a: C.glide_a, b: C.glide_b, ease: E.inOutSine },
-      { t0: 3.78, t1: 5.15, set: 'gard', a: C.g_air_a, b: C.g_air_b, sweep: 1 },
-      { t0: 5.15, t1: 6.52, set: 'cave', a: C.v_seas, ray: 1 },
+      { t0: 3.78, t1: 6.52, set: 'gard', a: C.g_air_a, b: C.g_air_b, sweep: 1 },
       { t0: 6.52, t1: 9.25, set: 'pass', a: C.p_air_a, b: C.p_air_b, sweep: 1 },
       { t0: 9.25, t1: 11.99, set: 'cave', a: C.mouth_a, b: C.mouth_b, ease: E.inOutSine },
       { t0: 11.99, t1: 12.65, set: 'cave', a: C.lamp },
@@ -89,8 +88,8 @@ M.film({
       // rays (as in k18-00): 0 garden, 1 two waters, 2 village wall, 3 barrier
       CAVE.set.props.vista.rays.forEach((r, j) => { const on = s.ray === j ? E.inOutSine(prog(t, s.t0, s.t0 + 0.8)) : 0; r.userData.update(t, 1.4 * on); });
       if (CAVE.scene.fog) CAVE.scene.fog.density = FOG0 * (s.ray !== undefined ? 0.3 : 1);
-      const inside = i >= 10, ex = i === 11 ? 2.0 : i === 10 ? lerp(1.0, 1.8, E.inOutSine(p)) : i === 6 ? 0.7 : i === 0 ? 0.65 : 1.0;
-      CAVE.bloom = i === 10 || i === 11 ? CAVE.set.bloom : 0;               // grazing outdoor shots: bloom off (NaN spread)
+      const inside = i >= 9, ex = i === 10 ? 2.0 : i === 9 ? lerp(1.0, 1.8, E.inOutSine(p)) : i === 5 ? 0.7 : i === 0 ? 0.45 : 1.0;
+      CAVE.bloom = i >= 9 ? CAVE.set.bloom : 0;               // grazing outdoor shots: bloom off (NaN spread)
       G.renderSet(ctx, CAVE, t, u, { cam, exposure: ex, mist: i <= 1 ? 0.35 - 0.25 * prog(t, 0, 3.78) : inside ? 1 : 0.3, lamp: inside ? 0.5 : 1 });
     } else if (s.set === 'gard') G.renderSet(ctx, GARD, t, u, { cam, exposure: GARD.set.exposure * (s.sweep ? lerp(0.6, 1.05, E.inOutSine(p)) : 1) });
     else if (s.set === 'shore') G.renderSet(ctx, SHORE, t, u, { cam, writing: 0.62, ink: 0.4 });
