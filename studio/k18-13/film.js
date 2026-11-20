@@ -75,9 +75,9 @@ M.film({
     Object.assign(C, {
       sun_a:   { pos: [1.5, 0.9, 7.5], look: [0, 0.6, -200], fov: 30 },
       sun_b:   { pos: [1.5, 0.88, 7.0], look: [0, 0.6, -200], fov: 29 },
-      sink:    { pos: [1.6, 0.7, 6.4], look: [0, 0.5, -200], fov: 16 },
-      shore_a: { pos: [0.5, 2.6, 17], look: [-1, 0.0, -60], fov: 44 },
-      shore_b: { pos: [3.0, 2.6, 17], look: [1.5, 0.0, -60], fov: 44 },
+      sink:    { pos: [1.5, 0.9, 7.5], look: [0, 0.55, -200], fov: 13 },
+      shore_a: { pos: [-3.6, 0.75, 10.8], look: [-0.4, 1.0, -60], fov: 40 },
+      shore_b: { pos: [-2.2, 0.75, 10.2], look: [0.6, 0.9, -60], fov: 40 },
       ridge:   { pos: [-10, 2, 20], look: [-30, HE(-30, -110) + 1.0, -110], fov: 9 },
       plain:   { pos: [-2, 1.2, 12], look: [3, 2.5, -120], fov: 44 },
       airW_a:  { pos: [-50, 45, 70], look: [0, 0, -10], fov: 44 },
@@ -174,12 +174,12 @@ M.film({
     let cam;
     if (s.a === 'fist' || s.a === 'palm' || s.a === 'both') {
       const tg = s.a === 'fist' ? C.fistW : s.a === 'palm' ? C.palmW : C.fistW.clone().lerp(C.palmW, 0.5);
-      const off = s.a === 'both' ? V(0.0, 0.05, 1.15) : V(s.a === 'fist' ? 0.15 : -0.15, 0.06, 0.72);
+      const off = s.a === 'both' ? V(0.0, 0.45, 1.05) : V(s.a === 'fist' ? 0.15 : -0.15, 0.4, 0.62);
       const mv = 1 - 0.14 * E.inOutSine(p), arc = (p - 0.5) * 0.08; off.multiplyScalar(mv).add(V(arc, 0, 0));   // slow push in on the hands
       cam = { pos: tg.clone().add(off).toArray(), look: tg.toArray(), fov: K.lensFov(s.a === 'both' ? 30 : 28) };
     } else { cam = K.camLerp(s.a, s.b || K.autoMove(s.a, s.k ?? 0.12, s.side ?? 0.05), (s.ease || E.inOutSine)(p)); cam = K.breathe(cam, t, s.b ? 0.0015 : 0.0025, 11 + i); }
     st.bloom = s.m ? 0.06 : s.w && i < 3 ? 0.12 : 0.2;
-    G.renderSet(ctx, st, t, u, { cam, exposure: set.exposure * (s.w ? (i === 5 ? 1.0 : i < 2 ? 0.5 : 0.7) : s.m ? 0.95 : 1) });
+    G.renderSet(ctx, st, t, u, { cam, exposure: set.exposure * (s.w ? (i === 5 ? 1.0 : i < 3 ? 0.5 : 0.7) : s.m ? 0.95 : 1) });
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.6);
   },

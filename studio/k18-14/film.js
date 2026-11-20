@@ -58,7 +58,7 @@ M.film({
       bag_a:   { pos: [ST0[0] + 1.05, sg + 0.45, ST0[1] + 0.2], look: [ST0[0], sg + 0.1, ST0[1] + 0.25], fov: 34 },
       bag_b:   { pos: [ST0[0] + 0.9, sg + 0.4, ST0[1] + 0.15], look: [ST0[0], sg + 0.1, ST0[1] + 0.2], fov: 32 },
       gap_a:   { pos: [0, 2.2, 46], look: [0, 4, 0], fov: 44 },
-      gap_b:   { pos: [0, 2.2, 44], look: [0, 22, 0], fov: 44 },
+      gap_b:   { pos: [0, 3.2, 38], look: [0, 9, 0], fov: 44 },
       back:    { pos: [RUL[0] - 0.55, rg + 0.75, RUL[1] - 2.2], look: [RUL[0] + 0.1, rg + 1.0, ST0[1] + 3], fov: 42 },
       carry_a: { pos: [0.6, HT(0.6, 19.5) + 2.6, 19.5], look: [0.6, HT(0.6, 12) + 0.6, 12], fov: 44 },
       carry_b: { pos: [0.6, HT(0.6, 18.0) + 2.6, 18.0], look: [0.6, HT(0.6, 10) + 0.6, 10], fov: 44 },
@@ -68,7 +68,7 @@ M.film({
       up:      { pos: [0.8, 0.35, 3.2], look: [0.0, 9.0, 0], fov: 64 },
       palm:    { pos: [-0.3, 1.5, 1.4], look: [0.35, 1.32, 0.52], fov: 32 },
       bagm:    { pos: [ST0[0] - 0.6, sg + 0.3, ST0[1] - 0.15], look: [ST0[0], sg + 0.05, ST0[1] + 0.2], fov: 32 },
-      belh:    { pos: [si.x - 0.3, si.y + 1.0, si.z + 2.0], look: [si.x - 1.5, si.y + 0.3, si.z + 0.3], fov: 38 },
+      belh:    { pos: [si.x + 0.2, si.y + 1.5, si.z - 0.4], look: [si.x - 1.45, si.y + 0.35, si.z + 0.35], fov: 40 },
       cool:    { pos: [0.75, 1.36, 1.0], look: [0.4, 1.3, 0.5], fov: 24 },
       warm_a:  { pos: [0.8, 1.38, 1.05], look: [0.4, 1.3, 0.5], fov: 24 },
       warm_b:  { pos: [0.7, 1.36, 0.95], look: [0.4, 1.3, 0.5], fov: 23 },
@@ -155,6 +155,10 @@ M.film({
     // camera
     let cam = K.camLerp(s.a, s.b || K.autoMove(s.a, s.k ?? 0.12, s.side ?? 0.05), (s.ease || E.inOutSine)(p));
     cam = K.breathe(cam, t, s.b ? 0.0012 : 0.002, 11 + i);
+    if (i === 3 || i === 11) {   // the coin bag shots follow the bag itself (it is what the line is about), easing in
+      const bp = BAG.position, k = E.inOutSine(p), side = i === 3 ? 1 : -1;
+      cam = { pos: [bp.x + side * lerp(0.95, 0.8, k), bp.y + lerp(0.5, 0.42, k), bp.z + lerp(0.35, 0.28, k)], look: [bp.x, bp.y + 0.06, bp.z], fov: K.lensFov(34) };
+    }
     FILL.intensity = i === 1 || i >= 10 && i !== 11 && i !== 12 ? 60 : 0;
     ST.bloom = i === 0 ? 0.08 : 0.15;
     const ex = i === 0 ? 0.55 : i === 7 || i === 12 ? 0.55 : 1;

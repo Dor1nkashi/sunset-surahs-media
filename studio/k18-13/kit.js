@@ -139,5 +139,7 @@ export function flatHand(p, side, k = 0.15) {
 export function autoMove(a, k = 0.12, side = 0.05) {
   if (!a || typeof a !== 'object' || !a.pos) return a;
   const d = a.look.map((v, i) => v - a.pos[i]), L = Math.hypot(...d), sx = -d[2] / (Math.hypot(d[0], d[2]) || 1), sz = d[0] / (Math.hypot(d[0], d[2]) || 1);
-  return { ...a, pos: [a.pos[0] + d[0] * k + sx * L * side, a.pos[1] + d[1] * k, a.pos[2] + d[2] * k + sz * L * side] };
+  // the move is a fraction of the distance to the subject, capped (a far look point must not fly the camera away)
+  const m = Math.min(k * L, Math.max(0.25, 0.08 * Math.min(L, 15))) / L, ss = Math.min(side * L, 0.6) / L;
+  return { ...a, pos: [a.pos[0] + d[0] * m + sx * L * ss, a.pos[1] + d[1] * m, a.pos[2] + d[2] * m + sz * L * ss] };
 }

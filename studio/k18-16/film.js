@@ -39,11 +39,15 @@ M.film({
     SHORE = W.stage(shore);
     const pass = await mountain_pass_barrier({ time: 'golden', build: 1, pour: 0.3 });
     C.iron = { pos: [1.45, 1.4, 2.0], look: [0.55, 1.25, 0.5], fov: 28 };
+    C.p_air_a = { pos: [6, 9, 62], look: [0, 5, 0], fov: 40 };
+    C.p_air_b = { pos: [2, 7, 40], look: [0, 6, 0], fov: 40 };
+    C.g_air_a = { pos: [14, 40, 70], look: [0, 0, 2], fov: 44 };
+    C.g_air_b = { pos: [6, 34, 58], look: [0, 0, 2], fov: 44 };
     PASS = W.stage(pass);
     // cave poses (the last one is k18-00's first pose: inside, looking out of the arch)
     Object.assign(C, {
-      sun_a:   { pos: [2.6, 0.5, 8.6], look: [-1.5, 1.2, -1], fov: 46 },
-      sun_b:   { pos: [2.5, 0.5, 8.3], look: [-1.5, 1.2, -1], fov: 45 },
+      sun_a:   { pos: [-3.8, 0.9, 4.2], look: [30, 3.0, 9], fov: 48 },
+      sun_b:   { pos: [-3.3, 0.95, 4.0], look: [30, 3.6, 9], fov: 48 },
       glide_a: { pos: [7.5, 1.9, 15.5], look: [0, 1.2, -1], fov: 46 },
       glide_b: { pos: [4.6, 1.2, 11.5], look: [0, 1.1, -1], fov: 44 },
       v_gard:  { pos: [10, 24, 12], look: [-150, -178, 360], fov: 24 },
@@ -52,7 +56,7 @@ M.film({
       v_pass:  { pos: [10, 24, 12], look: [-330, -120, 640], fov: 24 },
       mouth_a: { pos: [3.4, 0.55, 10.2], look: [0, 1.0, -1], fov: 44 },
       mouth_b: { pos: [2.5, 0.85, 7.6], look: [0, 0.95, -1.5], fov: 44 },
-      lamp:    { pos: [lamp.x + 0.36, lamp.y + 0.14, lamp.z + 0.3], look: [lamp.x, lamp.y + 0.06, lamp.z], fov: 26 },
+      lamp:    { pos: [lamp.x + 0.6, lamp.y + 0.28, lamp.z + 0.55], look: [lamp.x, lamp.y + 0.06, lamp.z], fov: 28 },
       tilt_a:  { pos: [1.6, 1.3, 6.2], look: [0.0, 3.5, -3], fov: 50 },
       tilt_b:  { pos: [0.3, 1.0, -1.0], look: [0.0, 0.9, -10], fov: 54 },
       in_a:    { pos: [0.3, 0.85, -8.2], look: [0, 1.0, 6], fov: 54 },
@@ -61,10 +65,9 @@ M.film({
     SHOTS = [
       { t0: 0.00, t1: 2.42, set: 'cave', a: C.sun_a, b: C.sun_b },
       { t0: 2.42, t1: 3.78, set: 'cave', a: C.glide_a, b: C.glide_b, ease: E.inOutSine },
-      { t0: 3.78, t1: 5.15, set: 'cave', a: C.v_gard, ray: 0 },
+      { t0: 3.78, t1: 5.15, set: 'gard', a: C.g_air_a, b: C.g_air_b, sweep: 1 },
       { t0: 5.15, t1: 6.52, set: 'cave', a: C.v_seas, ray: 1 },
-      { t0: 6.52, t1: 7.89, set: 'cave', a: C.v_wall, ray: 2 },
-      { t0: 7.89, t1: 9.25, set: 'cave', a: C.v_pass, ray: 3 },
+      { t0: 6.52, t1: 9.25, set: 'pass', a: C.p_air_a, b: C.p_air_b, sweep: 1 },
       { t0: 9.25, t1: 11.99, set: 'cave', a: C.mouth_a, b: C.mouth_b, ease: E.inOutSine },
       { t0: 11.99, t1: 12.65, set: 'cave', a: C.lamp },
       { t0: 12.65, t1: 13.31, set: 'gard', a: C.dates },
@@ -86,12 +89,12 @@ M.film({
       // rays (as in k18-00): 0 garden, 1 two waters, 2 village wall, 3 barrier
       CAVE.set.props.vista.rays.forEach((r, j) => { const on = s.ray === j ? E.inOutSine(prog(t, s.t0, s.t0 + 0.8)) : 0; r.userData.update(t, 1.4 * on); });
       if (CAVE.scene.fog) CAVE.scene.fog.density = FOG0 * (s.ray !== undefined ? 0.3 : 1);
-      const inside = i >= 11, ex = i === 12 ? 2.0 : i === 11 ? lerp(1.0, 1.8, E.inOutSine(p)) : i === 7 ? 0.7 : 1.0;
-      CAVE.bloom = i === 0 || i === 11 || i === 12 ? CAVE.set.bloom : 0;               // grazing outdoor shots: bloom off (NaN spread)
+      const inside = i >= 10, ex = i === 11 ? 2.0 : i === 10 ? lerp(1.0, 1.8, E.inOutSine(p)) : i === 6 ? 0.7 : 1.0;
+      CAVE.bloom = i === 0 || i === 10 || i === 11 ? CAVE.set.bloom : 0;               // grazing outdoor shots: bloom off (NaN spread)
       G.renderSet(ctx, CAVE, t, u, { cam, exposure: ex, mist: i <= 1 ? 1 - 0.6 * prog(t, 0, 3.78) : inside ? 1 : 0.3, lamp: inside ? 0.5 : 1 });
-    } else if (s.set === 'gard') G.renderSet(ctx, GARD, t, u, { cam });
+    } else if (s.set === 'gard') G.renderSet(ctx, GARD, t, u, { cam, exposure: GARD.set.exposure * (s.sweep ? lerp(0.6, 1.05, E.inOutSine(p)) : 1) });
     else if (s.set === 'shore') G.renderSet(ctx, SHORE, t, u, { cam, writing: 0.62, ink: 0.4 });
-    else G.renderSet(ctx, PASS, t, u, { cam, build: 1, pour: 0.3 });
+    else G.renderSet(ctx, PASS, t, u, { cam, build: 1, pour: 0.3, exposure: PASS.set.exposure * (s.sweep ? lerp(0.6, 1.05, E.inOutSine(prog(t, 6.52, 8.0))) : 1) });
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.6);
   },
