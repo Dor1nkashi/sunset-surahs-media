@@ -23,6 +23,7 @@ const norm = (w) => w.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').rep
 export async function loadLines(url = 'lines.json') { const j = await (await fetch(url)).json(); return j.lines || j; }
 
 // lines -> caption chunks [{ t0, t1, words: [{ w, key }], label, quran }]
+const TAIL = /^(the|a|an|by|of|to|and|for|from|with|in|on|upon|at|his|her|their|our|my|your|its|as|that|who|which|or|but|was|is|be)$/i;
 export function chunk(lines, { maxChars = 34, maxKeys = 3, gap = 0.06 } = {}) {
   const out = [];
   for (const L of lines) {
@@ -42,7 +43,12 @@ export function chunk(lines, { maxChars = 34, maxKeys = 3, gap = 0.06 } = {}) {
     words.forEach((x, i) => {
       cur.push(x);
       const soft = /[,;:.!?]$/.test(x.w) && len(cur) > maxChars * 0.45, hard = i < words.length - 1 && len([...cur, words[i + 1]]) > maxChars;
-      if (soft || hard) { groups.push(cur); cur = []; }
+      if (soft || hard) {
+        // never end a caption on a little joining word ("the", "by", "to" ...): carry it to the next caption
+        const carry = [];
+        while (hard && !soft && cur.length > 2 && TAIL.test(cur[cur.length - 1].w)) carry.unshift(cur.pop());
+        groups.push(cur); cur = carry;
+      }
     });
     if (cur.length) { if (groups.length && len(cur) < 9) groups[groups.length - 1].push(...cur); else groups.push(cur); }
     const total = groups.reduce((a, g) => a + len(g) + 4, 0);
@@ -54,7 +60,7 @@ export function chunk(lines, { maxChars = 34, maxKeys = 3, gap = 0.06 } = {}) {
 }
 
 // opts: display/ui font families, verse face (defaults to ui), sizes per format, y anchor (fraction of H)
-export function captions(lines, { display = 'Display', ui = 'UI', verse = null, gold = GOLD, y = null, size = null, chip = true, fadeIn = 0.12, fadeOut = 0.1 } = {}) {
+export function captions(lines, { display = 'Display', ui = 'UI', verse = null, gold = GOLD, y = null, size = null, chip = true, fadeIn = 0.07, fadeOut = 0.06 } = {}) {
   const C = chunk(lines);
   function draw(ctx, t) {
     const c = C.find((x) => t >= x.t0 && t < x.t1);

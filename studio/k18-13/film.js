@@ -75,8 +75,8 @@ M.film({
     Object.assign(C, {
       sun_a:   { pos: [1.5, 0.9, 7.5], look: [0, 0.6, -200], fov: 30 },
       sun_b:   { pos: [1.5, 0.88, 7.0], look: [0, 0.6, -200], fov: 29 },
-      sink:    { pos: [-4.6, 0.85, 9.6], look: [-1.0, 0.6, -200], fov: 20 },
-      shore_a: { pos: [-3.6, 0.75, 10.8], look: [-0.4, 1.0, -60], fov: 40 },
+      sink:    { pos: [-2.0, 0.85, 10.6], look: [-1.0, 0.55, -200], fov: 18 },
+      shore_a: { pos: [-2.8, 0.8, 11.2], look: [-0.4, 1.0, -60], fov: 40 },
       shore_b: { pos: [-2.2, 0.75, 10.2], look: [0.6, 0.9, -60], fov: 40 },
       ridge:   { pos: [-10, 2, 20], look: [-30, HE(-30, -110) + 1.0, -110], fov: 9 },
       plain:   { pos: [-2, 1.2, 12], look: [3, 2.5, -120], fov: 44 },
@@ -89,8 +89,8 @@ M.film({
       hand_b:  { pos: [mgx + 0.5, my + 1.22, mgz - 0.95], look: [mgx + 0.2, my + 1.22, mgz + 3], fov: 33 },
       crowd_a: { pos: [mgx - 8.5, my + 1.5, mgz + 0.5], look: [mgx - 1, my + 1.0, mgz + 6.5], fov: 40 },
       crowd_b: { pos: [mgx - 7.5, my + 1.5, mgz + 0.2], look: [mgx + 0.5, my + 1.0, mgz + 6.5], fov: 40 },
-      circle_a:{ pos: [mgx, my + 2.4, mgz + 3.3], look: [mgx, my + 0.9, mgz + 3.35], fov: 44 },
-      circle_b:{ pos: [mgx, my + 2.05, mgz + 3.32], look: [mgx, my + 0.9, mgz + 3.35], fov: 42 },
+      circle_a:{ pos: [mgx + 1.2, my + 4.6, mgz + 5.4], look: [mgx, my + 0.6, mgz + 3.35], fov: 44 },
+      circle_b:{ pos: [mgx + 1.0, my + 4.1, mgz + 5.0], look: [mgx, my + 0.6, mgz + 3.35], fov: 42 },
       tall:    { pos: [mgx + 0.4, my + 0.35, mgz - 1.6], look: [mgx, my + 2.2, mgz + 2], fov: 48 },
     });
     SHOTS = [
@@ -121,7 +121,7 @@ M.film({
     // west: the sun sinks (elevation from 0.7 deg to -0.6 deg over shots 1-3)
     if (s.w) { const el = lerp(0.9, -0.7, E.inOutSine(prog(t, 0, 5.04))) * Math.PI / 180, a = 270 * Math.PI / 180, d = V(Math.cos(a) * Math.cos(el), Math.sin(el), Math.sin(a) * Math.cos(el));
       void d; }   // (moving the sky's sun uniform washed the lagoon white: the sun holds on the waterline)
-    WEST.props.mist.visible = i !== 1 && i !== 2;
+    WEST.props.mist.visible = i === 0;
     WEST.scene.environmentIntensity = i < 3 ? 0.12 : 0.5;          // the lagoon mirrors the bright HDRI at grazing angles (scene env overrides material envMapIntensity)
     ROUTE_W.userData.set(i === 5 ? E.inOutSine(prog(t, 8.4, 10.7)) : 0);
     ROUTE_E.userData.set(i === 6 ? E.inOutSine(prog(t, 10.9, 13.2)) : 0);
@@ -176,7 +176,7 @@ M.film({
     let cam;
     if (s.a === 'fist' || s.a === 'palm' || s.a === 'both') {
       const tg = s.a === 'fist' ? C.fistW : s.a === 'palm' ? C.palmW : C.fistW.clone().lerp(C.palmW, 0.5);
-      const off = s.a === 'both' ? V(0.0, 0.55, 1.7) : V(s.a === 'fist' ? 0.35 : -0.35, 0.55, 1.25);
+      const off = s.a === 'both' ? V(0.3, 0.95, -0.75) : V(s.a === 'fist' ? 0.4 : -0.4, 0.85, -0.6);   // over his shoulder: his back and head, his hands below
       const mv = 1 - 0.14 * E.inOutSine(p), arc = (p - 0.5) * 0.08; off.multiplyScalar(mv).add(V(arc, 0, 0));   // slow push in on the hands
       cam = { pos: tg.clone().add(off).toArray(), look: tg.toArray(), fov: K.lensFov(s.a === 'both' ? 34 : 32) };
     } else { cam = K.camLerp(s.a, s.b || K.autoMove(s.a, s.k ?? 0.12, s.side ?? 0.05), (s.ease || E.inOutSine)(p)); cam = K.breathe(cam, t, s.b ? 0.0015 : 0.0025, 11 + i); }
