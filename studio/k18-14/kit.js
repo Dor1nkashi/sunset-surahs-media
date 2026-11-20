@@ -133,3 +133,11 @@ export function flatHand(p, side, k = 0.15) {
   for (const f of ['Index', 'Middle', 'Ring', 'Pinky']) for (let i = 1; i <= 3; i++) { const b = p.bones(`${side}Hand${f}${i}`); if (b) b.quaternion.slerp(new THREE.Quaternion(), 1 - k); }
   p.object3d.updateMatrixWorld(true);
 }
+
+// a held pose becomes a slow purposeful move: dolly in toward the subject by `k` of the distance with a small arc
+// around it (side, as a fraction of the distance). Used for every shot that has no second pose.
+export function autoMove(a, k = 0.12, side = 0.05) {
+  if (!a || typeof a !== 'object' || !a.pos) return a;
+  const d = a.look.map((v, i) => v - a.pos[i]), L = Math.hypot(...d), sx = -d[2] / (Math.hypot(d[0], d[2]) || 1), sz = d[0] / (Math.hypot(d[0], d[2]) || 1);
+  return { ...a, pos: [a.pos[0] + d[0] * k + sx * L * side, a.pos[1] + d[1] * k, a.pos[2] + d[2] * k + sz * L * side] };
+}

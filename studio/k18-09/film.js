@@ -158,7 +158,7 @@ M.film({
     GLINT = streakMesh(); GLINT.material.color.set(0xffffff); S.add(GLINT);
     // travellers (built once; only shadows, a hand and feet are ever framed)
     const PP = await K.people();
-    TALL = PP.make({ kind: 'man', outfit: 'traveller', palette: { robe: '#8a7458', wrap: '#9a8468', cloak: '#5a4632', sash: '#3c3024', trousers: '#9a8a70' }, beard: 'full', headwear: 'wrap', seed: 31 });
+    TALL = PP.make({ kind: 'man', outfit: 'traveller', palette: { robe: '#8a7458', wrap: '#9a8468', cloak: '#5a4632', sash: '#3c3024', trousers: '#9a8a70' }, beard: 'full', headwear: 'wrap', seed: 31, detail: 0.8 });
     YOUNG = PP.make({ kind: 'man', outfit: 'traveller', palette: { robe: '#c8b89a', wrap: '#b49a74', cloak: '#7a6a52', sash: '#5a3a2a', trousers: '#b0a080' }, beard: 'none', headwear: 'wrap', seed: 44, detail: 0.8 });
     S.add(TALL.object3d, YOUNG.object3d);
     for (const f of [TALL, YOUNG]) f.object3d.traverse((m) => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; m.frustumCulled = false; } });

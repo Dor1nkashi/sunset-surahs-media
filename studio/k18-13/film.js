@@ -61,8 +61,8 @@ M.film({
     EAST.scene.add(RULER.object3d);
     const pals = ['earth', 'sand', 'olive', 'indigo', 'rust', 'cream', 'earth', 'sand', 'olive', 'rust'], kinds = ['man', 'woman', 'elder', 'man', 'boy', 'woman', 'man', 'elder', 'man', 'woman'];
     for (let i = 0; i < 10; i++) { const f = PP.make({ kind: kinds[i], outfit: kinds[i] === 'woman' ? 'abaya' : i % 3 ? 'worker' : 'thobe', palette: pals[i], seed: 100 + i, detail: 0.6 }); EAST.scene.add(f.object3d); CROWD.push(f); }
-    for (let i = 0; i < 6; i++) { const f = PP.make({ kind: 'man', outfit: 'traveller', palette: pals[i], seed: 120 + i, detail: 0.6 }); EAST.scene.add(f.object3d); CARAVAN.push(f); }
-    for (const f of [RULER, ...CROWD, ...CARAVAN]) f.object3d.traverse((m) => { if (m.isMesh) { m.castShadow = m.receiveShadow = true; m.frustumCulled = false; } });
+    CARAVAN = [CROWD[0], CROWD[3], CROWD[6], CROWD[2], CROWD[8], CROWD[4]];        // the caravan shots never meet the crowd shots: reuse the figures (lighter init)
+    for (const f of [RULER, ...CROWD]) f.object3d.traverse((m) => { if (m.isMesh) { m.castShadow = m.receiveShadow = true; m.frustumCulled = false; } });
     // bread and bowls for the circle of hands
     const breadM = new THREE.MeshStandardMaterial({ color: 0xc89058, roughness: 0.85 }), bowlM = new THREE.MeshStandardMaterial({ color: 0x8a5a36, roughness: 0.7 }), waterM = new THREE.MeshPhysicalMaterial({ color: 0x5a7a7a, roughness: 0.05, clearcoat: 1 });
     for (let i = 0; i < 4; i++) { const b = W.shadows(new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.08, 0.022, 40), breadM)); EAST.scene.add(b); BREAD.push(b); }
@@ -129,7 +129,7 @@ M.film({
       P.sun.position.copy(MG).add(V(-60, 120 - 100 * warm, 40)); P.sun.target.position.copy(MG); }
     else { P.sun.intensity = E0.I; P.sun.color.set(E0.col); EAST.scene.environmentIntensity = E0.env; P.sun.position.copy(E0.pos); P.sun.target.position.set(0, 0, -10); }
     // people
-    for (const f of [RULER, ...CROWD, ...CARAVAN]) f.object3d.visible = false; BREAD.forEach((b) => (b.visible = false)); BOWLS.forEach((b) => (b.visible = false));
+    for (const f of [RULER, ...CROWD]) f.object3d.visible = false; BREAD.forEach((b) => (b.visible = false)); BOWLS.forEach((b) => (b.visible = false));
     if (i === 3) CARAVAN.forEach((f, k) => { const sl = EAST.group.getObjectByName('people_slots').getObjectByName(`caravan_${k + 1}`).position; const x = sl.x + 1.3 * (t - 5.04);
       f.object3d.visible = true; f.object3d.position.set(x, HE(x, sl.z), sl.z); f.object3d.rotation.y = Math.PI / 2; f.setPose('walk', t + k * 0.37); f.object3d.scale.setScalar(1); });
     if (i === 4) [0, 1, 2].forEach((k) => { const f = CARAVAN[k], sh = P.shelters[k].position; f.object3d.visible = true; f.object3d.position.set(sh.x + 0.2, HE(sh.x, sh.z), sh.z + 0.2); f.object3d.rotation.y = 0.5 * k; f.setPose('kneel', t + k); });
@@ -175,8 +175,9 @@ M.film({
     if (s.a === 'fist' || s.a === 'palm' || s.a === 'both') {
       const tg = s.a === 'fist' ? C.fistW : s.a === 'palm' ? C.palmW : C.fistW.clone().lerp(C.palmW, 0.5);
       const off = s.a === 'both' ? V(0.0, 0.05, 1.15) : V(s.a === 'fist' ? 0.15 : -0.15, 0.06, 0.72);
+      const mv = 1 - 0.14 * E.inOutSine(p), arc = (p - 0.5) * 0.08; off.multiplyScalar(mv).add(V(arc, 0, 0));   // slow push in on the hands
       cam = { pos: tg.clone().add(off).toArray(), look: tg.toArray(), fov: K.lensFov(s.a === 'both' ? 30 : 28) };
-    } else { cam = K.camLerp(s.a, s.b, (s.ease || E.linear)(p)); cam = K.breathe(cam, t, s.b ? 0.0015 : 0.0025, 11 + i); }
+    } else { cam = K.camLerp(s.a, s.b || K.autoMove(s.a, s.k ?? 0.12, s.side ?? 0.05), (s.ease || E.inOutSine)(p)); cam = K.breathe(cam, t, s.b ? 0.0015 : 0.0025, 11 + i); }
     st.bloom = s.m ? 0.06 : s.w && i < 3 ? 0.12 : 0.2;
     G.renderSet(ctx, st, t, u, { cam, exposure: set.exposure * (s.w ? (i === 5 ? 1.0 : i < 2 ? 0.5 : 0.7) : s.m ? 0.95 : 1) });
     CAP.draw(ctx, t);

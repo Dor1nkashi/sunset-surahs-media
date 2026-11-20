@@ -153,7 +153,7 @@ M.film({
       K.reach(RULER, 'Right', h0.lerp(tg, k), V(0.2, 0.8, 1.4)); K.handAim(RULER, 'Right', tg.clone().add(V(0.0, 0.25, 0.0)), -Math.PI / 2 * k); K.flatHand(RULER, 'Right', 1 - 0.95 * k);
     }
     // camera
-    let cam = K.camLerp(s.a, s.b, (s.ease || E.linear)(p));
+    let cam = K.camLerp(s.a, s.b || K.autoMove(s.a, s.k ?? 0.12, s.side ?? 0.05), (s.ease || E.inOutSine)(p));
     cam = K.breathe(cam, t, s.b ? 0.0012 : 0.002, 11 + i);
     FILL.intensity = i === 1 || i >= 10 && i !== 11 && i !== 12 ? 60 : 0;
     ST.bloom = i === 0 ? 0.08 : 0.15;

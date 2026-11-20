@@ -79,7 +79,7 @@ M.film({
   draw(ctx, u, t, IMG) {
     M.fill(ctx, '#000');
     const { i, s, p } = K.shotAt(SHOTS, t);
-    let cam = K.camLerp(s.a, s.b, (s.ease || E.linear)(p));
+    let cam = K.camLerp(s.a, s.b || K.autoMove(s.a, s.k ?? 0.12, s.side ?? 0.05), (s.ease || E.inOutSine)(p));
     cam = K.breathe(cam, t, s.b ? 0.0012 : 0.002, 7 + i);
     if (s.set === 'cave') {
       // which far place is lit: the ray of the place in frame rises (vista rays: [3, 0, 1, 2] order as in k18-00)

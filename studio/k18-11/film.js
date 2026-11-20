@@ -193,11 +193,11 @@ M.film({
     let cam;
     if (s.a === 'grip' || s.a === 'rack') {
       const hp = C.handW.clone();
-      if (s.a === 'grip') { const k = s.loosen ? 0 : E.inOutSine(p); cam = { pos: hp.clone().add(V(-0.5 + 0.05 * k, 0.03, 0.42 - 0.04 * k)).toArray(), look: hp.clone().add(V(0.0, 0.0, 0.0)).toArray(), fov: K.lensFov(26) }; }
+      if (s.a === 'grip') { const k = E.inOutSine(p); cam = { pos: hp.clone().add(V(-0.5 + 0.05 * k, 0.03, 0.42 - 0.04 * k)).toArray(), look: hp.clone().add(V(0.0, 0.0, 0.0)).toArray(), fov: K.lensFov(26) }; }
       else { const k = E.inOutCubic(prog(p, 0.15, 0.9)), sb = V(STAFF.position.x, STAFF.position.y + 0.12, STAFF.position.z), pos = V(hp.x - 0.32, HT(hp.x, hp.z) + 0.2, hp.z - 0.22);
         cam = { pos: pos.toArray(), look: sb.lerp(V(7.6, HT(7.6, 14) + 0.6, 14), k).toArray(), fov: K.lensFov(lerp(30, 40, k)) }; }
     } else {
-      cam = K.camLerp(s.a, s.b, (s.ease || E.linear)(p));
+      cam = K.camLerp(s.a, s.b || K.autoMove(s.a, s.k ?? 0.12, s.side ?? 0.05), (s.ease || E.inOutSine)(p));
       cam = K.breathe(cam, t, s.b ? 0.0012 : 0.002, 11 + i);
     }
     const expo = SET.exposure * (inRoom ? 1.15 - 0.55 * dawn : i === 6 ? 0.45 : 1);
