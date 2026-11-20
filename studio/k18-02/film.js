@@ -101,8 +101,8 @@ M.film({
     C.hand_a = { pos: [HAND.x + 0.24, HAND.y + 0.3, HAND.z + 0.62], look: [HAND.x + 0.07, HAND.y + 0.01, HAND.z + 0.05], fov: 24 };
     C.hand_b = { pos: [HAND.x + 0.23, HAND.y + 0.29, HAND.z + 0.59], look: [HAND.x + 0.07, HAND.y + 0.01, HAND.z + 0.05], fov: 24 };
     C.rack_a = { pos: [HAND.x + 0.22, HAND.y + 0.29, HAND.z + 0.58], look: [HAND.x + 0.1, HAND.y + 0.03, HAND.z], fov: 24 };
-    C.rack_b = { pos: [HAND.x + 0.2, HAND.y + 0.3, HAND.z + 0.6], look: [HAND.x + 0.3, HAND.y + 0.12, HAND.z - 0.15], fov: 26 };
-    C.pull_a = { pos: [HAND.x + 0.26, HAND.y + 0.33, HAND.z + 0.66], look: [HAND.x + 0.2, HAND.y + 0.05, HAND.z - 0.3], fov: 26 };
+    C.rack_b = { pos: [HAND.x + 0.3, HAND.y + 0.42, HAND.z + 0.7], look: [HAND.x + 0.16, HAND.y + 0.06, HAND.z - 0.08], fov: 30 };
+    C.pull_a = { pos: [HAND.x + 0.3, HAND.y + 0.42, HAND.z + 0.7], look: [HAND.x + 0.16, HAND.y + 0.06, HAND.z - 0.08], fov: 30 };
     C.pull_b = { pos: [1.4, 2.2, -3.0], look: [-0.3, 0.2, -8.9], fov: 50 };
     C.dog = { pos: [0.6, 0.62, -5.2], look: [-0.7, 0.4, 0.8], fov: 56 };
     C.dog_b = { pos: [0.3, 0.55, -3.9], look: [-0.75, 0.38, 0.8], fov: 50 };
@@ -127,7 +127,7 @@ M.film({
     M.fill(ctx, '#000');
     const { i, s, p } = K.shotAt(SHOTS, t);
     let cam = K.camLerp(C[s.a], s.b ? C[s.b] : null, (s.ease || E.linear)(p));
-    if (i === 2) { const k = (s.ease || E.linear)(p); cam = { ...cam, pos: [cam.pos[0], cam.pos[1] + 1.1 * Math.sin(Math.PI * Math.min(1, k * 1.4)) * (1 - k) + 0, cam.pos[2]] }; }
+    if (i === 2) { const k = (s.ease || E.linear)(p); cam = { ...cam, pos: [cam.pos[0], cam.pos[1] + 0.9 * Math.sin(Math.PI * k), cam.pos[2]] }; }
     MAN.object3d.visible = [0, 1, 2, 8, 11].includes(i);
     cam = K.breathe(cam, t, s.lapse ? 0 : 0.0012, 5 + i);
     poseMan(t);
