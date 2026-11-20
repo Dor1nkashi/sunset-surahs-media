@@ -66,7 +66,7 @@ M.film({
       stack_a: { pos: [-3, 1.5, 22], look: [0, 2, 0], fov: 50 },
       stack_b: { pos: [-3, 6.5, 24], look: [0, 6.5, 0], fov: 50 },
       up:      { pos: [0.8, 0.35, 3.2], look: [0.0, 9.0, 0], fov: 64 },
-      palm:    { pos: [-1.1, 1.75, 2.6], look: [0.4, 1.3, 0.5], fov: 38 },
+      palm:    { pos: [1.05, 1.95, 2.55], look: [0.3, 1.25, 0.5], fov: 40 },
       bagm:    { pos: [ST0[0] - 0.6, sg + 0.3, ST0[1] - 0.15], look: [ST0[0], sg + 0.05, ST0[1] + 0.2], fov: 32 },
       belh:    { pos: [si.x + 0.2, si.y + 1.5, si.z - 0.4], look: [si.x - 1.45, si.y + 0.35, si.z + 0.35], fov: 40 },
       cool:    { pos: [0.75, 1.36, 1.0], look: [0.4, 1.3, 0.5], fov: 24 },
@@ -147,7 +147,7 @@ M.film({
       for (const [sd, dx] of [['Right', -0.12], ['Left', 0.12]]) { const tg = top.clone().add(V(dx, 0.02, 0.05)); K.reach(f, sd, tg, tg.clone().add(V(dx * 3, 0.3, 0.5))); K.handAim(f, sd, tg.clone().add(V(0, -0.05, -0.25)), 0); K.flatHand(f, sd, 0.3); } }
     if (i === 8) WORK.forEach((f, k) => { const x = -6 + 4 * k, z = 2.4 + 0.3 * (k % 2); f.object3d.visible = true; f.object3d.position.set(x, HT(x, z), z); f.object3d.rotation.y = Math.PI + 0.2 * (k - 1.5); f.setPose('stand', t + k); });
     if (i === 10) {
-      RULER.object3d.visible = true; RULER.object3d.position.set(0.55, HT(0.55, 1.15), 1.15); RULER.object3d.rotation.y = Math.PI; RULER.setPose('stand', t);
+      RULER.object3d.visible = true; RULER.object3d.position.set(0.55, HT(0.55, 0.95), 0.95); RULER.object3d.rotation.y = Math.PI; RULER.setPose('stand', t);
       RULER.object3d.updateMatrixWorld(true);
       const k = E.inOutCubic(prog(t, 22.7, 23.6)), tg = V(0.35, 1.32, 0.52), h0 = RULER.bones('RightHand').getWorldPosition(V());
       K.reach(RULER, 'Right', h0.lerp(tg, k), V(0.2, 0.8, 1.4)); K.handAim(RULER, 'Right', tg.clone().add(V(0.0, 0.25, 0.0)), -Math.PI / 2 * k); K.flatHand(RULER, 'Right', 1 - 0.95 * k);
