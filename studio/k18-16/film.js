@@ -87,7 +87,7 @@ M.film({
       // which far place is lit: the ray of the place in frame rises (vista rays: [3, 0, 1, 2] order as in k18-00)
       // rays (as in k18-00): 0 garden, 1 two waters, 2 village wall, 3 barrier
       CAVE.set.props.vista.rays.forEach((r, j) => { const on = s.ray === j ? E.inOutSine(prog(t, s.t0, s.t0 + 0.8)) : 0; r.userData.update(t, 1.4 * on); });
-      if (CAVE.scene.fog) CAVE.scene.fog.density = FOG0 * (s.ray !== undefined ? 0.3 : 1);
+      if (CAVE.scene.fog) CAVE.scene.fog.density = FOG0 * (s.ray !== undefined || i === 0 ? 0.3 : 1);
       const inside = i >= 9, ex = i === 10 ? 2.0 : i === 9 ? lerp(1.0, 1.8, E.inOutSine(p)) : i === 5 ? 0.7 : i === 0 ? 0.45 : 1.0;
       CAVE.bloom = i >= 9 ? CAVE.set.bloom : 0;               // grazing outdoor shots: bloom off (NaN spread)
       G.renderSet(ctx, CAVE, t, u, { cam, exposure: ex, mist: i <= 1 ? 0.35 - 0.25 * prog(t, 0, 3.78) : inside ? 1 : 0.3, lamp: inside ? 0.5 : 1 });
