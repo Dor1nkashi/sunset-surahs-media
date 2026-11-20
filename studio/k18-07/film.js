@@ -44,10 +44,10 @@ function poseMan(t, s) {
   const at = (x, z, yaw, clip = 'kneel') => { K.place(MAN, x, gy, z, yaw); MAN.setPose(clip, 1.5); MAN.object3d.updateMatrixWorld(true); };
   if (who === 'bracelet' || who === 'bowl') {
     const bx = who === 'bracelet' ? DISH.x : P.bowl.position.x, bz = who === 'bracelet' ? DISH.z : P.bowl.position.z;
-    at(bx - 0.82, bz + 0.12, Math.PI / 2);
+    at(bx - 0.66, bz + 0.12, Math.PI / 2);
     const target = who === 'bracelet' ? V(BR0.x, BR0.y + 0.01, BR0.z) : V(P.bowl.position.x - 0.05, gy + 0.1, P.bowl.position.z - 0.02);
     const k = who === 'bracelet' ? E.inOutSine(prog(t, -0.6, 1.6)) * (1 - E.inOutSine(prog(t, 2.9, 3.9))) : E.inOutSine(prog(t, 10.4, 11.6)) * (1 - E.inOutSine(prog(t, 12.2, 13.1)));
-    K.tilt(MAN, 'Spine', 16 * k, 0, 0); K.tilt(MAN, 'Spine1', 12 * k, 0, 0);
+    K.tilt(MAN, 'Spine', 20 * k, 0, 0); K.tilt(MAN, 'Spine1', 15 * k, 0, 0);
     const h0 = K.handPos(MAN, 'Right'); K.reach(MAN, 'Right', h0.clone().lerp(target.clone().add(V(0.02, 0.05, 0)), k), K.onBody(MAN, -0.8, 0.7, -0.3));
     K.handAim(MAN, 'Right', target.clone().add(V(-0.12, 0.0, 0.04)), 0.6); K.flatHand(MAN, 'Right', 0.7);
   } else if (who === 'lamp') {
