@@ -33,6 +33,11 @@ function one(film, fmt) {
   const out = path.join(ROOT, 'out', film);
   const src = fmt === cfg.formats[0] ? path.join(out, 'final.mp4') : path.join(out, `final_${fmt}.mp4`);
   if (!fs.existsSync(src)) throw new Error(`${path.basename(src)} missing after mix`);
+  // Dead-frame gate: refuse finals with black/empty stretches (audit 20 Nov: k18_06 black 16-32 s).
+  const bd = spawnSync('ffmpeg', ['-hide_banner', '-i', src, '-vf', 'blackdetect=d=0.25:pic_th=0.97:pix_th=0.06', '-an', '-f', 'null', '-'], { encoding: 'utf8', maxBuffer: 1 << 26 });
+  const spans = [...(bd.stderr || '').matchAll(/black_start:([\d.]+) black_end:([\d.]+)/g)].map((m) => [+m[1], +m[2]]);
+  const bad = spans.filter(([a, b]) => a > 0.3 && b < cfg.duration - 1.3);
+  if (bad.length) throw new Error(`black frames at ${bad.map(([a, b]) => `${a.toFixed(1)}-${b.toFixed(1)}s`).join(', ')} (not copied to Finished)`);
   fs.copyFileSync(src, path.join(FIN, fmt === '9x16' ? `${name}.mp4` : `${name}_${fmt}.mp4`));
   fs.writeFileSync(path.join(dir, `DONE_${fmt}`), new Date().toISOString());
   if (cfg.formats.every((f) => fs.existsSync(path.join(dir, `DONE_${f}`)))) fs.writeFileSync(path.join(dir, 'DONE'), new Date().toISOString());
