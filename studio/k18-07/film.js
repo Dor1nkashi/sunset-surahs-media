@@ -75,6 +75,11 @@ M.film({
     const S = SET.scene;
     DISH = P.dish.position.clone(); BR0 = P.bracelet.position.clone();
     LAMP0 = P.nicheLamp.position.clone(); NICHE = LAMP0.clone();
+    // a proper wall niche round the lamp: dark recess, a stone sill, two jambs and a lintel standing out from the plaster
+    { const st = new THREE.MeshStandardMaterial({ color: 0x8a7a66, roughness: 0.95 }), dk = new THREE.MeshStandardMaterial({ color: 0x1a120c, roughness: 1 });
+      const back = new THREE.Mesh(new THREE.PlaneGeometry(0.4, 0.42), dk); back.position.set(NICHE.x, NICHE.y + 0.18, NICHE.z - 0.1); S.add(back);
+      for (const [w, h, d, x, y] of [[0.56, 0.05, 0.22, 0, -0.03], [0.56, 0.06, 0.2, 0, 0.42], [0.06, 0.46, 0.2, -0.25, 0.18], [0.06, 0.46, 0.2, 0.25, 0.18]]) {
+        const b = W.rbox(w, h, d, st, { r: 0.012 }); b.position.set(NICHE.x + x, NICHE.y + y - h / 2, NICHE.z); S.add(W.shadows(b)); } }
     // the sapling and its pot move to the corner where the grown palm stands
     P.sapling.pot.position.set(POT[0], gy, POT[1]); P.sapling.tree.object3d.visible = false;
     // the seedling: a few folded palm blades from the soil; a new blade unfolds (shot 13) as a pure function of t
@@ -136,6 +141,12 @@ M.film({
     let cam = K.camLerp(A, Bp, (s.ease || E.inOutSine)(p));
     cam = K.breathe(cam, t, 0.0006, 9 + i);
     poseMan(t, s);
+    // the mat shots: over his right shoulder, looking down past the sleeve to where the hand lands (no face, no body block)
+    if (s.who === 'bracelet' && i === 0 || s.who === 'bowl') {
+      const tgt = s.who === 'bracelet' ? BR0 : P.bowl.position, k = E.inOutSine(p);
+      const pos = K.onBody(MAN, -0.42 - 0.03 * k, 1.35 - 0.05 * k, -0.35 + 0.05 * k);
+      cam = { pos: pos.toArray(), look: [tgt.x, gy + 0.02, tgt.z], fov: K.lensFov(44) };
+    }
     // the bracelet: carried in the hand, laid on the coins at 1.6 s (a small settle), and stays there
     { const lay = 1.6; if (t < lay && s.who === 'bracelet') { const h = K.handPos(MAN, 'Right'); P.bracelet.position.copy(h).add(V(0.0, -0.03, 0)); }
       else { P.bracelet.position.copy(BR0); if (t > lay && t < lay + 0.8) P.bracelet.position.y += 0.006 * Math.exp(-(t - lay) * 6) * Math.abs(Math.sin((t - lay) * 30)); }
@@ -163,7 +174,7 @@ M.film({
     const flameShot = i === 13 || i === 15 || i === 16, gold = i <= 6 || s.shade;
     ST.bloom = flameShot || s.shade ? 0 : SET.bloom;
     const nearLamp = i >= 8 && (s.a.startsWith('niche') || flameShot);
-    G.renderSet(ctx, ST, t, u, { cam, exposure: SET.exposure * (s.shade ? 0.18 : flameShot ? 0.3 : gold && i !== 2 && i !== 5 && i !== 6 ? 0.5 : i === 14 || i === 10 ? 0.6 : 1), lamp: nearLamp ? 0.1 : 1 });
+    G.renderSet(ctx, ST, t, u, { cam, exposure: SET.exposure * (s.shade ? 0.18 : flameShot ? 0.38 : gold && i !== 2 && i !== 5 && i !== 6 ? 0.5 : i === 14 || i === 10 ? 0.6 : 1), lamp: nearLamp ? 0.05 : 1 });
     if (i === SHOTS.length - 1) { const k = E.inOutSine(p); ctx.save(); ctx.globalCompositeOperation = 'soft-light'; ctx.globalAlpha = 0.6 * k; ctx.fillStyle = '#e8a83a'; ctx.fillRect(0, 0, M.W, M.H); ctx.restore(); }
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.6);
