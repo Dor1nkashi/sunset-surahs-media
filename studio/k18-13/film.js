@@ -120,7 +120,7 @@ M.film({
     const set = s.w ? WEST : EAST, st = s.w ? SW : SE;
     // west: the sun sinks (elevation from 0.7 deg to -0.6 deg over shots 1-3)
     if (s.w) { const el = lerp(0.9, -0.7, E.inOutSine(prog(t, 0, 5.04))) * Math.PI / 180, a = 270 * Math.PI / 180, d = V(Math.cos(a) * Math.cos(el), Math.sin(el), Math.sin(a) * Math.cos(el));
-      if (WEST.props.sky?.material?.uniforms?.sunDir) WEST.props.sky.material.uniforms.sunDir.value.copy(d); }
+      void d; }   // (moving the sky's sun uniform washed the lagoon white: the sun holds on the waterline)
     ROUTE_W.userData.set(i === 5 ? E.inOutSine(prog(t, 8.4, 10.7)) : 0);
     ROUTE_E.userData.set(i === 6 ? E.inOutSine(prog(t, 10.9, 13.2)) : 0);
     // east light: sunrise for the plain; a calmer, softer afternoon for the meeting ground; the last shot warms to sunset
