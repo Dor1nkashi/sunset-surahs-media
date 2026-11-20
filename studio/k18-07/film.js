@@ -144,8 +144,8 @@ M.film({
     // the mat shots: over his right shoulder, looking down past the sleeve to where the hand lands (no face, no body block)
     if (s.who === 'bracelet' && i === 0 || s.who === 'bowl') {
       const tgt = s.who === 'bracelet' ? BR0 : P.bowl.position, k = E.inOutSine(p);
-      const pos = K.onBody(MAN, -0.55 + 0.03 * k, 0.9 - 0.05 * k, 0.98 - 0.04 * k);
-      cam = { pos: pos.toArray(), look: [tgt.x, gy + 0.02, tgt.z], fov: K.lensFov(44) };
+      const pos = [tgt.x + 0.4 - 0.04 * k, gy + 0.62 - 0.05 * k, tgt.z + 0.42 - 0.04 * k];
+      cam = { pos, look: [tgt.x, gy + 0.02, tgt.z], fov: K.lensFov(44) };
     }
     // the bracelet: carried in the hand, laid on the coins at 1.6 s (a small settle), and stays there
     { const lay = 1.6; if (t < lay && s.who === 'bracelet') { const h = K.handPos(MAN, 'Right'); P.bracelet.position.copy(h).add(V(0.0, -0.03, 0)); }
