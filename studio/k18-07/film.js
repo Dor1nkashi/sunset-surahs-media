@@ -20,14 +20,14 @@ const C = {};
 const POT = [-2.25, 1.85];
 
 const SHOTS = [
-  { t0: 0.00, t1: 2.05, a: 'mat', who: 'bracelet' },
+  { t0: 0.00, t1: 2.05, a: 'mat', b: 'mat_b', who: 'bracelet' },
   { t0: 2.05, t1: 4.09, a: 'br_a', b: 'br_b', who: 'bracelet', ease: E.inOutSine },
   { t0: 4.09, t1: 6.13, a: 'pan_a', b: 'pan_b', ease: E.inOutSine },
   { t0: 6.13, t1: 7.15, a: 'coins', glint: 'coins' },
   { t0: 7.15, t1: 8.17, a: 'brace', glint: 'brace' },
   { t0: 8.17, t1: 9.19, a: 'sandals', glint: 'sandals' },
   { t0: 9.19, t1: 10.22, a: 'hoop', glint: 'hoop' },
-  { t0: 10.22, t1: 13.18, a: 'mat', who: 'bowl', warm: true },
+  { t0: 10.22, t1: 13.18, a: 'mat', b: 'mat_b', who: 'bowl', warm: true },
   { t0: 13.18, t1: 16.14, a: 'niche_a', b: 'niche_b', who: 'lamp', warm: true, ease: E.inOutSine },
   { t0: 16.14, t1: 18.91, a: 'pot_a', b: 'pot_b', who: 'water', warm: true, ease: E.inOutSine },
   { t0: 18.91, t1: 21.67, a: 'soil', warm: true },
@@ -43,9 +43,11 @@ function poseMan(t, s) {
   const who = s.who; MAN.object3d.visible = !!who; if (!who) return;
   const at = (x, z, yaw, clip = 'kneel') => { K.place(MAN, x, gy, z, yaw); MAN.setPose(clip, 1.5); MAN.object3d.updateMatrixWorld(true); };
   if (who === 'bracelet' || who === 'bowl') {
-    at(DISH.x - 0.58, DISH.z + 0.1, Math.PI / 2);
+    const bx = who === 'bracelet' ? DISH.x : P.bowl.position.x, bz = who === 'bracelet' ? DISH.z : P.bowl.position.z;
+    at(bx - 0.5, bz + 0.12, Math.PI / 2);
     const target = who === 'bracelet' ? V(BR0.x, BR0.y + 0.01, BR0.z) : V(P.bowl.position.x - 0.05, gy + 0.1, P.bowl.position.z - 0.02);
     const k = who === 'bracelet' ? E.inOutSine(prog(t, -0.6, 1.6)) * (1 - E.inOutSine(prog(t, 2.9, 3.9))) : E.inOutSine(prog(t, 10.4, 11.6)) * (1 - E.inOutSine(prog(t, 12.2, 13.1)));
+    K.tilt(MAN, 'Spine', 22 * k, 0, 0); K.tilt(MAN, 'Spine1', 18 * k, 0, 0); K.tilt(MAN, 'Spine2', 10 * k, 0, 0);
     const h0 = K.handPos(MAN, 'Right'); K.reach(MAN, 'Right', h0.clone().lerp(target.clone().add(V(0.02, 0.05, 0)), k), K.onBody(MAN, -0.8, 0.7, -0.3));
     K.handAim(MAN, 'Right', target.clone().add(V(-0.12, 0.0, 0.04)), 0.6); K.flatHand(MAN, 'Right', 0.7);
   } else if (who === 'lamp') {
@@ -101,7 +103,7 @@ M.film({
     S.add(MAN.object3d);
     // cameras
     const sd = P.sandals[0].position, hp = P.hoop.position;
-    C.mat = { pos: [DISH.x + 0.3, gy + 0.72, DISH.z + 1.0], look: [DISH.x + 0.2, gy + 0.03, DISH.z + 0.14], fov: 36 };
+    { const cx = (DISH.x + P.bowl.position.x) / 2, cz = (DISH.z + P.bowl.position.z) / 2; C.mat = { pos: [cx + 0.2, gy + 1.0, cz + 1.1], look: [cx - 0.05, gy + 0.02, cz], fov: 42 }; C.mat_b = { pos: [cx + 0.16, gy + 0.9, cz + 0.95], look: [cx - 0.05, gy + 0.02, cz], fov: 40 }; }
     C.br_a = { pos: [BR0.x + 0.26, gy + 0.22, BR0.z + 0.28], look: [BR0.x, gy + 0.04, BR0.z], fov: 24 };
     C.br_b = { pos: [BR0.x + 0.2, gy + 0.18, BR0.z + 0.22], look: [BR0.x, gy + 0.04, BR0.z], fov: 22 };
     C.pan_a = { pos: [0.4, gy + 0.85, 1.9], look: [DISH.x, gy + 0.05, DISH.z], fov: 40 };
@@ -115,8 +117,8 @@ M.film({
     C.pot_a = { pos: [POT[0] + 0.95, gy + 0.85, POT[1] + 0.55], look: [POT[0] - 0.05, gy + 0.4, POT[1] + 0.05], fov: 38 };
     C.pot_b = { pos: [POT[0] + 0.8, gy + 0.78, POT[1] + 0.45], look: [POT[0] - 0.05, gy + 0.38, POT[1] + 0.05], fov: 36 };
     C.soil = { pos: [POT[0] + 0.45, gy + 0.75, POT[1] + 0.2], look: [POT[0] + 0.02, gy + 0.27, POT[1] + 0.02], fov: 32 };
-    C.tilt_a = { pos: [POT[0] + 2.6, gy + 0.6, POT[1] + 2.4], look: [POT[0], gy + 0.4, POT[1]], fov: 40 };
-    C.tilt_b = { pos: [POT[0] + 2.6, gy + 0.6, POT[1] + 2.4], look: [P.palm.position.x, PALMTOP - 1.5, P.palm.position.z], fov: 46 };
+    C.tilt_a = { pos: [POT[0] + 1.7, gy + 0.55, POT[1] + 1.3], look: [POT[0], gy + 0.35, POT[1]], fov: 44 };
+    C.tilt_b = { pos: [POT[0] + 1.7, gy + 0.55, POT[1] + 1.3], look: [P.palm.position.x, PALMTOP - 1.2, P.palm.position.z], fov: 56 };
     C.flame = { pos: [NICHE.x - 0.3, NICHE.y + 0.2, NICHE.z + 1.2], look: [NICHE.x, NICHE.y + 0.1, NICHE.z], fov: 16 };
     C.leaf = { pos: [POT[0] + 0.85, gy + 0.62, POT[1] + 0.5], look: [POT[0], gy + 0.38, POT[1]], fov: 30 };
     C.glow_a = { pos: [NICHE.x - 0.4, NICHE.y + 0.22, NICHE.z + 1.5], look: [NICHE.x, NICHE.y + 0.1, NICHE.z], fov: 20 };
@@ -129,7 +131,9 @@ M.film({
   draw(ctx, u, t, IMG) {
     M.fill(ctx, '#000');
     const { i, s, p } = K.shotAt(SHOTS, t);
-    let cam = K.camLerp(C[s.a], s.b ? C[s.b] : null, (s.ease || E.linear)(p));
+    // held shots still move: a slow 7 % push toward the subject (never a camera parked in one spot)
+    const A = C[s.a], Bp = s.b ? C[s.b] : { ...A, pos: A.pos.map((v, j) => v + (A.look[j] - v) * 0.07) };
+    let cam = K.camLerp(A, Bp, (s.ease || E.inOutSine)(p));
     cam = K.breathe(cam, t, 0.0006, 9 + i);
     poseMan(t, s);
     // the bracelet: carried in the hand, laid on the coins at 1.6 s (a small settle), and stays there
@@ -157,9 +161,9 @@ M.film({
     P.sun.intensity = s.shade ? 0.25 : s.warm ? 1.6 : 2.6;
     SET.props.setLights(s.warm ? 0.6 : 0.2);
     const flameShot = i === 13 || i === 15 || i === 16, gold = i <= 6 || s.shade;
-    ST.bloom = flameShot ? 0.03 : SET.bloom;
+    ST.bloom = flameShot || s.shade ? 0 : SET.bloom;
     const nearLamp = i >= 8 && (s.a.startsWith('niche') || flameShot);
-    G.renderSet(ctx, ST, t, u, { cam, exposure: SET.exposure * (s.shade ? 0.4 : flameShot ? 0.55 : gold && i !== 2 && i !== 5 && i !== 6 ? 0.5 : i === 14 || i === 10 ? 0.6 : 1), lamp: nearLamp ? 0.18 : 1 });
+    G.renderSet(ctx, ST, t, u, { cam, exposure: SET.exposure * (s.shade ? 0.18 : flameShot ? 0.3 : gold && i !== 2 && i !== 5 && i !== 6 ? 0.5 : i === 14 || i === 10 ? 0.6 : 1), lamp: nearLamp ? 0.1 : 1 });
     if (i === SHOTS.length - 1) { const k = E.inOutSine(p); ctx.save(); ctx.globalCompositeOperation = 'soft-light'; ctx.globalAlpha = 0.6 * k; ctx.fillStyle = '#e8a83a'; ctx.fillRect(0, 0, M.W, M.H); ctx.restore(); }
     CAP.draw(ctx, t);
     K.seal(ctx, IMG, t, D, 1.6);
