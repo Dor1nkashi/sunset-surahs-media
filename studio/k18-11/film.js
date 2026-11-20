@@ -137,7 +137,7 @@ M.film({
       { t0: 17.17, t1: 19.62, a: C.window, room: 1 },
       { t0: 19.62, t1: 22.07, a: C.lamp_a, b: C.lamp_b, room: 1, ease: E.inOutSine },
       { t0: 22.07, t1: 24.22, a: 'grip', loosen: 1 },
-      { t0: 24.22, t1: 25.89, a: C.cup, room: 1 },
+      { t0: 24.22, t1: 25.89, a: C.window, b: C.sill, room: 1 },
       { t0: 25.89, t1: 27.89, a: C.sill, room: 1 },
       { t0: 27.89, t1: 29.45, a: C.lampwin, room: 1 },
       { t0: 29.45, t1: D, a: C.gold_a, b: C.gold_b, room: 1, ease: E.inOutSine },
@@ -180,7 +180,7 @@ M.film({
       const k = s.loosen ? 1 - 0.85 * E.inOutSine(prog(t, 22.4, 23.6)) : s.a === 'rack' ? 1 : 0.6 + 0.4 * E.outCubic(prog(t, 0.05, 0.6));
       C.handW = gripPose(t, k); MUSA.object3d.visible = true; STAFF.visible = true;
     }
-    if (i === 11) {
+    if (false) {
       // a hand comes from the left and cups the flame on its window side (the side room's figure is out of frame)
       HAND.object3d.visible = true; const lw = ROOMLAMP.position, gy = HT(RX, RZ);
       HAND.object3d.position.set(lw.x + 0.36, gy, lw.z - 0.3); HAND.object3d.rotation.y = -Math.PI * 0.75; HAND.setPose('stand', t);
@@ -193,7 +193,7 @@ M.film({
     let cam;
     if (s.a === 'grip' || s.a === 'rack') {
       const hp = C.handW.clone();
-      if (s.a === 'grip') { const k = E.inOutSine(p); cam = { pos: hp.clone().add(V(-0.95 + 0.1 * k, 0.15, 0.8 - 0.08 * k)).toArray(), look: hp.clone().add(V(0.05, 0.1, 0.0)).toArray(), fov: K.lensFov(34) }; }
+      if (s.a === 'grip') { const k = E.inOutSine(p); cam = { pos: hp.clone().add(V(-0.45 + 0.04 * k, 0.78 - 0.05 * k, -0.7 + 0.06 * k)).toArray(), look: hp.clone().add(V(0.05, 0.0, 0.25)).toArray(), fov: K.lensFov(40) }; }   // over his shoulder: head from behind, the hand on the staff, the lane ahead
       else { const k = E.inOutCubic(prog(p, 0.15, 0.9)), sb = V(STAFF.position.x, STAFF.position.y + 0.12, STAFF.position.z), pos = V(hp.x - 0.32, HT(hp.x, hp.z) + 0.2, hp.z - 0.22);
         cam = { pos: pos.toArray(), look: sb.lerp(V(7.6, HT(7.6, 14) + 0.6, 14), k).toArray(), fov: K.lensFov(lerp(30, 40, k)) }; }
     } else {
