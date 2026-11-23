@@ -258,5 +258,25 @@
     "platform_id": "p36jQVB87zc",
     "url": "https://www.youtube.com/shorts/p36jQVB87zc",
     "finished_at": "2026-11-23T22:35:53+11:00"
+  },
+  {
+    "item_id": "v6_p03_117_the-freezing-wind",
+    "platform": "instagram",
+    "video": "https://raw.githubusercontent.com/Dor1nkashi/sunset-surahs-media/main/shorts/v6_p03_117_the-freezing-wind.mp4",
+    "status": "posted",
+    "attempted_at": "2026-11-24T00:36:11+11:00",
+    "platform_id": "18135090697776831",
+    "url": "https://www.instagram.com/reel/DgFgKE8FDCT/",
+    "finished_at": "2026-11-24T00:37:23+11:00"
+  },
+  {
+    "item_id": "v6_p03_117_the-freezing-wind",
+    "platform": "facebook",
+    "video": "https://raw.githubusercontent.com/Dor1nkashi/sunset-surahs-media/main/shorts/v6_p03_117_the-freezing-wind.mp4",
+    "status": "posted",
+    "attempted_at": "2026-11-24T00:36:11+11:00",
+    "platform_id": "1870421727640371",
+    "url": "https://www.facebook.com/reel/1870421727640371",
+    "finished_at": "2026-11-24T00:38:09+11:00"
   }
 ]
