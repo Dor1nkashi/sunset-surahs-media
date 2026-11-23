@@ -65,6 +65,7 @@ def platform_limit(cfg: dict, platform: str) -> int:
 
 # A record with one of these statuses blocks posting that video to that platform again.
 BLOCKING_STATUSES = ("posted", "pending", "failed")
+LIMIT_MARKERS = ("uploadLimitExceeded", "quotaExceeded", "rateLimitExceeded", "dailyLimitExceeded", "request limit reached", "(#4)", "(#9)", "(#32)", "(#613)", "too many calls", "posting too fast")
 
 DEFAULT_CONFIG: dict[str, Any] = {
     "secrets_file": "secrets.json",
@@ -841,6 +842,7 @@ class Poster:
         ctx = Ctx(self.cfg, self.http, secrets, self.sleep)
         queue = load_json_list(self.queue_path)
         summary = {"posted": [], "failed": [], "skipped_platforms": []}
+        self.limited = set()
         log.info("=== run started %s (%d items in queue) ===", now.isoformat(timespec="minutes"), len(queue))
 
         for platform in PLATFORMS:
@@ -861,7 +863,7 @@ class Poster:
                 continue
             attempts = 0
             for item in queue:
-                if attempts >= allowed:
+                if attempts >= allowed or platform in self.limited:
                     break
                 if platform not in item.get("platforms", list(PLATFORMS)):
                     continue
@@ -907,6 +909,15 @@ class Poster:
             log.info("%s: POSTED %s %s", platform, item_id, result.get("url") or result.get("platform_id") or "")
             summary["posted"].append((platform, item_id))
         except (NetworkError, ApiError) as e:
+            if any(m in str(e) for m in LIMIT_MARKERS):
+                # Platform-side daily/rate limit: not this video's fault. Leave it to retry at a later slot.
+                rec.update(status="deferred", error=REDACT(e)[:300])
+                log.warning("%s: LIMIT hit, %s deferred to a later slot: %s", platform, item_id, str(e)[:200])
+                self.limited.add(platform)
+                rec["finished_at"] = self.now_fn().isoformat(timespec="seconds")
+                recs = [r for r in self.load_posted() if not (r.get("item_id") == item_id and r.get("platform") == platform and r.get("status") == "pending" and r.get("attempted_at") == rec["attempted_at"])]
+                self.save_posted(recs)  # deferred records are not kept: the video simply stays in the queue
+                return
             rec.update(status="failed", error=REDACT(e)[:500])
             log.error("%s: FAILED %s: %s", platform, item_id, e)
             summary["failed"].append((platform, item_id))
