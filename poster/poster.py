@@ -862,7 +862,8 @@ class Poster:
                 log.info("%s: nothing due now (%d posted today, cap %s)", platform, today, self.cfg["daily_caps"].get(platform))
                 continue
             attempts = 0
-            for item in queue:
+            order = list(reversed(queue)) if platform in self.cfg.get("reverse_order_platforms", []) else queue
+            for item in order:
                 if attempts >= allowed or platform in self.limited:
                     break
                 if platform not in item.get("platforms", list(PLATFORMS)):

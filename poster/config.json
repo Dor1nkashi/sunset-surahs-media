@@ -10,8 +10,8 @@
   ],
   "daily_caps": {
     "youtube": 15,
-    "instagram": 5,
-    "facebook": 5
+    "instagram": 6,
+    "facebook": 6
   },
   "slots": {
     "youtube": [
@@ -33,17 +33,19 @@
     ],
     "instagram": [
       "08:00",
-      "12:30",
-      "17:30",
-      "19:30",
-      "21:00"
+      "10:30",
+      "13:00",
+      "15:30",
+      "18:00",
+      "20:30"
     ],
     "facebook": [
       "08:00",
-      "12:30",
-      "17:30",
-      "19:30",
-      "21:00"
+      "10:30",
+      "13:00",
+      "15:30",
+      "18:00",
+      "20:30"
     ]
   },
   "max_posts_per_run_per_platform": 1,
@@ -68,5 +70,8 @@
   "poll_interval_seconds": 30,
   "max_wait_seconds": 600,
   "retry_wait_seconds": 10,
-  "max_download_mb": 500
+  "max_download_mb": 500,
+  "reverse_order_platforms": [
+    "youtube"
+  ]
 }
