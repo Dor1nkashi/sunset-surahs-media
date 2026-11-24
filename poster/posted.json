@@ -310,7 +310,9 @@
     "item_id": "v3_r00_al-fatiha_2026-11-18_1949",
     "platform": "instagram",
     "video": "https://raw.githubusercontent.com/Dor1nkashi/sunset-surahs-media/main/shorts/v3_r00_al-fatiha_2026-11-18_1949.mp4",
-    "status": "pending",
-    "attempted_at": "2026-11-24T18:57:16+11:00"
+    "status": "deferred",
+    "attempted_at": "2026-11-24T18:57:16+11:00",
+    "error": "Instagram container create: HTTP 400: {\"error\":{\"message\":\"Error validating access token: Session has expired on Monday, 23-Nov-26 07:00:00 PST. The current time is Monday, 23-Nov-26 23:57:17 PST.\",\"code\":190,\"type\":\"OAuthException\",\"error_subcode\":463,\"fbtrace_id\":\"ACP0hk_CPsSCyLczoJZ-J5c\"}}",
+    "finished_at": "2026-11-24T18:57:17+11:00"
   }
 ]
