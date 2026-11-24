@@ -334,5 +334,12 @@
     "platform_id": "18119958845110009",
     "url": "https://www.instagram.com/reel/DgHglduFpyc/",
     "finished_at": "2026-11-24T19:19:52+11:00"
+  },
+  {
+    "item_id": "v3_r01_hundred-mercy_2026-11-17_1317",
+    "platform": "facebook",
+    "video": "https://raw.githubusercontent.com/Dor1nkashi/sunset-surahs-media/main/shorts/v3_r01_hundred-mercy_2026-11-17_1317.mp4",
+    "status": "pending",
+    "attempted_at": "2026-11-24T19:18:38+11:00"
   }
 ]
