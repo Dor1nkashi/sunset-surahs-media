@@ -320,7 +320,9 @@
     "item_id": "v3_r00_al-fatiha_2026-11-18_1949",
     "platform": "facebook",
     "video": "https://raw.githubusercontent.com/Dor1nkashi/sunset-surahs-media/main/shorts/v3_r00_al-fatiha_2026-11-18_1949.mp4",
-    "status": "pending",
-    "attempted_at": "2026-11-24T19:14:18+11:00"
+    "status": "failed",
+    "attempted_at": "2026-11-24T19:14:18+11:00",
+    "error": "Facebook reel start: HTTP 403: {\"error\":{\"message\":\"(#200) Subject does not have permission to post videos on this target\",\"type\":\"OAuthException\",\"code\":200,\"fbtrace_id\":\"AYU-LiccfnMVu6JiILBADdj\"}}",
+    "finished_at": "2026-11-24T19:15:36+11:00"
   }
 ]
