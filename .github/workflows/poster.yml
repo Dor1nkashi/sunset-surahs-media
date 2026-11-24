@@ -6,6 +6,8 @@ on:
   schedule:
     - cron: "17,37,57 12,17,18,19,20 * * *"
       timezone: "Australia/Sydney"
+    # UTC retry windows cover both Sydney daylight-saving offsets.
+    - cron: "7 1,2,6,7,8,9,10 * * *"
   workflow_dispatch: {}
 permissions:
   contents: write
