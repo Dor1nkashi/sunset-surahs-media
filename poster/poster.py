@@ -833,6 +833,9 @@ class Poster:
         return today, day
 
     def allowed_now(self, recs: list, platform: str, now: dt.datetime) -> int:
+        weekdays = self.cfg.get("posting_weekdays", {}).get(platform)
+        if weekdays is not None and now.weekday() not in weekdays:
+            return 0
         for record in reversed(recs):
             if record.get("platform") == platform and record.get("retry_after"):
                 if parse_time(record["retry_after"], now.tzinfo) > now:
@@ -843,6 +846,24 @@ class Poster:
         passed = sum(1 for s in slots if now.strftime("%H:%M") >= s)
         today, day = self.used(recs, platform, now)
         by_slot = min(cap, passed) - today
+        window = self.cfg.get("slot_window_minutes")
+        if window is not None:
+            if not passed:
+                return 0
+            hour, minute = map(int, slots[passed - 1].split(":"))
+            start = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+            if now >= start + dt.timedelta(minutes=window):
+                return 0
+            for record in recs:
+                if record.get("platform") != platform or record.get("status") not in ("posted", "pending"):
+                    continue
+                try:
+                    attempted = parse_time(record["attempted_at"], now.tzinfo)
+                except (KeyError, ValueError):
+                    continue
+                if start <= attempted <= now:
+                    return 0
+            by_slot = min(1, cap - today)
         by_hard = platform_limit(self.cfg, platform) - day
         return max(0, min(by_slot, by_hard, int(self.cfg["max_posts_per_run_per_platform"])))
 
@@ -1107,6 +1128,8 @@ def dry_run(cfg: dict) -> int:
         dcfg.update({"_base": d, "secrets_file": "secrets.json", "queue_file": "queue.json", "posted_file": "posted.json",
                      "log_file": "dry.log", "lock_file": "dry.lock", "download_dir": "dl",
                      "enabled_platforms": list(PLATFORMS), "retry_wait_seconds": 0})
+        dcfg.pop("posting_weekdays", None)
+        dcfg.pop("slot_window_minutes", None)
         queue = real_queue or sample_queue()
         atomic_write_json(Path(d) / "queue.json", queue)
         save_secrets(Path(d) / "secrets.json", FAKE_SECRETS)

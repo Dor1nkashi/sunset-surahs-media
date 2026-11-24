@@ -1,10 +1,11 @@
 # Sunset Surahs auto-poster: runs in GitHub's cloud, so the laptop can be off.
-# Every 30 min it runs poster/poster.py, which posts only when a slot in poster/config.json is due
-# Sydney time. Posting attempts are checkpointed to the repository before upload.
+# Each Sydney posting window has multiple chances to run.
+# Posting attempts are checkpointed to the repository before upload.
 name: Sunset Surahs poster
 on:
   schedule:
-    - cron: "7,37 * * * *"
+    - cron: "17,37,57 12,17,18,19,20 * * *"
+      timezone: "Australia/Sydney"
   workflow_dispatch: {}
 permissions:
   contents: write

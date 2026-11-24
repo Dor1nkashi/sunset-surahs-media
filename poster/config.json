@@ -9,33 +9,26 @@
     "facebook"
   ],
   "daily_caps": {
-    "youtube": 5,
-    "instagram": 5,
-    "facebook": 5
+    "youtube": 2,
+    "instagram": 1,
+    "facebook": 1
   },
   "slots": {
     "youtube": [
-      "08:00",
-      "10:30",
-      "13:00",
-      "15:30",
-      "18:00"
+      "12:15",
+      "19:15"
     ],
     "instagram": [
-      "08:00",
-      "10:30",
-      "13:00",
-      "15:30",
-      "18:00"
+      "18:15"
     ],
     "facebook": [
-      "08:00",
-      "10:30",
-      "13:00",
-      "15:30",
-      "18:00"
+      "17:15"
     ]
   },
+  "posting_weekdays": {
+    "instagram": [0, 1, 2, 3, 4]
+  },
+  "slot_window_minutes": 90,
   "max_posts_per_run_per_platform": 1,
   "media_base_url": "https://raw.githubusercontent.com/Dor1nkashi/sunset-surahs-media/main/shorts/",
   "graph_api_version": "v27.0",
