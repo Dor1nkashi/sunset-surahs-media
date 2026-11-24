@@ -35,6 +35,7 @@ import secrets as pysecrets
 import shutil
 import socket
 import stat
+import subprocess
 import sys
 import tempfile
 import time
@@ -145,7 +146,9 @@ log = logging.getLogger("poster")
 
 
 def setup_logging(log_path: Path, console: bool = True) -> None:
-    log.handlers.clear()
+    for handler in list(log.handlers):
+        log.removeHandler(handler)
+        handler.close()
     log.setLevel(logging.INFO)
     log.propagate = False
     fmt = logging.Formatter("%(asctime)s %(levelname)s %(message)s")
@@ -800,6 +803,9 @@ class Poster:
 
     def save_posted(self, recs: list) -> None:
         atomic_write_json(self.posted_path, recs)
+        checkpoint = os.environ.get("POSTER_CHECKPOINT")
+        if checkpoint:
+            subprocess.run(["bash", checkpoint], check=True)
 
     @staticmethod
     def blocked(recs: list, platform: str, item_id: str, src: str) -> Optional[dict]:
@@ -827,6 +833,11 @@ class Poster:
         return today, day
 
     def allowed_now(self, recs: list, platform: str, now: dt.datetime) -> int:
+        for record in reversed(recs):
+            if record.get("platform") == platform and record.get("retry_after"):
+                if parse_time(record["retry_after"], now.tzinfo) > now:
+                    return 0
+                break
         cap = min(int(self.cfg["daily_caps"].get(platform, 0)), platform_limit(self.cfg, platform))
         slots = platform_slots(self.cfg, platform)
         passed = sum(1 for s in slots if now.strftime("%H:%M") >= s)
@@ -893,7 +904,11 @@ class Poster:
         return summary
 
     def post_one(self, ctx: Ctx, platform: str, item: dict, item_id: str, src: str, now: dt.datetime, summary: dict) -> None:
-        recs = self.load_posted()
+        recs = [record for record in self.load_posted() if not (
+            record.get("status") == "deferred"
+            and record.get("platform") == platform
+            and record.get("item_id") == item_id
+        )]
         rec = {"item_id": item_id, "platform": platform, "video": src, "status": "pending",
                "attempted_at": now.isoformat(timespec="seconds")}
         recs.append(rec)
@@ -911,17 +926,20 @@ class Poster:
             summary["posted"].append((platform, item_id))
         except (NetworkError, ApiError) as e:
             if any(m in str(e) for m in LIMIT_MARKERS):
-                # Platform-side daily/rate limit: not this video's fault. Leave it to retry at a later slot.
                 rec.update(status="deferred", error=REDACT(e)[:300])
-                log.warning("%s: LIMIT hit, %s deferred to a later slot: %s", platform, item_id, str(e)[:200])
+                delay = dt.timedelta(hours=24) if platform == "youtube" and "uploadLimitExceeded" in str(e) else dt.timedelta(hours=2)
+                rec["retry_after"] = (now + delay).isoformat(timespec="seconds")
+                log.warning("%s: LIMIT hit, %s deferred until %s", platform, item_id, rec["retry_after"])
                 self.limited.add(platform)
-                rec["finished_at"] = self.now_fn().isoformat(timespec="seconds")
-                recs = [r for r in self.load_posted() if not (r.get("item_id") == item_id and r.get("platform") == platform and r.get("status") == "pending" and r.get("attempted_at") == rec["attempted_at"])]
-                self.save_posted(recs)  # deferred records are not kept: the video simply stays in the queue
-                return
-            rec.update(status="failed", error=REDACT(e)[:500])
-            log.error("%s: FAILED %s: %s", platform, item_id, e)
-            summary["failed"].append((platform, item_id))
+            elif re.search(r'"code"\s*:\s*190\b', str(e)) and platform in ("instagram", "facebook"):
+                rec.update(status="deferred", error=REDACT(e)[:300])
+                self.limited.add(platform)
+                log.error("%s: Meta authorization failed for %s: %s", platform, item_id, e)
+                summary["failed"].append((platform, item_id))
+            else:
+                rec.update(status="failed", error=REDACT(e)[:500])
+                log.error("%s: FAILED %s: %s", platform, item_id, e)
+                summary["failed"].append((platform, item_id))
         except Exception as e:  # anything unexpected: record it, keep going
             rec.update(status="failed", error=REDACT(f"{type(e).__name__}: {e}")[:500])
             log.exception("%s: FAILED %s (unexpected error)", platform, item_id)
@@ -1125,6 +1143,7 @@ def dry_run(cfg: dict) -> int:
         print(f"  double posts: {'none' if no_dupes else 'FOUND'}")
         print(f"  tokens in log/records: {'none' if not leaked else 'LEAKED'}")
         print("  dry run " + ("PASSED" if ok else "FAILED"))
+        logging.shutdown()
     setup_logging(cfg_path(cfg, "log_file"))
     return 0 if ok else 1
 

@@ -9,43 +9,31 @@
     "facebook"
   ],
   "daily_caps": {
-    "youtube": 15,
-    "instagram": 6,
-    "facebook": 6
+    "youtube": 5,
+    "instagram": 5,
+    "facebook": 5
   },
   "slots": {
     "youtube": [
-      "00:30",
-      "02:00",
-      "03:30",
-      "05:00",
-      "06:30",
       "08:00",
-      "09:30",
-      "11:00",
-      "12:30",
-      "14:00",
+      "10:30",
+      "13:00",
       "15:30",
-      "17:00",
-      "18:30",
-      "20:00",
-      "21:30"
+      "18:00"
     ],
     "instagram": [
       "08:00",
       "10:30",
       "13:00",
       "15:30",
-      "18:00",
-      "20:30"
+      "18:00"
     ],
     "facebook": [
       "08:00",
       "10:30",
       "13:00",
       "15:30",
-      "18:00",
-      "20:30"
+      "18:00"
     ]
   },
   "max_posts_per_run_per_platform": 1,
@@ -57,7 +45,7 @@
     "category_id": "27",
     "privacy_status": "public",
     "made_for_kids": false,
-    "max_per_day": 15,
+    "max_per_day": 5,
     "privacy_mode": "public",
     "ai_generated": false
   },

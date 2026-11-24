@@ -1,6 +1,6 @@
 # Sunset Surahs auto-poster: runs in GitHub's cloud, so the laptop can be off.
 # Every 30 min it runs poster/poster.py, which posts only when a slot in poster/config.json is due
-# (Melbourne time) and never posts the same video twice (poster/posted.json is saved back here).
+# Sydney time. Posting attempts are checkpointed to the repository before upload.
 name: Sunset Surahs poster
 on:
   schedule:
@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
-      TZ: Australia/Melbourne
+      TZ: Australia/Sydney
     steps:
       - uses: actions/checkout@v4
         with:
@@ -26,21 +26,16 @@ jobs:
         env:
           POSTER_SECRETS: ${{ secrets.POSTER_SECRETS }}
         run: |
-          if [ -z "$POSTER_SECRETS" ]; then echo "POSTER_SECRETS not set yet"; exit 0; fi
+          if [ -z "$POSTER_SECRETS" ]; then echo "::error::POSTER_SECRETS is missing"; exit 1; fi
           umask 077; printf '%s' "$POSTER_SECRETS" > poster/secrets.json
-      - name: Post what is due
+      - name: Configure posting record commits
         run: |
-          if [ ! -f poster/secrets.json ]; then exit 0; fi
-          cd poster && python3 poster.py run || true
-          python3 poster.py status || true
-      - name: Save posting record
-        if: always()
-        run: |
-          rm -f poster/secrets.json
           git config user.name "sunset-poster-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add --sparse poster/posted.json
-          if git diff --cached --quiet; then exit 0; fi
-          git commit -q -m "poster: update posting record"
-          for i in 1 2 3; do git pull -q --rebase && git push -q && exit 0; sleep 5; done
-          exit 1
+      - name: Post what is due
+        env:
+          POSTER_CHECKPOINT: ${{ github.workspace }}/poster/checkpoint.sh
+        run: python3 poster/poster.py run
+      - name: Clean up tokens
+        if: always()
+        run: rm -f poster/secrets.json
