@@ -344,5 +344,12 @@
     "platform_id": "1172866295094655",
     "url": "https://www.facebook.com/reel/1172866295094655",
     "finished_at": "2026-11-24T19:21:08+11:00"
+  },
+  {
+    "item_id": "v6_p02_265_garden-on-high-ground",
+    "platform": "youtube",
+    "video": "https://raw.githubusercontent.com/Dor1nkashi/sunset-surahs-media/main/shorts/v6_p02_265_garden-on-high-ground.mp4",
+    "status": "pending",
+    "attempted_at": "2026-11-24T19:37:52+11:00"
   }
 ]
